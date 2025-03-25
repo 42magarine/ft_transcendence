@@ -1,0 +1,13 @@
+services:
+  typescript:
+    container_name: typescript
+    build: .
+    volumes:
+      - ./src:/home/src
+    stdin_open: true
+    tty: true
+
+# docker compose up --build --detach
+# docker compose exec typescript sh
+#   tsc hello.ts
+#   node hello.js
