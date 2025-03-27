@@ -16,7 +16,7 @@
 
 - **Create a `package.json` file**:
   ```bash
-  npm init
+  npm init -y
   ```
 
 - **Install all required packages**:
@@ -24,14 +24,9 @@
   npm install
   ```
 
-- **Run the `build` script** (e.g., TypeScript compilation):
+- **Run the `build` or `watch` script** (e.g., TypeScript compilation):
   ```bash
-  npm run build
-  ```
-
-- **Run the `watch` script** (e.g., TypeScript in watch mode):
-  ```bash
-  npm run watch
+  npm run build # or watch
   ```
 
 - **`package.json`**:
