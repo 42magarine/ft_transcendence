@@ -1,0 +1,14 @@
+{
+    "name": "tic-tac-toe",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc --declaration",
+        "watch": "tsc --declaration --watch",
+        "serve": "http-server -p 3000"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": ""
+}
