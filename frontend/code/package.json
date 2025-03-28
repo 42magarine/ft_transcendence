@@ -1,0 +1,14 @@
+{
+  "name": "tic_tac_toe_frontend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --declaration",
+    "watch": "tsc --declaration --watch",
+    "serve": "http-server -p 3000"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1",
+    "typescript": "^5.8.2"
+  }
+}

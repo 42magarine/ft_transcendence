@@ -1,0 +1,14 @@
+{
+  "name": "tic_tac_toe_backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --declaration",
+    "watch": "tsc --declaration --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "fastify": "^5.2.2",
+    "typescript": "^5.8.2"
+  }
+}
