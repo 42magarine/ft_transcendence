@@ -1,0 +1,13 @@
+{
+    "name": "tic_tac_toe",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+      "build": "tsc",
+      "watch": "tsc --watch"
+    },
+    "dependencies": {
+        "fastify": "^5.2.2",
+        "typescript": "^5.8.2"
+    }
+  }

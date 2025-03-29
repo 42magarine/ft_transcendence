@@ -9,7 +9,7 @@
 
 - **Access the running container's shell:**
   ```bash
-  docker compose exec typescript sh
+  docker compose exec tic_tac_toe sh
   ```
 
 ### npm (Node Package Manager) / npx (Node Package eXecute)

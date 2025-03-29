@@ -1,27 +1,8 @@
 services:
-  frontend:
-    container_name: frontend
-    build: ./frontend/.
+  tic_tac_toe:
+    container_name: tic_tac_toe
+    build: .
     ports:
       - "3000:3000"
-    # volumes:
-    #   - ./frontend/code:/home
-    networks:
-      - tic_tac_toe
-    stdin_open: true
-    tty: true
-
-  backend:
-    container_name: backend
-    build: ./backend/.
-    # volumes:
-    #   - ./backend/code:/home
-    networks:
-      - tic_tac_toe
-    stdin_open: true
-    tty: true
-
-networks:
-  tic_tac_toe:
-    name: tic_tac_toe
-    driver: bridge
+    volumes:
+      - ./html:/app/html
