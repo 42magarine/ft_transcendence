@@ -9,7 +9,6 @@ const restart_button = document.querySelector(".restart-button") as HTMLButtonEl
 // Initial game state
 let current_player: Player = "x";
 let board_state: Player[] = new Array(9).fill("");
-let game_over: boolean = false;
 
 const win_patterns: number[][] = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],    // Rows
@@ -40,7 +39,6 @@ function add_event_listeners(): void {
 function reset_game(): void {
     board_state.fill("");
     current_player = "x";
-    game_over = false;
     header_title.textContent = "Tic Tac Toe with Typescript";
 
     // Clear all cell contents
@@ -61,14 +59,12 @@ function handle_board_click(event: MouseEvent): void {
         board_state[index] = current_player;
 
         if (check_winner()) {
-            game_over = true;
             header_title.textContent = `${current_player} wins!`;
             game_board.removeEventListener("click", handle_board_click);
             return;
         }
 
         if (check_draw()) {
-            game_over = true;
             header_title.textContent = "It's a draw!";
             game_board.removeEventListener("click", handle_board_click);
             return;
