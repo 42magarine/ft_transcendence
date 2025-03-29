@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "server": "node ./html/dist/server.js"
   },
   "dependencies": {
     "@types/node": "^22.13.14",
