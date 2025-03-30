@@ -1,85 +1,64 @@
-// import Fastify, {FastifyInstance, FastifyReply, FastifyRequest, RouteShorthandOptions} from 'fastify';
+import Fastify from "fastify";
+import fastifyWebsocket from "@fastify/websocket";
+import fastifyStatic from "@fastify/static";
+import path from "path";
+import { fileURLToPath } from "url";
+import { TicTacToe } from "./game.js";
 
-// const server: FastifyInstance = Fastify({ logger: true });
+const fastify = Fastify();
+fastify.register(fastifyWebsocket);
 
-// const opts: RouteShorthandOptions = {
-//     schema: {
-//       response: {
-//         200: {
-//           type: 'object',
-//           properties: {
-//             pong: {
-//               type: 'string'
-//             }
-//           }
-//         }
-//       }
-//     }
-//   };
+const game = new TicTacToe();
 
-// server.get('/ping', opts, async (request: FastifyRequest, reply: FastifyReply) => {
-//     return { pong: "Hello World!" };
+fastify.register(async function (fastify) {
+    fastify.get("/ws", { websocket: true }, (connection) => {
+        // connection.socket.send(JSON.stringify({ type: "init", board: game.getBoard(), player: game.getCurrentPlayer() }));
+
+        connection.send(JSON.stringify({ type: "init", board: game.getBoard(), player: game.getCurrentPlayer() }));
+
+        // connection.socket.on("message", (message) => {
+        //     const data = JSON.parse(message.toString());
+
+        connection.on("message", (message) => {
+            const data = JSON.parse(message.toString());
+
+            if (data.type === "move") {
+                const result = game.makeMove(data.index);
+                fastify.websocketServer.clients.forEach(client => {
+                    if (client.readyState === 1) {
+                        client.send(JSON.stringify({ type: "update", ...result }));
+                    }
+                });
+            }
+
+            if (data.type === "reset") {
+                const result = game.resetGame();
+                fastify.websocketServer.clients.forEach(client => {
+                    if (client.readyState === 1) {
+                        client.send(JSON.stringify({ type: "reset", ...result }));
+                    }
+                });
+            }
+        });
+    });
+});
+
+// // Serve static frontend
+// fastify.register(require("@fastify/static"), {
+//     root: require("path").join(__dirname, "../frontend"),
+//     prefix: "/",
 // });
 
-// const start = async (): Promise<void> => {
-//     try {
-//         await server.listen({ port: 3000, host: '127.0.0.1' });
-//     }
-//     catch (err) {
-//         server.log.error(err);
-//         process.exit(1);
-//     }
-// };
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// start();
+console.log(__filename);
+console.log(__dirname);
 
+fastify.register(fastifyStatic, {
+  root: path.join(__dirname, "../"), // Serve static files from the "html" folder
+});
 
-
-// // Require the framework and instantiate it
-
-// // ESM
-// import Fastify from 'fastify'
-
-// const fastify = Fastify({
-//   logger: true
-// })
-
-// // Declare a route
-// fastify.get('/', function (request, reply) {
-//   reply.send({ hello: 'world' })
-// })
-
-// // Run the server!
-// fastify.listen({ port: 3000 }, function (err, address) {
-//   if (err) {
-//     fastify.log.error(err)
-//     process.exit(1)
-//   }
-//   // Server is now listening on ${address}
-// })
-
-
-
-// ESM
-import Fastify from 'fastify'
-
-const fastify = Fastify({
-  logger: true
-})
-
-fastify.get('/', async (request, reply) => {
-  return { hello: 'world' }
-})
-
-/**
- * Run the server!
- */
-const start = async () => {
-  try {
-    await fastify.listen({ port: 3000, host: '0.0.0.0' })
-  } catch (err) {
-    fastify.log.error(err)
-    process.exit(1)
-  }
-}
-start()
+fastify.listen({ port: 3000, host: "0.0.0.0" }, () => {
+    console.log("Server running on port 3000");
+});
