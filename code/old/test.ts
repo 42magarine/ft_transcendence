@@ -39,9 +39,17 @@
 
 //  greet5(myprint);
 
+function myfun(x: number, y:number): number {
+    return x + y;
+}
 
+let res:number = myfun(5,6);
 
-// let myfunction: (x: number, y: number) => number;
+let myfunction1: (x: number, y: number) => number = (x: number, y: number) => {
+    return x + y;
+}
+
+let res2:number = myfunction1(5,6);
 
 // myfunction = (a, b) => {
 //     return a + b;
@@ -69,7 +77,7 @@
 // console.log("The result is: '${res}'" + res);
 
 
-const numbers = [1, 2, 3, 4, 5];
-const squaredNumbers = numbers.map(x => x * x + 2);
-console.log(`Original array: ${numbers}`);
-console.log(`Squared array: ${squaredNumbers}`);
+// const numbers = [1, 2, 3, 4, 5];
+// const squaredNumbers = numbers.map(x => x * x + 2);
+// console.log(`Original array: ${numbers}`);
+// console.log(`Squared array: ${squaredNumbers}`);

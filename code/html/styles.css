@@ -10,7 +10,7 @@ h1 {
     margin-bottom: 42px;
 }
 
-.game-board {
+.gameBoard {
     width: 600px;
     height: 600px;
     display: grid;
@@ -35,7 +35,7 @@ h1 {
     background-color: rgb(240, 220, 180);
 }
 
-.restart-button {
+.restartButton {
     margin-top: 42px;
     padding: 15px 30px;
     font-size: 1.2rem;
