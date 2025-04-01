@@ -21,31 +21,31 @@ fastify.register(fastifyWebsocket);
 // Define a WebSocket endpoint at /ws
 fastify.register(async (fastify) => {
     fastify.get("/ws", { websocket: true }, (connection) => {
+        const broadcast = (data: object) => {
+            const message = JSON.stringify(data);
+            fastify.websocketServer.clients.forEach((client) => {
+                if (client.readyState === 1) {
+                    client.send(message);
+                }
+            });
+        };
+
         connection.send(JSON.stringify({
-            type: "init",
+            type: "initBoard",
             board: game.getBoard(),
-            player: game.getCurrentPlayer(),
         }));
 
         connection.on("message", (message) => {
             const data = JSON.parse(message.toString());
 
-            if (data.type === "move") {
+            if (data.type === "makeMove") {
                 const result = game.makeMove(data.index);
-                fastify.websocketServer.clients.forEach((client) => {
-                    if (client.readyState === 1) {
-                        client.send(JSON.stringify({ type: "update", ...result }));
-                    }
-                });
+                broadcast(result);
             }
 
-            if (data.type === "reset") {
+            if (data.type === "resetGame") {
                 const result = game.resetGame();
-                fastify.websocketServer.clients.forEach((client) => {
-                    if (client.readyState === 1) {
-                        client.send(JSON.stringify({ type: "reset", ...result }));
-                    }
-                });
+                broadcast(result);
             }
         });
     });

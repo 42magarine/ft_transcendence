@@ -19,32 +19,53 @@ export class TicTacToe {
         return this.currentPlayer;
     }
 
-    makeMove(index: number): { board: Player[]; player: Player, win?: boolean; draw?: boolean } {
+    makeMove(index: number): { type: string, board: Player[]; player: Player, win?: boolean; draw?: boolean } {
         if (this.gameOver || this.board[index] !== "") {
-            return { board: this.board, player: this.currentPlayer };
+            return {
+                type: "invalidMove",
+                board: this.board,
+                player: this.currentPlayer,
+            };
         }
 
         this.board[index] = this.currentPlayer;
 
         if (this.checkWinner()) {
             this.gameOver = true;
-            return { board: this.board, player: this.currentPlayer, win: true };
+            return {
+                type: "updateBoard",
+                board: this.board,
+                player: this.currentPlayer,
+                win: true
+            };
         }
 
         if (this.checkDraw()) {
             this.gameOver = true;
-            return { board: this.board, player: this.currentPlayer, draw: true };
+            return {
+                type: "updateBoard",
+                board: this.board,
+                player: this.currentPlayer,
+                draw: true
+            };
         }
 
         this.switchPlayer();
-        return { board: this.board, player: this.currentPlayer };
+        return {
+            type: "updateBoard",
+            board: this.board,
+            player: this.currentPlayer
+        };
     }
 
-    resetGame(): { board: Player[]; player: Player } {
+    resetGame(): { type: string, board: Player[] } {
         this.board.fill("");
         this.currentPlayer = "x";
         this.gameOver = false;
-        return { board: this.board, player: this.currentPlayer };
+        return {
+            type: "resetBoard",
+            board: this.board,
+        };
     }
 
     private switchPlayer(): void {

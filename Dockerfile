@@ -6,7 +6,7 @@ RUN apk add --no-cache \
     npm
 
 # Copy the setup script and set execution permissions
-COPY --chmod=755 ./setup.sh /usr/local/bin
+COPY --chmod=755 ./tools/setup.sh /usr/local/bin
 
 # Set working directory
 WORKDIR /app

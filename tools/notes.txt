@@ -1,0 +1,5 @@
+
+- VS Code -> Settings -> Default Formatter -> TypeScript and JavaScript Language Features
+- TypeScript to JavaScript Compiler Options / Standard
+- Type Definition in TypeScript
+- camelCase => Functions and Variables /  PascalCase => Classes
