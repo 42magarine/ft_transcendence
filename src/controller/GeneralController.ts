@@ -3,12 +3,11 @@ import { GameController } from "./GameController.js";
 
 export class GeneralController {
 	static async getHome(req: FastifyRequest, reply: FastifyReply): Promise<void> {
-
 		const gameController = GameController.getInstance();
 		const gameState = gameController.getGameState();
 		console.log("Game state:", gameState);
 
-		return reply.render("views/game.js", {
+		return reply.view("game.ejs", {
 			currentPlayer: gameState.player,
 			board: gameState.board
 		});
@@ -16,6 +15,6 @@ export class GeneralController {
 
 	static async getHello(req: FastifyRequest, reply: FastifyReply): Promise<void> {
 		console.log("GeneralController.getHello called");
-		return reply.sendFile("views/hello.html");
+		return reply.view("hello.ejs", {});
 	}
 }

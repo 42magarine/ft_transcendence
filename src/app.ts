@@ -1,11 +1,11 @@
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
+import fastifyView from "@fastify/view";
+import ejs from "ejs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import React from "react";
-import ReactDOMServer from "react-dom/server";
-import fs from "node:fs/promises";
+import fs from "node:fs";
 
 // routes
 import generalRoutes from "./routes/general.js";
@@ -21,29 +21,13 @@ const fastify = Fastify({
 	logger: true
 });
 
-// Add custom render decorator for React
-fastify.decorateReply('render', async function (componentPath: string, props: object = {}) {
-	try {
-		// Ensure componentPath has .js extension for correct import
-		if (!componentPath.endsWith('.js')) {
-			componentPath = componentPath.replace(/\.tsx?$/, '.js');
-		}
-
-		// Resolve the component path relative to the project root
-		const fullPath = path.resolve(projectRoot, 'dist', componentPath);
-
-		// Import the component dynamically
-		const { default: Component } = await import(`file://${fullPath}`);
-
-		// Render the component to HTML
-		const html = ReactDOMServer.renderToString(React.createElement(Component, props));
-
-		// Send the HTML response
-		this.type('text/html').send(html);
-	} catch (error) {
-		fastify.log.error(`Error rendering React component: ${error}`);
-		this.code(500).send(`Error rendering component: ${error}`);
-	}
+// Register view engine with EJS
+await fastify.register(fastifyView, {
+	engine: {
+		ejs: ejs
+	},
+	root: path.join(projectRoot, 'views'),
+	viewExt: 'ejs'
 });
 
 // Start the server
@@ -52,10 +36,24 @@ const start = async (): Promise<void> => {
 		// Register core plugins
 		await fastify.register(fastifyWebsocket);
 
-		// Register static file handler
+		// Create public directory if it doesn't exist
+		const publicDir = path.join(projectRoot, 'public');
+		if (!fs.existsSync(publicDir)) {
+			fs.mkdirSync(publicDir, { recursive: true });
+		}
+
+		// Register static file handlers
 		await fastify.register(fastifyStatic, {
-			root: projectRoot,
-			decorateReply: true
+			root: publicDir,
+			prefix: '/public/',
+			decorateReply: true // Set to true for the first one
+		});
+
+		// Register static file handler for compiled CSS
+		await fastify.register(fastifyStatic, {
+			root: path.join(projectRoot, 'dist/styles'),
+			prefix: '/styles/',
+			decorateReply: false // Set to false for subsequent ones
 		});
 
 		// Register routes

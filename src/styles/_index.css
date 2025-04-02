@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hier kommen deine eigenen Komponenten-Klassen */
+@layer components {
+	.btn-primary {
+		@apply py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+	}
+
+	.card {
+		@apply bg-white rounded-lg shadow-md p-6 m-4;
+	}
+
+	/* Weitere eigene Komponenten */
+}
+
+body {
+	background-color: black;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	text-align: center;
+}
+
+h1 {
+	font-size: 42px;
+	color: beige;
+	margin-bottom: 42px;
+}
+
+.gameBoard {
+	width: 600px;
+	height: 600px;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: repeat(3, 1fr);
+	gap: 5px;
+	margin: auto;
+}
+
+.cell {
+	background-color: beige;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 42px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.cell:hover {
+	background-color: rgb(240, 220, 180);
+}
+
+.restartButton {
+	margin-top: 42px;
+	padding: 15px 30px;
+	font-size: 1.2rem;
+	font-weight: bold;
+	background-color: rgb(255, 200, 50);
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.restart-button:hover {
+	background-color: rgb(240, 180, 30);
+}

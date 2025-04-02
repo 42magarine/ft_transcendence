@@ -109,7 +109,8 @@
 		"models/**/*.ts",
 		"views/**/*.tsx",
 		"views/**/*.jsx",
-		"routes/**/*.ts"
+		"routes/**/*.ts",
+		"postcss.config.js"
 	],
 	"exclude": [
 		"node_modules",
