@@ -135,4 +135,3 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-pong_game_logic.ts
