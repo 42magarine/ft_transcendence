@@ -1,13 +1,14 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import { GeneralController } from "../controller/GeneralController.js";
 
 export default async function generalRoutes(fastify: FastifyInstance): Promise<void> {
-	// Serve `index.html` at `/`
-	fastify.get("/", async (_req: FastifyRequest, reply: FastifyReply) => {
-		return reply.sendFile("views/index.html");
+
+	fastify.get("/", async (req: FastifyRequest, reply: FastifyReply) => {
+		return GeneralController.getHome(req, reply);
 	});
 
-	// Serve `hello.html` at `/hello`
-	fastify.get("/hello", async (_req: FastifyRequest, reply: FastifyReply) => {
-		return reply.sendFile("views/hello.html");
+	fastify.get("/hello", async (req: FastifyRequest, reply: FastifyReply) => {
+		return GeneralController.getHello(req, reply);
 	});
+
 }
