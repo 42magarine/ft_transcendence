@@ -4,6 +4,7 @@ import { game } from "../app.js";
 export default async function socketRoutes(fastify: FastifyInstance): Promise<void> {
 	// Define a WebSocket endpoint at /ws
 	fastify.get("/ws", { websocket: true }, (connection) => {
+		console.log("socket")
 		const broadcast = (data: object) => {
 			const message = JSON.stringify(data);
 			fastify.websocketServer.clients.forEach((client) => {
