@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:16:08 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/02 16:53:34 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/02 17:07:23 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,5 +60,24 @@ export class PongGame {
 			ball.y + ball.radius >= paddle.y &&
 			ball.y - ball.radius <= paddle.y + paddle.height
 		);
+	}
+
+	movePaddle(player: number, direction: "up" | "down"): void
+	{
+		if (player === 1) {
+			direction === "up" ? this.paddle1.moveUp() : this.paddle1.moveDown();
+		} else {
+			direction === "up" ? this.paddle2.moveUp() : this.paddle2.moveDown();
+		}
+	}
+
+	getState(): object {
+		return {
+			ball: { x: this.ball.x, y: this.ball.y },
+			paddle1: { y: this.paddle1.y },
+			paddle2: { y: this.paddle2.y },
+			score1: this.score1,
+			score2: this.score2
+		};
 	}
 }
