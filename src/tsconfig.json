@@ -110,7 +110,7 @@
 		"views/**/*.tsx",
 		"views/**/*.jsx",
 		"routes/**/*.ts",
-		"postcss.config.js"
+		"postcss.config.cjs"
 	],
 	"exclude": [
 		"node_modules",
