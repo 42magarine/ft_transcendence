@@ -53,7 +53,7 @@ const start = async (): Promise<void> => {
 		await fastify.register(fastifyStatic, {
 			root: path.join(projectRoot, 'dist/styles'),
 			prefix: '/styles/',
-			decorateReply: false // Set to false for subsequent ones
+			decorateReply: false
 		});
 
 		// Register routes

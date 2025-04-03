@@ -1,21 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
+<% const headerTitle=typeof title !=='undefined' ? title : 'TicTacToe' ; %>
+	<!DOCTYPE html>
+	<html lang="en">
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>{title}</title>
-	<link rel="stylesheet" href="/styles/main.css">
-</head>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title><%- headerTitle %></title>
+		<link rel="stylesheet" href="/styles/main.css">
+	</head>
 
-<body>
-	<header>
-		HEADER
-		<nav>
-			<ul>
-				<li><a href="/">Home</a></li>
-				<li><a href="/hello">Hello</a></li>
-			</ul>
-		</nav>
-	</header>
-	<main>
+	<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+		<header class="bg-gray-800 py-4 shadow-md">
+			<div class="container mx-auto px-4">
+				<nav class="flex items-center justify-between">
+					<div class="text-xl font-bold">TicTacToe</div>
+					<ul class="flex space-x-6">
+						<li><a href="/" class="hover:text-yellow-400 transition-colors">Home</a></li>
+						<li><a href="/hello" class="hover:text-yellow-400 transition-colors">Hello</a></li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+		<main class="flex-grow container mx-auto px-4 py-8">

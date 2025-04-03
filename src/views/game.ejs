@@ -1,15 +1,23 @@
-<%- include('components/header') %>
+<%- include('components/header', { title: "TicTacToe Game" }) %>
 
-	<h1>Current player: <%= currentPlayer %>
-	</h1>
-	<div class="gameBoard">
-		<% for(let i=0; i < board.length; i++) { %>
-			<div class="cell" data-index="<%= i %>">
-				<%= board[i] %>
-			</div>
-			<% } %>
+	<div class="flex flex-col items-center justify-center">
+		<h1 class="text-4xl font-bold mb-10 text-yellow-300">Current player: <%= currentPlayer %>
+		</h1>
+
+		<div class="gameBoard w-96 h-96 grid grid-cols-3 grid-rows-3 gap-2 mx-auto mb-8">
+			<% for(let i=0; i < board.length; i++) { %>
+				<div class="cell bg-yellow-100 text-gray-900 flex items-center justify-center text-5xl font-bold cursor-pointer hover:bg-yellow-200 transition-colors rounded-md"
+					data-index="<%= i %>">
+					<%= board[i] %>
+				</div>
+				<% } %>
+		</div>
+
+		<button
+			class="restartButton mt-8 px-6 py-3 text-xl font-bold bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-600 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400">
+			Restart Game
+		</button>
 	</div>
-	<button class="restartButton">Restart Game</button>
 
 	<script>
 		// WebSocket connection
