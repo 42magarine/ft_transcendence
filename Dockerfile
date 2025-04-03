@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Install global tools
-RUN npm install -g tailwindcss
+RUN npm install -g tailwindcss nodemon
 
 # Copy the setup script and set execution permissions
 COPY --chmod=755 ./tools/setup.sh /usr/local/bin

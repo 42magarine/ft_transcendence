@@ -1,0 +1,14 @@
+@layer components {
+	.gameBoard {
+		@apply w-[600px] h-[600px] grid grid-cols-3 grid-rows-3 gap-[5px] mx-auto;
+	}
+
+	.cell {
+		@apply bg-yellow-500 flex items-center justify-center text-[42px] font-bold cursor-pointer transition-colors duration-300 ease-in-out;
+	}
+
+	.cell:hover {
+		@apply bg-green-500 border-4;
+	}
+
+}
