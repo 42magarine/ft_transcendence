@@ -1,4 +1,5 @@
 @layer components {
+
 	.gameBoard {
 		@apply w-[600px] h-[600px] grid grid-cols-3 grid-rows-3 gap-[5px] mx-auto;
 	}
@@ -8,7 +9,7 @@
 	}
 
 	.cell:hover {
-		@apply bg-green-500 border-4;
+		@apply bg-blue-800 border-4;
 	}
 
 }
