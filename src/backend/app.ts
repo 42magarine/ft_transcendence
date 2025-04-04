@@ -1,16 +1,15 @@
+// server.ts (aktualisierte Version)
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
-import fastifyView from "@fastify/view";
-import ejs from "ejs";
+import fastifyCors from "@fastify/cors";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
 
 // routes
-import generalRoutes from "./routes/general.js";
+import apiRoutes from "./routes/api.js";
 import socketRoutes from "./routes/socket.js";
-import notFoundRoutes from "./routes/notFound.js";
 
 const __filename: string = fileURLToPath(import.meta.url);
 const __dirname: string = path.dirname(__filename);
@@ -21,52 +20,43 @@ const fastify = Fastify({
 	logger: true
 });
 
-// Register view engine with EJS
-await fastify.register(fastifyView, {
-	engine: {
-		ejs: ejs
-	},
-	root: path.join(projectRoot, 'views'),
-	viewExt: 'ejs'
-});
-
 // Start the server
 const start = async (): Promise<void> => {
 	try {
 		// Register core plugins
 		await fastify.register(fastifyWebsocket);
+		await fastify.register(fastifyCors, {
+			origin: true // Während der Entwicklung
+		});
 
-		// Create public directory if it doesn't exist
-		const publicDir = path.join(projectRoot, 'public');
-		if (!fs.existsSync(publicDir)) {
-			fs.mkdirSync(publicDir, { recursive: true });
+		// Statische Dateien-Verzeichnisse
+		const distDir = path.join(projectRoot, 'dist/frontend');
+		if (!fs.existsSync(distDir)) {
+			fs.mkdirSync(distDir, { recursive: true });
 		}
 
-		// Register static file handlers for assets
+		// Register static file handlers für Assets
 		await fastify.register(fastifyStatic, {
 			root: path.join(projectRoot, 'assets'),
 			prefix: '/assets/',
-			decorateReply: true
-		});
-
-		// Register static file handler for public directory
-		await fastify.register(fastifyStatic, {
-			root: publicDir,
-			prefix: '/public/',
 			decorateReply: false
 		});
 
-		// Register static file handler for compiled CSS
+		// Register static file handler für die kompilierte SPA
 		await fastify.register(fastifyStatic, {
-			root: path.join(projectRoot, 'dist/styles'),
-			prefix: '/styles/',
+			root: distDir,
+			prefix: '/',
 			decorateReply: false
 		});
 
 		// Register routes
-		await fastify.register(generalRoutes);
+		await fastify.register(apiRoutes, { prefix: '/api' });
 		await fastify.register(socketRoutes);
-		await fastify.register(notFoundRoutes);
+
+		// Fallback-Route für SPA (für alle nicht gefundenen Routen)
+		fastify.get('*', (req, reply) => {
+			return reply.sendFile('index.html', distDir);
+		});
 
 		// Start listening
 		await fastify.listen({ port: 3000, host: "0.0.0.0" });

@@ -106,11 +106,12 @@
 		"*.ts",
 		"*.tsx",
 		"controller/**/*.ts",
-		"models/**/*.ts",
+		"backend/models/**/*.ts",
 		"views/**/*.tsx",
 		"views/**/*.jsx",
-		"routes/**/*.ts",
-		"postcss.config.cjs"
+		"backend/routes/**/*.ts",
+		"postcss.config.cjs",
+		"backend/app.ts"
 	],
 	"exclude": [
 		"node_modules",
