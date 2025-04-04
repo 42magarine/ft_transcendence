@@ -1,76 +1,82 @@
 <%- include('components/header') %>
 
-	<h1>Current player: <%= currentPlayer %>
-	</h1>
-	<div class="gameBoard">
-		<% for(let i=0; i < board.length; i++) { %>
-			<div class="cell" data-index="<%= i %>">
-				<%= board[i] %>
-			</div>
-			<% } %>
-	</div>
-	<button class="restartButton p-4">Restart Game</button>
+<div id="status" class="flex items-center justify-center gap-2 text-lg mb-4">
+	<span class="font-semibold">Current player:</span>
+	<span id="currentPlayerDisplay" class="btn cursor-default select-none <%= currentPlayer === 'X' ? 'bg-purple-600' : 'bg-green-600' %>">
+		<%= currentPlayer %>
+	</span>
+</div>
 
-	<script>
-		// WebSocket connection
-		const socket = new WebSocket(`ws://${window.location.host}/ws`);
-		const headerTitle = document.querySelector("h1");
-		const cells = document.querySelectorAll(".cell");
-		const restartButton = document.querySelector(".restartButton");
+<div class="gameBoard">
+	<% for(let i = 0; i < board.length; i++) { %>
+		<div class="cell" data-index="<%= i %>">
+			<%= board[i] %>
+		</div>
+	<% } %>
+</div>
 
-		// Handle WebSocket events
-		socket.addEventListener("open", () => {
-			console.log("Connected to WebSocket server");
-		});
+<div class="flex justify-center mt-6">
+	<button class="btn btn-primary restartButton">Restart Game</button>
+</div>
 
-		socket.addEventListener("message", (event) => {
-			const data = JSON.parse(event.data);
-			console.log("Received message:", data);
+<script>
+	const socket = new WebSocket(`ws://${window.location.host}/ws`);
+	const currentPlayerDisplay = document.getElementById("currentPlayerDisplay");
+	const cells = document.querySelectorAll(".cell");
+	const restartButton = document.querySelector(".restartButton");
 
-			if (data.type === "initBoard" || data.type === "resetBoard") {
-				updateBoard(data.board);
-				updateStatus("Current player: " + (data.player || "x"));
+	socket.addEventListener("open", () => {
+		console.log("Connected to WebSocket server");
+	});
+
+	socket.addEventListener("message", (event) => {
+		const data = JSON.parse(event.data);
+		console.log("Received message:", data);
+
+		if (data.type === "initBoard" || data.type === "resetBoard") {
+			updateBoard(data.board);
+			updateStatus("Current player: " + (data.player || "X"));
+		} else if (data.type === "updateBoard") {
+			updateBoard(data.board);
+
+			if (data.win) {
+				updateStatus(`${data.player} wins!`);
+			} else if (data.draw) {
+				updateStatus("It's a draw!");
+			} else {
+				updateStatus(`Current player: ${data.player}`);
 			}
-			else if (data.type === "updateBoard") {
-				updateBoard(data.board);
-
-				if (data.win) {
-					updateStatus(`${data.player} wins!`);
-				}
-				else if (data.draw) {
-					updateStatus("It's a draw!");
-				}
-				else {
-					updateStatus(`Current player: ${data.player}`);
-				}
-			}
-		});
-
-		// Update board based on server state
-		function updateBoard(board) {
-			cells.forEach((cell, index) => {
-				cell.textContent = board[index];
-			});
 		}
+	});
 
-		// Update game status message
-		function updateStatus(message) {
-			headerTitle.textContent = message;
+	function updateBoard(board) {
+		cells.forEach((cell, index) => {
+			cell.textContent = board[index];
+		});
+	}
+
+	function updateStatus(message) {
+		if (message.includes("wins") || message.includes("draw")) {
+			currentPlayerDisplay.textContent = message;
+			currentPlayerDisplay.className = "btn btn-danger cursor-default select-none";
+		} else {
+			const player = message.split(": ")[1];
+			currentPlayerDisplay.textContent = player;
+			currentPlayerDisplay.className = `btn cursor-default select-none ${player === 'X' ? 'bg-purple-600' : 'bg-green-600'}`;
 		}
+	}
 
-		// Cell click handler
-		document.querySelector(".gameBoard").addEventListener("click", (event) => {
-			const target = event.target;
-			if (target.classList.contains("cell")) {
-				const index = Number(target.dataset.index);
-				socket.send(JSON.stringify({ type: "makeMove", index }));
-			}
-		});
+	document.querySelector(".gameBoard").addEventListener("click", (event) => {
+		const target = event.target;
+		if (target.classList.contains("cell")) {
+			const index = Number(target.dataset.index);
+			socket.send(JSON.stringify({ type: "makeMove", index }));
+		}
+	});
 
-		// Restart button handler
-		restartButton.addEventListener("click", () => {
-			socket.send(JSON.stringify({ type: "resetGame" }));
-		});
-	</script>
+	restartButton.addEventListener("click", () => {
+		socket.send(JSON.stringify({ type: "resetGame" }));
+	});
+</script>
 
-	<%- include('components/footer') %>
+<%- include('components/footer') %>
