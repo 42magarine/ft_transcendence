@@ -42,11 +42,18 @@ const start = async (): Promise<void> => {
 			fs.mkdirSync(publicDir, { recursive: true });
 		}
 
-		// Register static file handlers
+		// Register static file handlers for assets
+		await fastify.register(fastifyStatic, {
+			root: path.join(projectRoot, 'assets'),
+			prefix: '/assets/',
+			decorateReply: true
+		});
+
+		// Register static file handler for public directory
 		await fastify.register(fastifyStatic, {
 			root: publicDir,
 			prefix: '/public/',
-			decorateReply: true // Set to true for the first one
+			decorateReply: false
 		});
 
 		// Register static file handler for compiled CSS

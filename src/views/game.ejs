@@ -4,13 +4,13 @@
 	</h1>
 	<div class="gameBoard">
 		<% for(let i=0; i < board.length; i++) { %>
-			<div class="cell border-8" data-index="<%= i %>">
+			<div class="cell" data-index="<%= i %>">
 				<%= board[i] %>
 			</div>
 			<% } %>
 	</div>
 	<button class="restartButton p-4">Restart Game</button>
-
+	<img src="/assets/normal.png" />
 	<script>
 		// WebSocket connection
 		const socket = new WebSocket(`ws://${window.location.host}/ws`);

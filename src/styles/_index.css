@@ -4,3 +4,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.cell {
+	background-image: url('/assets/bg.png');
+}
