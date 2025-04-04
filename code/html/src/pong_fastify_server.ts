@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pong_fastify_server.ts                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/04 17:20:53 by fwahl             #+#    #+#             */
+/*   Updated: 2025/04/04 17:20:54 by fwahl            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Import required modules
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";

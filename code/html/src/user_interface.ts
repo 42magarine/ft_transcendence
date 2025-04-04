@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   user_interface.ts                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/04 17:20:57 by fwahl             #+#    #+#             */
+/*   Updated: 2025/04/04 17:20:58 by fwahl            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
 const headerTitle = document.querySelector("h1") as HTMLHeadingElement;
 const gameBoard = document.querySelector(".gameBoard") as HTMLDivElement;
