@@ -1,6 +1,6 @@
 import Router from '../utils/Router.js';
-import Wurst from './Wurst.js';
-import Bier from './Bier.js';
+import Wurst from './views/Wurst.js';
+import Bier from './views/Bier.js';
 
 const routes = [
 	{

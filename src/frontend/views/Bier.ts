@@ -1,16 +1,15 @@
-import AbstractView from '../utils/AbstractView.js';
+import AbstractView from '../../utils/AbstractView.js';
 
-export default class Wurst extends AbstractView {
+export default class Bier extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams()) {
 		super(params);
-		this.setTitle('Transcendence - Wurst');
+		this.setTitle('Transcendence - Bier');
 	}
 
 	async getHtml() {
-		// Example template with various template engine features
 		return this.render(`
-			<section class="hero">
-				<h1>Welcome to Wurst</h1>
+			<section class="hero bg-green-700">
+				<h1>Welcome to Bier</h1>
 				<p>{{ user ? 'Welcome back, ' + user.name : 'Join us today!' }}</p>
 
 				<if condition="user && user.isAdmin">
@@ -23,18 +22,16 @@ export default class Wurst extends AbstractView {
 				<h2>Featured Games</h2>
 				<div class="games-list">
 				<for each="featuredGames" as="game">
-					<div class="game-card">
+					<div class="card">
 					<h3>{{ game.title }}</h3>
 					<p>{{ game.description }}</p>
 					<if condition="game.isNew">
 						<span class="badge">New!</span>
 					</if>
-					<a data-link href="/bier">test</a>
+					<a router href="/">test</a>
 					</div>
 				</for>
 				</div>
-
-				<include src="/components/newsletter-signup.html" />
 			</section>
 		`, {
 			user: this.params.get('userId') ? { name: 'John', isAdmin: true } : null,

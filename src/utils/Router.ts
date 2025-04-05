@@ -15,7 +15,7 @@ export default class Router {
 			const target = e.target as HTMLElement;
 			const link = target.closest('a');
 
-			if (link && link.hasAttribute('data-link')) {
+			if (link && link.hasAttribute('router')) {
 				e.preventDefault();
 				const href = link.getAttribute('href') || '/';
 				this.navigateTo(href);
