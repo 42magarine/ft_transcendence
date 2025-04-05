@@ -1,8 +1,10 @@
 module.exports = {
 	content: [
-		"./views/**/*.ejs",
+		"./view/**/*.html",
+		"./view/**/*.ts",
+		"./view/**/*.tsx",
 		"./controller/**/*.ts",
-		"./model/**/*.ts",
+		"./models/**/*.ts",
 		"./routes/**/*.ts",
 		"./styles/**/*.css",
 	],

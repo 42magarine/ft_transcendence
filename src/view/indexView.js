@@ -1,17 +1,14 @@
-import AbstractView from "./AbstractView";
+import AbstractView from "./AbstractView.js";
 
-export default class MenuView extends AbstractView {
+export default class extends AbstractView {
 	constructor() {
 		super();
 		this.setTitle("Transcendence");
-		const loginButton = document.getElementById('login-button');
-		if (loginButton) {
-			loginButton.classList.remove('make-opaque');
-		}
+		document.getElementById('login-button').classList.remove('make-opaque');
 		sessionStorage.removeItem('opponent_name');
 	}
 
-	getHtml = async (): Promise<string> => {
+	getHtml = async () => {
 		return `
 		<div class="window">
 			<div class="menu-topbar">
@@ -21,11 +18,11 @@ export default class MenuView extends AbstractView {
 				<a class="a-large-button" href="/pong-menu" data-link>Pong</a>
 			</div>
 		</div>
-		`;
+		`
 	}
 
-	afterRender = async (): Promise<void> => {
-		if (navigator.onLine && this.isLoggedIn) {
+	afterRender = async () => {
+		if (navigator.onLine && getLoggedIn()) {
 			await getPlayerData();
 			await checkLoginStatus();
 			updateLoginState();

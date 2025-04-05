@@ -103,18 +103,16 @@
 		"skipLibCheck": true /* Skip type checking all .d.ts files. */
 	},
 	"include": [
-		"*.ts",
-		"*.tsx",
-		"controller/**/*.ts",
-		"backend/models/**/*.ts",
-		"views/**/*.tsx",
-		"views/**/*.jsx",
-		"backend/routes/**/*.ts",
-		"postcss.config.cjs",
-		"backend/app.ts"
+		"/app/src/*.ts",
+		"/app/src/controller/**/*.ts",
+		"/app/src/models/**/*.ts",
+		"/app/src/routes/**/*.ts",
+		"/app/src/view/**/*.ts",
+		"/app/src/view/**/*.tsx"
 	],
 	"exclude": [
 		"node_modules",
-		"old"
+		"old",
+		"dist"
 	]
 }
