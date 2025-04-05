@@ -24,5 +24,6 @@ const routes = [
 const router = new Router(routes);
 
 document.addEventListener('DOMContentLoaded', () => {
+	console.log("DOMContentLoaded")
 	router.render();
 });

@@ -29,6 +29,7 @@ export default class Bier extends AbstractView {
 					<if condition="game.isNew">
 						<span class="badge">New!</span>
 					</if>
+					<a data-link href="/">test</a>
 					</div>
 				</for>
 				</div>

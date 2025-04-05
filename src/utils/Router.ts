@@ -45,7 +45,6 @@ export default class Router {
 		let match = potentialMatches.find(match => match.isMatch);
 
 		if (!match) {
-			// Find a 404 route if defined
 			const notFoundRoute = this.routes.find(route => route.path === '/not-found' || route.path === '*');
 
 			if (notFoundRoute) {
@@ -62,10 +61,12 @@ export default class Router {
 				return;
 			}
 		}
+		console.log("Router render " + match.route.path)
 
 		const params = new URLSearchParams(window.location.search);
 		const view = new match.route.view(params);
 
+		console.log("View is " + view)
 		// Apply metadata if available
 		if (match.route.metadata) {
 			if (match.route.metadata.title) {

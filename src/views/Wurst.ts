@@ -29,6 +29,7 @@ export default class Wurst extends AbstractView {
 					<if condition="game.isNew">
 						<span class="badge">New!</span>
 					</if>
+					<a data-link href="/bier">test</a>
 					</div>
 				</for>
 				</div>
