@@ -1,12 +1,9 @@
 module.exports = {
 	content: [
-		"./view/**/*.html",
-		"./view/**/*.ts",
-		"./view/**/*.tsx",
-		"./controller/**/*.ts",
-		"./models/**/*.ts",
-		"./routes/**/*.ts",
-		"./styles/**/*.css",
+		"./views/**/*.{html,js,ts,jsx,tsx}",
+		"./utils/**/*.{js,ts}",
+		"./*.{html,js,ts}",
+		"./index.html"
 	],
 	theme: {
 		extend: {},

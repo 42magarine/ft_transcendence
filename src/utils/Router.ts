@@ -1,29 +1,16 @@
-// view/router.ts
-import Home from './pages/Home.js';
-import Game from './pages/Game.js';
-import NotFound from './pages/NotFound.js';
-import AbstractView from './AbstractView.js';
-
-interface Route {
-	path: string | RegExp;
-	view: new () => AbstractView;
-}
+import { Route } from "./types.js";
+import AbstractView from "./AbstractView.js"
 
 export default class Router {
-	private routes: Route[] = [
-		{ path: '/', view: Home },
-		{ path: '/game', view: Game },
-		// Add more routes as needed
-	];
-
+	private routes: Route[] = [];
 	private currentView: AbstractView | null = null;
 
-	constructor() {
+	constructor(routes: Route[]) {
+		this.routes = routes;
 		this.initEventListeners();
 	}
 
 	private initEventListeners(): void {
-		// Handle navigation via links with data-link attribute
 		document.addEventListener('click', (e: MouseEvent) => {
 			const target = e.target as HTMLElement;
 			const link = target.closest('a');
@@ -35,7 +22,6 @@ export default class Router {
 			}
 		});
 
-		// Handle browser back/forward buttons
 		window.addEventListener('popstate', () => {
 			this.render();
 		});
@@ -47,7 +33,6 @@ export default class Router {
 	}
 
 	public async render(): Promise<void> {
-		// Find matching route
 		const potentialMatches = this.routes.map(route => {
 			return {
 				route: route,
@@ -59,30 +44,47 @@ export default class Router {
 
 		let match = potentialMatches.find(match => match.isMatch);
 
-		// Default to 404 if no match found
 		if (!match) {
-			match = {
-				route: { path: '/not-found', view: NotFound },
-				isMatch: true
-			};
+			// Find a 404 route if defined
+			const notFoundRoute = this.routes.find(route => route.path === '/not-found' || route.path === '*');
+
+			if (notFoundRoute) {
+				match = {
+					route: notFoundRoute,
+					isMatch: true
+				};
+			} else {
+				// Default 404 handler if no route defined
+				const appElement = document.getElementById('app');
+				if (appElement) {
+					appElement.innerHTML = '<h1>404 - Page Not Found</h1>';
+				}
+				return;
+			}
 		}
 
-		// Create view instance
-		const view = new match.route.view();
+		const params = new URLSearchParams(window.location.search);
+		const view = new match.route.view(params);
 
-		// Clear current view if exists
+		// Apply metadata if available
+		if (match.route.metadata) {
+			if (match.route.metadata.title) {
+				view.setTitle(match.route.metadata.title);
+			}
+			if (match.route.metadata.description) {
+				view.setDescription(match.route.metadata.description);
+			}
+		}
+
 		if (this.currentView) {
 			this.currentView.destroy();
 		}
 
-		// Set and render new view
 		this.currentView = view;
 
-		// Get app element
 		const appElement = document.getElementById('app');
 		if (!appElement) return;
 
-		// Render view content
 		appElement.innerHTML = await view.getHtml();
 		await view.afterRender();
 	}

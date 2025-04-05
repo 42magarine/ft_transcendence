@@ -107,8 +107,9 @@
 		"/app/src/controller/**/*.ts",
 		"/app/src/models/**/*.ts",
 		"/app/src/routes/**/*.ts",
-		"/app/src/view/**/*.ts",
-		"/app/src/view/**/*.tsx"
+		"/app/src/utils/**/*.ts",
+		"/app/src/views/**/*.ts",
+		"/app/src/views/**/*.tsx"
 	],
 	"exclude": [
 		"node_modules",
