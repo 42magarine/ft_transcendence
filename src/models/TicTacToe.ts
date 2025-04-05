@@ -1,5 +1,4 @@
-// Union Type alias for the player state
-export type Player = "x" | "o" | "";
+import { Player } from "./Player.js";
 
 export class TicTacToe {
     private board: Player[] = new Array(9).fill("");

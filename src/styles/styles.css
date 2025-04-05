@@ -10,6 +10,12 @@ h1 {
     margin-bottom: 42px;
 }
 
+p {
+    font-size: 24px;
+    color: beige;
+    margin-top: 20px;
+}
+
 .gameBoard {
     width: 600px;
     height: 600px;
