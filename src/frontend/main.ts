@@ -1,22 +1,40 @@
-import Router from '../utils/Router.js';
-import Wurst from './views/Wurst.js';
-import Bier from './views/Bier.js';
+import './utils/TemplateEngine.js';
+import Router from '../utils/router.js';
+import Home from './views/Home.js';
+import Pong from './views/Pong.js';
+import TicTacToe from './views/TicTacToe.js';
+
+import { TemplateEngine } from '../utils/TemplateEngine.js';
+import Card from './components/Card.js';
+import Button from './components/Button.js';
+
+const globalTemplateEngine = new TemplateEngine();
+globalTemplateEngine.registerComponent('Card', Card);
+globalTemplateEngine.registerComponent('Button', Button);
 
 const routes = [
 	{
 		path: '/',
-		view: Wurst,
+		view: Home,
 		metadata: {
-			title: 'Transcendence - Wurst',
+			title: 'Transcendence',
 			description: 'Welcome to Transcendence - the ultimate gaming experience'
 		}
 	},
 	{
-		path: '/bier',
-		view: Bier,
+		path: '/pong',
+		view: Pong,
 		metadata: {
-			title: 'Transcendence - Bier',
-			description: 'Welcome to Bier - the ultimate drinking experience'
+			title: 'Transcendence - Pong',
+			description: 'Welcome to Pong'
+		}
+	},
+	{
+		path: '/tictactoe',
+		view: TicTacToe,
+		metadata: {
+			title: 'Transcendence - TicTacToe',
+			description: 'Welcome to TicTacToe'
 		}
 	}
 ];
@@ -24,6 +42,5 @@ const routes = [
 const router = new Router(routes);
 
 document.addEventListener('DOMContentLoaded', () => {
-	console.log("DOMContentLoaded")
 	router.render();
 });

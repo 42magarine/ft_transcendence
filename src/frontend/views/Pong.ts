@@ -1,16 +1,34 @@
 import AbstractView from '../../utils/AbstractView.js';
 
-export default class Wurst extends AbstractView {
+export default class Pong extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams()) {
 		super(params);
-		this.setTitle('Transcendence - Wurst');
+		this.setTitle('Transcendence - Pong');
 	}
 
 	async getHtml() {
 		// Example template with various template engine features
 		return this.render(`
 			<section class="hero">
-				<h1>Welcome to Wurst</h1>
+				<h1>Welcome to Pong</h1>
+			</section>
+		`, {});
+	}
+}
+
+/*import AbstractView from '../../utils/AbstractView.js';
+
+export default class Pong extends AbstractView {
+	constructor(params: URLSearchParams = new URLSearchParams()) {
+		super(params);
+		this.setTitle('Transcendence - Pong');
+	}
+
+	async getHtml() {
+		// Example template with various template engine features
+		return this.render(`
+			<section class="hero">
+				<h1>Welcome to Pong</h1>
 				<p>{{ user ? 'Welcome back, ' + user.name : 'Join us today!' }}</p>
 
 				<if condition="user && user.isAdmin">
@@ -35,7 +53,7 @@ export default class Wurst extends AbstractView {
 				</div>
 			</section>
 			<section class="hero">
-				<h1>Welcome to Wurst</h1>
+				<h1>Welcome to Pong</h1>
 				<p>{{ user ? 'Welcome back, ' + user.name : 'Join us today!' }}</p>
 
 				<if condition="user && user.isAdmin">
@@ -68,4 +86,4 @@ export default class Wurst extends AbstractView {
 			]
 		});
 	}
-}
+}*/

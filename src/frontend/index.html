@@ -11,13 +11,20 @@
 
 <body class="bg-red-700">
 	<header class="bg-blue-700 text-white">
-		<h1>Header</h1>
+		<h1><a router href="/">Header</a></h1>
+		<nav>
+			<ul>
+				<li><a router href="/">Home</a></li>
+				<li><a router href="/pong">Pong</a></li>
+				<li><a router href="/tictactoe">TicTacToe</a></li>
+			</ul>
+		</nav>
 	</header>
 	<main id="app"></main>
 	<footer class="bg-gray-700 text-white">
 		<h2>Footer</h2>
 	</footer>
-	<script type="module" src="/dist/views/main.js"></script>
+	<script type="module" src="/dist/frontend/main.js"></script>
 </body>
 
 </html>

@@ -9,8 +9,8 @@
 		"server": "node ./dist/app.js",
 		"build:css": "npx tailwindcss -i styles/_index.css -o dist/assets/main.css",
 		"watch:css": "npx tailwindcss -i styles/_index.css -o dist/assets/main.css --watch",
-		"copy:assets": "mkdir -p dist/assets && cp -R assets/* dist/assets/ && mkdir -p dist/views && [ -n \"$(find views -name '*.html' 2>/dev/null)\" ] && cp -R views/*.html dist/views/ || echo 'No HTML files to copy'",
-		"watch:assets": "nodemon --watch assets --watch views --ext html,css,js,png,jpg,svg,ico --exec 'npm run copy:assets'",
+		"copy:assets": "mkdir -p dist/assets && cp -R assets/* dist/assets/ && mkdir -p dist/frontend && [ -n \"$(find frontend -name '*.html' 2>/dev/null)\" ] && cp -R frontend/*.html dist/frontend/ || echo 'No HTML files to copy'",
+		"watch:assets": "nodemon --watch assets --watch frontend --ext html,css,js,png,jpg,svg,ico --exec 'npm run copy:assets'",
 		"dev:server": "nodemon --watch dist/app.js --watch dist/routes --watch dist/controller --ext js ./dist/app.js",
 		"dev": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"npm run dev:server\"",
 		"dev:fastify": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"fastify start -w -l info -P dist/app.js\""

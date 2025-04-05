@@ -25,7 +25,7 @@ const start = async (): Promise<void> => {
 
 		const assetsPath = path.join(__dirname, 'assets');
 		const distPath = path.join(__dirname, '../dist');
-		const viewPath = path.join(__dirname, 'views');
+		const viewPath = path.join(__dirname, 'frontend');
 
 		if (fs.existsSync(assetsPath)) {
 			await server.register(fastifyStatic, {

@@ -108,8 +108,8 @@
 		"/app/src/models/**/*.ts",
 		"/app/src/routes/**/*.ts",
 		"/app/src/utils/**/*.ts",
-		"/app/src/views/**/*.ts",
-		"/app/src/views/**/*.tsx"
+		"/app/src/frontend/**/*.ts",
+		"/app/src/frontend/**/*.tsx"
 	],
 	"exclude": [
 		"node_modules",
