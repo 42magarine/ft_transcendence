@@ -84,7 +84,7 @@ function draw() {
   // Button click event to start the game
   const startGameBtn = document.getElementById("startGameBtn") as HTMLButtonElement;
   startGameBtn.addEventListener("click", () => {
-	if (playerId) {
-	  socket.send(JSON.stringify({ type: "initGame" })); // Send init message to the server
-	}
+	// if (playerId) {
+		socket.send(JSON.stringify({ type: "initGame" })); // Send init message to the server
+	// }
   });

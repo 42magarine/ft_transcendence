@@ -3,14 +3,15 @@ import { WebSocket } from "ws";
 import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/PongPlayer.js"
 
-export default class WebsocketController {
+export default class pongWebsocketController {
     private game = new PongGame(800, 600);
-	private players: Map<number, Player> = new Map(); // make class later
+	private players: Map<number, Player> = new Map();
 	private intervalId: NodeJS.Timeout | null = null;
 
     constructor(private fastify: FastifyInstance) { }
 
     public handleConnection = (connection: WebSocket) => {
+		console.log("123")
 		const playerId = this.assignPlayerId();
 		if (!playerId) {
 			connection.send(JSON.stringify({ type: "error", message: "Game is full"}))
@@ -26,19 +27,20 @@ export default class WebsocketController {
             state: this.game.getState(),
         });
 
-        connection.on("message", (message) => {
-            const data = JSON.parse(message.toString());
+		connection.on("message", (message) => {
+			const data = JSON.parse(message.toString());
+			const player = this.getPlayerByConnection(connection);
+			if (!player) return;
 
-            if (data.type === "movePaddle") {
-                const result = this.game.movePaddle(player.id, data.direction);
-                this.broadcast({
+			if (data.type === "movePaddle") {
+				this.game.movePaddle(player, data.direction);
+				this.broadcast({
 					type: "update",
 					state: this.game.getState()
 				});
-            }
+			}
 
 			if (data.type === "initGame") {
-				// Initialize the game state and start the game
 				this.game.resetGame();
 				this.startGameLoop();
 				this.broadcast({
@@ -47,15 +49,22 @@ export default class WebsocketController {
 				});
 			}
 
-            if (data.type === "resetGame") {
-                const result = this.game.resetGame();
-                this.broadcast({
+			if (data.type === "resetGame") {
+				this.game.resetGame();
+				this.broadcast({
 					type: "reset",
 					state: this.game.getState()
 				});
-            }
-        });
+			}
+		});
     };
+
+	private getPlayerByConnection(conn: WebSocket): Player | undefined {
+		for (const player of this.players.values()) {
+			if (player.connection === conn) return player;
+		}
+		return undefined;
+	}
 
 	private assignPlayerId(): number | null {
 		if (!this.players.has(1)) return 1;

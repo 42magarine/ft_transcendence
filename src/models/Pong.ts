@@ -6,12 +6,13 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:16:08 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/07 17:47:34 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/07 19:32:20 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { Ball } from "./Ball.js";
 import { Paddle } from "./Paddle.js";
+import { Player } from "./PongPlayer.js";
 
 export class PongGame {
 	private ball: Ball;
@@ -62,19 +63,12 @@ export class PongGame {
 		);
 	}
 
-	movePaddle(player: number, direction: "up" | "down"): void {
-		if (player === 1) {
-			if (direction === "up" && this.paddle1.y > 0) {
-				this.paddle1.moveUp();
-			} else if (direction === "down" && this.paddle1.y + this.paddle1.height < this.heigth) {
-				this.paddle1.moveDown();
-			}
-		} else {
-			if (direction === "up" && this.paddle2.y > 0) {
-				this.paddle2.moveUp();
-			} else if (direction === "down" && this.paddle2.y + this.paddle2.height < this.heigth) {
-				this.paddle2.moveDown();
-			}
+	movePaddle(player: Player, direction: "up" | "down"): void {
+		const paddle = player.id === 1 ? this.paddle1 : this.paddle2;
+		if (direction === "up" && paddle.y > 0) {
+			paddle.moveUp();
+		} else if (direction === "down" && paddle.y + paddle.height < this.heigth) {
+			paddle.moveDown();
 		}
 	}
 

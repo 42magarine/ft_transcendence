@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 // import apiRoutes from "./routes/apiRoutes.js";
 import staticRoutes from "./routes/staticRoutes.js";
 import websocketRoutes from "./routes/websocketRoutes.js";
-
+import pongWebsocketRoutes from "./routes/pongRoutes.js";
 // Fix for `__dirname` in ES modules
 const __filename: string = fileURLToPath(import.meta.url);
 const __dirname: string = path.dirname(__filename);
@@ -18,8 +18,8 @@ const __rootdir: string = path.resolve(__dirname, "../");
 // console.log(`__rootdir: ${__rootdir}`);
 
 // Create Fastify instance
-const fastify = Fastify({ logger: true });
-
+// const fastify = Fastify({ logger: true });
+const fastify = Fastify();
 // Plugins
 fastify.register(fastifyWebsocket);
 fastify.register(fastifyStatic, {
@@ -48,8 +48,8 @@ fastify.register(fastifyStatic, {
 // Routes
 // fastify.register(apiRoutes);
 fastify.register(staticRoutes);
-fastify.register(websocketRoutes);
-
+// fastify.register(websocketRoutes);
+fastify.register(pongWebsocketRoutes);
 // 404 Not Found handler
 fastify.setNotFoundHandler(async (_request, reply) => {
     return reply.status(404).sendFile("404.html");
