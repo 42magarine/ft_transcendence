@@ -1,8 +1,8 @@
 services:
-  tic_tac_toe:
-    container_name: tic_tac_toe
+  ft_transcendence:
+    container_name: ft_transcendence
     build: .
     ports:
       - "3000:3000"
     volumes:
-      - ./code:/app/
+      - ./src:/app/
