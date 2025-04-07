@@ -1,38 +1,14 @@
-// const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
-const socket: WebSocket = new WebSocket("ws://10.11.2.31:3000/ws"); // 1-B-31
-
 const headerTitle = document.querySelector("h1") as HTMLHeadingElement;
 const gameBoard = document.querySelector(".gameBoard") as HTMLDivElement;
 const restartButton = document.querySelector(".restartButton") as HTMLButtonElement;
 let cells: HTMLDivElement[] = [];
 
-// The "open" event is triggered when the connection to the WebSocket server is successfully established.
-socket.addEventListener("open", () => {
-    console.log("Connected to WebSocket server");
-});
+async function initBoard(): Promise<void> {
+    const response = await fetch("/api/game/state");
+    const data = await response.json();
 
-// The "message" event is triggered when the server sends a message over WebSocket.
-socket.addEventListener("message", (event: MessageEvent<string>) => {
-    const data = JSON.parse(event.data);
-
-    if (data.type === "initBoard" || data.type === "resetBoard") {
-        updateBoard(data.board);
-        updateStatus("Tic Tac Toe with Typescript");
-    }
-    else if (data.type === "updateBoard") {
-        updateBoard(data.board);
-
-        if (data.win) {
-            updateStatus(`${data.player} wins!`);
-        }
-        else if (data.draw) {
-            updateStatus("It's a draw!");
-        }
-        else {
-            updateStatus(`Current player: ${data.player}`);
-        }
-    }
-});
+    updateBoard(data.board);
+}
 
 function updateBoard(board: string[]): void {
     cells.forEach((cell, index) => {
@@ -45,17 +21,47 @@ function updateStatus(message: string): void {
 }
 
 // Event listeners for the game board.
-gameBoard.addEventListener("click", (event: MouseEvent) => {
+gameBoard.addEventListener("click", async (event: MouseEvent) => {
     const target = event.target as HTMLDivElement;
+
     if (target.classList.contains("cell")) {
         const index = Number(target.dataset.index);
-        socket.send(JSON.stringify({ type: "makeMove", index }));
+
+        const response = await fetch("api/game/move", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ index }),
+        });
+
+        const data = await response.json();
+
+        if (data.type === "resetBoard") {
+            updateBoard(data.board);
+            updateStatus("Tic Tac Toe with Typescript");
+        }
+        else if (data.type === "updateBoard") {
+            updateBoard(data.board);
+
+            if (data.win) {
+                updateStatus(`${data.player} wins!`);
+            }
+            else if (data.draw) {
+                updateStatus("It's a draw!");
+            }
+            else {
+                updateStatus(`Current player: ${data.player}`);
+            }
+        }
     }
 });
 
 // Event listeners for the restart button.
-restartButton.addEventListener("click", () => {
-    socket.send(JSON.stringify({ type: "resetGame" }));
+restartButton.addEventListener("click", async () => {
+    const response = await fetch("api/game/reset", { method: "POST" });
+    const data = await response.json();
+
+    updateBoard(data.board);
+    updateStatus("Tic Tac Toe with Typescript");
 });
 
 function createBoard(): void {
@@ -71,4 +77,5 @@ function createBoard(): void {
 // Initialize the board when the page loads.
 window.addEventListener("DOMContentLoaded", () => {
     createBoard();
+    initBoard();
 });

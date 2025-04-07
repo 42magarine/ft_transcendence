@@ -1,37 +1,49 @@
-import { FastifyInstance } from "fastify";
 import { WebSocket } from "ws";
-import { TicTacToe } from "../models/TicTacToe.js";
+import { GameController } from "./GameController.js";
 
-export default class WebsocketController {
-    private game = new TicTacToe();
+export class WebsocketController {
+    private gameController: GameController;
+    private clients: Set<WebSocket>;
 
-    constructor(private fastify: FastifyInstance) { }
+    constructor() {
+        this.gameController = GameController.getInstance();
+        this.clients = new Set<WebSocket>();
+    }
 
     public handleConnection = (connection: WebSocket) => {
+        console.log("A new client connected!");
+        this.clients.add(connection);
+
         connection.send(JSON.stringify({
             type: "initBoard",
-            board: this.game.getBoard(),
+            data: this.gameController.getGameState()
         }));
 
         connection.on("message", (message) => {
             const data = JSON.parse(message.toString());
 
             if (data.type === "makeMove") {
-                const result = this.game.makeMove(data.index);
+                const result = this.gameController.makeMove(data.index);
                 this.broadcast(result);
             }
 
             if (data.type === "resetGame") {
-                const result = this.game.resetGame();
+                const result = this.gameController.resetGame();
                 this.broadcast(result);
             }
+        });
+
+        connection.on("close", () => {
+            this.clients.delete(connection);
+            console.log("Client disconnected!");
         });
     };
 
     private broadcast(data: object) {
         const message = JSON.stringify(data);
-        this.fastify.websocketServer.clients.forEach((client) => {
-            if (client.readyState === 1) {
+
+        this.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
                 client.send(message);
             }
         });

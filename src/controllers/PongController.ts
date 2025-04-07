@@ -1,31 +1,38 @@
-import { FastifyInstance } from "fastify";
 import { WebSocket } from "ws";
 import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/PongPlayer.js"
+import { GameController } from "./GameController.js";
 
-export default class pongWebsocketController {
-    private game = new PongGame(800, 600);
+export class PongController {
+	private game = new PongGame(800, 600);
 	private players: Map<number, Player> = new Map();
 	private intervalId: NodeJS.Timeout | null = null;
+	private clients: Set<WebSocket>;
+	private gameController: GameController;
 
-    constructor(private fastify: FastifyInstance) { }
+	constructor() {
+		this.gameController = GameController.getInstance();
+		this.clients = new Set<WebSocket>();
+	}
 
-    public handleConnection = (connection: WebSocket) => {
-		console.log("123")
+	public handleConnection = (connection: WebSocket) => {
+		console.log("A new client connected!");
+		this.clients.add(connection);
+
 		const playerId = this.assignPlayerId();
 		if (!playerId) {
-			connection.send(JSON.stringify({ type: "error", message: "Game is full"}))
+			connection.send(JSON.stringify({ type: "error", message: "Game is full" }))
 			connection.close();
-			return ;
+			return;
 		}
 
 		const player = new Player(connection, playerId);
 		this.players.set(playerId, player);
-        player.send({
-            type: "assignPlayer",
+		player.send({
+			type: "assignPlayer",
 			id: playerId,
-            state: this.game.getState(),
-        });
+			state: this.game.getState(),
+		});
 
 		connection.on("message", (message) => {
 			const data = JSON.parse(message.toString());
@@ -56,8 +63,13 @@ export default class pongWebsocketController {
 					state: this.game.getState()
 				});
 			}
+
 		});
-    };
+		connection.on("close", () => {
+			this.clients.delete(connection);
+			console.log("Client disconnected!");
+		});
+	};
 
 	private getPlayerByConnection(conn: WebSocket): Player | undefined {
 		for (const player of this.players.values()) {
@@ -82,12 +94,14 @@ export default class pongWebsocketController {
 		}, 1000 / 60); // 60 FPS
 	}
 
-    private broadcast(data: object) {
-        const message = JSON.stringify(data);
-        this.fastify.websocketServer.clients.forEach((client) => {
-            if (client.readyState === 1) {
-                client.send(message);
-            }
-        });
-    }
+	private broadcast(data: object) {
+		const message = JSON.stringify(data);
+
+		this.clients.forEach((client) => {
+			if (client.readyState === WebSocket.OPEN) {
+				client.send(message);
+			}
+		});
+	}
 }
+
