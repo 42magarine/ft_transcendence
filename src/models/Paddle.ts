@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 15:55:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/02 17:05:10 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/07 17:47:16 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ export class Paddle {
 	height: number = 10;
 	width: number = 100;
 	movespeed: number = 10;
+
 
 	constructor(x: number, y: number){
 		this.x = x;
@@ -29,4 +30,5 @@ export class Paddle {
 	moveDown(): void {
 		this.y += this.movespeed;
 	}
+
 }

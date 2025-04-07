@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pong_game_logic.ts                                 :+:      :+:    :+:   */
+/*   Pong.ts                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:16:08 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/02 17:07:23 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/07 17:47:34 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,12 +62,19 @@ export class PongGame {
 		);
 	}
 
-	movePaddle(player: number, direction: "up" | "down"): void
-	{
+	movePaddle(player: number, direction: "up" | "down"): void {
 		if (player === 1) {
-			direction === "up" ? this.paddle1.moveUp() : this.paddle1.moveDown();
+			if (direction === "up" && this.paddle1.y > 0) {
+				this.paddle1.moveUp();
+			} else if (direction === "down" && this.paddle1.y + this.paddle1.height < this.heigth) {
+				this.paddle1.moveDown();
+			}
 		} else {
-			direction === "up" ? this.paddle2.moveUp() : this.paddle2.moveDown();
+			if (direction === "up" && this.paddle2.y > 0) {
+				this.paddle2.moveUp();
+			} else if (direction === "down" && this.paddle2.y + this.paddle2.height < this.heigth) {
+				this.paddle2.moveDown();
+			}
 		}
 	}
 
