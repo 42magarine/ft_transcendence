@@ -1,58 +1,81 @@
-// Import required modules
+// Import core modules and Fastify plugins
 import Fastify from "fastify";
+import fastifyCors from "@fastify/cors";        // Cross-Origin Resource Sharing
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// import apiRoutes from "./routes/apiRoutes.js";
-import staticRoutes from "./routes/staticRoutes.js";
-import websocketRoutes from "./routes/websocketRoutes.js";
+// Import route modules
+// import apiRoutes from "./routes/api.js";
+import websocketRoutes from "./routes/websocket.js";
 
-// Fix for `__dirname` in ES modules
-const __filename: string = fileURLToPath(import.meta.url);
-const __dirname: string = path.dirname(__filename);
-const __rootdir: string = path.resolve(__dirname, "../");
-// console.log(`__filename: ${__filename}`);
-// console.log(`__dirname: ${__dirname}`);
-// console.log(`__rootdir: ${__rootdir}`);
+// Setup path variables
+const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
+const __dirname: string = path.dirname(__filename);             // /app/dist
+const __rootdir: string = path.resolve(__dirname, "..");        // /app
 
 // Create Fastify instance
 const fastify = Fastify({ logger: true });
 
-// Plugins
+// Register Plugins
 fastify.register(fastifyWebsocket);
+fastify.register(fastifyCors, {
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    credentials: true
+});
+
+// Serve static HTML views accessible via "/"
 fastify.register(fastifyStatic, {
     root: path.join(__rootdir, "views"),
     prefix: "/",
-});
-
-fastify.register(fastifyStatic, {
-    root: path.join(__rootdir, "assets"),
-    prefix: "/assets",
     decorateReply: false
 });
 
+// Serve compiled frontend from "dist"
 fastify.register(fastifyStatic, {
     root: path.join(__rootdir, "dist"),
     prefix: "/dist",
     decorateReply: false
 });
 
+// Serve general static assets like images, styles, icons from "public"
 fastify.register(fastifyStatic, {
-    root: path.join(__rootdir, "styles"),
-    prefix: "/styles",
+    root: path.join(__rootdir, "public"),
+    prefix: "/public",
     decorateReply: false
 });
 
-// Routes
-// fastify.register(apiRoutes);
-fastify.register(staticRoutes);
+// Register API routes under /api/*
+// fastify.register(apiRoutes, { prefix: "/api" });
+
+// Register WebSocket routes
 fastify.register(websocketRoutes);
 
-// 404 Not Found handler
-fastify.setNotFoundHandler(async (_request, reply) => {
-    return reply.status(404).sendFile("404.html");
+// 404 Handler
+fastify.setNotFoundHandler(async (request, reply) => {
+    // If the URL starts with /api, return a JSON error response
+    if (request.url.startsWith("/api")) {
+        return reply.status(404).send({
+            error: "API route not found",
+            method: request.method,
+            path: request.url
+        });
+    }
+
+    // Otherwise, return the index.html file (SPA fallback)
+    const indexPath = path.join(__rootdir, "views", "index.html");
+
+    // Check if the file exists to avoid crashing
+    if (!fs.existsSync(indexPath)) {
+        return reply.status(404).send({
+            error: "Not Found",
+            message: "SPA entry file (index.html) is missing"
+        });
+    }
+
+    return reply.type("text/html").send(fs.createReadStream(indexPath));
 });
 
 // Start the server
