@@ -5,11 +5,29 @@ const ctx = canvas.getContext("2d")!;
 let state: any = null;
 let playerId: number | null = null;
 let keysPressed: Record<string, boolean> = {};
+let sessionId: string | null = localStorage.getItem("sessionId");
 import { PADDLE_WIDTH, PADDLE_HEIGHT, BALL_RADIUS } from "../models/Constants.js";
 //listen for websocket connection
-socket.addEventListener("open", ()=> {
-	console.log("connected to pong server");
-});
+socket.addEventListener("open", () => {
+	console.log("Connected to pong server");
+
+	if (!sessionId) {
+	  // If no sessionId is found in localStorage, generate a new sessionId and store it
+	  sessionId = generateSessionId();
+	  localStorage.setItem("sessionId", sessionId);
+	  console.log("Generated new sessionId:", sessionId);
+	}
+
+	// Check if playerId is stored in localStorage
+	const storedPlayerId = localStorage.getItem("playerId");
+	if (storedPlayerId) {
+	  // If there is a stored playerId, try to reconnect with that playerId and sessionId
+	  playerId = parseInt(storedPlayerId);
+	  socket.send(JSON.stringify({ type: "reconnectPlayer", playerId, sessionId }));
+	  console.log(`Reconnecting as Player ${playerId}`);
+	}
+  });
+
 
 socket.addEventListener("message", (event: MessageEvent<string>) => {
 	const data = JSON.parse(event.data);
@@ -17,6 +35,8 @@ socket.addEventListener("message", (event: MessageEvent<string>) => {
 	if (data.type === "assignPlayer") {
 		playerId = data.id;
 		console.log("Assigned as Player", playerId);
+		if (playerId !== null)
+			localStorage.setItem("playerId", playerId.toString());
 	}
 
 	if (data.type === "initGame" || data.type === "update") {
@@ -128,3 +148,7 @@ function draw() {
 	  socket.send(JSON.stringify({ type: "resetGame" }));
   });
 
+
+  function generateSessionId() {
+	return Math.random().toString(36).substring(2, 15);  // Generates a random string
+  }
