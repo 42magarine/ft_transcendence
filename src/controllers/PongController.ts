@@ -20,15 +20,28 @@ export class PongController {
 		console.log("A new client connected!");
 		this.clients.add(connection);
 
+		let player: Player;
 		const playerId = this.assignPlayerId();
+
 		if (!playerId) {
-			connection.send(JSON.stringify({ type: "error", message: "Game is full" }))
+			connection.send(JSON.stringify({ type: "error", message: "Game is full" }));
 			connection.close();
 			return;
 		}
 
-		const player = new Player(connection, playerId);
-		this.players.set(playerId, player);
+		// Check if the player is reconnecting (already has an ID)
+		const existingPlayer = this.getPlayerById(playerId);
+		if (existingPlayer && !existingPlayer.isPlaying) {
+			// Player is reconnecting, reassign the connection
+			existingPlayer.reconnect(connection);
+			player = existingPlayer;
+			console.log(`Player ${playerId} reconnected!`);
+		} else {
+			// New player
+			player = new Player(connection, playerId);
+			this.players.set(playerId, player);
+			console.log(`Player ${playerId} connected!`);
+		}
 		player.send({
 			type: "assignPlayer",
 			id: playerId,
@@ -45,14 +58,14 @@ export class PongController {
 				this.game.movePaddle(player, data.direction);
 				this.broadcast({
 					type: "update",
-					state: this.game.getState()
+					state: this.game.getState(),
 				});
 			}
 
 			// Initialize game
 			if (data.type === "initGame") {
 				if (this.isRunning === true)
-					return ;
+					return;
 				this.game.resetGame();
 				this.startGameLoop();
 				this.broadcast({
@@ -98,7 +111,12 @@ export class PongController {
 
 		connection.on("close", () => {
 			this.clients.delete(connection);
+			player.isPlaying = false;
 			console.log("Client disconnected!");
+			this.broadcast({
+				type: "playerDisconnected",
+				id: player.id,
+			});
 		});
 	};
 
@@ -107,6 +125,10 @@ export class PongController {
 			if (player.connection === conn) return player;
 		}
 		return undefined;
+	}
+
+	private getPlayerById(playerId: number): Player | undefined {
+		return this.players.get(playerId);
 	}
 
 	private assignPlayerId(): number | null {
