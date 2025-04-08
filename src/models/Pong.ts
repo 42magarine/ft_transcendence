@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:16:08 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/08 17:58:07 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/08 19:11:38 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,16 @@ export class PongGame {
 
 	resetGame(): void {
 		this.ball = new Ball(this.width / 2, this.heigth / 2, 4, 4, 10);
+		this.ball.randomizeDirection();
 		this.paddle1 = new Paddle(10, this.heigth / 2 - 50);
 		this.paddle2 = new Paddle(this.width - 20, this.heigth / 2 - 50);
 	}
 
+	resetScores(): void
+	{
+		this.score1 = 0;
+		this.score2 = 0;
+	}
 	pauseGame(): void {
 		this.paused = true;
 	}
@@ -129,7 +135,7 @@ export class PongGame {
 			},
 			score1: this.score1,
 			score2: this.score2,
-			isPaused: this.isPaused
+			isPaused: this.paused
 		};
 	}
 }

@@ -51,6 +51,8 @@ export class PongController {
 
 			// Initialize game
 			if (data.type === "initGame") {
+				if (this.isRunning === true)
+					return ;
 				this.game.resetGame();
 				this.startGameLoop();
 				this.broadcast({
@@ -63,6 +65,8 @@ export class PongController {
 			if (data.type === "resetGame") {
 				this.stopGameLoop();
 				this.game.resetGame();
+				this.game.resetScores();
+				this.startGameLoop();
 				this.broadcast({
 					type: "reset",
 					state: this.game.getState()
