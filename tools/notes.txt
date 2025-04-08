@@ -14,3 +14,45 @@ Aufgaben bis nächsten Dienstag:
 - Mathias:      SQLite Datenbank (Web Minor module)
 - Freddy:       Pong Game-Logik für Backend
 - Jonathan:     Projektstruktur, MVC
+
+
+
+db.exec(sql)
+    Führt ein einfaches SQL-Statement aus
+    Rückgabe: void
+    Wann benutzen? z. B. bei CREATE TABLE
+
+db.prepare(sql)
+    Erstellt ein vorbereitetes SQL-Statement
+    Rückgabe: Statement-Objekt
+    Wann benutzen? z. B. bei INSERT, SELECT, UPDATE, DELETE
+
+stmt.run(params)
+    Führt das vorbereitete Statement aus (ohne Rückgabedaten)
+    Rückgabe: Info-Objekt mit lastInsertRowid, changes usw.
+    Wann benutzen? z. B. bei INSERT, UPDATE, DELETE
+
+stmt.get(params)
+    Führt SELECT aus und gibt ein Ergebnis zurück
+    Rückgabe: Objekt oder undefined
+    Wann benutzen? z. B. SELECT * FROM users WHERE id = ?
+
+stmt.all(params)
+    Führt SELECT aus und gibt alle Ergebnisse zurück
+    Rückgabe: Array von Objekten
+    Wann benutzen? z. B. SELECT * FROM users
+
+
+SQL-Injection
+
+    Beispiel (sicher):
+        const stmt = db.prepare("INSERT INTO users (username) VALUES (?)");
+        stmt.run("robert'); DROP TABLE users;--");
+
+    Beispiel (unsicher):
+        const username = "robert'); DROP TABLE users;--";
+        const sql = `INSERT INTO users (username) VALUES ('${username}')`;
+        db.exec(sql);
+
+==>>    INSERT INTO users (username) VALUES ('robert');
+        DROP TABLE users;--');

@@ -2,14 +2,15 @@
 import Fastify from "fastify";
 import fastifyCors from "@fastify/cors";        // Cross-Origin Resource Sharing
 import fastifyStatic from "@fastify/static";
-// import fastifyWebsocket from "@fastify/websocket";
+import fastifyWebsocket from "@fastify/websocket";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // Import route modules
-import apiRoutes from "./routes/api.js";
-// import websocketRoutes from "./routes/websocket.js";
+// import apiRoutes from "./routes/api.js";
+import userRoutes from "./routes/user.js";
+import websocketRoutes from "./routes/websocket.js";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
@@ -21,7 +22,7 @@ const __rootdir: string = path.resolve(__dirname, "..");        // /app
 const fastify = Fastify();
 
 // Register Plugins
-// fastify.register(fastifyWebsocket);
+fastify.register(fastifyWebsocket);
 fastify.register(fastifyCors, {
     origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
     credentials: true
@@ -49,10 +50,11 @@ fastify.register(fastifyStatic, {
 });
 
 // Register API routes under /api/*
-fastify.register(apiRoutes, { prefix: "/api" });
+// fastify.register(apiRoutes, { prefix: "/api" });
+fastify.register(userRoutes, { prefix: "/api" });
 
 // Register WebSocket routes
-// fastify.register(websocketRoutes);
+fastify.register(websocketRoutes);
 
 // 404 Handler
 fastify.setNotFoundHandler(async (request, reply) => {
