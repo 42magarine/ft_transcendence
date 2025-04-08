@@ -22,8 +22,26 @@ socket.addEventListener("message", (event: MessageEvent<string>) => {
 	if (data.type === "initGame" || data.type === "update") {
 		state = data.state;
 		draw();
+		console.log("Game started.");
 	}
-	
+
+	if (data.type === "pauseGame") {
+		state = data.state;
+		draw();
+		console.log("Game paused.");
+	}
+
+	if (data.type === "resumeGame") {
+		state = data.state;
+		draw();
+		console.log("Game restarted.");
+	}
+
+	if (data.type === "resetGame") {
+		state = data.state;
+		draw();
+		console.log("Game resumed.");
+	}
 });
 
 socket.addEventListener("error", (err) => {
@@ -60,7 +78,7 @@ setInterval(handleInput, 1000 / 60);
 
 
 function draw() {
-	if (!state) return;
+	if (!state || state.paused) return;
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -95,12 +113,18 @@ function draw() {
 	// }
   });
 
-  const stopGameBtn = document.getElementById("stopGameBtn") as HTMLButtonElement;
-  stopGameBtn.addEventListener("click", () => {
-	  socket.send(JSON.stringify({ type: "stopGame" }));
+  const pauseGameBtn = document.getElementById("pauseGameBtn") as HTMLButtonElement;
+  pauseGameBtn.addEventListener("click", () => {
+	  socket.send(JSON.stringify({ type: "pauseGame" }));
   });
 
-  const restartGameBtn = document.getElementById("restartGameBtn") as HTMLButtonElement;
-  restartGameBtn.addEventListener("click", () => {
-	  socket.send(JSON.stringify({ type: "restartGame" }));
+  const resumeGameBtn = document.getElementById("resumeGameBtn") as HTMLButtonElement;
+  resumeGameBtn.addEventListener("click", () => {
+	  socket.send(JSON.stringify({ type: "resumeGame" }));
   });
+
+  const resetGameBtn = document.getElementById("resetGameBtn") as HTMLButtonElement;
+  resetGameBtn.addEventListener("click", () => {
+	  socket.send(JSON.stringify({ type: "resetGame" }));
+  });
+

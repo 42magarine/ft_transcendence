@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:16:08 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/08 15:18:36 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/08 17:58:07 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ export class PongGame {
 	private score1: number = 0;
 	private score2: number = 0;
 	private isRunning: boolean = false;
+	private paused: boolean = false;
 
 	constructor(private width: number, private heigth: number) {
 		this.ball = new Ball(this.width / 2, this.heigth / 2, 4, 4, 10);
@@ -34,18 +35,29 @@ export class PongGame {
 		this.paddle2 = new Paddle(this.width - 20, this.heigth / 2 - 50);
 	}
 
-	stopGame(): void {
-		this.isRunning = false;
+	pauseGame(): void {
+		this.paused = true;
+	}
+
+	resumeGame(): void {
+		this.paused = false;
 	}
 
 	startGame(): void {
 		this.isRunning = true;
 	}
 
+	public isPaused(): boolean {
+		return this.paused;
+	}
+
+
 	update(): void {
 		const steps = 4;
 		const stepSize = 1 / steps;
 
+		if (this.paused === true)
+			return ;
 		for (let i = 0; i < steps; i++) {
 			this.ball.updateBall(stepSize);
 
@@ -116,7 +128,8 @@ export class PongGame {
 				height: this.paddle2.height
 			},
 			score1: this.score1,
-			score2: this.score2
+			score2: this.score2,
+			isPaused: this.isPaused
 		};
 	}
 }

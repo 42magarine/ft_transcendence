@@ -9,6 +9,7 @@ export class PongController {
 	private intervalId: NodeJS.Timeout | null = null;
 	private clients: Set<WebSocket>;
 	private gameController: GameController;
+	private isRunning: boolean = false;
 
 	constructor() {
 		this.gameController = GameController.getInstance();
@@ -60,6 +61,7 @@ export class PongController {
 
 			// Reset game
 			if (data.type === "resetGame") {
+				this.stopGameLoop();
 				this.game.resetGame();
 				this.broadcast({
 					type: "reset",
@@ -68,20 +70,23 @@ export class PongController {
 			}
 
 			// Stop the game
-			if (data.type === "stopGame") {
-				this.game.stopGame();
+			if (data.type === "pauseGame") {
+				this.game.pauseGame();
 				this.broadcast({
-					type: "stopGame",
+					type: "pauseGame",
 					state: this.game.getState()
 				});
 			}
+			// Resume the game
+			if (data.type === "resumeGame") {
+				this.game.resumeGame();
 
-			// Restart the game
-			if (data.type === "restartGame") {
-				this.game.resetGame();
-				this.game.startGame();
+				if (!this.isRunning) {
+					this.startGameLoop();
+				}
+
 				this.broadcast({
-					type: "restartGame",
+					type: "resumeGame",
 					state: this.game.getState()
 				});
 			}
@@ -107,13 +112,24 @@ export class PongController {
 	}
 
 	private startGameLoop() {
+		if (this.isRunning === true) return;
+		this.isRunning = true;
 		this.intervalId = setInterval(() => {
+			if (this.game.isPaused() === true) return;
 			this.game.update();
 			this.broadcast({
 				type: "update",
 				state: this.game.getState()
 			});
 		}, 1000 / 60); // 60 FPS
+	}
+
+	private stopGameLoop() {
+		if (this.intervalId) {
+			clearInterval(this.intervalId);
+			this.intervalId = null;
+		}
+		this.isRunning = false;
 	}
 
 	private broadcast(data: object) {
