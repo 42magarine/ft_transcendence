@@ -1,10 +1,11 @@
-const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
+// const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
+const socket: WebSocket = new WebSocket("ws://10.11.2.29:3000/ws");
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
 let state: any = null;
 let playerId: number | null = null;
 let keysPressed: Record<string, boolean> = {};
-
+import { PADDLE_WIDTH, PADDLE_HEIGHT, BALL_RADIUS } from "../models/Constants.js";
 //listen for websocket connection
 socket.addEventListener("open", ()=> {
 	console.log("connected to pong server");
@@ -22,6 +23,7 @@ socket.addEventListener("message", (event: MessageEvent<string>) => {
 		state = data.state;
 		draw();
 	}
+	
 });
 
 socket.addEventListener("error", (err) => {
@@ -64,27 +66,41 @@ function draw() {
 
 	// Draw ball
 	ctx.beginPath();
-	ctx.arc(state.ball.x, state.ball.y, 10, 0, Math.PI * 2);
+	ctx.arc(state.ball.x, state.ball.y, state.ball.radius, 0, Math.PI * 2);
 	ctx.fillStyle = "#FFFFFF";
 	ctx.fill();
 	ctx.closePath();
 
-	// Draw paddles
+	// Draw paddles (filled)
 	ctx.fillStyle = "#FF0000";
-	ctx.fillRect(10, state.paddle1.y, 10, 100); // Assuming paddle width=10, height=100
-	ctx.fillRect(canvas.width - 20, state.paddle2.y, 10, 100);
+	ctx.fillRect(state.paddle1.x, state.paddle1.y, state.paddle1.width, state.paddle1.height);
+	ctx.fillRect(state.paddle2.x, state.paddle2.y, state.paddle2.width, state.paddle2.height);
 
-	// Draw the scores
+	// Add paddle hitbox outlines
+	ctx.strokeStyle = "#00FF00"; // Green outline for debugging
+	ctx.strokeRect(state.paddle1.x, state.paddle1.y, state.paddle1.width, state.paddle1.height);
+	ctx.strokeRect(state.paddle2.x, state.paddle2.y, state.paddle2.width, state.paddle2.height);
+
+	// Draw scores
 	ctx.font = "24px Arial";
 	ctx.fillStyle = "#FFFFFF";
 	ctx.fillText(`Player 1: ${state.score1}`, 50, 30);
 	ctx.fillText(`Player 2: ${state.score2}`, canvas.width - 180, 30);
-  }
+}
 
-  // Button click event to start the game
   const startGameBtn = document.getElementById("startGameBtn") as HTMLButtonElement;
   startGameBtn.addEventListener("click", () => {
 	// if (playerId) {
 		socket.send(JSON.stringify({ type: "initGame" })); // Send init message to the server
 	// }
+  });
+
+  const stopGameBtn = document.getElementById("stopGameBtn") as HTMLButtonElement;
+  stopGameBtn.addEventListener("click", () => {
+	  socket.send(JSON.stringify({ type: "stopGame" }));
+  });
+
+  const restartGameBtn = document.getElementById("restartGameBtn") as HTMLButtonElement;
+  restartGameBtn.addEventListener("click", () => {
+	  socket.send(JSON.stringify({ type: "restartGame" }));
   });

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:16:08 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/07 19:32:20 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/08 15:18:36 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,35 +22,59 @@ export class PongGame {
 	private score2: number = 0;
 	private isRunning: boolean = false;
 
-	constructor(private width: number, private heigth: number){
+	constructor(private width: number, private heigth: number) {
 		this.ball = new Ball(this.width / 2, this.heigth / 2, 4, 4, 10);
-        this.paddle1 = new Paddle(10, this.heigth / 2 - 50);
-        this.paddle2 = new Paddle(this.width - 20, this.heigth / 2 - 50);
+		this.paddle1 = new Paddle(10, this.heigth / 2 - 50);
+		this.paddle2 = new Paddle(this.width - 20, this.heigth / 2 - 50);
 	}
 
 	resetGame(): void {
 		this.ball = new Ball(this.width / 2, this.heigth / 2, 4, 4, 10);
-        this.paddle1 = new Paddle(10, this.heigth / 2 - 50);
-        this.paddle2 = new Paddle(this.width - 20, this.heigth / 2 - 50);
+		this.paddle1 = new Paddle(10, this.heigth / 2 - 50);
+		this.paddle2 = new Paddle(this.width - 20, this.heigth / 2 - 50);
+	}
+
+	stopGame(): void {
+		this.isRunning = false;
+	}
+
+	startGame(): void {
+		this.isRunning = true;
 	}
 
 	update(): void {
-		this.ball.updateBall();
+		const steps = 4;
+		const stepSize = 1 / steps;
 
-		if (this.ball.y <= 0 || this.ball.y >= this.heigth) {
-			this.ball.revY();
-		}
+		for (let i = 0; i < steps; i++) {
+			this.ball.updateBall(stepSize);
 
-		if (this.isColliding(this.ball, this.paddle1) || this.isColliding(this.ball, this.paddle2)) {
-			this.ball.revX();
-		}
+			// Wall bounce
+			if (this.ball.y <= 0 || this.ball.y >= this.heigth) {
+				this.ball.revY();
+			}
 
-		if (this.ball.x < 0) {
-			this.score2++;
-			this.resetGame();
-		} else if (this.ball.x > this.width) {
-			this.score1++;
-			this.resetGame();
+			// Paddle bounce
+			if (this.isColliding(this.ball, this.paddle1)) {
+				const overlapY = this.ball.y - (this.paddle1.y + this.paddle1.height / 2);
+				this.ball.revX();
+				this.ball.speedY += overlapY * 0.05;
+			} else if (this.isColliding(this.ball, this.paddle2)) {
+				const overlapY = this.ball.y - (this.paddle2.y + this.paddle2.height / 2);
+				this.ball.revX();
+				this.ball.speedY += overlapY * 0.05;
+			}
+
+			// Scoring
+			if (this.ball.x < 0) {
+				this.score2++;
+				this.resetGame();
+				break;
+			} else if (this.ball.x > this.width) {
+				this.score1++;
+				this.resetGame();
+				break;
+			}
 		}
 	}
 
@@ -74,9 +98,23 @@ export class PongGame {
 
 	getState(): object {
 		return {
-			ball: { x: this.ball.x, y: this.ball.y },
-			paddle1: { y: this.paddle1.y },
-			paddle2: { y: this.paddle2.y },
+			ball: {
+				x: this.ball.x,
+				y: this.ball.y,
+				radius: this.ball.radius
+			},
+			paddle1: {
+				x: this.paddle1.x,
+				y: this.paddle1.y,
+				width: this.paddle1.width,
+				height: this.paddle1.height
+			},
+			paddle2: {
+				x: this.paddle2.x,
+				y: this.paddle2.y,
+				width: this.paddle2.width,
+				height: this.paddle2.height
+			},
 			score1: this.score1,
 			score2: this.score2
 		};

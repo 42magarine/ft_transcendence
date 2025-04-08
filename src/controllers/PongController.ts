@@ -39,6 +39,7 @@ export class PongController {
 			const player = this.getPlayerByConnection(connection);
 			if (!player) return;
 
+			// Handle paddle movement
 			if (data.type === "movePaddle") {
 				this.game.movePaddle(player, data.direction);
 				this.broadcast({
@@ -47,6 +48,7 @@ export class PongController {
 				});
 			}
 
+			// Initialize game
 			if (data.type === "initGame") {
 				this.game.resetGame();
 				this.startGameLoop();
@@ -56,6 +58,7 @@ export class PongController {
 				});
 			}
 
+			// Reset game
 			if (data.type === "resetGame") {
 				this.game.resetGame();
 				this.broadcast({
@@ -64,7 +67,26 @@ export class PongController {
 				});
 			}
 
+			// Stop the game
+			if (data.type === "stopGame") {
+				this.game.stopGame();
+				this.broadcast({
+					type: "stopGame",
+					state: this.game.getState()
+				});
+			}
+
+			// Restart the game
+			if (data.type === "restartGame") {
+				this.game.resetGame();
+				this.game.startGame();
+				this.broadcast({
+					type: "restartGame",
+					state: this.game.getState()
+				});
+			}
 		});
+
 		connection.on("close", () => {
 			this.clients.delete(connection);
 			console.log("Client disconnected!");

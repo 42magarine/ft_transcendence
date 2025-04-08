@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 15:55:26 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/07 17:46:36 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/08 14:06:08 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,10 @@ export class Ball {
 		this.radius = radius;
 	}
 
-	updateBall(): void
-	{
-		this.x += this.speedX;
-		this.y += this.speedY;
+	updateBall(timeStep = 1): void {
+		this.x += this.speedX * timeStep;
+		this.y += this.speedY * timeStep;
 	}
-
 	revX(): void
 	{
 		this.speedX *= -1;
@@ -41,5 +39,5 @@ export class Ball {
 		this.speedY *= -1;
 	}
 
-	
+
 }
