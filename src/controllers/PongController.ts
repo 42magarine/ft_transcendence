@@ -15,136 +15,110 @@ export class PongController {
 		this.gameController = GameController.getInstance();
 		this.clients = new Set<WebSocket>();
 	}
-	
+
 	public handleConnection = (connection: WebSocket) => {
 		console.log("A new client connected!");
 		this.clients.add(connection);
 
 		let player: Player;
-		let playerId: number | null = null;
+		const playerId = this.assignPlayerId();
 
-		// Listen for the message from the client with their player ID (if they are reconnecting)
-		connection.on("message", (message) => {
-		  const data = JSON.parse(message.toString());
-
-		  if (data.type === "reconnectPlayer" && data.playerId) {
-			// Look for the existing player by ID (player ID from the client)
-			const existingPlayer = this.getPlayerById(data.playerId);
-
-			if (existingPlayer && !existingPlayer.isPlaying) {
-			  // Player is reconnecting, reassign the connection
-			  existingPlayer.reconnect(connection);
-			  player = existingPlayer;
-			  playerId = existingPlayer.id;
-			  console.log(`Player ${playerId} reconnected!`);
-			} else {
-			  // No valid player found or player is already playing
-			  playerId = this.assignPlayerId();
-			}
-		  } else if (data.type === "assignPlayer") {
-			// No player ID sent, assign a new player ID
-			playerId = this.assignPlayerId();
-		  }
-
-		  // If no player ID could be assigned (game is full), reject the connection
-		  if (!playerId) {
+		if (!playerId) {
 			connection.send(JSON.stringify({ type: "error", message: "Game is full" }));
 			connection.close();
 			return;
-		  }
+		}
 
-		  // If player is a new player, create a new Player instance
-		  if (!player) {
+		// Check if the player is reconnecting (already has an ID)
+		const existingPlayer = this.getPlayerById(playerId);
+		if (existingPlayer && !existingPlayer.isPlaying) {
+			// Player is reconnecting, reassign the connection
+			existingPlayer.reconnect(connection);
+			player = existingPlayer;
+			console.log(`Player ${playerId} reconnected!`);
+		} else {
+			// New player
 			player = new Player(connection, playerId);
 			this.players.set(playerId, player);
 			console.log(`Player ${playerId} connected!`);
-		  }
-
-		  // Send initial state and player ID to the connected player
-		  player.send({
+		}
+		player.send({
 			type: "assignPlayer",
 			id: playerId,
 			state: this.game.getState(),
-		  });
 		});
 
-		// Handle game actions once the connection is established
 		connection.on("message", (message) => {
-		  const data = JSON.parse(message.toString());
-		  const player = this.getPlayerByConnection(connection);
-		  if (!player) return;
+			const data = JSON.parse(message.toString());
+			const player = this.getPlayerByConnection(connection);
+			if (!player) return;
 
-		  // Handle paddle movement
-		  if (data.type === "movePaddle") {
-			this.game.movePaddle(player, data.direction);
-			this.broadcast({
-			  type: "update",
-			  state: this.game.getState(),
-			});
-		  }
-
-		  // Initialize game
-		  if (data.type === "initGame") {
-			if (this.isRunning === true) return;
-			this.game.resetGame();
-			this.startGameLoop();
-			this.broadcast({
-			  type: "initGame",
-			  state: this.game.getState(),
-			});
-		  }
-
-		  // Reset game
-		  if (data.type === "resetGame") {
-			this.stopGameLoop();
-			this.game.resetGame();
-			this.game.resetScores();
-			this.startGameLoop();
-			this.broadcast({
-			  type: "reset",
-			  state: this.game.getState(),
-			});
-		  }
-
-		  // Stop the game
-		  if (data.type === "pauseGame") {
-			this.game.pauseGame();
-			this.broadcast({
-			  type: "pauseGame",
-			  state: this.game.getState(),
-			});
-		  }
-
-		  // Resume the game
-		  if (data.type === "resumeGame") {
-			this.game.resumeGame();
-			if (!this.isRunning) {
-			  this.startGameLoop();
+			// Handle paddle movement
+			if (data.type === "movePaddle") {
+				this.game.movePaddle(player, data.direction);
+				this.broadcast({
+					type: "update",
+					state: this.game.getState(),
+				});
 			}
-			this.broadcast({
-			  type: "resumeGame",
-			  state: this.game.getState(),
-			});
-		  }
+
+			// Initialize game
+			if (data.type === "initGame") {
+				if (this.isRunning === true)
+					return;
+				this.game.resetGame();
+				this.startGameLoop();
+				this.broadcast({
+					type: "initGame",
+					state: this.game.getState(),
+				});
+			}
+
+			// Reset game
+			if (data.type === "resetGame") {
+				this.stopGameLoop();
+				this.game.resetGame();
+				this.game.resetScores();
+				this.startGameLoop();
+				this.broadcast({
+					type: "reset",
+					state: this.game.getState()
+				});
+			}
+
+			// Stop the game
+			if (data.type === "pauseGame") {
+				this.game.pauseGame();
+				this.broadcast({
+					type: "pauseGame",
+					state: this.game.getState()
+				});
+			}
+			// Resume the game
+			if (data.type === "resumeGame") {
+				this.game.resumeGame();
+
+				if (!this.isRunning) {
+					this.startGameLoop();
+				}
+
+				this.broadcast({
+					type: "resumeGame",
+					state: this.game.getState()
+				});
+			}
 		});
 
-		// Handle disconnection
 		connection.on("close", () => {
-		  if (playerId !== null) {
 			this.clients.delete(connection);
-			const player = this.getPlayerById(playerId);
-			if (player) {
-			  player.isPlaying = false; // Mark player as disconnected
-			  console.log(`Player ${playerId} disconnected!`);
-			  this.broadcast({
+			player.isPlaying = false;
+			console.log("Client disconnected!");
+			this.broadcast({
 				type: "playerDisconnected",
-				id: playerId,
-			  });
-			}
-		  }
+				id: player.id,
+			});
 		});
-	  };
-
+	};
 
 	private getPlayerByConnection(conn: WebSocket): Player | undefined {
 		for (const player of this.players.values()) {
