@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "build": "tsc",
     "start": "node dist/app.js",
     "dev": "tsc --watch & nodemon dist/app.js"
   },
