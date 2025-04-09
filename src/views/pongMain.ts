@@ -1,5 +1,5 @@
 // const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
-const socket: WebSocket = new WebSocket("ws://10.11.2.29:3000/ws");
+const socket: WebSocket = new WebSocket("ws://10.11.2.27:3000/ws");
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
 let state: any = null;

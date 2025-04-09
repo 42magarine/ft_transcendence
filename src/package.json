@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch",
-    "server": "node ./dist/app.js"
+    "server": "node ./dist/app.js",
+    "dev": "tsc --watch & nodemon ./dist/app.js"
   },
   "dependencies": {
     "@fastify/cors": "^11.0.1",
