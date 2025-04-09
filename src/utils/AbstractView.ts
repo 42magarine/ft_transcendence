@@ -38,7 +38,6 @@ export default abstract class AbstractView {
 	}
 
 	async render(template: string, data: any = {}): Promise<string> {
-		// Merge props with data
 		const mergedData = { ...data, props: this.props };
 		return this.templateEngine.render(template, mergedData);
 	}

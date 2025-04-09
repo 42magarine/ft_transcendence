@@ -1,10 +1,14 @@
-import './utils/TemplateEngine.js';
-import Router from '../utils/router.js';
+// utils
+import '../utils/TemplateEngine.js';
+import Router from '../utils/Router.js';
+import { TemplateEngine } from '../utils/TemplateEngine.js';
+
+// views
 import Home from './views/Home.js';
 import Pong from './views/Pong.js';
 import TicTacToe from './views/TicTacToe.js';
 
-import { TemplateEngine } from '../utils/TemplateEngine.js';
+// components
 import Card from './components/Card.js';
 import Button from './components/Button.js';
 
