@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { PongGame } from "../models/Pong.js";
-import { Player } from "../models/PongPlayer.js"
+import { Player } from "../models/PongPlayer.js";
 import { GameController } from "./GameController.js";
 
 export class PongController {
@@ -20,7 +20,6 @@ export class PongController {
 		console.log("A new client connected!");
 		this.clients.add(connection);
 
-		let player: Player;
 		const playerId = this.assignPlayerId();
 
 		if (!playerId) {
@@ -29,86 +28,62 @@ export class PongController {
 			return;
 		}
 
-		// Check if the player is reconnecting (already has an ID)
-		const existingPlayer = this.getPlayerById(playerId);
-		if (existingPlayer && !existingPlayer.isPlaying) {
-			// Player is reconnecting, reassign the connection
-			existingPlayer.reconnect(connection);
-			player = existingPlayer;
+		const player = this.setupPlayer(connection, playerId);
+
+		this.setupMessageHandler(connection);
+		this.setupCloseHandler(connection, player);
+	};
+
+	private setupPlayer(connection: WebSocket, playerId: number): Player {
+		let player = this.getPlayerById(playerId);
+
+		if (player && !player.isPlaying) {
+			player.reconnect(connection);
 			console.log(`Player ${playerId} reconnected!`);
 		} else {
-			// New player
 			player = new Player(connection, playerId);
 			this.players.set(playerId, player);
 			console.log(`Player ${playerId} connected!`);
 		}
+
 		player.send({
 			type: "assignPlayer",
 			id: playerId,
 			state: this.game.getState(),
 		});
 
-		connection.on("message", (message) => {
-			const data = JSON.parse(message.toString());
+		return player;
+	}
+
+	private setupMessageHandler(connection: WebSocket) {
+		connection.on("message", (msg) => {
+			let data: any;
+			try {
+				data = JSON.parse(msg.toString());
+			} catch {
+				console.warn("Invalid message:", msg);
+				return;
+			}
+
 			const player = this.getPlayerByConnection(connection);
 			if (!player) return;
 
-			// Handle paddle movement
-			if (data.type === "movePaddle") {
-				this.game.movePaddle(player, data.direction);
-				this.broadcast({
-					type: "update",
-					state: this.game.getState(),
-				});
-			}
+			const handlers: Record<string, (data: any, player: Player) => void> = {
+				movePaddle: this.handleMovePaddle,
+				initGame: this.handleInitGame,
+				resetGame: this.handleResetGame,
+				pauseGame: this.handlePauseGame,
+				resumeGame: this.handleResumeGame,
+			};
 
-			// Initialize game
-			if (data.type === "initGame") {
-				if (this.isRunning === true)
-					return;
-				this.game.resetGame();
-				this.startGameLoop();
-				this.broadcast({
-					type: "initGame",
-					state: this.game.getState(),
-				});
-			}
-
-			// Reset game
-			if (data.type === "resetGame") {
-				this.stopGameLoop();
-				this.game.resetGame();
-				this.game.resetScores();
-				this.startGameLoop();
-				this.broadcast({
-					type: "reset",
-					state: this.game.getState()
-				});
-			}
-
-			// Stop the game
-			if (data.type === "pauseGame") {
-				this.game.pauseGame();
-				this.broadcast({
-					type: "pauseGame",
-					state: this.game.getState()
-				});
-			}
-			// Resume the game
-			if (data.type === "resumeGame") {
-				this.game.resumeGame();
-
-				if (!this.isRunning) {
-					this.startGameLoop();
-				}
-
-				this.broadcast({
-					type: "resumeGame",
-					state: this.game.getState()
-				});
+			const handler = handlers[data.type];
+			if (handler) {
+				handler.call(this, data, player);
 			}
 		});
+	}
 
+	private setupCloseHandler(connection: WebSocket, player: Player) {
 		connection.on("close", () => {
 			this.clients.delete(connection);
 			player.isPlaying = false;
@@ -118,7 +93,41 @@ export class PongController {
 				id: player.id,
 			});
 		});
-	};
+	}
+
+	private handleMovePaddle(data: any, player: Player) {
+		this.game.movePaddle(player, data.direction);
+		this.broadcast({
+			type: "update",
+			state: this.game.getState(),
+		});
+	}
+
+	private handleInitGame(_: any, __: Player) {
+		if (this.isRunning) return;
+		this.game.resetGame();
+		this.startGameLoop();
+		this.broadcast({ type: "initGame", state: this.game.getState() });
+	}
+
+	private handleResetGame(_: any, __: Player) {
+		this.stopGameLoop();
+		this.game.resetGame();
+		this.game.resetScores();
+		this.startGameLoop();
+		this.broadcast({ type: "reset", state: this.game.getState() });
+	}
+
+	private handlePauseGame(_: any, __: Player) {
+		this.game.pauseGame();
+		this.broadcast({ type: "pauseGame", state: this.game.getState() });
+	}
+
+	private handleResumeGame(_: any, __: Player) {
+		this.game.resumeGame();
+		if (!this.isRunning) this.startGameLoop();
+		this.broadcast({ type: "resumeGame", state: this.game.getState() });
+	}
 
 	private getPlayerByConnection(conn: WebSocket): Player | undefined {
 		for (const player of this.players.values()) {
@@ -138,14 +147,14 @@ export class PongController {
 	}
 
 	private startGameLoop() {
-		if (this.isRunning === true) return;
+		if (this.isRunning) return;
 		this.isRunning = true;
 		this.intervalId = setInterval(() => {
-			if (this.game.isPaused() === true) return;
+			if (this.game.isPaused()) return;
 			this.game.update();
 			this.broadcast({
 				type: "update",
-				state: this.game.getState()
+				state: this.game.getState(),
 			});
 		}, 1000 / 60); // 60 FPS
 	}
@@ -160,7 +169,6 @@ export class PongController {
 
 	private broadcast(data: object) {
 		const message = JSON.stringify(data);
-
 		this.clients.forEach((client) => {
 			if (client.readyState === WebSocket.OPEN) {
 				client.send(message);
@@ -168,4 +176,3 @@ export class PongController {
 		});
 	}
 }
-

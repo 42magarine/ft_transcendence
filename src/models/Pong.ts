@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:16:08 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/08 19:11:38 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/04/09 16:46:09 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,8 @@ export class PongGame {
 
 
 	update(): void {
-		const steps = 4;
+		// move stepsize to ball class?
+		const steps: number = 4;
 		const stepSize = 1 / steps;
 
 		if (this.paused === true)
@@ -74,11 +75,11 @@ export class PongGame {
 
 			// Paddle bounce
 			if (this.isColliding(this.ball, this.paddle1)) {
-				const overlapY = this.ball.y - (this.paddle1.y + this.paddle1.height / 2);
+				const overlapY: number = this.ball.y - (this.paddle1.y + this.paddle1.height / 2);
 				this.ball.revX();
 				this.ball.speedY += overlapY * 0.05;
 			} else if (this.isColliding(this.ball, this.paddle2)) {
-				const overlapY = this.ball.y - (this.paddle2.y + this.paddle2.height / 2);
+				const overlapY: number = this.ball.y - (this.paddle2.y + this.paddle2.height / 2);
 				this.ball.revX();
 				this.ball.speedY += overlapY * 0.05;
 			}
