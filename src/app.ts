@@ -8,7 +8,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // Import route modules
-// import apiRoutes from "./routes/api.js";
 import userRoutes from "./routes/user.js";
 import websocketRoutes from "./routes/websocket.js";
 
@@ -50,7 +49,6 @@ fastify.register(fastifyStatic, {
 });
 
 // Register API routes under /api/*
-// fastify.register(apiRoutes, { prefix: "/api" });
 fastify.register(userRoutes, { prefix: "/api" });
 
 // Register WebSocket routes

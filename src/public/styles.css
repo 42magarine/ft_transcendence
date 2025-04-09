@@ -1,7 +1,6 @@
 body {
     background-color: black;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    color: beige;
     text-align: center;
 }
 
@@ -56,4 +55,8 @@ p {
 
 .restartButton:hover {
     background-color: rgb(240, 180, 30);
+}
+
+ul, div {
+    color: beige;
 }

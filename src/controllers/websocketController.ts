@@ -16,7 +16,7 @@ export class WebsocketController {
 
         connection.send(JSON.stringify({
             type: "initBoard",
-            data: this.gameController.getGameState()
+            board: this.gameController.getGameState()
         }));
 
         connection.on("message", (message) => {
