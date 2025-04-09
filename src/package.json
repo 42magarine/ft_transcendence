@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch",
-    "server": "node ./dist/app.js",
-    "db": "node ./dist/models/db.js"
+    "start": "node dist/app.js",
+    "dev": "tsc --watch & nodemon dist/app.js"
   },
   "dependencies": {
     "@fastify/cors": "^11.0.1",
@@ -20,6 +19,7 @@
     "better-sqlite3": "^11.9.1",
     "ejs": "^3.1.10",
     "fastify": "^5.2.2",
+    "nodemon": "^3.1.9",
     "typescript": "^5.8.3"
   }
 }

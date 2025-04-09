@@ -1,5 +1,5 @@
-// const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
-const socket: WebSocket = new WebSocket("ws://10.11.2.31:3000/ws"); // 1-B-31
+const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
+// const socket: WebSocket = new WebSocket("ws://10.11.2.31:3000/ws"); // 1-B-31
 
 const headerTitle = document.querySelector("h1") as HTMLHeadingElement;
 const gameBoard = document.querySelector(".gameBoard") as HTMLDivElement;

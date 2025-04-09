@@ -56,3 +56,22 @@ SQL-Injection
 
 ==>>    INSERT INTO users (username) VALUES ('robert');
         DROP TABLE users;--');
+
+
+
+Modules:
+    Web:
+        Use a framework to build the backend. (1)
+        Use a framework or a toolkit to build the frontend. (0.5)
+        Use a database for the backend. (0.5)
+
+    User Management:
+        Standard user management, authentication, users across tournaments. (1)
+
+    Gameplay and user experience:
+        Remote players (1)
+
+    Cybersecurity:
+        Implement Two-Factor Authentication (2FA) and JWT. (1)
+
+Sum: 5
