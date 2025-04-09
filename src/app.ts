@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 // Import route modules
 import userRoutes from "./routes/user.js";
 // import websocketRoutes from "./routes/websocket.js";
-import pongWebsocketRoutes from "./routes/pongRoutes.js";
+import pongWebsocketRoutes from "./routes/websocket.js";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js

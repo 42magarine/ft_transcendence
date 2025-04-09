@@ -115,7 +115,8 @@
     "controllers/**/*",
     "models/**/*",
     "routes/**/*",
-    "views/**/*",
+    "types/**/*",
+    "views/**/*"
   ],
   "exclude": [
     "node_modules"

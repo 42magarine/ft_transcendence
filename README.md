@@ -9,7 +9,7 @@
 
 - **Access the running container's shell:**
   ```bash
-  docker compose exec tic_tac_toe sh
+  docker compose exec ft_transcendence sh
   ```
 
 ### npm (Node Package Manager) / npx (Node Package eXecute)
@@ -24,26 +24,26 @@
   npm install
   ```
 
-- **Run the `build` or `watch` script** (e.g., TypeScript compilation):
+- **Run the `build` , `start` or `dev` script**
   ```bash
-  npm run build # or watch
+  npm run build # start or dev
   ```
 
 - **`package.json`**:
-  This file manages project metadata and scripts (e.g., build and watch commands).
+  This file manages project metadata and scripts.
 
 ### TypeScript (tsc - TypeScript Compiler)
+
+- **Create a `tsconfig.json` configuration file** with the recommended settings:
+  ```bash
+  tsc --init
+  ```
 
 - **Compile the TypeScript project**:
   ```bash
   tsc
   ```
   This will compile the project based on the `tsconfig.json` file.
-
-- **Create a `tsconfig.json` configuration file** with the recommended settings:
-  ```bash
-  tsc --init
-  ```
 
 - **Generate a `.d.ts` declaration file** for type definitions:
   ```bash
@@ -57,14 +57,3 @@
 
 - **`tsconfig.json`**:
   This file configures the TypeScript compiler settings (e.g., target, module, source directories).
-
-### DOM (Document Object Model)
-
-The **DOM** represents the structure of an HTML document and provides a way to interact with the document from JavaScript (or TypeScript). It represents the page so you can modify the content, structure, and style dynamically.
-
-### http-server
-
-- **Serve the project locally**:
-  ```bash
-  npm run serve
-  ```

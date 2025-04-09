@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import type { Database as DBType} from "better-sqlite3";
+import type { Database as DBType } from "better-sqlite3";
 
 export const db: DBType = new Database("/app/models/db/userDB.db", { verbose: console.log });
 
