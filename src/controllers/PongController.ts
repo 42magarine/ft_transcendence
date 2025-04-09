@@ -2,131 +2,132 @@ import { WebSocket } from "ws";
 import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/PongPlayer.js";
 import { GameController } from "./GameController.js";
+import { ClientMessage, ServerMessage } from "../types/messages.js";
 
 export class PongController {
-	private game = new PongGame(800, 600);
+	private game: PongGame = new PongGame(800, 600);
 	private players: Map<number, Player> = new Map();
 	private intervalId: NodeJS.Timeout | null = null;
-	private clients: Set<WebSocket>;
-	private gameController: GameController;
+	private clients: Set<WebSocket> = new Set();
+	private gameController: GameController = GameController.getInstance();
 	private isRunning: boolean = false;
 
-	constructor() {
-		this.gameController = GameController.getInstance();
-		this.clients = new Set<WebSocket>();
-	}
-
-	public handleConnection = (connection: WebSocket) => {
+	public handleConnection = (connection: WebSocket): void => {
 		console.log("A new client connected!");
 		this.clients.add(connection);
 
 		const playerId = this.assignPlayerId();
 
 		if (!playerId) {
-			connection.send(JSON.stringify({ type: "error", message: "Game is full" }));
+			this.sendMessage(connection, {
+				type: "error",
+				message: "Game is full"
+			});
 			connection.close();
 			return;
 		}
 
 		const player = this.setupPlayer(connection, playerId);
 
-		this.setupMessageHandler(connection);
-		this.setupCloseHandler(connection, player);
-	};
-
-	private setupPlayer(connection: WebSocket, playerId: number): Player {
-		let player = this.getPlayerById(playerId);
-
-		if (player && !player.isPlaying) {
-			player.reconnect(connection);
-			console.log(`Player ${playerId} reconnected!`);
-		} else {
-			player = new Player(connection, playerId);
-			this.players.set(playerId, player);
-			console.log(`Player ${playerId} connected!`);
-		}
-
-		player.send({
+		this.sendMessage(connection, {
 			type: "assignPlayer",
 			id: playerId,
-			state: this.game.getState(),
+			state: this.game.getState()
 		});
 
-		return player;
-	}
+		connection.on("message", (message: string | Buffer) =>
+			this.handleMessage(message, connection)
+		);
 
-	private setupMessageHandler(connection: WebSocket) {
-		connection.on("message", (msg) => {
-			let data: any;
-			try {
-				data = JSON.parse(msg.toString());
-			} catch {
-				console.warn("Invalid message:", msg);
-				return;
-			}
-
-			const player = this.getPlayerByConnection(connection);
-			if (!player) return;
-
-			const handlers: Record<string, (data: any, player: Player) => void> = {
-				movePaddle: this.handleMovePaddle,
-				initGame: this.handleInitGame,
-				resetGame: this.handleResetGame,
-				pauseGame: this.handlePauseGame,
-				resumeGame: this.handleResumeGame,
-			};
-
-			const handler = handlers[data.type];
-			if (handler) {
-				handler.call(this, data, player);
-			}
-		});
-	}
-
-	private setupCloseHandler(connection: WebSocket, player: Player) {
 		connection.on("close", () => {
 			this.clients.delete(connection);
 			player.isPlaying = false;
-			console.log("Client disconnected!");
+			console.log(`Player ${player.id} disconnected!`);
 			this.broadcast({
 				type: "playerDisconnected",
-				id: player.id,
+				id: player.id
 			});
 		});
+	};
+
+	private setupPlayer(connection: WebSocket, playerId: number): Player {
+		const existingPlayer = this.players.get(playerId);
+		if (existingPlayer && !existingPlayer.isPlaying) {
+			existingPlayer.reconnect(connection);
+			console.log(`Player ${playerId} reconnected!`);
+			return existingPlayer;
+		}
+
+		const newPlayer = new Player(connection, playerId);
+		this.players.set(playerId, newPlayer);
+		console.log(`Player ${playerId} connected!`);
+		return newPlayer;
 	}
 
-	private handleMovePaddle(data: any, player: Player) {
-		this.game.movePaddle(player, data.direction);
-		this.broadcast({
-			type: "update",
-			state: this.game.getState(),
-		});
-	}
+	private handleMessage(message: string | Buffer, connection: WebSocket): void {
+		let data: ClientMessage;
+		try {
+			data = JSON.parse(message.toString()) as ClientMessage;
+		} catch (error) {
+			console.error("Invalid message format", error);
+			return;
+		}
 
-	private handleInitGame(_: any, __: Player) {
-		if (this.isRunning) return;
-		this.game.resetGame();
-		this.startGameLoop();
-		this.broadcast({ type: "initGame", state: this.game.getState() });
-	}
+		const player = this.getPlayerByConnection(connection);
+		if (!player) return;
 
-	private handleResetGame(_: any, __: Player) {
-		this.stopGameLoop();
-		this.game.resetGame();
-		this.game.resetScores();
-		this.startGameLoop();
-		this.broadcast({ type: "reset", state: this.game.getState() });
-	}
+		switch (data.type) {
+			case "movePaddle":
+				if (data.direction) {
+					this.game.movePaddle(player, data.direction);
+					this.broadcast({
+						type: "update",
+						state: this.game.getState()
+					});
+				}
+				break;
 
-	private handlePauseGame(_: any, __: Player) {
-		this.game.pauseGame();
-		this.broadcast({ type: "pauseGame", state: this.game.getState() });
-	}
+			case "initGame":
+				if (!this.isRunning) {
+					this.game.resetGame();
+					this.startGameLoop();
+					this.broadcast({
+						type: "initGame",
+						state: this.game.getState()
+					});
+				}
+				break;
 
-	private handleResumeGame(_: any, __: Player) {
-		this.game.resumeGame();
-		if (!this.isRunning) this.startGameLoop();
-		this.broadcast({ type: "resumeGame", state: this.game.getState() });
+			case "resetGame":
+				this.stopGameLoop();
+				this.game.resetGame();
+				this.game.resetScores();
+				this.startGameLoop();
+				this.broadcast({
+					type: "reset",
+					state: this.game.getState()
+				});
+				break;
+
+			case "pauseGame":
+				this.game.pauseGame();
+				this.broadcast({
+					type: "pauseGame",
+					state: this.game.getState()
+				});
+				break;
+
+			case "resumeGame":
+				this.game.resumeGame();
+				if (!this.isRunning) {
+					this.startGameLoop();
+				}
+				this.broadcast({
+					type: "resumeGame",
+					state: this.game.getState()
+				});
+				break;
+		}
 	}
 
 	private getPlayerByConnection(conn: WebSocket): Player | undefined {
@@ -136,17 +137,13 @@ export class PongController {
 		return undefined;
 	}
 
-	private getPlayerById(playerId: number): Player | undefined {
-		return this.players.get(playerId);
-	}
-
 	private assignPlayerId(): number | null {
 		if (!this.players.has(1)) return 1;
 		if (!this.players.has(2)) return 2;
 		return null;
 	}
 
-	private startGameLoop() {
+	private startGameLoop(): void {
 		if (this.isRunning) return;
 		this.isRunning = true;
 		this.intervalId = setInterval(() => {
@@ -154,12 +151,12 @@ export class PongController {
 			this.game.update();
 			this.broadcast({
 				type: "update",
-				state: this.game.getState(),
+				state: this.game.getState()
 			});
 		}, 1000 / 60); // 60 FPS
 	}
 
-	private stopGameLoop() {
+	private stopGameLoop(): void {
 		if (this.intervalId) {
 			clearInterval(this.intervalId);
 			this.intervalId = null;
@@ -167,12 +164,18 @@ export class PongController {
 		this.isRunning = false;
 	}
 
-	private broadcast(data: object) {
+	private broadcast(data: ServerMessage): void {
 		const message = JSON.stringify(data);
 		this.clients.forEach((client) => {
 			if (client.readyState === WebSocket.OPEN) {
 				client.send(message);
 			}
 		});
+	}
+
+	private sendMessage(connection: WebSocket, data: ServerMessage): void {
+		if (connection.readyState === WebSocket.OPEN) {
+			connection.send(JSON.stringify(data));
+		}
 	}
 }
