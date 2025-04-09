@@ -1,18 +1,7 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Pong.ts                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/02 14:16:08 by fwahl             #+#    #+#             */
-/*   Updated: 2025/04/09 16:46:09 by fwahl            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 import { Ball } from "./Ball.js";
 import { Paddle } from "./Paddle.js";
 import { Player } from "./PongPlayer.js";
+import { GameState } from "../types/interfaces.js"; // Import the GameState interface
 
 export class PongGame {
 	private ball: Ball;
@@ -23,24 +12,24 @@ export class PongGame {
 	private isRunning: boolean = false;
 	private paused: boolean = false;
 
-	constructor(private width: number, private heigth: number) {
-		this.ball = new Ball(this.width / 2, this.heigth / 2, 4, 4, 10);
-		this.paddle1 = new Paddle(10, this.heigth / 2 - 50);
-		this.paddle2 = new Paddle(this.width - 20, this.heigth / 2 - 50);
+	constructor(private width: number, private height: number) {
+		this.ball = new Ball(this.width / 2, this.height / 2, 4, 4, 10);
+		this.paddle1 = new Paddle(10, this.height / 2 - 50);
+		this.paddle2 = new Paddle(this.width - 20, this.height / 2 - 50);
 	}
 
 	resetGame(): void {
-		this.ball = new Ball(this.width / 2, this.heigth / 2, 4, 4, 10);
+		this.ball = new Ball(this.width / 2, this.height / 2, 4, 4, 10);
 		this.ball.randomizeDirection();
-		this.paddle1 = new Paddle(10, this.heigth / 2 - 50);
-		this.paddle2 = new Paddle(this.width - 20, this.heigth / 2 - 50);
+		this.paddle1 = new Paddle(10, this.height / 2 - 50);
+		this.paddle2 = new Paddle(this.width - 20, this.height / 2 - 50);
 	}
 
-	resetScores(): void
-	{
+	resetScores(): void {
 		this.score1 = 0;
 		this.score2 = 0;
 	}
+
 	pauseGame(): void {
 		this.paused = true;
 	}
@@ -57,19 +46,18 @@ export class PongGame {
 		return this.paused;
 	}
 
-
 	update(): void {
 		// move stepsize to ball class?
 		const steps: number = 4;
 		const stepSize = 1 / steps;
 
-		if (this.paused === true)
-			return ;
+		if (this.paused === true) return;
+
 		for (let i = 0; i < steps; i++) {
 			this.ball.updateBall(stepSize);
 
 			// Wall bounce
-			if (this.ball.y <= 0 || this.ball.y >= this.heigth) {
+			if (this.ball.y <= 0 || this.ball.y >= this.height) {
 				this.ball.revY();
 			}
 
@@ -110,12 +98,12 @@ export class PongGame {
 		const paddle = player.id === 1 ? this.paddle1 : this.paddle2;
 		if (direction === "up" && paddle.y > 0) {
 			paddle.moveUp();
-		} else if (direction === "down" && paddle.y + paddle.height < this.heigth) {
+		} else if (direction === "down" && paddle.y + paddle.height < this.height) {
 			paddle.moveDown();
 		}
 	}
 
-	getState(): object {
+	getState(): GameState {
 		return {
 			ball: {
 				x: this.ball.x,
@@ -136,7 +124,7 @@ export class PongGame {
 			},
 			score1: this.score1,
 			score2: this.score2,
-			isPaused: this.paused
+			paused: this.paused
 		};
 	}
 }

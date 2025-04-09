@@ -2,7 +2,8 @@ import { WebSocket } from "ws";
 import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/PongPlayer.js";
 import { GameController } from "./GameController.js";
-import { ClientMessage, ServerMessage } from "../types/messages.js";
+import { ClientMessage, ServerMessage } from "../types/ft_types.js";
+import { GameState } from "../types/interfaces.js"
 
 export class PongController {
 	private game: PongGame = new PongGame(800, 600);
@@ -32,7 +33,7 @@ export class PongController {
 		this.sendMessage(connection, {
 			type: "assignPlayer",
 			id: playerId,
-			state: this.game.getState()
+			state: this.game.getState() as GameState // Explicitly typing the state
 		});
 
 		connection.on("message", (message: string | Buffer) =>
@@ -82,7 +83,7 @@ export class PongController {
 					this.game.movePaddle(player, data.direction);
 					this.broadcast({
 						type: "update",
-						state: this.game.getState()
+						state: this.game.getState() as GameState // Explicitly typing the state
 					});
 				}
 				break;
@@ -93,7 +94,7 @@ export class PongController {
 					this.startGameLoop();
 					this.broadcast({
 						type: "initGame",
-						state: this.game.getState()
+						state: this.game.getState() as GameState // Explicitly typing the state
 					});
 				}
 				break;
@@ -104,8 +105,8 @@ export class PongController {
 				this.game.resetScores();
 				this.startGameLoop();
 				this.broadcast({
-					type: "reset",
-					state: this.game.getState()
+					type: "resetGame",
+					state: this.game.getState() as GameState // Explicitly typing the state
 				});
 				break;
 
@@ -113,7 +114,7 @@ export class PongController {
 				this.game.pauseGame();
 				this.broadcast({
 					type: "pauseGame",
-					state: this.game.getState()
+					state: this.game.getState() as GameState // Explicitly typing the state
 				});
 				break;
 
@@ -124,7 +125,7 @@ export class PongController {
 				}
 				this.broadcast({
 					type: "resumeGame",
-					state: this.game.getState()
+					state: this.game.getState() as GameState // Explicitly typing the state
 				});
 				break;
 		}
@@ -151,7 +152,7 @@ export class PongController {
 			this.game.update();
 			this.broadcast({
 				type: "update",
-				state: this.game.getState()
+				state: this.game.getState() as GameState // Explicitly typing the state
 			});
 		}, 1000 / 60); // 60 FPS
 	}

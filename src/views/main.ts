@@ -1,21 +1,26 @@
-// const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
+import { ClientMessage, ServerMessage } from "../types/ft_types.js";
+import { GameState } from "../types/interfaces.js"
 const socket: WebSocket = new WebSocket("ws://10.11.2.27:3000/ws");
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
-let state: any = null;
+let state: GameState | null = null;
 let playerId: number | null = null;
 let keysPressed: Record<string, boolean> = {};
+
 import { PADDLE_WIDTH, PADDLE_HEIGHT, BALL_RADIUS } from "../models/Constants.js";
-//listen for websocket connection
-socket.addEventListener("open", ()=> {
+
+// Listen for WebSocket connection
+socket.addEventListener("open", () => {
 	console.log("connected to pong server");
 });
 
 socket.addEventListener("message", (event: MessageEvent<string>) => {
-	const data = JSON.parse(event.data);
+	const data: ServerMessage = JSON.parse(event.data);
 
+	// Handle different server message types
 	if (data.type === "assignPlayer") {
 		playerId = data.id;
+		state = data.state;
 		console.log("Assigned as Player", playerId);
 	}
 
@@ -40,7 +45,11 @@ socket.addEventListener("message", (event: MessageEvent<string>) => {
 	if (data.type === "resetGame") {
 		state = data.state;
 		draw();
-		console.log("Game resumed.");
+		console.log("Game reset.");
+	}
+
+	if (data.type === "playerDisconnected") {
+		console.log("Player disconnected:", data.id);
 	}
 });
 
@@ -59,23 +68,30 @@ window.addEventListener("keyup", (e) => {
 function handleInput() {
 	if (playerId === 1) {
 		if (keysPressed["w"]) {
-			socket.send(JSON.stringify({ type: "movePaddle", direction: "up" }));
+			sendMovePaddle("up");
 		}
 		if (keysPressed["s"]) {
-			socket.send(JSON.stringify({ type: "movePaddle", direction: "down" }));
+			sendMovePaddle("down");
 		}
 	} else if (playerId === 2) {
 		if (keysPressed["ArrowUp"]) {
-			socket.send(JSON.stringify({ type: "movePaddle", direction: "up" }));
+			sendMovePaddle("up");
 		}
 		if (keysPressed["ArrowDown"]) {
-			socket.send(JSON.stringify({ type: "movePaddle", direction: "down" }));
+			sendMovePaddle("down");
 		}
 	}
 }
 
-setInterval(handleInput, 1000 / 60);
+function sendMovePaddle(direction: "up" | "down") {
+	const moveMsg: ClientMessage = {
+		type: "movePaddle",
+		direction: direction,
+	};
+	socket.send(JSON.stringify(moveMsg));
+}
 
+setInterval(handleInput, 1000 / 60);
 
 function draw() {
 	if (!state || state.paused) return;
@@ -106,25 +122,29 @@ function draw() {
 	ctx.fillText(`Player 2: ${state.score2}`, canvas.width - 180, 30);
 }
 
-  const startGameBtn = document.getElementById("startGameBtn") as HTMLButtonElement;
-  startGameBtn.addEventListener("click", () => {
-	// if (playerId) {
-		socket.send(JSON.stringify({ type: "initGame" })); // Send init message to the server
-	// }
-  });
+const startGameBtn = document.getElementById("startGameBtn") as HTMLButtonElement;
+startGameBtn.addEventListener("click", () => {
+	// If playerId is not null, send initGame message
+	if (playerId !== null) {
+		const initMsg: ClientMessage = { type: "initGame" };
+		socket.send(JSON.stringify(initMsg));
+	}
+});
 
-  const pauseGameBtn = document.getElementById("pauseGameBtn") as HTMLButtonElement;
-  pauseGameBtn.addEventListener("click", () => {
-	  socket.send(JSON.stringify({ type: "pauseGame" }));
-  });
+const pauseGameBtn = document.getElementById("pauseGameBtn") as HTMLButtonElement;
+pauseGameBtn.addEventListener("click", () => {
+	const pauseMsg: ClientMessage = { type: "pauseGame" };
+	socket.send(JSON.stringify(pauseMsg));
+});
 
-  const resumeGameBtn = document.getElementById("resumeGameBtn") as HTMLButtonElement;
-  resumeGameBtn.addEventListener("click", () => {
-	  socket.send(JSON.stringify({ type: "resumeGame" }));
-  });
+const resumeGameBtn = document.getElementById("resumeGameBtn") as HTMLButtonElement;
+resumeGameBtn.addEventListener("click", () => {
+	const resumeMsg: ClientMessage = { type: "resumeGame" };
+	socket.send(JSON.stringify(resumeMsg));
+});
 
-  const resetGameBtn = document.getElementById("resetGameBtn") as HTMLButtonElement;
-  resetGameBtn.addEventListener("click", () => {
-	  socket.send(JSON.stringify({ type: "resetGame" }));
-  });
-
+const resetGameBtn = document.getElementById("resetGameBtn") as HTMLButtonElement;
+resetGameBtn.addEventListener("click", () => {
+	const resetMsg: ClientMessage = { type: "resetGame" };
+	socket.send(JSON.stringify(resetMsg));
+});
