@@ -7,16 +7,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// import apiRoutes from "./routes/apiRoutes.js";
-import websocketRoutes from "./routes/websocket.js";
+// Import route modules
+// import apiRoutes from "./routes/api.js";
+import userRoutes from "./routes/user.js";
+// import websocketRoutes from "./routes/websocket.js";
 import pongWebsocketRoutes from "./routes/pongRoutes.js";
-// Fix for `__dirname` in ES modules
-const __filename: string = fileURLToPath(import.meta.url);
-const __dirname: string = path.dirname(__filename);
-const __rootdir: string = path.resolve(__dirname, "../");
-// console.log(`__filename: ${__filename}`);
-// console.log(`__dirname: ${__dirname}`);
-// console.log(`__rootdir: ${__rootdir}`);
+
+// Setup path variables
+const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
+const __dirname: string = path.dirname(__filename);             // /app/dist
+const __rootdir: string = path.resolve(__dirname, "..");        // /app
 
 // Create Fastify instance
 // const fastify = Fastify({ logger: true });
@@ -50,13 +50,37 @@ fastify.register(fastifyStatic, {
     decorateReply: false
 });
 
-// Routes
-// fastify.register(apiRoutes);
+// Register API routes under /api/*
+// fastify.register(apiRoutes, { prefix: "/api" });
+fastify.register(userRoutes, { prefix: "/api" });
+
+// Register WebSocket routes
 // fastify.register(websocketRoutes);
 fastify.register(pongWebsocketRoutes);
-// 404 Not Found handler
-fastify.setNotFoundHandler(async (_request, reply) => {
-    return reply.status(404).sendFile("404.html");
+
+// 404 Handler
+fastify.setNotFoundHandler(async (request, reply) => {
+    // If the URL starts with /api, return a JSON error response
+    if (request.url.startsWith("/api")) {
+        return reply.status(404).send({
+            error: "API route not found",
+            method: request.method,
+            path: request.url
+        });
+    }
+
+    // Otherwise, return the index.html file (SPA fallback)
+    const indexPath = path.join(__rootdir, "views", "index.html");
+
+    // Check if the file exists to avoid crashing
+    if (!fs.existsSync(indexPath)) {
+        return reply.status(404).send({
+            error: "Not Found",
+            message: "SPA entry file (index.html) is missing"
+        });
+    }
+
+    return reply.type("text/html").send(fs.createReadStream(indexPath));
 });
 
 // Start the server
