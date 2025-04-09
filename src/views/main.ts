@@ -1,74 +1,150 @@
-// const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
-const socket: WebSocket = new WebSocket("ws://10.11.2.31:3000/ws"); // 1-B-31
+import { ClientMessage, ServerMessage } from "../types/ft_types.js";
+import { GameState } from "../types/interfaces.js"
+const socket: WebSocket = new WebSocket("ws://10.11.2.27:3000/ws");
+const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d")!;
+let state: GameState | null = null;
+let playerId: number | null = null;
+let keysPressed: Record<string, boolean> = {};
 
-const headerTitle = document.querySelector("h1") as HTMLHeadingElement;
-const gameBoard = document.querySelector(".gameBoard") as HTMLDivElement;
-const restartButton = document.querySelector(".restartButton") as HTMLButtonElement;
-let cells: HTMLDivElement[] = [];
+import { PADDLE_WIDTH, PADDLE_HEIGHT, BALL_RADIUS } from "../models/Constants.js";
 
-// The "open" event is triggered when the connection to the WebSocket server is successfully established.
+// Listen for WebSocket connection
 socket.addEventListener("open", () => {
-    console.log("Connected to WebSocket server");
+	console.log("connected to pong server");
 });
 
-// The "message" event is triggered when the server sends a message over WebSocket.
 socket.addEventListener("message", (event: MessageEvent<string>) => {
-    const data = JSON.parse(event.data);
+	const data: ServerMessage = JSON.parse(event.data);
 
-    if (data.type === "initBoard" || data.type === "resetBoard") {
-        updateBoard(data.board);
-        updateStatus("Tic Tac Toe with Typescript");
-    }
-    else if (data.type === "updateBoard") {
-        updateBoard(data.board);
+	// Handle different server message types
+	if (data.type === "assignPlayer") {
+		playerId = data.id;
+		state = data.state;
+		console.log("Assigned as Player", playerId);
+	}
 
-        if (data.win) {
-            updateStatus(`${data.player} wins!`);
-        }
-        else if (data.draw) {
-            updateStatus("It's a draw!");
-        }
-        else {
-            updateStatus(`Current player: ${data.player}`);
-        }
-    }
+	if (data.type === "initGame" || data.type === "update") {
+		state = data.state;
+		draw();
+		console.log("Game started.");
+	}
+
+	if (data.type === "pauseGame") {
+		state = data.state;
+		draw();
+		console.log("Game paused.");
+	}
+
+	if (data.type === "resumeGame") {
+		state = data.state;
+		draw();
+		console.log("Game restarted.");
+	}
+
+	if (data.type === "resetGame") {
+		state = data.state;
+		draw();
+		console.log("Game reset.");
+	}
+
+	if (data.type === "playerDisconnected") {
+		console.log("Player disconnected:", data.id);
+	}
 });
 
-function updateBoard(board: string[]): void {
-    cells.forEach((cell, index) => {
-        cell.textContent = board[index];
-    });
-}
-
-function updateStatus(message: string): void {
-    headerTitle.textContent = message;
-}
-
-// Event listeners for the game board.
-gameBoard.addEventListener("click", (event: MouseEvent) => {
-    const target = event.target as HTMLDivElement;
-    if (target.classList.contains("cell")) {
-        const index = Number(target.dataset.index);
-        socket.send(JSON.stringify({ type: "makeMove", index }));
-    }
+socket.addEventListener("error", (err) => {
+	console.error("WebSocket error:", err);
 });
 
-// Event listeners for the restart button.
-restartButton.addEventListener("click", () => {
-    socket.send(JSON.stringify({ type: "resetGame" }));
+window.addEventListener("keydown", (e) => {
+	keysPressed[e.key] = true;
 });
 
-function createBoard(): void {
-    for (let i = 0; i < 9; i++) {
-        const cell: HTMLDivElement = document.createElement("div");     // Create a div element for each cell
-        cell.classList.add("cell");                                     // Add the "cell" class to style it
-        cell.dataset.index = i.toString();                              // Store the index as a string
-        gameBoard.appendChild(cell);                                    // Append the cell to the game board
-        cells.push(cell);
-    }
+window.addEventListener("keyup", (e) => {
+	keysPressed[e.key] = false;
+});
+
+function handleInput() {
+	if (playerId === 1) {
+		if (keysPressed["w"]) {
+			sendMovePaddle("up");
+		}
+		if (keysPressed["s"]) {
+			sendMovePaddle("down");
+		}
+	} else if (playerId === 2) {
+		if (keysPressed["ArrowUp"]) {
+			sendMovePaddle("up");
+		}
+		if (keysPressed["ArrowDown"]) {
+			sendMovePaddle("down");
+		}
+	}
 }
 
-// Initialize the board when the page loads.
-window.addEventListener("DOMContentLoaded", () => {
-    createBoard();
+function sendMovePaddle(direction: "up" | "down") {
+	const moveMsg: ClientMessage = {
+		type: "movePaddle",
+		direction: direction,
+	};
+	socket.send(JSON.stringify(moveMsg));
+}
+
+setInterval(handleInput, 1000 / 60);
+
+function draw() {
+	if (!state || state.paused) return;
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	// Draw ball
+	ctx.beginPath();
+	ctx.arc(state.ball.x, state.ball.y, state.ball.radius, 0, Math.PI * 2);
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fill();
+	ctx.closePath();
+
+	// Draw paddles (filled)
+	ctx.fillStyle = "#FF0000";
+	ctx.fillRect(state.paddle1.x, state.paddle1.y, state.paddle1.width, state.paddle1.height);
+	ctx.fillRect(state.paddle2.x, state.paddle2.y, state.paddle2.width, state.paddle2.height);
+
+	// Add paddle hitbox outlines
+	ctx.strokeStyle = "#00FF00"; // Green outline for debugging
+	ctx.strokeRect(state.paddle1.x, state.paddle1.y, state.paddle1.width, state.paddle1.height);
+	ctx.strokeRect(state.paddle2.x, state.paddle2.y, state.paddle2.width, state.paddle2.height);
+
+	// Draw scores
+	ctx.font = "24px Arial";
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillText(`Player 1: ${state.score1}`, 50, 30);
+	ctx.fillText(`Player 2: ${state.score2}`, canvas.width - 180, 30);
+}
+
+const startGameBtn = document.getElementById("startGameBtn") as HTMLButtonElement;
+startGameBtn.addEventListener("click", () => {
+	// If playerId is not null, send initGame message
+	if (playerId !== null) {
+		const initMsg: ClientMessage = { type: "initGame" };
+		socket.send(JSON.stringify(initMsg));
+	}
+});
+
+const pauseGameBtn = document.getElementById("pauseGameBtn") as HTMLButtonElement;
+pauseGameBtn.addEventListener("click", () => {
+	const pauseMsg: ClientMessage = { type: "pauseGame" };
+	socket.send(JSON.stringify(pauseMsg));
+});
+
+const resumeGameBtn = document.getElementById("resumeGameBtn") as HTMLButtonElement;
+resumeGameBtn.addEventListener("click", () => {
+	const resumeMsg: ClientMessage = { type: "resumeGame" };
+	socket.send(JSON.stringify(resumeMsg));
+});
+
+const resetGameBtn = document.getElementById("resetGameBtn") as HTMLButtonElement;
+resetGameBtn.addEventListener("click", () => {
+	const resetMsg: ClientMessage = { type: "resetGame" };
+	socket.send(JSON.stringify(resetMsg));
 });
