@@ -57,6 +57,6 @@ p {
     background-color: rgb(240, 180, 30);
 }
 
-ul, div {
+ul, h2, div {
     color: beige;
 }

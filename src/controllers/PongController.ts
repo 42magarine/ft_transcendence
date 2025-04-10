@@ -31,7 +31,7 @@ export class PongController {
         this.sendMessage(connection, {
             type: "assignPlayer",
             id: playerId,
-            state: this.game.getState() as IGameState // Explicitly typing the state
+            state: this.game.getState() as IGameState
         });
 
         connection.on("message", (message: string | Buffer) =>
@@ -150,7 +150,7 @@ export class PongController {
             this.game.update();
             this.broadcast({
                 type: "update",
-                state: this.game.getState() as IGameState // Explicitly typing the state
+                state: this.game.getState() as IGameState
             });
         }, 1000 / 60); // 60 FPS
     }
