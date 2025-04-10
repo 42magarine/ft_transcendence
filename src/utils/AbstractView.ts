@@ -42,6 +42,11 @@ export default abstract class AbstractView {
 		return this.templateEngine.render(template, mergedData);
 	}
 
+	renderWithProps(props: Record<string, any> = {}): Promise<string> {
+		this.props = props;
+		return this.getHtml();
+	}
+
 	abstract getHtml(): Promise<string>;
 
 	async afterRender(): Promise<void> { }

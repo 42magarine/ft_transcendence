@@ -1,6 +1,7 @@
 @import './buttons.css';
 @import './tictactoe.css';
 @import './card.css';
+@import './glass.css';
 
 @tailwind base;
 @tailwind components;

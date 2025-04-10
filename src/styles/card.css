@@ -3,7 +3,7 @@
 }
 
 .card-image {
-	@apply w-full;
+	@apply w-screen max-w-none;
 }
 
 .card-body {
