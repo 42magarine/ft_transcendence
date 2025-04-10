@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file original="global" source-language="en" target-language="de" datatype="plaintext">
+		<header>
+		<tool tool-id="company-tm" tool-name="Company Translation Manager" tool-version="1.8.3"/>
+		<note>Diese XLIFF-Datei enthält Übersetzungen für die Benutzeroberfläche der Firmen-Website.</note>
+		</header>
+		<body>
+
+		<trans-unit id="nav.home">
+			<source>Home</source>
+			<target>Startseite</target>
+			<target>Startseite</target>
+		</trans-unit>
+
+		<trans-unit id="nav.products">
+			<source>Products</source>
+			<target>Produkte</target>
+		</trans-unit>
+
+		<trans-unit id="nav.services">
+			<source>Services</source>
+			<target>Dienstleistungen</target>
+		</trans-unit>
+
+		<trans-unit id="nav.about">
+			<source>About Us</source>
+			<target>Über uns</target>
+</trans-unit>
+
+		<trans-unit id="nav.contact">
+			<source>Contact</source>
+			<target>Kontakt</target>
+</trans-unit>
+
+		<trans-unit id="btn.submit">
+			<source>Submit</source>
+			<target>Absenden</target>
+</trans-unit>
+
+		<trans-unit id="btn.cancel">
+			<source>Cancel</source>
+			<target>Abbrechen</target>
+</trans-unit>
+
+		<trans-unit id="form.name">
+			<source>Full Name</source>
+			<target>Vollständiger Name</target>
+			<note>Form field label</note>
+</trans-unit>
+
+		<trans-unit id="form.email">
+			<source>Email Address</source>
+			<target>E-Mail-Adresse</target>
+			<note>Form field label</note>
+</trans-unit>
+
+		<trans-unit id="form.message">
+			<source>Your Message</source>
+			<target>Ihre Nachricht</target>
+			<note>Form field label</note>
+</trans-unit>
+
+		<trans-unit id="product.new">
+			<source>New</source>
+			<target>Neu</target>
+			<note>Product badge</note>
+</trans-unit>
+
+		<trans-unit id="product.sale">
+			<source>Sale</source>
+			<target>Angebot</target>
+			<note>Product badge</note>
+</trans-unit>
+
+		<trans-unit id="product.outofstock">
+			<source>Out of Stock</source>
+			<target>Nicht vorrätig</target>
+			<note>Product status</note>
+</trans-unit>
+
+		<trans-unit id="error.required">
+			<source>This field is required</source>
+			<target>Dieses Feld ist erforderlich</target>
+			<note>Form validation error</note>
+</trans-unit>
+
+		<trans-unit id="error.invalid_email">
+			<source>Please enter a valid email address</source>
+			<target>Bitte geben Sie eine gültige E-Mail-Adresse ein</target>
+			<note>Form validation error</note>
+</trans-unit>
+
+		<trans-unit id="footer.copyright" approved="yes">
+			<source>Copyright © 2025 Company Name. All rights reserved.</source>
+			<target>Copyright © 2025 Firmenname. Alle Rechte vorbehalten.</target>
+			<note>Footer copyright text</note>
+</trans-unit>
+
+		<trans-unit id="footer.privacy">
+			<source>Privacy Policy</source>
+			<target>Datenschutzerklärung</target>
+			<note>Footer link</note>
+</trans-unit>
+
+		<trans-unit id="footer.terms">
+			<source>Terms of Service</source>
+			<target>Nutzungsbedingungen</target>
+			<note>Footer link</note>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>

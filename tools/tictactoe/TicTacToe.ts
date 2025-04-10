@@ -10,12 +10,8 @@ export class TicTacToe {
         [0, 4, 8], [2, 4, 6]                // Diagonals
     ];
 
-    getBoard(): Player[] {
-        return [...this.board];     // Return a copy
-    }
-
-    getCurrentPlayer(): Player {
-        return this.currentPlayer;
+    getBoard(): object {
+        return { board: [...this.board] }     // Return a copy
     }
 
     makeMove(index: number): { type: string, board: Player[]; player: Player, win?: boolean; draw?: boolean } {
@@ -23,7 +19,7 @@ export class TicTacToe {
             return {
                 type: "invalidMove",
                 board: this.board,
-                player: this.currentPlayer,
+                player: this.currentPlayer
             };
         }
 
