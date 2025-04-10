@@ -14,6 +14,7 @@ createForm.addEventListener("submit", async (event: SubmitEvent) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, username })
     });
+    createForm.reset();
 });
 
 readAllForm.addEventListener("click", async (event: MouseEvent) => {
@@ -44,6 +45,7 @@ readOneForm.addEventListener("submit", async (event: SubmitEvent) => {
     const user = await response.json();
     const div = document.getElementById("read-result") as HTMLDivElement;
     div.textContent = `id: ${user.id} name: ${user.name} username: ${user.username}`;
+    readOneForm.reset();
 });
 
 updateForm.addEventListener("submit", async (event: SubmitEvent) => {
@@ -57,6 +59,7 @@ updateForm.addEventListener("submit", async (event: SubmitEvent) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, username })
     });
+    updateForm.reset();
 });
 
 deleteForm.addEventListener("submit", async (event: SubmitEvent) => {
@@ -66,4 +69,5 @@ deleteForm.addEventListener("submit", async (event: SubmitEvent) => {
     const response = await fetch(`/api/users/${id}`, {
         method: "DELETE"
     });
+    deleteForm.reset();
 });
