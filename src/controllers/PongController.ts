@@ -67,13 +67,16 @@ export class PongController {
         let data: ClientMessage;
         try {
             data = JSON.parse(message.toString()) as ClientMessage;
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Invalid message format", error);
             return;
         }
 
         const player = this.getPlayerByConnection(connection);
-        if (!player) return;
+        if (!player) {
+            return;
+        }
 
         switch (data.type) {
             case "movePaddle":
@@ -131,22 +134,32 @@ export class PongController {
 
     private getPlayerByConnection(conn: WebSocket): Player | undefined {
         for (const player of this.players.values()) {
-            if (player.connection === conn) return player;
+            if (player.connection === conn) {
+                return player;
+            }
         }
-        return undefined;
+        return undefined;         // <- was macht das?
     }
 
     private assignPlayerId(): number | null {
-        if (!this.players.has(1)) return 1;
-        if (!this.players.has(2)) return 2;
-        return null;
+        if (!this.players.has(1)) {
+            return 1;
+        }
+        if (!this.players.has(2)) {
+            return 2;
+        }
+        return null;         // <- was macht das?
     }
 
     private startGameLoop(): void {
-        if (this.isRunning) return;
+        if (this.isRunning) {
+            return;
+        }
         this.isRunning = true;
         this.intervalId = setInterval(() => {
-            if (this.game.isPaused()) return;
+            if (this.game.isPaused()) {
+                return;
+            }
             this.game.update();
             this.broadcast({
                 type: "update",
@@ -178,3 +191,9 @@ export class PongController {
         }
     }
 }
+
+// Controller sollte nur die Kommunikation zwischen View und Model handle'n und selbst keine Logik enthalten?
+
+// Brauchen wir für jedes Model einen eigenen Controller?
+
+// Sollten wir wirklich variablen mit null oder undefined ermöglichen?

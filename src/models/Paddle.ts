@@ -7,7 +7,6 @@ export class Paddle {
     width: number = PADDLE_WIDTH;
     movespeed: number = PADDLE_MOVE_SPEED;
 
-
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
@@ -20,5 +19,6 @@ export class Paddle {
     moveDown(): void {
         this.y += this.movespeed;
     }
-
 }
+
+// funktionen sollten als private oder public definiert werden?

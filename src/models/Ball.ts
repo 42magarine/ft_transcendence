@@ -12,14 +12,17 @@ export class Ball {
         this.speedY = speedY;
         this.radius = radius;
     }
+    // Sollten wir für die Ball Parameter constanten erstellen, damit man versteht was wir hier definieren?
 
     updateBall(timeStep = 1): void {
         this.x += this.speedX * timeStep;
         this.y += this.speedY * timeStep;
     }
+
     revX(): void {
         this.speedX *= -1;
     }
+
     revY(): void {
         this.speedY *= -1;
     }
@@ -30,5 +33,6 @@ export class Ball {
         this.speedX *= randomXDirection;
         this.speedY *= randomYDirection;
     }
-
 }
+
+// funktionen sollten als private oder public definiert werden?
