@@ -2,18 +2,14 @@ mott:
     - routs sind nur distributoren auf Controller functions, controller soll reply senden route bestueckt ggf mit middleqware z.B. auth data
     - bei fehler returnt controller den fehlern bzw die middleqware
     - jeder Controller hat (req, reply, {properties})
-<<<<<<< HEAD
     - cookie controller
     - makefilem dockerfiel, docker cmpose
     - user login
 
-=======
->>>>>>> cf31476d1fbce606cb75f6d1543c93e1a43ba781
 jeberle:
     - Berechtigungen externer Nutzer auf dist beschraenken, verfugbarkeit von /dist/assets zu /assets aendern
     - nur frontend files in distfront alles andere in distback
     - Tempalte Engine
-<<<<<<< HEAD
 
 fwahl:
     - Socket Controller so ausabeun das wir dort nur noch event, callback function mapping machen, functions gehen in services (backend)
@@ -27,8 +23,3 @@ fkeitel:
 mleibeng:
     - lege die Datenstruktur mit allen Models und ORM integraiton an, stelle ggf. services-konzepte als Files bereit, liefere detaillierten aufbau mit funktionsdefitionen die zur Game Logik fuehren.
     - formuliere endpunkte fuer die Services bzw referenzen fuer fkeitel und fwahl das die Anwendungsbeispiele durchgehen koenenn die Real vom Backend aus y=zu verarbeiten waeren
-=======
-fwahl:
-fkeitel:
-mleibeng:
->>>>>>> cf31476d1fbce606cb75f6d1543c93e1a43ba781
