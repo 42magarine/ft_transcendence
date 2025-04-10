@@ -113,6 +113,8 @@
   "include": [
     "*.ts",
     "controllers/**/*",
+    "frontend/**/*",
+    "middleware/**/*",
     "models/**/*",
     "routes/**/*",
     "types/**/*",

@@ -1,6 +1,5 @@
 // Import core modules and Fastify plugins
 import Fastify from "fastify";
-import fastifyCors from "@fastify/cors";        // Cross-Origin Resource Sharing
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
 import fs from "node:fs";
@@ -23,14 +22,10 @@ const fastify = Fastify();
 
 // Register Plugins
 fastify.register(fastifyWebsocket);
-fastify.register(fastifyCors, {
-    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
-    credentials: true
-});
 
 // Serve static HTML views accessible via "/"
 fastify.register(fastifyStatic, {
-    root: path.join(__rootdir, "views"),
+    root: path.join(__rootdir, "frontend"),
     prefix: "/",
     decorateReply: false
 });
@@ -44,8 +39,8 @@ fastify.register(fastifyStatic, {
 
 // Serve general static assets like images, styles, icons from "public"
 fastify.register(fastifyStatic, {
-    root: path.join(__rootdir, "public"),
-    prefix: "/public",
+    root: path.join(__rootdir, "assets"),
+    prefix: "/assets",
     decorateReply: false
 });
 
@@ -68,7 +63,7 @@ fastify.setNotFoundHandler(async (request, reply) => {
     }
 
     // Otherwise, return the index.html file (SPA fallback)
-    const indexPath = path.join(__rootdir, "views", "index.html");
+    const indexPath = path.join(__rootdir, "frontend", "index.html");
 
     // Check if the file exists to avoid crashing
     if (!fs.existsSync(indexPath)) {

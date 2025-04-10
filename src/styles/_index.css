@@ -1,0 +1,12 @@
+@import './buttons.css';
+@import './tictactoe.css';
+@import './card.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.cell {
+	background-image: url('/assets/bg.png');
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Transcendence</title>
+	<link rel="icon" href="/assets/favicon.ico">
+	<link rel="stylesheet" href="/dist/assets/main.css">
+</head>
+
+<body class="bg-red-700">
+	<header class="bg-blue-700 text-white">
+		<h1><a router href="/">Header</a></h1>
+		<nav>
+			<ul>
+				<li><a router href="/">Home</a></li>
+				<li><a router href="/pong">Pong</a></li>
+				<li><a router href="/tictactoe">TicTacToe</a></li>
+				<li><a router href="/user-mangement">User Mangement</a></li>
+			</ul>
+		</nav>
+	</header>
+	<main id="app"></main>
+
+	<footer class="bg-gray-700 text-white">
+		<h2>Footer</h2>
+	</footer>
+
+    <!-- HERE BACKEND TESTING START-->
+
+    <h1>ft_transcendence - User Management</h1>
+
+    <!-- CREATE -->
+    <h2>Create User</h2>
+    <form id="create-form">
+        <input type="text" id="create-name" placeholder="Name" required />
+        <input type="text" id="create-username" placeholder="Username" required />
+        <button type="submit">Create</button>
+    </form>
+
+    <!-- READ ALL -->
+    <h2>Read all Users</h2>
+    <button id="read-all">Read all Users</button>
+    <ul id="user-list"></ul>
+
+    <!-- READ ONE -->
+    <h2>Read one User</h2>
+    <form id="read-one-form">
+        <input type="number" id="user-id" placeholder="User ID" required />
+        <button type="submit">Read User</button>
+        <div id="read-result"></div>
+    </form>
+
+    <!-- UPDATE -->
+    <h2>Update User</h2>
+    <form id="update-form">
+        <input type="number" id="update-id" placeholder="User ID" required />
+        <input type="text" id="update-name" placeholder="New Name" required />
+        <input type="text" id="update-username" placeholder="New Username" required />
+        <button type="submit">Update</button>
+    </form>
+
+    <!-- DELETE -->
+    <h2>Delete User</h2>
+    <form id="delete-form">
+        <input type="number" id="delete-id" placeholder="User ID" required />
+        <button type="submit">Delete</button>
+    </form>
+    <script type="module" src="/dist/frontend/services/user_management.js"></script>
+
+
+    <!-- HERE BACKEND TESTING END-->
+	<script type="module" src="/dist/frontend/main.js"></script>
+</body>
+
+</html>
