@@ -17,7 +17,14 @@ export class UserController {
     }
 
     public readAllUser() {
-        return this.userModel.readAll();
+        const user = this.userModel.readAll();
+        return user;
+        // if (user) {
+        //     return user;
+        // }
+        // else {
+        //     return notify("Digga User nicht da Bruda!!!");
+        // }
     }
 
     public readOneUser(id: number) {
