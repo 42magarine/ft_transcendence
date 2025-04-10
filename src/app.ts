@@ -25,23 +25,23 @@ fastify.register(fastifyWebsocket);
 
 // Serve static HTML views accessible via "/"
 fastify.register(fastifyStatic, {
-    root: path.join(__rootdir, "frontend"),
-    prefix: "/",
-    decorateReply: false
+	root: path.join(__rootdir, "frontend"),
+	prefix: "/",
+	decorateReply: false
 });
 
 // Serve compiled frontend from "dist"
 fastify.register(fastifyStatic, {
-    root: path.join(__rootdir, "dist"),
-    prefix: "/dist",
-    decorateReply: false
+	root: path.join(__rootdir, "dist"),
+	prefix: "/dist",
+	decorateReply: false
 });
 
 // Serve general static assets like images, styles, icons from "public"
 fastify.register(fastifyStatic, {
-    root: path.join(__rootdir, "assets"),
-    prefix: "/assets",
-    decorateReply: false
+	root: path.join(__rootdir, "dist", "assets"),
+	prefix: "/assets",
+	decorateReply: false
 });
 
 // Register API routes under /api/*
@@ -53,38 +53,49 @@ fastify.register(pongWebsocketRoutes);
 
 // 404 Handler
 fastify.setNotFoundHandler(async (request, reply) => {
-    // If the URL starts with /api, return a JSON error response
-    if (request.url.startsWith("/api")) {
-        return reply.status(404).send({
-            error: "API route not found",
-            method: request.method,
-            path: request.url
-        });
-    }
+	// If the URL starts with /api, return a JSON error response
+	if (request.url.startsWith("/api")) {
+		return reply.status(404).send({
+			error: "API route not found",
+			method: request.method,
+			path: request.url
+		});
+	}
 
-    // Otherwise, return the index.html file (SPA fallback)
-    const indexPath = path.join(__rootdir, "frontend", "index.html");
+	// Check if the requested path has a file extension
+	// If it does, it's likely an explicit file request and shouldn't fall back to index.html
+	const hasFileExtension = path.extname(request.url) !== '';
 
-    // Check if the file exists to avoid crashing
-    if (!fs.existsSync(indexPath)) {
-        return reply.status(404).send({
-            error: "Not Found",
-            message: "SPA entry file (index.html) is missing"
-        });
-    }
+	if (hasFileExtension) {
+		return reply.status(404).send({
+			error: "Not Found",
+			message: `The requested file "${request.url}" was not found`
+		});
+	}
 
-    return reply.type("text/html").send(fs.createReadStream(indexPath));
+	// Otherwise, return the index.html file (SPA fallback)
+	const indexPath = path.join(__rootdir, "frontend", "index.html");
+
+	// Check if the file exists to avoid crashing
+	if (!fs.existsSync(indexPath)) {
+		return reply.status(404).send({
+			error: "Not Found",
+			message: "SPA entry file (index.html) is missing"
+		});
+	}
+
+	return reply.type("text/html").send(fs.createReadStream(indexPath));
 });
 
 // Start the server
 const start = async (): Promise<void> => {
-    try {
-        await fastify.listen({ port: 3000, host: "0.0.0.0" });
-    }
-    catch (error) {
-        fastify.log.error(error);
-        process.exit(1);
-    }
+	try {
+		await fastify.listen({ port: 3000, host: "0.0.0.0" });
+	}
+	catch (error) {
+		fastify.log.error(error);
+		process.exit(1);
+	}
 };
 
 start();
