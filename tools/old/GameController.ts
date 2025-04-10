@@ -16,11 +16,8 @@ export class GameController {
         return GameController.instance;
     }
 
-    public getGameState(): { board: Player[], player: Player } {
-        return {
-            board: this.game.getBoard(),
-            player: this.game.getCurrentPlayer(),
-        };
+    public getGameState(): object {
+        return this.game.getBoard();
     }
 
     public makeMove(index: number): object {

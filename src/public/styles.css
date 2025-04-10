@@ -56,3 +56,7 @@ p {
 .restartButton:hover {
     background-color: rgb(240, 180, 30);
 }
+
+ul, h2, div {
+    color: beige;
+}

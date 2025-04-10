@@ -8,10 +8,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // Import route modules
-// import apiRoutes from "./routes/api.js";
 import userRoutes from "./routes/user.js";
 // import websocketRoutes from "./routes/websocket.js";
-import pongWebsocketRoutes from "./routes/pongRoutes.js";
+import pongWebsocketRoutes from "./routes/websocket.js";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
@@ -51,7 +50,6 @@ fastify.register(fastifyStatic, {
 });
 
 // Register API routes under /api/*
-// fastify.register(apiRoutes, { prefix: "/api" });
 fastify.register(userRoutes, { prefix: "/api" });
 
 // Register WebSocket routes

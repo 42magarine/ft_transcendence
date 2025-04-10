@@ -56,3 +56,41 @@ SQL-Injection
 
 ==>>    INSERT INTO users (username) VALUES ('robert');
         DROP TABLE users;--');
+
+
+
+Modules:
+    Web:
+        Use a framework to build the backend. (1)
+        Use a framework or a toolkit to build the frontend. (0.5)
+        Use a database for the backend. (0.5)
+
+    User Management:
+        Standard user management, authentication, users across tournaments. (1)
+
+    Gameplay and user experience:
+        Remote players (1)
+?       Multiplayer (more than 2 players in the same game). (1)
+?       Add another game with user history and matchmaking. (1)
+?       Game customization options. (0.5)
+
+    AI-Algo
+?       User and game stats dashboards (0.5)
+
+    Cybersecurity:
+        Implement Two-Factor Authentication (2FA) and JWT. (1)
+
+    Grapics
+?       Use advanced 3D techniques. (1)
+
+    Accessibility
+?       Support on all devices.  (0.5)
+?       Expanding browser compatibility. (0.5)
+?       Supports multiple languages. (0.5)
+?       Add accessibility features for visually impaired users. (0.5)
+?       Server-Side Rendering (SSR) integration. (0.5)
+
+    Server-Side Pong
+        Replace basic Pong with server-side Pong and implement an API. (1)
+
+Sum: 6-13.5

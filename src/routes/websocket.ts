@@ -1,11 +1,11 @@
 import { FastifyInstance } from "fastify";
-import { WebsocketController } from "../controllers/WebsocketController.js";
+import { PongController } from "../controllers/PongController.js";
 
 export default async function (fastify: FastifyInstance) {
-    const websocketController = new WebsocketController();
+    const pongController = new PongController();
 
     // Websocket route handler
     fastify.get('/ws', { websocket: true }, (connection) => {
-        websocketController.handleConnection(connection);
+        pongController.handleConnection(connection);
     });
 }
