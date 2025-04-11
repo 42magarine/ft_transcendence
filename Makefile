@@ -51,6 +51,7 @@ shell:
 .PHONY: clean
 clean: rm
 	docker rmi $(IMAGE_NAME)
+	
 
 .PHONY: rebuild
 rebuild: clean build run

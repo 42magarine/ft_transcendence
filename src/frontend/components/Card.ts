@@ -22,6 +22,8 @@ export default class Card extends AbstractView {
 						{{props.footer}}
 					</div>
 				</if>
+
+				
 			</div>
 		`, {});
 	}

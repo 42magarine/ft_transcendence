@@ -1,4 +1,9 @@
+// ========================
+// File: views/TicTacToe.ts
+// ========================
+
 import AbstractView from '../../utils/AbstractView.js';
+import { setBackgroundImage } from '../components/BackgroundManager.js';
 
 export default class TicTacToe extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams()) {
@@ -7,40 +12,16 @@ export default class TicTacToe extends AbstractView {
 	}
 
 	async getHtml() {
+		setBackgroundImage('/assets/backgrounds/tictactoe.png');
+		document.getElementById('header-root')!.className = 'shadow-lg p-8 bg-gradient-to-r from-sky-600/70 via-sky-100/70 to-white/70 text-black backdrop-blur-md';
+		document.getElementById('footer-root')!.className = 'py-4 px-6 w-full bg-gradient-to-r from-[#6b4b3a]/80 via-[#7a5a45]/80 to-[#8b6a55]/80 text-white backdrop-blur-md';
+
 		this.templateEngine.registerComponent('Card', (await import('../components/Card.js')).default);
 
 		return this.render(`
 			<section class="hero space-y-8 max-w-4xl mx-auto p-6">
-	
 				<h1 class="text-3xl font-bold text-center text-white">Welcome to TicTacToe</h1>
-	
-				<!-- Game Rules Card -->
-				<Card title="Game Rules" className="rounded-2xl bg-gray-800 text-white p-6">
-					<p>The rules of TicTacToe are simple:</p>
-					<ul class="list-disc list-inside mt-2 space-y-1">
-						<li>Players take turns placing their mark (X or O) on the board</li>
-						<li>First player to get 3 marks in a row wins</li>
-						<li>If the board fills up with no winner, it's a draw</li>
-					</ul>
-					<ul class="list-disc list-inside mt-2 space-y-1">
-						<li>Select a game mode from the list below</li>
-						<li>Click on <strong>Play Now</strong> to start</li>
-						<li>Use your mouse or finger to mark your spot</li>
-						<li>Enjoy the match and try to win!</li>
-					</ul>
-				</Card>
-	
-				<!-- Game Grid -->
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<for each="games" as="game">
-							<p>{{game.description}}</p>
-							<if condition="game.isNew">
-								<span class="badge bg-green-600 text-white px-2 py-1 rounded text-xs">New!</span>
-							</if>
-							<button class="btn btn-primary w-full">Play Now</button>
-					</for>
-				</div>
-	
+				<!-- Cards go here -->
 			</section>
 		`, {
 			games: [

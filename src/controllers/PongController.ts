@@ -107,9 +107,10 @@ export class PongController {
                 this.startGameLoop();
                 this.broadcast({
                     type: "resetGame",
-                    state: this.game.getState() as IGameState
+                    state: this.game.getState()
                 });
                 break;
+                
 
             case "pauseGame":
                 this.game.pauseGame();
@@ -197,3 +198,4 @@ export class PongController {
 // Brauchen wir für jedes Model einen eigenen Controller?
 
 // Sollten wir wirklich variablen mit null oder undefined ermöglichen?
+ 
