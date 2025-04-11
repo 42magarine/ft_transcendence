@@ -12,13 +12,13 @@ import Home from './views/Home.js';
 import Pong from './views/Pong.js';
 import TicTacToe from './views/TicTacToe.js';
 import UserMangement from './views/UserManagement.js';
+import Login from './views/Login.js';
 
 // components
 import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
-import { setBackgroundImage } from './components/BackgroundManager.js';
 
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
@@ -89,6 +89,14 @@ const routes = [
 		metadata: {
 			title: 'Transcendence - UserMangement',
 			description: 'Welcome to UserMangement'
+		}
+	},
+	{
+		path: '/login',
+		view: Login,
+		metadata: {
+			title: 'Transcendence - login',
+			description: 'Welcome to Login'
 		}
 	}
 ];

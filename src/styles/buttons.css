@@ -1,31 +1,53 @@
-@layer components {
-/* Base button */
-.btn {
-	@apply inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded transition duration-200;
+/* === BUTTON GROUP === */
+.btn-group {
+	@apply flex gap-2 flex-wrap;
 }
 
-/* Variants that "inherit" .btn */
+/* === BASE BUTTON STYLE === */
+.btn {
+	@apply inline-flex items-center justify-center px-4 py-2 rounded text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+/* === VARIANTS === */
 .btn-primary {
-	@apply btn bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 active:bg-blue-800;
+	@apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus:ring-blue-400;
 }
 
 .btn-secondary {
-	@apply btn bg-gray-500 hover:bg-gray-600 focus:ring-2 focus:ring-gray-400 active:bg-gray-700;
+	@apply bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400 focus:ring-gray-400;
 }
 
 .btn-danger {
-	@apply btn bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 active:bg-red-800;
+	@apply bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-400;
 }
 
 .btn-disabled {
-	@apply btn bg-gray-300 text-gray-500 cursor-not-allowed opacity-50;
+	@apply bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 pointer-events-none;
 }
 
-.btn-group {
-	@apply inline-flex space-x-2;
+/* === SUB-THEMES === */
+
+/* Night Sky Theme (Home) */
+.btn-theme-home {
+	@apply bg-white/10 text-white hover:bg-white/20 focus:ring-white/30;
 }
 
-a.btn:visited {
-	@apply text-white;
+/* Rocket Fire Theme (Pong) */
+.btn-theme-pong {
+	@apply bg-black/40 text-white hover:bg-orange-400/20 focus:ring-orange-500;
 }
+
+/* Morning Light Theme (TicTacToe) */
+.btn-theme-tictactoe {
+	@apply bg-white/40 text-black hover:bg-white/60 focus:ring-gray-300;
+}
+
+
+/* === STATE STYLES === */
+.btn:hover:not(.btn-disabled) {
+	@apply brightness-105;
+}
+
+.btn:active:not(.btn-disabled) {
+	@apply scale-95;
 }

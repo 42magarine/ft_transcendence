@@ -13,15 +13,8 @@ export default class Home extends AbstractView {
 
 	async getHtml() {
 		setBackgroundImage('/assets/backgrounds/home.png');
-		document.getElementById('header-root')?.classList.add(
-			'bg-gradient-to-r', 'from-indigo-900/80', 'via-blue-900/80', 'to-sky-900/80',
-			'text-white', 'backdrop-blur-md', 'shadow-lg', 'p-8'
-		);
-
-		document.getElementById('footer-root')?.classList.add(
-			'bg-gradient-to-r', 'from-indigo-900/80', 'via-blue-900/80', 'to-sky-900/80',
-			'text-white', 'backdrop-blur-md', 'py-4', 'px-6', 'w-full'
-		);
+		document.getElementById('header-root')!.className = 'shadow-lg p-8 bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
+		document.getElementById('footer-root')!.className = 'py-4 px-6 w-full bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
 
 		return this.render(`
 			<section>

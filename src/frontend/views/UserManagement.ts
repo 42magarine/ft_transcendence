@@ -1,4 +1,3 @@
-
 // ========================
 // File: views/UserManagement.ts
 // ========================
@@ -14,23 +13,15 @@ export default class UserManagement extends AbstractView {
 
 	async getHtml() {
         setBackgroundImage('/assets/backgrounds/home.png');
-		document.getElementById('header-root')?.classList.add(
-			'bg-gradient-to-r', 'from-indigo-900/80', 'via-blue-900/80', 'to-sky-900/80',
-			'text-white', 'backdrop-blur-md', 'shadow-lg', 'p-8'
-		);
-
-		document.getElementById('footer-root')?.classList.add(
-			'bg-gradient-to-r', 'from-indigo-900/80', 'via-blue-900/80', 'to-sky-900/80',
-			'text-white', 'backdrop-blur-md', 'py-4', 'px-6', 'w-full'
-		);
+		document.getElementById('header-root')!.className = 'shadow-lg p-8 bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
+		document.getElementById('footer-root')!.className = 'py-4 px-6 w-full bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
 
 		return this.render(`
 			<div class="max-w-4xl mx-auto p-6 space-y-8">
 				<h1 class="text-3xl font-bold text-center text-white">User Management</h1>
 				<!-- === BACKEND TESTING START === -->
-				
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    
+                
                     <!-- CREATE -->
                     <div class="card rounded-2xl bg-gray-800">
                         <div class="card-body space-y-4">
@@ -42,7 +33,7 @@ export default class UserManagement extends AbstractView {
                             </form>
                         </div>
                     </div>
-    
+                
                     <!-- READ ONE -->
                     <div class="card rounded-2xl bg-gray-800">
                         <div class="card-body space-y-4">
@@ -54,7 +45,7 @@ export default class UserManagement extends AbstractView {
                             </form>
                         </div>
                     </div>
-    
+                
                     <!-- UPDATE -->
                     <div class="card rounded-2xl bg-gray-800">
                         <div class="card-body space-y-4">
@@ -67,7 +58,7 @@ export default class UserManagement extends AbstractView {
                             </form>
                         </div>
                     </div>
-    
+                
                     <!-- DELETE -->
                     <div class="card rounded-2xl bg-gray-800">
                         <div class="card-body space-y-4">
@@ -78,7 +69,7 @@ export default class UserManagement extends AbstractView {
                             </form>
                         </div>
                     </div>
-    
+                
                     <!-- READ ALL -->
                     <div class="card col-span-full rounded-2xl bg-gray-800">
                         <div class="card-body space-y-4 text-center">
@@ -87,12 +78,12 @@ export default class UserManagement extends AbstractView {
                             <ul id="user-list" class="text-white text-sm pt-2 space-y-1"></ul>
                         </div>
                     </div>
-    
+                
                 </div>
-    
 				<!-- === BACKEND TESTING END === -->
 			</div>
 			<script type="module" src="/dist/frontend/services/user_management.js"></script>
 		`, {});
 	}
 }
+

@@ -13,15 +13,8 @@ export default class TicTacToe extends AbstractView {
 
 	async getHtml() {
 		setBackgroundImage('/assets/backgrounds/tictactoe.png');
-		document.getElementById('header-root')?.classList.add(
-			'bg-gradient-to-r', 'from-sky-600/70', 'via-sky-100/70', 'to-white/70',
-			'text-black', 'backdrop-blur-md', 'shadow-lg', 'p-8'
-		);
-
-		document.getElementById('footer-root')?.classList.add(
-			'bg-gradient-to-r', 'from-[#6b4b3a]/80', 'via-[#7a5a45]/80', 'to-[#8b6a55]/80',
-			'text-white', 'backdrop-blur-md', 'py-4', 'px-6', 'w-full'
-		);
+		document.getElementById('header-root')!.className = 'shadow-lg p-8 bg-gradient-to-r from-sky-600/70 via-sky-100/70 to-white/70 text-black backdrop-blur-md';
+		document.getElementById('footer-root')!.className = 'py-4 px-6 w-full bg-gradient-to-r from-[#6b4b3a]/80 via-[#7a5a45]/80 to-[#8b6a55]/80 text-white backdrop-blur-md';
 
 		this.templateEngine.registerComponent('Card', (await import('../components/Card.js')).default);
 
