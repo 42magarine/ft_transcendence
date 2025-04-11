@@ -3,9 +3,9 @@ import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/Player.js";
 import { ClientMessage, ServerMessage } from "../types/ft_types.js";
 import { IGameState } from "../types/interfaces.js"
-
+//todo interval null?? redesign maybe
 export class PongController {
-    private game: PongGame = new PongGame(800, 600);
+    private game: PongGame = new PongGame();
     private players: Map<number, Player> = new Map();
     private intervalId: NodeJS.Timeout | null = null;
     private clients: Set<WebSocket> = new Set();
