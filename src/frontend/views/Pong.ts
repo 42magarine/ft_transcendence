@@ -1,4 +1,9 @@
+// ========================
+// File: views/Pong.ts
+// ========================
+
 import AbstractView from '../../utils/AbstractView.js';
+import { setBackgroundImage } from '../components/BackgroundManager.js';
 
 export default class Pong extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams()) {
@@ -7,7 +12,17 @@ export default class Pong extends AbstractView {
 	}
 
 	async getHtml() {
-		// Example template with various template engine features
+		setBackgroundImage('/assets/backgrounds/pong.png');
+		document.getElementById('header-root')?.classList.add(
+			'bg-gradient-to-r', 'from-zinc-900/70', 'via-gray-800/70', 'to-zinc-700/70',
+			'text-white', 'backdrop-blur-md', 'shadow-lg', 'p-8'
+		);
+
+		document.getElementById('footer-root')?.classList.add(
+			'bg-gradient-to-r', 'from-zinc-900/70', 'via-gray-800/70', 'to-zinc-700/70',
+			'text-white', 'backdrop-blur-md', 'py-4', 'px-6', 'w-full'
+		);
+
 		return this.render(`
 			<section class="hero">
 				<h1>Welcome to Pong</h1>
@@ -15,7 +30,6 @@ export default class Pong extends AbstractView {
 		`, {});
 	}
 }
-
 /*import AbstractView from '../../utils/AbstractView.js';
 
 export default class Pong extends AbstractView {

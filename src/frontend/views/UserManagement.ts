@@ -1,19 +1,34 @@
+
+// ========================
+// File: views/UserManagement.ts
+// ========================
+
 import AbstractView from '../../utils/AbstractView.js';
+import { setBackgroundImage } from '../components/BackgroundManager.js';
 
 export default class UserManagement extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
-        this.setTitle('Transcendence - Home');
-    }
+	constructor(params: URLSearchParams = new URLSearchParams()) {
+		super(params);
+		this.setTitle('Transcendence - Home');
+	}
 
-    async getHtml() {
-        return this.render(`
-            <div class="max-w-4xl mx-auto p-6 space-y-8">
-    
-                <h1 class="text-3xl font-bold text-center text-white">User Management</h1>
-    
-                <!-- === BACKEND TESTING START === -->
-    
+	async getHtml() {
+        setBackgroundImage('/assets/backgrounds/home.png');
+		document.getElementById('header-root')?.classList.add(
+			'bg-gradient-to-r', 'from-indigo-900/80', 'via-blue-900/80', 'to-sky-900/80',
+			'text-white', 'backdrop-blur-md', 'shadow-lg', 'p-8'
+		);
+
+		document.getElementById('footer-root')?.classList.add(
+			'bg-gradient-to-r', 'from-indigo-900/80', 'via-blue-900/80', 'to-sky-900/80',
+			'text-white', 'backdrop-blur-md', 'py-4', 'px-6', 'w-full'
+		);
+
+		return this.render(`
+			<div class="max-w-4xl mx-auto p-6 space-y-8">
+				<h1 class="text-3xl font-bold text-center text-white">User Management</h1>
+				<!-- === BACKEND TESTING START === -->
+				
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     
                     <!-- CREATE -->
@@ -75,11 +90,9 @@ export default class UserManagement extends AbstractView {
     
                 </div>
     
-                <!-- === BACKEND TESTING END === -->
-    
-            </div>
-    
-            <script type="module" src="/dist/frontend/services/user_management.js"></script>
-        `, {});
-    }
+				<!-- === BACKEND TESTING END === -->
+			</div>
+			<script type="module" src="/dist/frontend/services/user_management.js"></script>
+		`, {});
+	}
 }
