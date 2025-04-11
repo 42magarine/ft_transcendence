@@ -2,17 +2,20 @@ import { Ball } from "./Ball.js";
 import { Paddle } from "./Paddle.js";
 import { Player } from "./Player.js";
 import { IGameState } from "../types/interfaces.js";
+import { ClientMessage, ServerMessage } from "../types/ft_types.js";
 import { GAME_WIDTH, GAME_HEIGHT, STEPS } from "../types/constants.js"
 
 export class PongGame {
+    private width: number;
+    private height: number;
     private ball: Ball;
     private paddle1: Paddle;
     private paddle2: Paddle;
     private score1: number = 0;
     private score2: number = 0;
     private paused: boolean = false;
-    private width: number;
-    private height: number;
+    private running: boolean = false;
+    private intervalId: NodeJS.Timeout | null = null;
 
     constructor() {
         this.width = GAME_WIDTH;
@@ -20,6 +23,31 @@ export class PongGame {
         this.ball = new Ball(this.width / 2, this.height / 2, 4, 4);
         this.paddle1 = new Paddle(10, this.height / 2 - 50);
         this.paddle2 = new Paddle(this.width - 20, this.height / 2 - 50);
+    }
+
+    public startGameLoop(broadcast: (data: ServerMessage) => void): void {
+        if (this.running) {
+            return;
+        }
+        this.running = true;
+        this.intervalId = setInterval(() => {
+            if (this.isPaused()) {
+                return;
+            }
+            this.update();
+            broadcast({
+                type: "update",
+                state: this.getState() as IGameState
+            });
+        }, 1000 / 60); // 60 FPS
+    }
+
+    public stopGameLoop(): void {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        this.running = false;
     }
 
     public resetGame(): void {
