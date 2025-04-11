@@ -1,18 +1,53 @@
-/*
+/* === BUTTON GROUP === */
+.btn-group {
+	@apply flex gap-2 flex-wrap;
+}
+
+/* === BASE BUTTON STYLE === */
+.btn {
+	@apply inline-flex items-center justify-center px-4 py-2 rounded text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+/* === VARIANTS === */
+.btn-primary {
+	@apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus:ring-blue-400;
+}
+
+.btn-secondary {
+	@apply bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400 focus:ring-gray-400;
+}
+
+.btn-danger {
+	@apply bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-400;
+}
+
+.btn-disabled {
+	@apply bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 pointer-events-none;
+}
+
+/* === SUB-THEMES === */
+
+/* Night Sky Theme (Home) */
+.btn-theme-home {
+	@apply bg-white/10 text-white hover:bg-white/20 focus:ring-white/30;
+}
+
+/* Rocket Fire Theme (Pong) */
+.btn-theme-pong {
+	@apply bg-black/40 text-white hover:bg-orange-400/20 focus:ring-orange-500;
+}
+
+/* Morning Light Theme (TicTacToe) */
+.btn-theme-tictactoe {
+	@apply bg-white/40 text-black hover:bg-white/60 focus:ring-gray-300;
+}
 
 
-btn-group
-button.btn, a.btn
+/* === STATE STYLES === */
+.btn:hover:not(.btn-disabled) {
+	@apply brightness-105;
+}
 
-(types)
-	primary
-	secodary
-	danger/cancel
-	disabled
-
-(state)
-	:hover
-	:focus
-	:active
-	:visited (bei links)
-*/
+.btn:active:not(.btn-disabled) {
+	@apply scale-95;
+}

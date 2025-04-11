@@ -30,7 +30,14 @@ export default class Router {
 	public async navigateTo(url: string): Promise<void> {
 		window.history.pushState(null, '', url);
 		await this.render();
+	
+		// Dispatch routeChange so background/theme can update
+		const routeChangeEvent = new CustomEvent('routeChange', {
+			detail: { path: url }
+		});
+		window.dispatchEvent(routeChangeEvent);
 	}
+	
 
 	public async render(): Promise<void> {
 		const potentialMatches = this.routes.map(route => {

@@ -8,8 +8,11 @@ export default class Home extends AbstractView {
 
 	async getHtml() {
 		return this.render(`
-			<section class="hero bg-green-700">
-				<h1>Welcome to Home</h1>
+			<section>
+				<div class="ml-auto flex gap-2 z-10">
+					<a router href="/pong" class="btn btn-secondary btn-theme-pong">Pong</a>
+					<a router href="/tictactoe" class="btn btn-secondary btn-theme-tictactoe">TicTacToe</a>
+				</div>
 			</section>
 		`, {});
 	}
