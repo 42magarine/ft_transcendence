@@ -1,9 +1,5 @@
 mott:
-    - routs sind nur distributoren auf Controller functions, controller soll reply senden route bestueckt ggf mit middleqware z.B. auth data
-    - bei fehler returnt controller den fehlern bzw die middleqware
-    - jeder Controller hat (req, reply, {properties})
     - cookie controller
-    - makefilem dockerfiel, docker cmpose
     - user login
 
 jeberle:
