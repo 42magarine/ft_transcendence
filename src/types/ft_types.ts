@@ -18,3 +18,4 @@ export type ServerMessage =
     | { type: "resetGame"; state: IGameState }
     | { type: "playerDisconnected"; id: number }
     | { type: "error"; message: string };
+ 
