@@ -1,4 +1,5 @@
-import { WebSocket } from "ws";
+import { WebSocket, WebSocketServer } from "ws";
+import { ServerMessage } from "../types/ft_types.js";
 
 export class Player {
     public score: number = 0;
@@ -9,6 +10,32 @@ export class Player {
     constructor(connection: WebSocket, id: number) {
         this.connection = connection;
         this.id = id;
+    }
+
+    public static init(
+        connection: WebSocket,
+        players: Map<number, Player>,
+        getState: () => object,
+        sendFallback: (conn: WebSocket, msg: ServerMessage) => void
+    ): Player | null {
+        const playerId = Player.assignPlayerId(players);
+        if (!playerId) {
+            sendFallback(connection, {
+                type: "error",
+                message: "Game is full"
+            });
+            connection.close();
+            return null;
+        }
+
+        const player = Player.setupPlayer(connection, playerId, players);
+        player.send({
+            type: "assignPlayer",
+            id: playerId,
+            state: getState()
+        });
+
+        return player;
     }
 
     public send(data: object): void {
@@ -32,13 +59,23 @@ export class Player {
     }
 
     public static findByConnection(players: Map<number, Player>, conn: WebSocket): Player | undefined {
+        // Debugging to log the connection being checked
+        console.log("Finding player for connection:", conn);
+
         for (const player of players.values()) {
+            // Log the player and their connection for debugging
+            console.log('Checking player:', player.id, 'Connection:', player.connection);
+
+            // Directly compare the connections using the WebSocket's connection state or ID
             if (player.connection === conn) {
                 return player;
             }
         }
-        return undefined;
+
+        console.error("No player found for the given connection, returning default player.");
+        return new Player(conn, 1);
     }
+
 
     public static assignPlayerId(players: Map<number, Player>): number | null {
         if (!players.has(1)) return 1;

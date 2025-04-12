@@ -2,7 +2,7 @@ import { Ball } from "./Ball.js";
 import { Paddle } from "./Paddle.js";
 import { Player } from "./Player.js";
 import { IGameState } from "../types/interfaces.js";
-import { ClientMessage, ServerMessage } from "../types/ft_types.js";
+import { ServerMessage, PaddleDirection } from "../types/ft_types.js";
 import { GAME_WIDTH, GAME_HEIGHT, STEPS } from "../types/constants.js"
 
 export class PongGame {
@@ -126,7 +126,7 @@ export class PongGame {
 
 
 
-    public movePaddle(player: Player, direction: "up" | "down"): void {
+    public movePaddle(player: Player, direction: PaddleDirection): void {
         const paddle = player.id === 1 ? this.paddle1 : this.paddle2;
 
         if (direction === "up" && paddle.getY() > 0) {
@@ -135,7 +135,6 @@ export class PongGame {
             paddle.moveDown();
         }
     }
-
     //getters
 
     public getState(): IGameState {

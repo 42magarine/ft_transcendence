@@ -5,7 +5,7 @@ export const PADDLE_MOVE_SPEED = 10;
 
 //BALL.ts
 export const BALL_RADIUS = 10;
-export const STEPSIZE = 4;
+export const STEPSIZE = 0.25;
 
 //PONG.ts
 export const GAME_WIDTH = 800;
