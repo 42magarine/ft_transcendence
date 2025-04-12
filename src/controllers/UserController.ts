@@ -1,41 +1,78 @@
+import { FastifyReply, FastifyRequest } from "fastify";
 import { UserModel } from "../models/UserModel.js";
 
 export class UserController {
     static instance: UserController;
+    private userModel: UserModel;
 
     public static getInstance(): UserController {
         if (!UserController.instance) {
-            UserController.instance = new UserController(new UserModel());
+            UserController.instance = new UserController();
         }
         return UserController.instance;
     }
 
-    constructor(private userModel: UserModel) { }
-
-    public createUser(user: { name: string, username: string }) {
-        return this.userModel.create(user);
+    constructor() {
+        this.userModel = new UserModel();
     }
 
-    public readAllUser() {
-        const user = this.userModel.readAll();
-        return user;
-        // if (user) {
-        //     return user;
-        // }
-        // else {
-        //     return notify("Digga User nicht da Bruda!!!");
-        // }
+    public createUser(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const { name, username } = request.body as { name: string, username: string };
+            const result = this.userModel.create({ name, username });
+            reply.code(201).send(result);
+        }
+        catch (error) {
+            reply.code(400).send({ error: "Failed to create user" });
+        }
     }
 
-    public readOneUser(id: number) {
-        return this.userModel.readOne(id);
+    public readAllUser(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const users = this.userModel.readAll();
+            reply.send(users);
+        }
+        catch (error) {
+            reply.code(500).send({ error: "Failed to fetch users" });
+        }
     }
 
-    public updateUser(user: { id: number, name: string, username: string }) {
-        return this.userModel.update(user);
+    public readOneUser(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const { id } = request.params as { id: string };
+            const user = this.userModel.readOne(Number(id));
+            if (user) {
+                reply.send(user);
+            }
+            else {
+                reply.code(404).send({ error: "User not found" });
+            }
+        }
+        catch (error) {
+            reply.code(500).send({ error: "Error retrieving user" });
+        }
     }
 
-    public deleteUser(id: number) {
-        return this.userModel.delete(id);
+    public updateUser(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const { id } = request.params as { id: string };
+            const { name, username } = request.body as { name: string, username: string };
+            const result = this.userModel.update({ id: Number(id), name, username });
+            reply.send(result);
+        }
+        catch (error) {
+            reply.code(400).send({ error: "Failed to update user" });
+        }
+    }
+
+    public deleteUser(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const { id } = request.params as { id: string };
+            const result = this.userModel.delete(Number(id));
+            reply.send(result);
+        }
+        catch (error) {
+            reply.code(400).send({ error: "Failed to delete user" });
+        }
     }
 }
