@@ -1,7 +1,7 @@
 import { Ball } from "./Ball.js";
 import { Paddle } from "./Paddle.js";
 import { Player } from "./Player.js";
-import { IGameState } from "../types/interfaces.js";
+import { IGameState } from "../../types/interfaces.js";
 
 export class PongGame {
     private ball: Ball;

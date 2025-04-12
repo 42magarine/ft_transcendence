@@ -2,19 +2,31 @@
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
+import fastifyCookie from '@fastify/cookie'
+import dotenv from 'dotenv'
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import checkEnvironmentVariables from "./utils/checkForEnvVars.js"
 
 // Import route modules
 import userRoutes from "./routes/user.js";
 // import websocketRoutes from "./routes/websocket.js";
-import pongWebsocketRoutes from "./routes/websocket.js";
+// import pongWebsocketRoutes from "./routes/websocket.js";
+import { initDataSource } from "./backend/data-source.js";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
 const __dirname: string = path.dirname(__filename);             // /app/dist
 const __rootdir: string = path.resolve(__dirname, "..");        // /app
+
+if (!process.env.JWT_SECRET){
+	console.log(`Looking for .env file at: ${path.join(__rootdir, '.env')}`);
+	console.log(`Current working directory: ${process.cwd()}`);
+	console.log(`__rootdir: ${__rootdir}`);
+	dotenv.config({path: path.join(__rootdir, '.env')})
+}
+checkEnvironmentVariables();
 
 // Create Fastify instance
 // const fastify = Fastify({ logger: true });
@@ -44,12 +56,22 @@ fastify.register(fastifyStatic, {
 	decorateReply: false
 });
 
+fastify.register(fastifyCookie, {
+	secret: process.env.COOKIE_SECRET,
+	hook: 'onRequest',
+	parseOptions: {
+		secure: process.env.NODE_ENV === 'production',
+		httpOnly: true,
+		sameSite: 'strict'
+	}
+})
+
 // Register API routes under /api/*
 fastify.register(userRoutes, { prefix: "/api" });
 
 // Register WebSocket routes
 // fastify.register(websocketRoutes);
-fastify.register(pongWebsocketRoutes);
+// fastify.register(pongWebsocketRoutes);
 
 // 404 Handler
 fastify.setNotFoundHandler(async (request, reply) => {
@@ -87,15 +109,26 @@ fastify.setNotFoundHandler(async (request, reply) => {
 	return reply.type("text/html").send(fs.createReadStream(indexPath));
 });
 
-// Start the server
-const start = async (): Promise<void> => {
-	try {
-		await fastify.listen({ port: 3000, host: "0.0.0.0" });
-	}
-	catch (error) {
-		fastify.log.error(error);
-		process.exit(1);
-	}
-};
 
-start();
+// Start the server
+initDataSource().then(() => {
+
+	fastify.listen({ port: 3000, host: "0.0.0.0" }, (error) => {
+		if (error) {
+			console.error(error)
+			process.exit(1)
+		}
+		console.log('Server listening on port 3000')
+	});
+
+})
+
+// const start = async (): Promise<void> => {
+// 	try {
+// 		await fastify.listen({ port: 3000, host: "0.0.0.0" });
+// 	}
+// 	catch (error) {
+// 		fastify.log.error(error);
+// 		process.exit(1);
+// 	}
+// };

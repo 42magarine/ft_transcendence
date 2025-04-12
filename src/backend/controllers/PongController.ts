@@ -1,8 +1,8 @@
 import { WebSocket } from "ws";
 import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/Player.js";
-import { ClientMessage, ServerMessage } from "../types/ft_types.js";
-import { IGameState } from "../types/interfaces.js"
+import { ClientMessage, ServerMessage } from "../../types/ft_types.js";
+import { IGameState } from "../../types/interfaces.js"
 
 export class PongController {
     private game: PongGame = new PongGame(800, 600);
@@ -107,10 +107,9 @@ export class PongController {
                 this.startGameLoop();
                 this.broadcast({
                     type: "resetGame",
-                    state: this.game.getState()
+                    state: this.game.getState() as IGameState
                 });
                 break;
-                
 
             case "pauseGame":
                 this.game.pauseGame();
@@ -198,4 +197,3 @@ export class PongController {
 // Brauchen wir für jedes Model einen eigenen Controller?
 
 // Sollten wir wirklich variablen mit null oder undefined ermöglichen?
- 

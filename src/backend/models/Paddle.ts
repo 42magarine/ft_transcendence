@@ -1,4 +1,4 @@
-import { PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_MOVE_SPEED } from "../types/constants.js";
+import { PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_MOVE_SPEED } from "../../types/constants.js";
 
 export class Paddle {
     x: number;
