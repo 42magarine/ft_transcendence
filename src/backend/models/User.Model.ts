@@ -1,5 +1,5 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { GameModel } from "./Game.Lobby.Model.js";
+// import { GameModel } from "./Game.Lobby.Model.js";
 
 @Entity()
 export class UserModel {
@@ -34,9 +34,9 @@ export class UserModel {
     @JoinTable()
     friends!: UserModel[];
 
-    @OneToMany(() => GameModel, (game) => game.Player1)
-    gameAsPlayer1!: GameModel[]
+    // @OneToMany(() => GameModel, (game) => game.Player1)
+    // gameAsPlayer1!: GameModel[]
 
-    @OneToMany(() => GameModel, (game) => game.Player2)
-    gameAsPlayer2!: GameModel[]
+    // @OneToMany(() => GameModel, (game) => game.Player2)
+    // gameAsPlayer2!: GameModel[]
 }
