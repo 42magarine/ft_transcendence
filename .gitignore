@@ -136,3 +136,4 @@ dist
 .pnp.*
 
 src/models/db/*
+src/package-lock.json
