@@ -1,56 +1,27 @@
-IMAGE_NAME = ft_transcendence
-CONTAINER_NAME = ft_transcendence
-PORT = 3000
+all: up shell
 
-.PHONY: all
-all: build run
+up:
+	docker compose up --build --detach
 
-.PHONY: build
-build:
-	docker compose build
+start stop:
+	docker compose $@
 
-.PHONY: run
-run:
-	docker compose up -d
+ls:
+	docker compose ps --all
+	docker compose images
 
-.PHONY: start
-start:
-	docker start $(CONTAINER_NAME)
-
-.PHONY: stop
-stop:
-	docker stop $(CONTAINER_NAME)
-
-.PHONY: restart
-restart: stop start
-
-.PHONY: rm
-rm: stop
-	docker rm $(CONTAINER_NAME)
-
-.PHONY: build-direct
-build-direct:
-	docker build -t $(IMAGE_NAME) .
-
-.PHONY: run-direct
-run-direct:
-	docker run -d --name $(CONTAINER_NAME) -p $(PORT):$(PORT) -v ./src:/app/ $(IMAGE_NAME)
-
-.PHONY: logs
-logs:
-	docker logs $(CONTAINER_NAME)
-
-.PHONY: logs-follow
-logs-follow:
-	docker logs -f $(CONTAINER_NAME)
-
-.PHONY: shell
 shell:
-	docker exec -it $(CONTAINER_NAME) /bin/sh
+	docker compose exec ft_transcendence bash
 
-.PHONY: clean
-clean: rm
-	docker rmi $(IMAGE_NAME)
+logs:
+	docker compose logs
 
-.PHONY: rebuild
-rebuild: clean build run
+clean:
+	docker compose down
+
+fclean:
+	docker system prune --all --force --volumes
+
+re: clean all
+
+.PHONY: all up start stop ls shell logs clean fclean re

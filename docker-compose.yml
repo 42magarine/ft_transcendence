@@ -2,6 +2,7 @@ services:
   ft_transcendence:
     container_name: ft_transcendence
     build: .
+    image: ft_transcendence
     ports:
       - "3000:3000"
     volumes:
