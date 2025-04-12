@@ -1,0 +1,13 @@
+
+
+//Test register route
+curl -X POST http://localhost:3000/api/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","username":"testuser","displayname":"Test User","password":"password123"}'
+
+
+//Test Login route
+curl -X POST http://localhost:3000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123"}' \
+  -c cookies.txt

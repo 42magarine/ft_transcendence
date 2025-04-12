@@ -3,9 +3,11 @@ import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyCookie from '@fastify/cookie'
+import dotenv from 'dotenv'
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import checkEnvironmentVariables from "./utils/checkForEnvVars.js"
 
 // Import route modules
 import userRoutes from "./routes/user.js";
@@ -17,6 +19,14 @@ import { initDataSource } from "./backend/data-source.js";
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
 const __dirname: string = path.dirname(__filename);             // /app/dist
 const __rootdir: string = path.resolve(__dirname, "..");        // /app
+
+if (!process.env.JWT_SECRET){
+	console.log(`Looking for .env file at: ${path.join(__rootdir, '.env')}`);
+	console.log(`Current working directory: ${process.cwd()}`);
+	console.log(`__rootdir: ${__rootdir}`);
+	dotenv.config({path: path.join(__rootdir, '.env')})
+}
+checkEnvironmentVariables();
 
 // Create Fastify instance
 // const fastify = Fastify({ logger: true });
