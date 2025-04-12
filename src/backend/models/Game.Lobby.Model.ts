@@ -4,7 +4,7 @@ import { UserModel } from "./User.Model.js";
 @Entity()
 export class GameModel {
     @PrimaryGeneratedColumn()
-    ugid!:number;
+    id!:number;
 
     @ManyToOne(() => UserModel, (user) => user.gameAsPlayer1)
     @JoinColumn({name: 'player1Id'})

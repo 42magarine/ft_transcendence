@@ -2,6 +2,7 @@
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
+import fastifyCookie from '@fastify/cookie'
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import userRoutes from "./routes/user.js";
 // import websocketRoutes from "./routes/websocket.js";
 import pongWebsocketRoutes from "./routes/websocket.js";
+import { initDataSource } from "./backend/data-source.js";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
@@ -43,6 +45,16 @@ fastify.register(fastifyStatic, {
 	prefix: "/assets",
 	decorateReply: false
 });
+
+fastify.register(fastifyCookie, {
+	secret: process.env.COOKIE_SECRET,
+	hook: 'onRequest',
+	parseOptions: {
+		secure: process.env.NODE_ENV === 'production',
+		httpOnly: true,
+		sameSite: 'strict'
+	}
+})
 
 // Register API routes under /api/*
 fastify.register(userRoutes, { prefix: "/api" });
@@ -87,15 +99,26 @@ fastify.setNotFoundHandler(async (request, reply) => {
 	return reply.type("text/html").send(fs.createReadStream(indexPath));
 });
 
-// Start the server
-const start = async (): Promise<void> => {
-	try {
-		await fastify.listen({ port: 3000, host: "0.0.0.0" });
-	}
-	catch (error) {
-		fastify.log.error(error);
-		process.exit(1);
-	}
-};
 
-start();
+// Start the server
+initDataSource().then(() => {
+
+	fastify.listen({ port: 3000, host: "0.0.0.0" }, (error) => {
+		if (error) {
+			console.error(error)
+			process.exit(1)
+		}
+		console.log('Server listening on port 3000')
+	});
+
+})
+
+// const start = async (): Promise<void> => {
+// 	try {
+// 		await fastify.listen({ port: 3000, host: "0.0.0.0" });
+// 	}
+// 	catch (error) {
+// 		fastify.log.error(error);
+// 		process.exit(1);
+// 	}
+// };

@@ -112,14 +112,14 @@
   },
   "include": [
     "*.ts",
-    "controllers/**/*",
+    "backend/controllers/**/*",
     "frontend/**/*",
-    "middleware/**/*",
+    "backend/middleware/**/*",
     "models/**/*",
     "routes/**/*",
     "types/**/*",
     "views/**/*"
-  ],
+, "backend/data-source.ts"  ],
   "exclude": [
     "node_modules"
   ]
