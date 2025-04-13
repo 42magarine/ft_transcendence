@@ -1,25 +1,22 @@
-FROM ubuntu:22.04
+FROM debian:bookworm
 
-# Avoid prompts during package installation
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Update and install Node.js and npm
+# Install curl
 RUN apt-get update && apt-get install -y \
     curl \
-    bash \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install global tools
-RUN npm install -g tailwindcss nodemon concurrently
+# Install Node.js v22
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs
 
-# Expose ports
-EXPOSE 3000
+# Copy the setup script and set execution permissions
+COPY --chmod=755 ./tools/setup.sh /usr/local/bin
 
 # Set working directory
 WORKDIR /app
 
-# This will keep the container running even if node fails
-CMD ["bash"]
+# Expose port
+EXPOSE 3000
+
+# Set the entrypoint
+ENTRYPOINT ["setup.sh"]

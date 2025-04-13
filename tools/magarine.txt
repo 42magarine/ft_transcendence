@@ -8,15 +8,6 @@ TypeScript Richtlinien:
 
 
 
-Aufgaben bis nächsten Dienstag:
-
-- Florian:      Frontend page für Pong mit .tsx files + tailwind CSS (Web Minor module)
-- Mathias:      SQLite Datenbank (Web Minor module)
-- Freddy:       Pong Game-Logik für Backend
-- Jonathan:     Projektstruktur, MVC
-
-
-
 db.exec(sql)
     Führt ein einfaches SQL-Statement aus
     Rückgabe: void
@@ -41,6 +32,7 @@ stmt.all(params)
     Führt SELECT aus und gibt alle Ergebnisse zurück
     Rückgabe: Array von Objekten
     Wann benutzen? z. B. SELECT * FROM users
+
 
 
 SQL-Injection
@@ -94,3 +86,9 @@ Modules:
         Replace basic Pong with server-side Pong and implement an API. (1)
 
 Sum: 6-13.5
+
+
+
+	"build": "npm run build:db && tsc && npm run build:css && npm run copy:assets",
+    build:css": "npx tailwindcss -i styles/_index.css -o dist/assets/main.css",
+	"watch:css": "npx tailwindcss -i styles/_index.css -o dist/assets/main.css --watch",
