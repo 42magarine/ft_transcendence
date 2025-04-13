@@ -3,7 +3,6 @@ import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/Player.js";
 
 export class MessageHandlers {
-    private isRunning = false;
 
     constructor(
         private game: PongGame,
@@ -24,9 +23,9 @@ export class MessageHandlers {
     };
 
     public initGame = (): void => {
-        if (this.isRunning) return;
-        this.isRunning = true;
+        if (this.game.isRunning) return;
 
+        this.game.isRunning = true;
         this.game.resetGame();
         this.game.startGameLoop(this.broadcast);
         this.broadcast({
@@ -40,7 +39,7 @@ export class MessageHandlers {
         this.game.resetGame();
         this.game.resetScores();
         this.game.startGameLoop(this.broadcast);
-        this.isRunning = true;
+        this.game.isRunning = true;;
 
         this.broadcast({
             type: "resetGame",
@@ -50,7 +49,7 @@ export class MessageHandlers {
 
     public pauseGame = (): void => {
         this.game.pauseGame();
-        this.isRunning = false;
+        this.game.isRunning = true;
 
         this.broadcast({
             type: "pauseGame",
@@ -60,9 +59,9 @@ export class MessageHandlers {
 
     public resumeGame = (): void => {
         this.game.resumeGame();
-        if (!this.isRunning) {
+        if (this.game.isRunning === false) {
             this.game.startGameLoop(this.broadcast);
-            this.isRunning = true;
+            this.game.isRunning = true;
         }
 
         this.broadcast({

@@ -1,79 +1,79 @@
 import { BALL_RADIUS, STEPSIZE } from "../types/constants.js";
 
 export class Ball {
-    private x: number;
-    private y: number;
-    private speedX: number;
-    private speedY: number;
-    private radius: number;
+    private _x: number;
+    private _y: number;
+    private _speedX: number;
+    private _speedY: number;
+    private _radius: number;
 
     constructor(x: number, y: number, speedX: number, speedY: number) {
-        this.x = x;
-        this.y = y;
-        this.speedX = speedX;
-        this.speedY = speedY;
-        this.radius = BALL_RADIUS;
+        this._x = x;
+        this._y = y;
+        this._speedX = speedX;
+        this._speedY = speedY;
+        this._radius = BALL_RADIUS;
     }
 
-    public updateBall(): void {
-        this.x += this.speedX * STEPSIZE;
-        this.y += this.speedY * STEPSIZE;
+    public update(): void {
+        this._x += this._speedX * STEPSIZE;
+        this._y += this._speedY * STEPSIZE;
     }
 
     public revX(): void {
-        this.speedX *= -1;
+        this._speedX *= -1;
     }
 
     public revY(): void {
-        this.speedY *= -1;
+        this._speedY *= -1;
     }
 
     public randomizeDirection(): void {
         const randomXDirection = Math.random() > 0.5 ? 1 : -1;
         const randomYDirection = Math.random() > 0.5 ? 1 : -1;
-        this.speedX *= randomXDirection;
-        this.speedY *= randomYDirection;
+        this._speedX *= randomXDirection;
+        this._speedY *= randomYDirection;
     }
 
-    // Getters
-    public getX(): number {
-        return this.x;
+    // Getters and Setters
+
+    public get x(): number {
+        return this._x;
     }
 
-    public getY(): number {
-        return this.y;
+    public set x(value: number) {
+        this._x = value;
     }
 
-    public getSpeedX(): number {
-        return this.speedX;
+    public get y(): number {
+        return this._y;
     }
 
-    public getSpeedY(): number {
-        return this.speedY;
+    public set y(value: number) {
+        this._y = value;
     }
 
-    public getRadius(): number {
-        return this.radius;
+    public get speedX(): number {
+        return this._speedX;
     }
 
-    // Setters
-    public setX(x: number): void {
-        this.x = x;
+    public set speedX(value: number) {
+        this._speedX = value;
     }
 
-    public setY(y: number): void {
-        this.y = y;
+    public get speedY(): number {
+        return this._speedY;
     }
 
-    public setSpeedX(speedX: number): void {
-        this.speedX = speedX;
+    public set speedY(value: number) {
+        this._speedY = value;
     }
 
-    public setSpeedY(speedY: number): void {
-        this.speedY = speedY;
+    public get radius(): number {
+        return this._radius;
     }
 
-    public setRadius(radius: number): void {
-        this.radius = radius;
+    public set radius(value: number) {
+        this._radius = value;
     }
 }

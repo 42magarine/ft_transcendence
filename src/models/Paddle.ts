@@ -1,68 +1,71 @@
-import { PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_MOVE_SPEED } from "../types/constants.js";
+import {
+    PADDLE_WIDTH,
+    PADDLE_HEIGHT,
+    PADDLE_MOVE_SPEED,
+} from "../types/constants.js";
 
 export class Paddle {
-    private x: number;
-    private y: number;
-    private height: number;
-    private width: number;
-    private movespeed: number;
+    private _x: number;
+    private _y: number;
+    private _height: number;
+    private _width: number;
+    private _movespeed: number;
 
     constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-        this.height = PADDLE_HEIGHT;
-        this.width = PADDLE_WIDTH;
-        this.movespeed = PADDLE_MOVE_SPEED;
+        this._x = x;
+        this._y = y;
+        this._height = PADDLE_HEIGHT;
+        this._width = PADDLE_WIDTH;
+        this._movespeed = PADDLE_MOVE_SPEED;
     }
 
     public moveUp(): void {
-        this.y -= this.movespeed;
+        this._y -= this._movespeed;
     }
 
     public moveDown(): void {
-        this.y += this.movespeed;
+        this._y += this._movespeed;
     }
 
     // Getters
-    public getX(): number {
-        return this.x;
+    public get x(): number {
+        return this._x;
     }
 
-    public getY(): number {
-        return this.y;
+    public get y(): number {
+        return this._y;
     }
 
-    public getHeight(): number {
-        return this.height;
+    public get height(): number {
+        return this._height;
     }
 
-    public getWidth(): number {
-        return this.width;
+    public get width(): number {
+        return this._width;
     }
 
-    public getMoveSpeed(): number {
-        return this.movespeed;
+    public get movespeed(): number {
+        return this._movespeed;
     }
 
     // Setters
-    public setX(x: number): void {
-        this.x = x;
+    public set x(value: number) {
+        this._x = value;
     }
 
-    public setY(y: number): void {
-        this.y = y;
+    public set y(value: number) {
+        this._y = value;
     }
 
-    public setHeight(height: number): void {
-        this.height = height;
+    public set height(value: number) {
+        this._height = value;
     }
 
-    public setWidth(width: number): void {
-        this.width = width;
+    public set width(value: number) {
+        this._width = value;
     }
 
-    public setMoveSpeed(speed: number): void {
-        this.movespeed = speed;
+    public set movespeed(value: number) {
+        this._movespeed = value;
     }
 }
-

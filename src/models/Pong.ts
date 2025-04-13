@@ -3,189 +3,193 @@ import { Paddle } from "./Paddle.js";
 import { Player } from "./Player.js";
 import { IGameState } from "../types/interfaces.js";
 import { ServerMessage, PaddleDirection } from "../types/ft_types.js";
-import { GAME_WIDTH, GAME_HEIGHT, STEPS } from "../types/constants.js"
+import { GAME_WIDTH, GAME_HEIGHT, STEPS } from "../types/constants.js";
 
 export class PongGame {
-    private width: number;
-    private height: number;
-    private ball: Ball;
-    private paddle1: Paddle;
-    private paddle2: Paddle;
-    private score1: number = 0;
-    private score2: number = 0;
-    private paused: boolean = false;
-    private running: boolean = false;
-    private intervalId: NodeJS.Timeout | null = null;
+    private _width: number;
+    private _height: number;
+    private _ball: Ball;
+    private _paddle1: Paddle;
+    private _paddle2: Paddle;
+    private _score1: number = 0;
+    private _score2: number = 0;
+    private _paused: boolean = false;
+    private _running: boolean = false;
+    private _intervalId: NodeJS.Timeout | null = null;
 
     constructor() {
-        this.width = GAME_WIDTH;
-        this.height = GAME_HEIGHT;
-        this.ball = new Ball(this.width / 2, this.height / 2, 4, 4);
-        this.paddle1 = new Paddle(10, this.height / 2 - 50);
-        this.paddle2 = new Paddle(this.width - 20, this.height / 2 - 50);
+        this._width = GAME_WIDTH;
+        this._height = GAME_HEIGHT;
+        this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
+        this._paddle1 = new Paddle(10, this._height / 2 - 50);
+        this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
     }
 
     public startGameLoop(broadcast: (data: ServerMessage) => void): void {
-        if (this.running) {
-            return;
-        }
-        this.running = true;
-        this.intervalId = setInterval(() => {
-            if (this.isPaused()) {
-                return;
-            }
+        if (this._running) return;
+
+        this._running = true;
+        this._intervalId = setInterval(() => {
+            if (this._paused) return;
+
             this.update();
             broadcast({
                 type: "update",
-                state: this.getState() as IGameState
+                state: this.getState()
             });
-        }, 1000 / 60); // 60 FPS
+        }, 1000 / 60);
     }
 
     public stopGameLoop(): void {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
+        if (this._intervalId) {
+            clearInterval(this._intervalId);
+            this._intervalId = null;
         }
-        this.running = false;
+        this._running = false;
     }
 
     public resetGame(): void {
-        this.ball = new Ball(this.width / 2, this.height / 2, 4, 4);
-        this.ball.randomizeDirection();
-        this.paddle1 = new Paddle(10, this.height / 2 - 50);
-        this.paddle2 = new Paddle(this.width - 20, this.height / 2 - 50);
+        this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
+        this._ball.randomizeDirection();
+        this._paddle1 = new Paddle(10, this._height / 2 - 50);
+        this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
     }
 
     public resetScores(): void {
-        this.score1 = 0;
-        this.score2 = 0;
+        this._score1 = 0;
+        this._score2 = 0;
     }
 
     public pauseGame(): void {
-        this.paused = true;
+        this._paused = true;
     }
 
     public resumeGame(): void {
-        this.paused = false;
-    }
-
-    public isPaused(): boolean {
-        return this.paused;
+        this._paused = false;
     }
 
     public update(): void {
-        if (this.paused) {
-            return;
-        }
+        if (this._paused) return;
 
         for (let i = 0; i < STEPS; i++) {
-            this.ball.updateBall();
+            this._ball.update();
 
-            const ballY = this.ball.getY();
-            const ballX = this.ball.getX();
+            const ballY = this._ball.y;
+            const ballX = this._ball.x;
 
-            if (ballY <= 0 || ballY >= this.height) {
-                this.ball.revY();
+            if (ballY <= 0 || ballY >= this._height) {
+                this._ball.revY();
             }
 
-            if (this.isColliding(this.ball, this.paddle1)) {
-                const paddleCenterY = this.paddle1.getY() + this.paddle1.getHeight() / 2;
+            if (this.isColliding(this._ball, this._paddle1)) {
+                const paddleCenterY = this._paddle1.y + this._paddle1.height / 2;
                 const overlapY = ballY - paddleCenterY;
-                this.ball.revX();
-                this.ball.setSpeedY(this.ball.getSpeedY() + overlapY * 0.05);
-            } else if (this.isColliding(this.ball, this.paddle2)) {
-                const paddleCenterY = this.paddle2.getY() + this.paddle2.getHeight() / 2;
+                this._ball.revX();
+                this._ball.speedY += overlapY * 0.05;
+            } else if (this.isColliding(this._ball, this._paddle2)) {
+                const paddleCenterY = this._paddle2.y + this._paddle2.height / 2;
                 const overlapY = ballY - paddleCenterY;
-                this.ball.revX();
-                this.ball.setSpeedY(this.ball.getSpeedY() + overlapY * 0.05);
+                this._ball.revX();
+                this._ball.speedY += overlapY * 0.05;
             }
 
             if (ballX < 0) {
-                this.incrementScore2();
+                this._score2++;
                 this.resetGame();
                 break;
-            } else if (ballX > this.width) {
-                this.incrementScore1();
+            } else if (ballX > this._width) {
+                this._score1++;
                 this.resetGame();
                 break;
             }
         }
     }
-
 
 
     private isColliding(ball: Ball, paddle: Paddle): boolean {
         return (
-            ball.getX() - ball.getRadius() <= paddle.getX() + paddle.getWidth() &&
-            ball.getX() + ball.getRadius() >= paddle.getX() &&
-            ball.getY() + ball.getRadius() >= paddle.getY() &&
-            ball.getY() - ball.getRadius() <= paddle.getY() + paddle.getHeight()
+            ball.x - ball.radius <= paddle.x + paddle.width &&
+            ball.x + ball.radius >= paddle.x &&
+            ball.y + ball.radius >= paddle.y &&
+            ball.y - ball.radius <= paddle.y + paddle.height
         );
     }
 
-
-
     public movePaddle(player: Player, direction: PaddleDirection): void {
-        const paddle = player.id === 1 ? this.paddle1 : this.paddle2;
+        const paddle = player.id === 1 ? this._paddle1 : this._paddle2;
 
-        if (direction === "up" && paddle.getY() > 0) {
+        if (direction === "up" && paddle.y > 0) {
             paddle.moveUp();
-        } else if (direction === "down" && paddle.getY() + paddle.getHeight() < this.height) {
+        } else if (direction === "down" && paddle.y + paddle.height < this._height) {
             paddle.moveDown();
         }
     }
-    //getters
 
     public getState(): IGameState {
         return {
             ball: {
-                x: this.ball.getX(),
-                y: this.ball.getY(),
-                radius: this.ball.getRadius()
+                x: this._ball.x,
+                y: this._ball.y,
+                radius: this._ball.radius
             },
             paddle1: {
-                x: this.paddle1.getX(),
-                y: this.paddle1.getY(),
-                width: this.paddle1.getWidth(),
-                height: this.paddle1.getHeight()
+                x: this._paddle1.x,
+                y: this._paddle1.y,
+                width: this._paddle1.width,
+                height: this._paddle1.height
             },
             paddle2: {
-                x: this.paddle2.getX(),
-                y: this.paddle2.getY(),
-                width: this.paddle2.getWidth(),
-                height: this.paddle2.getHeight()
+                x: this._paddle2.x,
+                y: this._paddle2.y,
+                width: this._paddle2.width,
+                height: this._paddle2.height
             },
-            score1: this.getScore1(),
-            score2: this.getScore2(),
-            paused: this.isPaused()
+            score1: this._score1,
+            score2: this._score2,
+            paused: this._paused,
+            running: this._running
         };
     }
 
-    public getScore1(): number {
-        return this.score1;
+    // Getters/Setters
+    public get score1(): number {
+        return this._score1;
     }
 
-    public getScore2(): number {
-        return this.score2;
+    public get score2(): number {
+        return this._score2;
     }
 
-    //setters
-
-    public setScore1(score: number): void {
-        this.score1 = score;
+    public get isRunning(): boolean {
+        return this._running;
     }
 
-    public setScore2(score: number): void {
-        this.score2 = score;
+    public get isPaused(): boolean {
+        return this._paused;
     }
 
+    public set score1(score: number) {
+        this._score1 = score;
+    }
+
+    public set score2(score: number) {
+        this._score2 = score;
+    }
+
+    public set isRunning(state: boolean) {
+        this._running = state;
+    }
+
+    public set isPaused(state: boolean) {
+        this._paused = state;
+    }
+
+    // Score incrementers
     public incrementScore1(): void {
-        this.score1++;
+        this._score1++;
     }
 
     public incrementScore2(): void {
-        this.score2++;
+        this._score2++;
     }
 }
-
