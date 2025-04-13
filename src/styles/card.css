@@ -1,5 +1,5 @@
 .card {
-	@apply max-w-sm rounded overflow-hidden shadow-lg bg-white bg-blue-800 border-4;
+	@apply max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white border-4;
 }
 
 .card-image {
