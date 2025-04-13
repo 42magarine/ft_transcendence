@@ -6,7 +6,8 @@ export default function checkEnvironmentVariables() {
         console.error(`Missing required environment variables: ${missingVars.join(', ')}`);
         console.error('Please check your .env file and make sure it is being loaded correctly.');
         process.exit(1);
-    } else {
+    }
+    else {
         console.log('All required environment variables are loaded.');
     }
 }

@@ -111,16 +111,13 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "app/**/*",
     "*.ts",
-    "backend/controllers/**/*",
+    "backend/**/*",
     "frontend/**/*",
-    "backend/middleware/**/*",
-    "models/**/*",
     "routes/**/*",
     "types/**/*",
-    "views/**/*"
-, "backend/data-source.ts"  ],
+    "utils/**/*"
+    ],
   "exclude": [
     "node_modules",
     "dist"
