@@ -16,7 +16,8 @@ export const AppDataSource = new DataSource({
         // TournamentStatisticsModel,
     ],
     synchronize: true, // set to false for production later!!
-    logging: true
+    // logging: true,
+    logging: false
 });
 
 export const initDataSource = async () => {

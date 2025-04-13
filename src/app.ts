@@ -1,15 +1,15 @@
 // Import core modules and Fastify plugins
 import Fastify from "fastify";
-import fastifyCookie from "@fastify/cookie"
+import fastifyCookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { initDataSource } from "./backend/DataSource.js";
-import checkEnvironmentVariables from "./utils/checkForEnvVars.js"
+import checkEnvVars from "./utils/checkEnvVars.js";
 
 // Import route modules
 import userRoutes from "./routes/user.js";
@@ -20,13 +20,8 @@ const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app
 const __dirname: string = path.dirname(__filename);             // /app/dist
 const __rootdir: string = path.resolve(__dirname, "..");        // /app
 
-if (!process.env.JWT_SECRET) {
-    console.log(`Looking for .env file at: ${path.join(__rootdir, '.env')}`);
-    console.log(`Current working directory: ${process.cwd()}`);
-    console.log(`__rootdir: ${__rootdir}`);
-    dotenv.config({ path: path.join(__rootdir, '.env') })
-}
-checkEnvironmentVariables();
+dotenv.config();
+checkEnvVars();
 
 // Create Fastify instance
 // const fastify = Fastify({ logger: true });
@@ -121,7 +116,3 @@ const start = async (): Promise<void> => {
 };
 
 start();
-
-// Fehlerbehandlung
-//     .then(): Fehler müssen mit .catch() behandelt werden.
-//     async/await: Fehlerbehandlung per try/catch möglich – zentral und übersichtlich.
