@@ -13,6 +13,8 @@ export class PongGame {
     private _paddle2: Paddle;
     private _score1: number = 0;
     private _score2: number = 0;
+    private _player1: Player | null = null;
+    private _player2: Player | null = null;
     private _paused: boolean = false;
     private _running: boolean = false;
     private _intervalId: NodeJS.Timeout | null = null;
