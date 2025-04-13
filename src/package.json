@@ -4,7 +4,7 @@
 	"main": "app.js",
 	"type": "module",
 	"scripts": {
-		"build": " tsc && npm run copy:assets",
+		"build": "tsc && npm run copy:assets && npm run build:css",
 		"watch:ts": "tsc --watch",
 		"server": "npm run build:db && node ./dist/app.js",
 		"copy:assets": "mkdir -p dist/assets && cp -R assets/* dist/assets/ && mkdir -p dist/frontend && cp -R frontend/* dist/frontend/",
@@ -12,13 +12,14 @@
 		"dev:server": "nodemon --watch dist/app.js --watch dist/routes --watch dist/controller --ext js ./dist/app.js",
 		"dev": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"npm run dev:server\"",
 		"dev:fastify": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"fastify start -w -l info -P dist/app.js\"",
-		"refresh": "rm -rf node_modules && rm -rf dist && rm package-lock.json && npm i && npm run dev"
+		"refresh": "rm -rf node_modules && rm -rf dist && rm package-lock.json && npm i && npm run dev",
+		"build:css": "mkdir -p ./dist/assets/styles && postcss ./styles/_index.css -o dist/assets/styles/main.css",
+		"watch:css": "postcss ./styles/_index.css -o ./dist/assets/styles/main.css --watch"
 	},
 	"dependencies": {
 		"@fastify/cookie": "^11.0.2",
 		"@fastify/static": "^8.1.1",
 		"@fastify/websocket": "^11.0.2",
-		"@tailwindcss/postcss": "^4.1.3",
 		"@types/bcrypt": "^5.0.2",
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/jsonwebtoken": "^9.0.9",
@@ -36,8 +37,10 @@
 		"typescript": "^5.8.3"
 	},
 	"devDependencies": {
+		"@tailwindcss/postcss": "^4.1.3",
 		"autoprefixer": "^10.4.21",
 		"concurrently": "^9.1.2",
-		"nodemon": "^3.1.9"
+		"nodemon": "^3.1.9",
+		"postcss-cli": "^11.0.1"
 	}
 }
