@@ -39,7 +39,7 @@ export class MessageHandlers {
         this.game.resetGame();
         this.game.resetScores();
         this.game.startGameLoop(this.broadcast);
-        this.game.isRunning = true;;
+        this.game.isRunning = true;
 
         this.broadcast({
             type: "resetGame",

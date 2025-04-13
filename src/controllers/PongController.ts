@@ -3,36 +3,40 @@ import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/Player.js";
 import { MessageHandlers } from "./MessageHandlers.js";
 import { ClientMessage, ServerMessage } from "../types/ft_types.js";
+import { IGameState } from "../types/interfaces.js";
 
 export class PongController {
-    private game: PongGame = new PongGame();
-    private players: Map<number, Player> = new Map();
-    private clients: Set<WebSocket> = new Set();
-    private handlers: MessageHandlers;
+    private _game: PongGame;
+    private _players: Map<number, Player>;
+    private _clients: Set<WebSocket>;
+    private _handlers: MessageHandlers;
 
     constructor() {
-        this.handlers = new MessageHandlers(this.game, this.broadcast.bind(this));
+        this._game = new PongGame();
+        this._players = new Map<number, Player>();
+        this._clients = new Set<WebSocket>();
+        this._handlers = new MessageHandlers(this._game, this.broadcast.bind(this));
     }
 
     public handleConnection = (connection: WebSocket): void => {
         console.log("A new client connected!");
-        this.clients.add(connection);
+        this._clients.add(connection);
 
-        const player = Player.init(
+        const player: Player | null = Player.init(
             connection,
-            this.players,
-            () => this.game.getState(),
-            (conn: WebSocket, msg: ServerMessage) => this.sendMessage(conn, msg)
+            this._players,
+            (): IGameState => this._game.getState(),
+            (conn: WebSocket, msg: ServerMessage): void => this.sendMessage(conn, msg),
+            this.broadcast.bind(this)
         );
+
         if (!player) return;
 
-        console.log('handleConnection: Players after connection:', this.players);
-
-        connection.on("message", (message: string | Buffer) =>
+        connection.on("message", (message: string | Buffer): void =>
             this.handleMessage(message, connection)
         );
 
-        connection.on("close", () => {
+        connection.on("close", (): void => {
             this.handleClose(connection, player);
         });
     };
@@ -41,29 +45,18 @@ export class PongController {
         let data: ClientMessage;
         try {
             data = JSON.parse(message.toString()) as ClientMessage;
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Invalid message format", error);
             return;
         }
 
-        console.log('handleMessage: Current players:', this.players);
-        const player = Player.findByConnection(this.players, connection);
+        const player: Player | undefined = Player.findByConnection(this._players, connection);
         if (!player) return;
 
-        // Delegate message handling to the appropriate handler in MessageHandlers
-        const handler = this.handlers[data.type];
+        const handler = this._handlers[data.type];
         if (handler) {
             handler(player, data);
         }
-    }
-
-    private broadcast(data: ServerMessage): void {
-        const message = JSON.stringify(data);
-        this.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
     }
 
     private sendMessage(connection: WebSocket, data: ServerMessage): void {
@@ -73,12 +66,16 @@ export class PongController {
     }
 
     private handleClose(connection: WebSocket, player: Player): void {
-        this.clients.delete(connection);
-        player.isPlaying = false;
-        console.log(`Player ${player.id} disconnected!`);
-        this.broadcast({
-            type: "playerDisconnected",
-            id: player.id
+        this._clients.delete(connection);
+        player.disconnect();
+    }
+
+    private broadcast(data: ServerMessage): void {
+        const message: string = JSON.stringify(data);
+        this._clients.forEach((client: WebSocket): void => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
         });
     }
 }

@@ -1,81 +1,80 @@
-import { WebSocket, WebSocketServer } from "ws";
+import { WebSocket } from "ws";
 import { ServerMessage } from "../types/ft_types.js";
+import { IGameState } from "../types/interfaces.js";
 
 export class Player {
-    public score: number = 0;
-    public isPlaying: boolean = true;
-    public connection: WebSocket;
-    public id: number;
+    private _id: number;
+    private _score: number = 0;
+    private _playing: boolean = false;
+    private _connection: WebSocket;
+    private _broadcast: ((msg: ServerMessage) => void) | null = null;
 
     constructor(connection: WebSocket, id: number) {
-        this.connection = connection;
-        this.id = id;
+        this._connection = connection;
+        this._id = id;
     }
+
+    // === METHODS ===
 
     public static init(
         connection: WebSocket,
         players: Map<number, Player>,
-        getState: () => object,
-        sendFallback: (conn: WebSocket, msg: ServerMessage) => void
+        getState: () => IGameState,
+        sendFallback: (conn: WebSocket, msg: ServerMessage) => void,
+        broadcast?: (msg: ServerMessage) => void
     ): Player | null {
-        const playerId = Player.assignPlayerId(players);
+        const playerId: number | null = Player.assignPlayerId(players);
         if (!playerId) {
-            sendFallback(connection, {
+            const errorMsg: ServerMessage = {
                 type: "error",
                 message: "Game is full"
-            });
+            };
+            sendFallback(connection, errorMsg);
             connection.close();
             return null;
         }
 
-        const player = Player.setupPlayer(connection, playerId, players);
-        player.send({
+        const player: Player = Player.setupPlayer(connection, playerId, players);
+        player._broadcast = broadcast ?? null;
+        player.playing = true;
+
+        const assignMsg: ServerMessage = {
             type: "assignPlayer",
             id: playerId,
             state: getState()
-        });
+        };
+        player.sendMessage(assignMsg);
 
         return player;
     }
 
-    public send(data: object): void {
-        if (this.connection.readyState === WebSocket.OPEN) {
-            this.connection.send(JSON.stringify(data));
+    public sendMessage(data: object): void {
+        if (this._connection.readyState === WebSocket.OPEN) {
+            this._connection.send(JSON.stringify(data));
         }
     }
 
-    public isConnected(): boolean {
-        return this.connection.readyState === WebSocket.OPEN;
-    }
-
     public disconnect(): void {
-        this.isPlaying = false;
-        this.connection.close();
-    }
+        this._playing = false;
+        console.log(`Player ${this._id} disconnected!`);
 
-    public reconnect(connection: WebSocket): void {
-        this.connection = connection;
-        this.isPlaying = true;
+        if (this._broadcast) {
+            const msg: ServerMessage = {
+                type: "playerDisconnected",
+                id: this._id
+            };
+            this._broadcast(msg);
+        }
     }
 
     public static findByConnection(players: Map<number, Player>, conn: WebSocket): Player | undefined {
-        // Debugging to log the connection being checked
-        console.log("Finding player for connection:", conn);
-
         for (const player of players.values()) {
-            // Log the player and their connection for debugging
-            console.log('Checking player:', player.id, 'Connection:', player.connection);
-
-            // Directly compare the connections using the WebSocket's connection state or ID
             if (player.connection === conn) {
                 return player;
             }
         }
-
-        console.error("No player found for the given connection, returning default player.");
-        return new Player(conn, 1);
+        return undefined;
     }
-
 
     public static assignPlayerId(players: Map<number, Player>): number | null {
         if (!players.has(1)) return 1;
@@ -84,19 +83,34 @@ export class Player {
     }
 
     public static setupPlayer(connection: WebSocket, playerId: number, players: Map<number, Player>): Player {
-        const existingPlayer = players.get(playerId);
-        if (existingPlayer && !existingPlayer.isPlaying) {
-            existingPlayer.reconnect(connection);
-            console.log(`Player ${playerId} reconnected!`);
-            return existingPlayer;
-        }
-
-        const newPlayer = new Player(connection, playerId);
+        const newPlayer: Player = new Player(connection, playerId);
         players.set(playerId, newPlayer);
-        console.log(`Player ${playerId} connected!`);
         return newPlayer;
     }
 
-}
+    // === GETTERS / SETTERS ===
 
-// funktionen sollten als private oder public definiert werden?
+    public get id(): number {
+        return this._id;
+    }
+
+    public get score(): number {
+        return this._score;
+    }
+
+    public set score(value: number) {
+        this._score = value;
+    }
+
+    public get playing(): boolean {
+        return this._playing;
+    }
+
+    public set playing(value: boolean) {
+        this._playing = value;
+    }
+
+    public get connection(): WebSocket {
+        return this._connection;
+    }
+}
