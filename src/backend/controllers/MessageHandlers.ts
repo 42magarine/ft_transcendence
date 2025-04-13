@@ -1,13 +1,12 @@
-import { PaddleDirection, ServerMessage, ClientMessage } from "../types/ft_types.js";
+import { PaddleDirection, ServerMessage, ClientMessage } from "../../types/ft_types.js";
 import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/Player.js";
 
 export class MessageHandlers {
-
     constructor(
         private game: PongGame,
         private broadcast: (data: ServerMessage) => void
-    ) {}
+    ) {};
 
     public movePaddle = (player: Player, data: ClientMessage): void => {
         if (data.type === "movePaddle") {
@@ -28,6 +27,7 @@ export class MessageHandlers {
         this.game.isRunning = true;
         this.game.resetGame();
         this.game.startGameLoop(this.broadcast);
+
         this.broadcast({
             type: "initGame",
             state: this.game.getState()

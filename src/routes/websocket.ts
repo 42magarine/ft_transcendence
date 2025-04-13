@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { PongController } from "../controllers/PongController.js";
+import { PongController } from "../backend/controllers/PongController.js";
 
 export default async function (fastify: FastifyInstance) {
     const pongController = new PongController();

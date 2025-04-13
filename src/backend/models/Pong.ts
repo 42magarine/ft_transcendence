@@ -1,9 +1,9 @@
 import { Ball } from "./Ball.js";
 import { Paddle } from "./Paddle.js";
 import { Player } from "./Player.js";
-import { IGameState } from "../types/interfaces.js";
-import { ServerMessage, PaddleDirection } from "../types/ft_types.js";
-import { GAME_WIDTH, GAME_HEIGHT, STEPS } from "../types/constants.js";
+import { IGameState } from "../../types/interfaces.js";
+import { ServerMessage, PaddleDirection } from "../../types/ft_types.js";
+import { GAME_WIDTH, GAME_HEIGHT, STEPS } from "../../types/constants.js";
 
 export class PongGame {
     private _width: number;

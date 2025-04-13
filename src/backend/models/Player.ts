@@ -1,5 +1,4 @@
 import { WebSocket } from "ws";
-import { ServerMessage } from "../types/ft_types.js";
 
 export class Player {
 	private _id: number;

@@ -1,20 +1,20 @@
 import { WebSocket } from "ws";
 import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/Player.js";
-import { MessageHandlers } from "./MessageHandlers.js";
-import { ClientMessage, ServerMessage } from "../types/ft_types.js";
-import { IGameState } from "../types/interfaces.js";
-import { GameLobby } from "../models/GameLobby.js"; // Import the updated GameLobby
+import { MessageHandlers } from "../controllers/MessageHandlers.js";
+import { ClientMessage, ServerMessage } from "../../types/ft_types.js";
+import { IGameState } from "../../types/interfaces.js";
+import { GameLobby } from "../models/GameLobby.js";
 
 export class PongController {
     private _game: PongGame;
-    private _lobby: GameLobby; // Use GameLobby to handle the player management
+    private _lobby: GameLobby;
     private _clients: Set<WebSocket>;
     private _handlers: MessageHandlers;
 
     constructor() {
         this._game = new PongGame();
-        this._lobby = new GameLobby(this.broadcast.bind(this)); // Pass broadcast function to GameLobby
+        this._lobby = new GameLobby(this.broadcast.bind(this));
         this._clients = new Set<WebSocket>();
         this._handlers = new MessageHandlers(this._game, this.broadcast.bind(this));
     }

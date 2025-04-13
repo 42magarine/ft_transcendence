@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
-import { ServerMessage } from "../types/ft_types.js";
-import { IGameState } from "../types/interfaces.js";
+import { ServerMessage } from "../../types/ft_types.js";
+import { IGameState } from "../../types/interfaces.js";
 import { Player } from "./Player.js";
 
 export class GameLobby {

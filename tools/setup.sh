@@ -1,16 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-# Install dependencies if they are missing
+# Install dependencies if missing
 if [ ! -d /app/node_modules ]; then
+    echo "Installing dependencies..."
     npm install
-    echo "Installed dependencies"
 fi
 
-# Build the project if the output directories don't exist
-# if [ ! -d /app/html/dist ]; then
-#     npm run build
-#     echo "Built project"
-# fi
+# Build project if missing
+if [ ! -d /app/dist ]; then
+    echo "Building project..."
+    npm run build
+fi
 
-# # Keep container running
+# Keep container running
 exec tail -f /dev/null

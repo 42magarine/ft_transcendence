@@ -135,5 +135,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-src/models/db/*
+src/dist
+src/node_modules
+src/db.sqlite
 src/package-lock.json

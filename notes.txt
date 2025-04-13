@@ -1,9 +1,5 @@
 mott:
-    - routs sind nur distributoren auf Controller functions, controller soll reply senden route bestueckt ggf mit middleqware z.B. auth data
-    - bei fehler returnt controller den fehlern bzw die middleqware
-    - jeder Controller hat (req, reply, {properties})
-    - cookie controller
-    - makefilem dockerfiel, docker cmpose
+    - cookie controller bzw. JWT middleware
     - user login
 
 jeberle:
@@ -19,7 +15,3 @@ fkeitel:
     - cookie client seitig
     - Socket Service so ausabeun das wir dort nur noch event, callback function mapping machen, functions gehen in andere themenspezifische services (frontend)
     - sollte mit fwahl abgesprochend werden dass eine aenliche aifbau bei der server seitigen verarbietung und deren Services herrscht.
-
-mleibeng:
-    - lege die Datenstruktur mit allen Models und ORM integraiton an, stelle ggf. services-konzepte als Files bereit, liefere detaillierten aufbau mit funktionsdefitionen die zur Game Logik fuehren.
-    - formuliere endpunkte fuer die Services bzw referenzen fuer fkeitel und fwahl das die Anwendungsbeispiele durchgehen koenenn die Real vom Backend aus y=zu verarbeiten waeren
