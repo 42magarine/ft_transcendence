@@ -12,8 +12,9 @@ import { initDataSource } from "./backend/DataSource.js";
 import checkEnvVars from "./utils/checkEnvVars.js";
 
 // Import route modules
-import userRoutes from "./routes/user.js";
+// import userRoutes from "./routes/user.js";
 import pongWebsocketRoutes from "./routes/websocket.js";
+import authRoutes from "./routes/auth.js";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
@@ -51,18 +52,19 @@ fastify.register(fastifyStatic, {
     decorateReply: false
 });
 
-fastify.register(fastifyCookie, {
-    secret: process.env.COOKIE_SECRET,
-    hook: 'onRequest',
-    parseOptions: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        sameSite: 'strict'
-    }
-});
+// fastify.register(fastifyCookie, {
+//     secret: process.env.COOKIE_SECRET,
+//     hook: 'onRequest',
+//     parseOptions: {
+//         secure: process.env.NODE_ENV === 'production',
+//         httpOnly: true,
+//         sameSite: 'strict'
+//     }
+// });
 
 // Register API routes under /api/*
-fastify.register(userRoutes, { prefix: "/api" });
+// fastify.register(userRoutes, { prefix: "/api" });
+fastify.register(authRoutes, { prefix: "/api" });
 
 // Register WebSocket routes
 fastify.register(pongWebsocketRoutes);

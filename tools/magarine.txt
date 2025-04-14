@@ -86,9 +86,3 @@ Modules:
         Replace basic Pong with server-side Pong and implement an API. (1)
 
 Sum: 6-13.5
-
-
-
-	"build": "npm run build:db && tsc && npm run build:css && npm run copy:assets",
-    build:css": "npx tailwindcss -i styles/_index.css -o dist/assets/main.css",
-	"watch:css": "npx tailwindcss -i styles/_index.css -o dist/assets/main.css --watch",
