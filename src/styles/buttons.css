@@ -1,7 +1,23 @@
 /* === BUTTON GROUP === */
 .btn-group {
-	@apply flex gap-2 flex-wrap;
+	@apply flex flex-wrap gap-2;
 }
+
+.btn-stack {
+	@apply flex flex-col gap-2;
+}
+
+.btn-grid {
+	@apply grid gap-2;
+}
+
+.btn-group-left { @apply justify-start; }
+.btn-group-center { @apply justify-center; }
+.btn-group-right { @apply justify-end; }
+
+.grid-cols-2 { @apply grid-cols-2; }
+.grid-cols-3 { @apply grid-cols-3; }
+.grid-cols-4 { @apply grid-cols-4; }
 
 /* === BASE BUTTON STYLE === */
 .btn {
@@ -25,23 +41,22 @@
 	@apply bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 pointer-events-none;
 }
 
-/* === SUB-THEMES === */
+/* === THEMES === */
 
-/* Night Sky Theme (Home) */
-.btn-theme-home {
-	@apply bg-white/10 text-white hover:bg-white/20 focus:ring-white/30;
+/* 🌌 Stars Theme (Night Sky) */
+.btn-theme-stars {
+	@apply bg-white/10 text-white hover:bg-white/20 active:bg-white/30 focus:ring-white/30 backdrop-blur-sm border border-white/10;
 }
 
-/* Rocket Fire Theme (Pong) */
-.btn-theme-pong {
-	@apply bg-black/40 text-white hover:bg-orange-400/20 focus:ring-orange-500;
+/* 🔥 Mechazilla Theme (Rocket Fire) */
+.btn-theme-mechazilla {
+	@apply bg-black/40 text-orange-300 hover:bg-orange-400/30 active:bg-orange-500/40 focus:ring-orange-400 backdrop-blur-md border border-orange-400/30;
 }
 
-/* Morning Light Theme (TicTacToe) */
-.btn-theme-tictactoe {
-	@apply bg-white/40 text-black hover:bg-white/60 focus:ring-gray-300;
+/* 🚀 Starship Theme (Morning Light) */
+.btn-theme-starship {
+	@apply bg-gray-200/40 text-gray-900 hover:bg-white/50 active:bg-white/60 focus:ring-gray-300 backdrop-blur-sm border border-gray-400/30;
 }
-
 
 /* === STATE STYLES === */
 .btn:hover:not(.btn-disabled) {

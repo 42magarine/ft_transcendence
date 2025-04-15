@@ -2,9 +2,9 @@
 @import "tailwindcss/preflight";
 
 @import './buttons.css';
-@import './tictactoe.css';
 @import './card.css';
 @import './glass.css';
+@import './input_fields.css';
 
 .cell {
 	background-image: url('/assets/bg.png');

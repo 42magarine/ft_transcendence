@@ -47,6 +47,10 @@ export default abstract class AbstractView {
 		return this.getHtml();
 	}
 
+	getTheme(): string {
+		return 'default';
+	}
+
 	abstract getHtml(): Promise<string>;
 
 	async afterRender(): Promise<void> { }

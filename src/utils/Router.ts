@@ -96,4 +96,10 @@ export default class Router {
 		appElement.innerHTML = await view.getHtml();
 		await view.afterRender();
 	}
+
+	public getCurrentView(): AbstractView | null {
+		return this.currentView;
+	}
+	
 }
+

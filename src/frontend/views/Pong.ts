@@ -1,40 +1,55 @@
-import AbstractView from '../../utils/AbstractView.js';
-import { setBackgroundImage } from '../components/BackgroundManager.js';
+// ========================
+// File: views/Pong.ts
+// ========================
 
-export default class Pong extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-		this.setTitle('Transcendence - Pong');
+import ThemedView from '../theme/themedView.js';
+import Card from '../components/Card.js';
+import Button from '../components/Button.js';
+import { ThemeName } from '../theme/themeHelpers.js';
+
+export default class Pong extends ThemedView {
+	constructor() {
+		super('mechazilla', 'Transcendence - Pong');
 	}
 
-	async getHtml() {
-		setBackgroundImage('/assets/backgrounds/pong.png');
-		document.getElementById('header-root')!.className =
-			'shadow-lg p-8 bg-gradient-to-r from-zinc-900/70 via-gray-800/70 to-zinc-700/70 text-white backdrop-blur-md';
-		document.getElementById('footer-root')!.className =
-			'py-4 px-6 w-full bg-gradient-to-r from-zinc-900/70 via-gray-800/70 to-zinc-700/70 text-white backdrop-blur-md';
+	async renderView(): Promise<string> {
+		const theme = this.getTheme() as ThemeName;
 
-		// Render HTML first
-		const html = await this.render(`
-			<div class="flex flex-col items-center justify-center gap-6 w-full">
-				<canvas id="gameCanvas" width="800" height="600" class="bg-black border-4 border-white rounded-lg shadow-lg"></canvas>
-				<div class="flex gap-4">
-					<button id="startGameButton" class="btn btn-theme-pong">Start Game</button>
-					<button id="pauseGameButton" class="btn btn-theme-pong">Pause</button>
-					<button id="resumeGameButton" class="btn btn-theme-pong">Resume</button>
-					<button id="resetGameButton" class="btn btn-theme-pong">Reset</button>
+		const buttonGroup = await new Button(new URLSearchParams({ theme })).renderGroup({
+			layout: 'grid',
+			align: 'center',
+			buttons: [
+				{ id: 'startGameButton', text: 'Start Game' },
+				{ id: 'pauseGameButton', text: 'Pause' },
+				{ id: 'resumeGameButton', text: 'Resume' },
+				{ id: 'resetGameButton', text: 'Reset' }
+			]
+		});
+
+		const params = new URLSearchParams({ theme: this.getTheme() });
+		const gameCard = await new Card(params).renderCard({
+			title: 'Pong Arena',
+			body: `
+				<div class="flex flex-col gap-6 items-center justify-center">
+					<canvas id="gameCanvas" width="800" height="600" class="bg-black border-4 border-white rounded-lg shadow-lg"></canvas>
+					${buttonGroup}
 				</div>
+			`
+		});
+
+		return this.render(`
+			<div class="flex justify-center items-center min-h-[80vh] px-4">
+				${gameCard}
 			</div>
+
+			<script type="module">
+				import('../pong_game.js');
+			</script>
 		`);
-
-		// Import the game script after render
-		setTimeout(async () => {
-			await import('../pong_game.js');
-		}, 0);
-
-		return html;
 	}
 }
+
+
 
 
 /*import AbstractView from '../../utils/AbstractView.js';

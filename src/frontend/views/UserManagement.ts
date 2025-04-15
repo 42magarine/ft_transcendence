@@ -2,88 +2,121 @@
 // File: views/UserManagement.ts
 // ========================
 
-import AbstractView from '../../utils/AbstractView.js';
-import { setBackgroundImage } from '../components/BackgroundManager.js';
+import ThemedView from '../theme/themedView.js';
+import { ThemeName } from '../theme/themeHelpers.js';
+import Title from '../components/Title.js';
+import Card from '../components/Card.js';
+import Button from '../components/Button.js';
 
-export default class UserManagement extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-		this.setTitle('Transcendence - Home');
+export default class UserManagement extends ThemedView {
+	constructor() {
+		super('stars', 'Transcendence - User Management');
 	}
 
-	async getHtml() {
-        setBackgroundImage('/assets/backgrounds/home.png');
-		document.getElementById('header-root')!.className = 'shadow-lg p-8 bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
-		document.getElementById('footer-root')!.className = 'py-4 px-6 w-full bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
+	async renderView(): Promise<string> {
+		const theme = this.getTheme() as ThemeName;
 
+		const titleSection = await new Title(new URLSearchParams({ theme }), {
+			title: 'User Management',
+			subtitle: 'Manage users below using the available actions'
+		}).getHtml();
+		
+		// Button Group (no manual classes!)
+		const readAllButtonGroup = await new Button().renderGroup({
+			layout: 'stack',
+			align: 'center',
+			buttons: [
+				{
+					id: 'read-all',
+					text: 'Read all Users',
+					onClick: `document.getElementById('user-list').innerHTML = '<li>Loading...</li>'`
+				}
+			]
+		});
+
+		// CRUD Form Cards
+		const cardConfigs = [
+			{
+				title: 'Create User',
+				formId: 'create-form',
+				inputs: [
+					{ name: 'name', placeholder: 'Name' },
+					{ name: 'username', placeholder: 'Username' }
+				],
+				button: { text: 'Create', type: 'submit' }
+			},
+			{
+				title: 'Read One User',
+				formId: 'read-one-form',
+				inputs: [{ name: 'userId', type: 'number', placeholder: 'User ID' }],
+				button: { text: 'Read User', type: 'submit' },
+				extra: `<div id="read-result" class="text-white text-sm pt-2"></div>`
+			},
+			{
+				title: 'Update User',
+				formId: 'update-form',
+				inputs: [
+					{ name: 'id', type: 'number', placeholder: 'User ID' },
+					{ name: 'name', placeholder: 'New Name' },
+					{ name: 'username', placeholder: 'New Username' }
+				],
+				button: { text: 'Update', type: 'submit' }
+			},
+			{
+				title: 'Delete User',
+				formId: 'delete-form',
+				inputs: [{ name: 'id', type: 'number', placeholder: 'User ID' }],
+				button: { text: 'Delete', type: 'submit' } // Card component can auto-detect to use `btn-danger` if needed
+			}
+		];
+
+		// CRUD cards in grid
+		const groupedCardHtml = await new Card().renderGroup({
+			layout: 'grid',
+			className: 'md:grid-cols-2',
+			cards: cardConfigs
+		});
+
+		// Read All Users Card
+		const readAllCard = await new Card().renderCard({
+			title: 'Read All Users',
+			body: `
+				<div class="flex flex-col gap-4">
+					${readAllButtonGroup}
+					<ul id="user-list" class="text-white text-sm pt-2 space-y-1"></ul>
+				</div>`,
+			className: 'col-span-full text-center'
+		});
+
+		// Register Card
+		const registerCard = await new Card().renderCard({
+			title: 'Register New Account',
+			formId: 'register-form',
+			inputs: [
+				{ name: 'firstName', placeholder: 'First Name' },
+				{ name: 'lastName', placeholder: 'Last Name' },
+				{ name: 'email', type: 'email', placeholder: 'Email Address' },
+				{ name: 'password', type: 'password', placeholder: 'Password' }
+			],
+			button: { text: 'Register', type: 'submit' }
+		});
+
+		// Output
 		return this.render(`
-			<div class="max-w-4xl mx-auto p-6 space-y-8">
-				<h1 class="text-3xl font-bold text-center text-white">User Management</h1>
-				<!-- === BACKEND TESTING START === -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                    <!-- CREATE -->
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Create User</h2>
-                            <form id="create-form" class="space-y-2">
-                                <input type="text" id="create-name" placeholder="Name" required class="w-full p-2 rounded" />
-                                <input type="text" id="create-username" placeholder="Username" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-primary w-full">Create</button>
-                            </form>
-                        </div>
-                    </div>
-                
-                    <!-- READ ONE -->
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Read One User</h2>
-                            <form id="read-one-form" class="space-y-2">
-                                <input type="number" id="user-id" placeholder="User ID" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-primary w-full">Read User</button>
-                                <div id="read-result" class="text-white text-sm pt-2"></div>
-                            </form>
-                        </div>
-                    </div>
-                
-                    <!-- UPDATE -->
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Update User</h2>
-                            <form id="update-form" class="space-y-2">
-                                <input type="number" id="update-id" placeholder="User ID" required class="w-full p-2 rounded" />
-                                <input type="text" id="update-name" placeholder="New Name" required class="w-full p-2 rounded" />
-                                <input type="text" id="update-username" placeholder="New Username" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-primary w-full">Update</button>
-                            </form>
-                        </div>
-                    </div>
-                
-                    <!-- DELETE -->
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Delete User</h2>
-                            <form id="delete-form" class="space-y-2">
-                                <input type="number" id="delete-id" placeholder="User ID" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-danger w-full">Delete</button>
-                            </form>
-                        </div>
-                    </div>
-                
-                    <!-- READ ALL -->
-                    <div class="card col-span-full rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4 text-center">
-                            <h2 class="card-title text-white">Read All Users</h2>
-                            <button id="read-all" class="btn btn-secondary">Read all Users</button>
-                            <ul id="user-list" class="text-white text-sm pt-2 space-y-1"></ul>
-                        </div>
-                    </div>
-                
-                </div>
-				<!-- === BACKEND TESTING END === -->
+			<div class="max-w-5xl mx-auto p-6 space-y-8">
+				${titleSection}
+
+				<!-- Group: CRUD Cards -->
+				${groupedCardHtml}
+
+				<!-- Group: Read All + Register -->
+				<div class="flex flex-col items-center gap-6 md:flex-row md:justify-center">
+					${readAllCard}
+					${registerCard}
+				</div>
 			</div>
+
 			<script type="module" src="/dist/frontend/services/user_management.js"></script>
-		`, {});
+		`);
 	}
 }
-
