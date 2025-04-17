@@ -9,17 +9,17 @@ export interface RegisterCredentials extends UserCredentials {
 }
 
 export interface TwoFactorInfo {
-    secret: string
-    otpauthUrl: string
-    qrCodeUrl: string
+    secret: string;
+    otpauthUrl: string;
+    qrCodeUrl: string;
 }
 
 export interface JWTPayload {
     userID: string;
     email: string;
     role: string;
-    userId?: number
-    type?: string
+    userId?: number;
+    type?: string;
 }
 
 export interface AuthTokens {
