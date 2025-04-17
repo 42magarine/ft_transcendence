@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@utility input-glass {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s, outline-color 0.2s;
+  
+}
+
+/* optional base style for placeholder color (v4 uses currentColor/50) */
+@layer base {
+  input.input-glass::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}

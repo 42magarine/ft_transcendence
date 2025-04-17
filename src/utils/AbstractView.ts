@@ -9,13 +9,21 @@ export default abstract class AbstractView {
 
 	constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
 		this.params = params;
+		this.props = Object.fromEntries(params.entries());
+	
+		// ✅ Ensure a default theme is always present
+		if (!this.props.theme) {
+			this.props.theme = 'default';
+		}
+	
 		this.title = 'Transcendence';
 		this.description = '';
 		this.templateEngine = new TemplateEngine();
-		this.props = {};
+	
 		this.setTitle(this.title);
 		this.setDescription(this.description);
 	}
+	
 
 	setTitle(title: string): void {
 		document.title = title;
@@ -45,6 +53,10 @@ export default abstract class AbstractView {
 	renderWithProps(props: Record<string, any> = {}): Promise<string> {
 		this.props = props;
 		return this.getHtml();
+	}
+
+	getTheme(): string {
+		return 'default';
 	}
 
 	abstract getHtml(): Promise<string>;
