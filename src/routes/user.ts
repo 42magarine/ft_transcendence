@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { UserController } from "../backend/controllers/UserController.js";
-import { UserService } from "../backend/services/user.service.js";
+import { UserService } from "../backend/services/UserService.js";
 
-export default async function userRoutes(fastify: FastifyInstance) {
+export default async function (fastify: FastifyInstance) {
     const userService = new UserService();
     const userController = new UserController(userService);
 
@@ -44,6 +44,3 @@ export default async function userRoutes(fastify: FastifyInstance) {
 //         userController.deleteUser(request, reply)
 //     });
 // }
-
-// Marvin: Controller APIs
-// Mathias: Minimal APIs

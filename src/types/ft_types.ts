@@ -16,6 +16,6 @@ export type ServerMessage =
     | { type: "pauseGame"; state: IGameState }
     | { type: "resumeGame"; state: IGameState }
     | { type: "resetGame"; state: IGameState }
+    | { type: "playerConnected"; id: number }
     | { type: "playerDisconnected"; id: number }
     | { type: "error"; message: string };
- 

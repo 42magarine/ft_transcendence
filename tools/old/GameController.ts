@@ -1,4 +1,4 @@
-
+import { TicTacToe } from "../models/TicTacToe.js";
 import { Player } from "../models/Player.js";
 
 export class GameController {

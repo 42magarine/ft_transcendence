@@ -63,6 +63,8 @@
   
   /* 🚀 Starship Theme (Sunrise Steel) */
   .card-starship {
-	@apply bg-white/40 backdrop-blur-md border border-gray-300/50 text-gray-900 shadow-md;
+    @apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80 
+           text-white backdrop-blur-md border border-white/10 
+           shadow-xl rounded-xl p-6;
   }
   

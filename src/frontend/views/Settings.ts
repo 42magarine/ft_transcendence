@@ -16,12 +16,14 @@ export default class Settings extends ThemedView {
 	async renderView(): Promise<string> {
 		const theme = this.getTheme() as ThemeName;
 
-		const title = await new Title(
-			new URLSearchParams({ theme }), // Pass theme through URLSearchParams
-			{ title: 'Settings' }           // Title props
-		).getHtml();
+		// Title using existing params
+		const title = await new Title(this.params, {
+			title: 'Settings'
+		}).getHtml();
 
-		const saveButtonGroup = await new Button().renderGroup({
+		// Button using existing params
+		const button = new Button(this.params);
+		const saveButtonGroup = await button.renderGroup({
 			layout: 'stack',
 			align: 'center',
 			buttons: [
@@ -41,7 +43,8 @@ export default class Settings extends ThemedView {
 			</div>
 		`;
 
-		const settingsCard = await new Card().renderCard({
+		const card = new Card(this.params);
+		const settingsCard = await card.renderCard({
 			title: 'Profile Settings',
 			formId: 'settings-form',
 			contentBlocks: [

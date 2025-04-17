@@ -4,17 +4,16 @@
 	"main": "app.js",
 	"type": "module",
 	"scripts": {
-		"build": "npm run build:db && tsc && npm run build:css && npm run copy:assets",
+		"build": "tsc && npm run build:css && npm run copy:assets",
 		"watch:ts": "tsc --watch",
-		"server": "npm run build:db && node ./dist/app.js",
+		"server": "node ./dist/app.js",
 		"build:css": "npx @tailwindcss/cli -i styles/_index.css -o dist/assets/main.css",
 		"watch:css": "npx @tailwindcss/cli -i styles/_index.css -o dist/assets/main.css --watch",
 		"copy:assets": "mkdir -p dist/assets && cp -R assets/* dist/assets/ && mkdir -p dist/frontend && cp -R frontend/* dist/frontend/",
 		"watch:assets": "nodemon --watch assets --watch frontend --ext html,css,js,png,jpg,svg,ico --exec 'npm run copy:assets'",
 		"dev:server": "nodemon --watch dist/app.js --watch dist/routes --watch dist/controller --ext js ./dist/app.js",
-		"dev": "npm run build:db && npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"npm run dev:server\"",
+		"dev": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"npm run dev:server\"",
 		"dev:fastify": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"fastify start -w -l info -P dist/app.js\"",
-		"build:db": "mkdir -p /app/models/db",
 		"refresh": "rm -rf node_modules && rm -rf dist && rm -rf package-lock.json && npm i && npm run dev"
 	},
 	"dependencies": {

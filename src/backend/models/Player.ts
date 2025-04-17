@@ -1,41 +1,45 @@
 import { WebSocket } from "ws";
 
 export class Player {
-    public score: number = 0;
-    public isPlaying: boolean = true;
+	private _id: number;
+	private _score: number = 0;
+	private _playing: boolean = false;
+	private _connection: WebSocket;
 
-    // sollten wir die vaiablen nicht besser explizit erklären?
-    // public connection: WebSocket;
-    // public id: number;
+	constructor(connection: WebSocket, id: number) {
+		this._connection = connection;
+		this._id = id;
+	}
 
-    // constructor(connection: WebSocket, id: number) {
-    //     this.connection = connection;
-    //     this.id = id;
-    // }
-    constructor(
-        public connection: WebSocket,
-        public id: number
-    ) { }
+	public sendMessage(data: object): void {
+		if (this._connection.readyState === WebSocket.OPEN) {
+			this._connection.send(JSON.stringify(data));
+		}
+	}
 
-    send(data: object): void {
-        if (this.connection.readyState === WebSocket.OPEN) {
-            this.connection.send(JSON.stringify(data));
-        }
-    }
+	// === GETTERS / SETTERS ===
 
-    isConnected(): boolean {
-        return this.connection.readyState === WebSocket.OPEN;
-    }
+	public get id(): number {
+		return this._id;
+	}
 
-    disconnect(): void {
-        this.isPlaying = false;
-        this.connection.close();
-    }
+	public get score(): number {
+		return this._score;
+	}
 
-    reconnect(connection: WebSocket): void {
-        this.connection = connection;
-        this.isPlaying = true;
-    }
+	public set score(value: number) {
+		this._score = value;
+	}
+
+	public get playing(): boolean {
+		return this._playing;
+	}
+
+	public set playing(value: boolean) {
+		this._playing = value;
+	}
+
+	public get connection(): WebSocket {
+		return this._connection;
+	}
 }
-
-// funktionen sollten als private oder public definiert werden?

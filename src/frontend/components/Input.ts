@@ -6,6 +6,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import { themedInput } from '../theme/themeHelpers.js';
 
 interface InputProps {
+  id?: string;
   name: string;
   type?: string;
   placeholder?: string;
@@ -19,6 +20,7 @@ export default class Input extends AbstractView {
   }
 
   async renderInput({
+    id = '',
     name,
     type = 'text',
     placeholder = '',
@@ -31,6 +33,7 @@ export default class Input extends AbstractView {
     return this.render(`
       <input
         type="${type}"
+        id="${id}"
         name="${name}"
         placeholder="${placeholder}"
         value="${value}"

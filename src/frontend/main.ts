@@ -10,7 +10,7 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 // views
 import Home from './views/Home.js';
 import Pong from './views/Pong.js';
-import UserManagement from './views/UserManagement.js';
+import UserMangement from './views/UserManagement.js';
 import Login from './views/Login.js';
 import Settings from './views/Settings.js';
 
@@ -23,6 +23,41 @@ import Header from './components/Header.js';
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
 globalTemplateEngine.registerComponent('Button', Button);
+
+/**
+ * Dynamically render the footer into <footer id="footer-root">
+ */
+async function renderFooter() {
+	const footer = new Footer();
+	const footerHtml = await footer.renderWithProps({
+		year: '2025',
+		links: [
+			{ text: 'Privacy', href: '/privacy' },
+			{ text: 'Terms', href: '/terms' },
+			{ text: 'Imprint', href: '/imprint' }
+		]
+	});
+	document.getElementById('footer-root')!.innerHTML = footerHtml;
+}
+
+/**
+ * Dynamically render the header into <header id="header-root">
+ */
+async function renderHeader() {
+	const header = new Header(new URLSearchParams(window.location.search)); // ✅ Pass theme properly
+
+	const headerHtml = await header.getHtml(); // no props needed for now
+	document.getElementById('header-root')!.innerHTML = headerHtml;
+}
+
+/**
+ * Initial render and background setup on first load
+ */
+document.addEventListener('DOMContentLoaded', async () => {
+	await renderHeader();
+	await renderFooter();
+	await router.render();
+});
 
 const routes = [
 	{
@@ -42,11 +77,11 @@ const routes = [
 		}
 	},
 	{
-		path: '/user-management',
-		view: UserManagement,
+		path: '/user-mangement',
+		view: UserMangement,
 		metadata: {
-			title: 'Transcendence - UserManagement',
-			description: 'Welcome to UserManagement'
+			title: 'Transcendence - UserMangement',
+			description: 'Welcome to UserMangement'
 		}
 	},
 	{
@@ -68,48 +103,3 @@ const routes = [
 ];
 
 const router = new Router(routes);
-
-/**
- * Dynamically render the header into <header id="header-root">
- */
-async function renderHeader(theme: string) {
-	const header = new Header();
-	const headerHtml = await header.renderWithProps({ theme });
-	document.getElementById('header-root')!.innerHTML = headerHtml;
-}
-
-/**
- * Dynamically render the footer into <footer id="footer-root">
- */
-async function renderFooter(theme: string) {
-	const footer = new Footer();
-	const footerHtml = await footer.renderWithProps({
-		theme,
-		year: '2025',
-		links: [
-			{ text: 'Privacy', href: '/privacy' },
-			{ text: 'Terms', href: '/terms' },
-			{ text: 'Imprint', href: '/imprint' }
-		]
-	});
-	document.getElementById('footer-root')!.innerHTML = footerHtml;
-}
-
-/**
- * Initial render and background setup on first load
- */
-document.addEventListener('DOMContentLoaded', async () => {
-	await router.render(); // render still returns void — that's okay!
-
-	// ⬇️ Access the current view via router
-	const theme = router['currentView']?.getTheme?.() || 'default';
-
-	const header = new Header();
-	const footer = new Footer();
-
-	const headerHtml = await header.renderWithProps({ theme });
-	const footerHtml = await footer.renderWithProps({ theme });
-
-	document.getElementById('header-root')!.innerHTML = headerHtml;
-	document.getElementById('footer-root')!.innerHTML = footerHtml;
-});

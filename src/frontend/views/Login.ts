@@ -5,7 +5,6 @@
 import ThemedView from '../theme/themedView.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
-import { ThemeName } from '../theme/themeHelpers.js';
 
 export default class Login extends ThemedView {
 	constructor() {
@@ -13,39 +12,33 @@ export default class Login extends ThemedView {
 	}
 
 	async renderView(): Promise<string> {
-		const theme = this.getTheme() as ThemeName;
+		const button = new Button(this.params);
 
-		const buttonGroup = await new Button(new URLSearchParams({ theme })).renderGroup({
+		// Sign In and Sign Up Buttons
+		const buttonGroup = await button.renderGroup({
 			align: 'center',
-			layout: 'stack',
+			layout: 'group',
 			buttons: [
-				{
-					id: 'login-btn',
-					text: 'Login',
-					type: 'submit'
-				},
-				{
-					id: 'signup-btn',
-					text: 'Sign Up',
-					type: 'button'
-				}
+				{ id: 'login-btn', text: 'Login', type: 'submit' },
+				{ id: 'signup-btn', text: 'Sign Up', type: 'button', className: 'btn-secondary' }
 			]
 		});
 
-		const loginCard = await new Card(new URLSearchParams({ theme })).renderCard({
+		const card = new Card(this.params);
+		const loginCard = await card.renderCard({
 			title: 'Login',
 			formId: 'auth-form',
 			inputs: [
-				{ name: 'username', placeholder: 'User' },
+				{ name: 'username', placeholder: 'Username' },
 				{ name: 'password', type: 'password', placeholder: 'Password' },
 				{ name: 'repeat-password', type: 'password', placeholder: 'Repeat Password' }
 			],
-			extra: buttonGroup
+			extra: `<div class="pt-4">${buttonGroup}</div>`
 		});
 
 		return this.render(`
-			<div class="flex justify-center items-center min-h-[80vh]">
-				<div class="max-w-4xl w-full p-6 space-y-8">
+			<div class="flex justify-center items-center min-h-[80vh] px-4">
+				<div class="w-full max-w-xl space-y-8">
 					${loginCard}
 				</div>
 			</div>
@@ -53,14 +46,14 @@ export default class Login extends ThemedView {
 			<script type="module">
 				document.getElementById('signup-btn')?.addEventListener('click', () => {
 					const repeatField = document.querySelector('input[name="repeat-password"]');
-					const loginBtn = document.querySelector('#login-btn');
+					const loginBtn = document.getElementById('login-btn');
+					const signupBtn = document.getElementById('signup-btn');
+
 					if (repeatField) repeatField.classList.remove('hidden');
 					if (loginBtn) loginBtn.classList.add('hidden');
-					document.getElementById('signup-btn')?.setAttribute('type', 'submit');
+					if (signupBtn) signupBtn.setAttribute('type', 'submit');
 				});
 			</script>
-
-			<script type="module" src="/dist/frontend/services/user_management.js"></script>
 		`);
 	}
 }

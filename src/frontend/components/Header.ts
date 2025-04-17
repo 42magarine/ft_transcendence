@@ -1,56 +1,48 @@
-// ========================
-// File: components/Header.ts
-// ========================
-
 import AbstractView from '../../utils/AbstractView.js';
+import { themedHeader } from '../theme/themeHelpers.js';
 import Button from './Button.js';
 
 export default class Header extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
+	constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
 		super(params);
 	}
 
 	async getHtml(): Promise<string> {
 		const isLoginPage = location.pathname === '/login';
-		const theme = this.props.theme || 'stars'; // ✅ fallback if missing
-		const themeClass = `header-theme-${theme}`;
+		
+		console.log('[Header] Props:', this.props); // For debugging
+		
+		// Apply the theme-based class from your CSS
+		const themeClass = themedHeader(this.props?.theme || 'default');
+		console.log('[Header] Theme Class:', themeClass); // <-- this should show 'header-theme-stars'
 
-		let buttonHtml = '';
+		let buttonGroupHtml = '';
 		if (!isLoginPage) {
-			buttonHtml = await new Button(new URLSearchParams({ theme })).renderGroup({
+			const button = new Button(this.params);
+			buttonGroupHtml = await button.renderGroup({
+				layout: 'group',
 				align: 'right',
 				buttons: [
-					{
-						id: 'btn-home',
-						text: 'Home',
-						className: `btn btn-secondary btn-theme-${theme}`,
-						onClick: `window.location.href='/'`
-					},
-					{
-						id: 'btn-user',
-						text: 'User Management',
-						className: `btn btn-secondary btn-theme-${theme}`,
-						onClick: `window.location.href='/user-management'`
-					},
-					{
-						id: 'btn-logout',
-						text: 'Logout',
-						className: `btn btn-secondary btn-theme-${theme === 'mechazilla' ? 'starship' : theme}`,
-						onClick: `window.location.href='/login'`
-					}
+					{ id: 'home-btn', text: 'Home', href: '/' },
+					{ id: 'user-btn', text: 'User Management', href: '/user-mangement' },
+					{ id: 'logout-btn', text: 'Logout', href: '/login', className: 'btn btn-danger btn-sm' }
 				]
 			});
 		}
 
 		return super.render(`
-			<div class="${themeClass} shadow-lg p-8 w-full">
-				<div class="flex justify-between items-center px-4 sm:px-6">
-					<h1 class="text-2xl font-bold whitespace-nowrap">
-						<a router href="/" class="hover:underline">Transcendence</a>
-					</h1>
-					${buttonHtml}
-				</div>
-			</div>
-		`);
-	}
-}
+			<header class="w-full  ${themeClass}">
+				<h1 class="text-2xl font-bold whitespace-nowrap">
+				  <a router href="/" class="hover:underline">Transcendence</a>
+				</h1>
+				${buttonGroupHtml}
+			</header>
+		  `);
+		  
+			}
+		}
+		
+		// <h1 class="text-2xl font-bold whitespace-nowrap">
+		// 	<a router href="/" class="hover:underline">Transcendence</a>
+		// </h1>
+		// ${buttonGroupHtml}

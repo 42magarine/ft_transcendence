@@ -1,8 +1,30 @@
 export type ThemeName = 'stars' | 'mechazilla' | 'starship' | 'default';
+export type ButtonVariant = 'default' | 'danger' | 'outline' | 'link';
 
 // Button styling
-export function themedBtn(theme: ThemeName): string {
-	return `btn btn-theme-${theme} text-sm`;
+export function themedBtn(
+	theme: ThemeName,
+	variant: ButtonVariant = 'default',
+	size: 'sm' | 'md' | 'lg' = 'sm',
+	fullWidth = false
+): string {
+	const base = 'btn'; // Always included
+	const sizeClass = `btn-${size}`;
+	const widthClass = fullWidth ? 'btn-full' : '';
+
+	let variantClass = '';
+
+	if (variant === 'default') {
+		variantClass = `btn-theme-${theme}`;
+	} else if (variant === 'danger') {
+		variantClass = `btn-theme-${theme}-danger`;
+	} else if (variant === 'outline') {
+		variantClass = `btn-theme-${theme}-outline`;
+	} else if (variant === 'link') {
+		variantClass = `btn-theme-${theme}-link`;
+	}
+
+	return [base, variantClass, sizeClass, widthClass].filter(Boolean).join(' ');
 }
 
 // Card styling
@@ -120,3 +142,32 @@ export function getThemeBackground(theme: ThemeName): string {
 			return '/assets/backgrounds/default.png';
 	}
 }
+
+// Header background styling class
+export function themedHeader(theme: ThemeName): string {
+	switch (theme) {
+		case 'stars':
+			return 'header-theme-stars';
+		case 'mechazilla':
+			return 'header-theme-mechazilla';
+		case 'starship':
+			return 'header-theme-starship';
+		default:
+			return '';
+	}
+}
+
+// Footer background styling class
+export function themedFooter(theme: ThemeName): string {
+	switch (theme) {
+		case 'stars':
+			return 'footer-theme-stars';
+		case 'mechazilla':
+			return 'footer-theme-mechazilla';
+		case 'starship':
+			return 'footer-theme-starship';
+		default:
+			return '';
+	}
+}
+

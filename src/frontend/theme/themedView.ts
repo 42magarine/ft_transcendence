@@ -6,10 +6,13 @@ export default abstract class ThemedView extends AbstractView {
 	protected theme: ThemeName;
 
 	constructor(theme: ThemeName, title: string, params?: URLSearchParams) {
-		super(params || new URLSearchParams());
+		const finalParams = params || new URLSearchParams();
+		finalParams.set('theme', theme);
+		super(finalParams);
 		this.theme = theme;
 		this.setTitle(title);
 	}
+	
 
 	getTheme(): string {
 		return this.theme;

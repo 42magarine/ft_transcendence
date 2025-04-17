@@ -16,13 +16,15 @@ export default class UserManagement extends ThemedView {
 	async renderView(): Promise<string> {
 		const theme = this.getTheme() as ThemeName;
 
-		const titleSection = await new Title(new URLSearchParams({ theme }), {
+		// Title section
+		const title = new Title(this.params, {
 			title: 'User Management',
-			subtitle: 'Manage users below using the available actions'
-		}).getHtml();
-		
-		// Button Group (no manual classes!)
-		const readAllButtonGroup = await new Button().renderGroup({
+		});
+		const titleSection = await title.getHtml();
+
+		// Button Group (uses this.params automatically)
+		const button = new Button(this.params);
+		const readAllButtonGroup = await button.renderGroup({
 			layout: 'stack',
 			align: 'center',
 			buttons: [
@@ -35,6 +37,7 @@ export default class UserManagement extends ThemedView {
 		});
 
 		// CRUD Form Cards
+		const card = new Card(this.params);
 		const cardConfigs = [
 			{
 				title: 'Create User',
@@ -66,19 +69,19 @@ export default class UserManagement extends ThemedView {
 				title: 'Delete User',
 				formId: 'delete-form',
 				inputs: [{ name: 'id', type: 'number', placeholder: 'User ID' }],
-				button: { text: 'Delete', type: 'submit' } // Card component can auto-detect to use `btn-danger` if needed
+				button: { text: 'Delete', type: 'submit', className: 'btn btn-danger btn-sm' },
 			}
 		];
 
 		// CRUD cards in grid
-		const groupedCardHtml = await new Card().renderGroup({
+		const groupedCardHtml = await card.renderGroup({
 			layout: 'grid',
 			className: 'md:grid-cols-2',
 			cards: cardConfigs
 		});
 
 		// Read All Users Card
-		const readAllCard = await new Card().renderCard({
+		const readAllCard = await card.renderCard({
 			title: 'Read All Users',
 			body: `
 				<div class="flex flex-col gap-4">
@@ -89,19 +92,20 @@ export default class UserManagement extends ThemedView {
 		});
 
 		// Register Card
-		const registerCard = await new Card().renderCard({
+		const registerCard = await card.renderCard({
 			title: 'Register New Account',
 			formId: 'register-form',
 			inputs: [
 				{ name: 'firstName', placeholder: 'First Name' },
 				{ name: 'lastName', placeholder: 'Last Name' },
 				{ name: 'email', type: 'email', placeholder: 'Email Address' },
+				{ name: 'password', type: 'password', placeholder: 'Password' },
 				{ name: 'password', type: 'password', placeholder: 'Password' }
 			],
 			button: { text: 'Register', type: 'submit' }
 		});
 
-		// Output
+		// Final output
 		return this.render(`
 			<div class="max-w-5xl mx-auto p-6 space-y-8">
 				${titleSection}

@@ -1,7 +1,3 @@
-// ========================
-// File: components/Card.ts
-// ========================
-
 import AbstractView from '../../utils/AbstractView.js';
 import { themedCard, themedInput, themedBtn, ThemeName } from '../theme/themeHelpers.js';
 
@@ -122,19 +118,20 @@ export default class Card extends AbstractView {
 		const extraContentHtml = contentBlocks.map(block => this.renderContentBlock(block)).join('\n');
 
 		const formHtml =
-			inputs.length || button
+			inputs.length || button || extra
 				? `<form id="${formId || ''}">
-						<div class="flex flex-col gap-4">
-							${inputsHtml}
-							${
-								button
-									? `<button type="${button.type}" class="${button.className || themedBtn(this.theme)}">${button.text}</button>`
-									: ''
-							}
-						</div>
-						${extra}
-					</form>`
+					<div class="flex flex-col gap-4">
+					${inputsHtml}
+					${
+						button
+						? `<button type="${button.type}" class="${button.className || themedBtn(this.theme)}">${button.text}</button>`
+						: ''
+					}
+					${extra}
+					</div>
+				</form>`
 				: '';
+
 
 		const bodyContent = [formHtml || body, extraContentHtml].filter(Boolean).join('\n');
 

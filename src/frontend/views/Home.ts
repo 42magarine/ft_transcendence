@@ -18,16 +18,14 @@ export default class Home extends ThemedView {
 	}
 
 	async renderView(): Promise<string> {
-		const theme = this.getTheme() as ThemeName;
-		const params = new URLSearchParams({ theme });
 	
-		const button = new Button(params);
-		const input = new Input(params);
-		const label = new Label(params);
-		const stat = new Stat(params);
-		const toggle = new Toggle(params);
-		const toolbar = new Toolbar(params);
-		const card = new Card(params);
+		const button = new Button(this.params);
+		const input = new Input(this.params);
+		const label = new Label(this.params);
+		const stat = new Stat(this.params);
+		const toggle = new Toggle(this.params);
+		const toolbar = new Toolbar(this.params);
+		const card = new Card(this.params);
 
 		const groupHtml = await button.renderGroup({
 			align: 'center',
@@ -62,8 +60,9 @@ export default class Home extends ThemedView {
 			]
 		});
 
-		const inputHtml = await input.renderInput({ name: 'email', placeholder: 'Enter your email' });
+		const inputHtml = await input.renderInput({ id: 'email', name: 'email', placeholder: 'Enter your email' });
 		const labelHtml = await label.renderLabel({ htmlFor: 'email', text: 'Email Address' });
+
 		const statHtml = await stat.renderStat({ label: 'Users', value: '42' });
 		const toggleHtml = await toggle.renderToggle({ id: 'darkMode', label: 'Dark Mode' });
 		const toolbarHtml = await toolbar.renderToolbar({
@@ -104,6 +103,7 @@ export default class Home extends ThemedView {
 
 				<h2 class="text-white text-xl font-bold">Card</h2>
 				${demoCard}
+				<button class="bg-blue-900 text-white px-4 py-2">Test</button>
 
 				<div class="mt-10">
 					<a router href="/pong" class="btn btn-secondary btn-theme-pong">Pong</a>

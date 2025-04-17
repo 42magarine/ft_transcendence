@@ -1,48 +1,30 @@
 import AbstractView from '../../utils/AbstractView.js';
-import Button from './/Button.js';
+import { themedFooter } from '../theme/themeHelpers.js';
 
 export default class Footer extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
+	constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
 		super(params);
 	}
 
 	async getHtml(): Promise<string> {
-		const theme = this.props.theme || 'default';
-		const themeClass = `footer-theme-${theme}`;
-		const year = this.props.year || '2025';
-
-		// ✅ Use your actual btn class system!
-		const commonBtnClass = `btn btn-theme-${theme} text-sm`;
-
-		const navButtons = await new Button().renderGroup({
-			layout: 'flex',
-			align: 'center',
-			buttons: [
-				{ id: 'profileLink', text: '👤 Profile', className: commonBtnClass, href: '/profile' },
-				{ id: 'settingsLink', text: '⚙️ Settings', className: commonBtnClass, href: '/settings' },
-				{ id: 'darkModeToggle', text: '🌙 Dark Mode', className: commonBtnClass, onClick: 'toggleDarkMode()' },
-			]
-		});
+		const theme = this.props?.theme || 'default';
+		const themeClass = themedFooter(theme);
 
 		return super.render(`
-			<footer class="${themeClass} flex flex-col md:flex-row justify-between items-center text-sm py-2 px-6 w-full border-t border-white/10 bg-white/5 backdrop-blur-sm">
-				<p class="text-white/80">&copy; ${year} Transcendence Project</p>
-				${navButtons}
+			<footer class="w-full py-1 px-5 ${themeClass}">
+				<div class="flex flex-col md:flex-row justify-between items-center text-sm w-full">
+					<p>&copy; {{props.year || '2025'}} Transcendence Project</p>
+					<if condition="props.links">
+						<nav class="flex gap-4 mt-2 md:mt-0">
+							<for each="props.links">
+								<a router href="{{this.href}}" class="hover:underline">
+									{{this.text}}
+								</a>
+							</for>
+						</nav>
+					</if>
+				</div>
 			</footer>
-
-			<script>
-				(() => {
-					const savedTheme = localStorage.getItem('theme');
-					if (savedTheme === 'dark') {
-						document.documentElement.classList.add('dark');
-					}
-				})();
-
-				window.toggleDarkMode = function () {
-					const isDark = document.documentElement.classList.toggle('dark');
-					localStorage.setItem('theme', isDark ? 'dark' : 'light');
-				};
-			</script>
 		`);
 	}
 }
