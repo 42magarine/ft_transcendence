@@ -30,14 +30,14 @@ export default class Router {
 	public async navigateTo(url: string): Promise<void> {
 		window.history.pushState(null, '', url);
 		await this.render();
-	
+
 		// Dispatch routeChange so background/theme can update
 		const routeChangeEvent = new CustomEvent('routeChange', {
 			detail: { path: url }
 		});
 		window.dispatchEvent(routeChangeEvent);
 	}
-	
+
 
 	public async render(): Promise<void> {
 		const potentialMatches = this.routes.map(route => {
@@ -68,12 +68,10 @@ export default class Router {
 				return;
 			}
 		}
-		console.log("Router render " + match.route.path)
 
 		const params = new URLSearchParams(window.location.search);
 		const view = new match.route.view(params);
 
-		console.log("View is " + view)
 		// Apply metadata if available
 		if (match.route.metadata) {
 			if (match.route.metadata.title) {

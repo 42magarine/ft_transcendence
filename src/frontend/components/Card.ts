@@ -23,7 +23,7 @@ export default class Card extends AbstractView {
 					</div>
 				</if>
 
-				
+
 			</div>
 		`, {});
 	}
