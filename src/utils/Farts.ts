@@ -67,7 +67,6 @@ export default class Farts {
 
 	public play(sound?: string, callback?: () => void): void {
 		let fartSound: string;
-		console.log("play")
 		if (sound) {
 			if (this.sounds[sound]) {
 				fartSound = this.sounds[sound];

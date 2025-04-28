@@ -29,8 +29,6 @@ export default class Home extends AbstractView {
 		const sectionElement = document.querySelector('*');
 		if (sectionElement) {
 			sectionElement.addEventListener('click', (e) => {
-				console.log("click")
-				console.log("playRandomFart")
 				this.playRandomFart();
 			});
 		}
@@ -40,7 +38,6 @@ export default class Home extends AbstractView {
 	 * Play a random fart sound
 	 */
 	playRandomFart(): void {
-		console.log("play")
 		// Array of available fart sounds
 		const fartSounds = [
 			'toot', 'ripper', 'plop', 'squit', 'raspberry',
@@ -51,9 +48,7 @@ export default class Home extends AbstractView {
 		// Choose a random sound
 		const randomSound = fartSounds[Math.floor(Math.random() * fartSounds.length)];
 
-		console.log(randomSound)
 		// Play the sound
-		console.log("play")
 		this.fartsInstance.play(randomSound);
 	}
 
