@@ -7,4 +7,3 @@ const preload = [
 	'footer-theme-mechazilla',
 	'footer-theme-starship',
 ].join(' ');
-console.log('[Tailwind preload]', preload); // Just reference it

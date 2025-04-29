@@ -2,6 +2,9 @@
 // File: main.ts
 // ========================
 
+// services
+import '../frontend/services/user_management.js';
+
 // utils
 import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
@@ -45,7 +48,6 @@ async function renderFooter() {
  */
 async function renderHeader() {
 	const header = new Header(new URLSearchParams(window.location.search)); // ✅ Pass theme properly
-
 	const headerHtml = await header.getHtml(); // no props needed for now
 	document.getElementById('header-root')!.innerHTML = headerHtml;
 }
@@ -103,3 +105,5 @@ const routes = [
 ];
 
 const router = new Router(routes);
+
+(window as any).router = router;

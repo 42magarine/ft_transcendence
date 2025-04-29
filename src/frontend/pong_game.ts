@@ -21,8 +21,6 @@ let state: IGameState | null = null;
 let playerId: number | null = null;
 let keysPressed: Record<string, boolean> = {};
 
-console.log("Entered script");
-
 // The "open" event is triggered when the connection to the WebSocket server is successfully established.
 socket.addEventListener("open", () => {
 	console.log("Connected to WebSocket server");

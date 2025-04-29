@@ -3,14 +3,18 @@ import AbstractView from "./AbstractView.js"
 import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';
 
-
 export default class Router {
 	private routes: Route[] = [];
 	private currentView: AbstractView | null = null;
+	private static instance: Router | null = null;
 
 	constructor(routes: Route[]) {
 		this.routes = routes;
 		this.initEventListeners();
+
+		if (!Router.instance) {
+			Router.instance = this;
+		}
 	}
 
 	private initEventListeners(): void {
@@ -28,19 +32,67 @@ export default class Router {
 		window.addEventListener('popstate', () => {
 			this.render();
 		});
+
+		document.addEventListener('DataUpdateEvent', ((e: CustomEvent) => {
+			this.renderCurrentView(e.detail);
+		}) as EventListener);
+	}
+
+	public static triggerDataUpdate(detail: any = {}): void {
+		const dataUpdateEvent = new CustomEvent('DataUpdateEvent', {
+			bubbles: true,
+			cancelable: true,
+			detail
+		});
+
+		document.dispatchEvent(dataUpdateEvent);
+		console.log('DataUpdateEvent ausgelöst:', detail);
+	}
+
+	public update(): void {
+		this.renderCurrentView();
+	}
+
+	public static update(): void {
+		if (Router.instance) {
+			Router.instance.update();
+		} else {
+			const globalRouter = (window as any).router;
+			if (globalRouter && typeof globalRouter.update === 'function') {
+				globalRouter.update();
+			} else {
+				console.error('Router.update() wurde aufgerufen, aber es gibt keine aktive Router-Instanz');
+			}
+		}
+	}
+
+	private async renderCurrentView(eventDetail: any = {}): Promise<void> {
+		if (!this.currentView) return;
+
+		const appElement = document.getElementById('app');
+		if (!appElement) return;
+
+		appElement.classList.add('loading');
+
+		try {
+			appElement.innerHTML = await this.currentView.getHtml();
+			await this.currentView.afterRender();
+
+			this.dispatchRouterContentLoaded(true);
+		} finally {
+			appElement.classList.remove('loading');
+		}
 	}
 
 	public async navigateTo(url: string): Promise<void> {
 		window.history.pushState(null, '', url);
 		await this.render();
 
-		// Dispatch routeChange so background/theme can update
 		const routeChangeEvent = new CustomEvent('routeChange', {
 			detail: { path: url }
 		});
 		window.dispatchEvent(routeChangeEvent);
 	}
-
 
 	public async render(): Promise<void> {
 		const potentialMatches = this.routes.map(route => {
@@ -74,18 +126,15 @@ export default class Router {
 		const params = new URLSearchParams(window.location.search);
 		const view = new match.route.view(params);
 
-		// Get theme from view (e.g., 'stars', 'mechazilla')
 		const theme = typeof view.getTheme === 'function' ? view.getTheme() : 'default';
 		const themeParams = new URLSearchParams({ theme });
 
-		// 🔥 Inject header and footer with the correct theme
 		const headerHtml = await new Header(themeParams).getHtml();
 		document.getElementById('header-root')!.innerHTML = headerHtml;
 
 		const footerHtml = await new Footer(themeParams).getHtml();
 		document.getElementById('footer-root')!.innerHTML = footerHtml;
 
-		// Apply metadata if available
 		if (match.route.metadata) {
 			if (match.route.metadata.title) {
 				view.setTitle(match.route.metadata.title);
@@ -106,6 +155,21 @@ export default class Router {
 
 		appElement.innerHTML = await view.getHtml();
 		await view.afterRender();
+
+		this.dispatchRouterContentLoaded();
 	}
 
+	private dispatchRouterContentLoaded(isDataUpdate: boolean = false): void {
+		const RouterContentLoadedEvent = new CustomEvent('RouterContentLoaded', {
+			bubbles: true,
+			cancelable: true,
+			detail: {
+				view: this.currentView,
+				path: location.pathname,
+				isDataUpdate
+			}
+		});
+
+		document.dispatchEvent(RouterContentLoadedEvent);
+	}
 }

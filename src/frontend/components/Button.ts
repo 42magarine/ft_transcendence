@@ -32,7 +32,6 @@ export default class Button extends AbstractView {
 		href,
 	}: ButtonProps): Promise<string> {
 		const theme = this.props?.theme || 'default';
-		console.log("renderButton theme:", theme);
 		const finalClass = className || themedBtn(theme);
 		const clickAttr = onClick ? `onclick="${onClick}"` : '';
 

@@ -3,74 +3,88 @@ import { UserService } from "../services/UserService.js";
 import { RegisterCredentials, UserCredentials } from "../../types/auth.js";
 
 export class UserController {
-    private userService: UserService;
+	private userService: UserService;
 
-    constructor(userService: UserService) {
-        this.userService = userService;
-    }
+	constructor(userService: UserService) {
+		this.userService = userService;
+	}
 
-    async register(request: FastifyRequest<{ Body: RegisterCredentials }>, reply: FastifyReply) {
-        try {
-            console.log("test register");
-            const tokens = await this.userService.register(request.body);
-            reply.setCookie('accessToken', tokens.accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                path: '/',
-                maxAge: 15 * 60 * 1000
-            });
-            reply.code(201).send("registration success woooo")
-        }
-        catch (error) {
-            console.error('registration error:', error);
-            const message = error instanceof Error ? error.message : 'Registration failed';
-            reply.code(400).send({
-                error: message.includes('exists') ? 'User already exists' : 'Registration failed'
-            });
-        }
-    }
+	async register(request: FastifyRequest<{ Body: RegisterCredentials }>, reply: FastifyReply) {
+		console.log("register register");
+		try {
+			console.log("test register");
+			const tokens = await this.userService.register(request.body);
+			reply.setCookie('accessToken', tokens.accessToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'strict',
+				path: '/',
+				maxAge: 15 * 60 * 1000
+			});
+			reply.code(201).send("registration success woooo")
+		}
+		catch (error) {
+			console.error('registration error:', error);
+			const message = error instanceof Error ? error.message : 'Registration failed';
+			reply.code(400).send({
+				error: message.includes('exists') ? 'User already exists' : 'Registration failed'
+			});
+		}
+	}
 
-    async login(request: FastifyRequest<{ Body: UserCredentials }>, reply: FastifyReply) {
-        try {
-            const result = await this.userService.login(request.body);
-            // if ('requiresTwoFactor' in result) {
-            //     reply.code(200).send({
-            //         requiresTwoFactor: true,
-            //         tempToken: result.tempToken // -> send info back to frontend for requesting 2FA. -> Should maybe redirect to 2FA page / blocking pop up -> will need to send another request to verify2FA
-            //     });
-            // } else {
-            reply.setCookie('accessToken', result.accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                path: '/',
-                maxAge: 15 * 60 * 1000
-            });
-            // reply.setCookie('refreshToken', result.refreshToken,  {
-            //     httpOnly: true,
-            //     secure: process.env.NODE_ENV === 'production',
-            //     sameSite: 'strict',
-            //     path: '/api/auth/refresh',
-            //     maxAge: 7 * 24 * 60 * 60 * 1000
-            //     });
-            // reply.code(200).send('Login successful');
-            // }
-        }
-        catch (error) {
-            reply.code(400).send({ error: 'Bad Login request' });
-        }
-    }
+	async getAll(request: FastifyRequest<{ Body: RegisterCredentials }>, reply: FastifyReply) {
+		try {
+			const users = await this.userService.findAll();
+			reply.code(200).send(users)
+		}
+		catch (error) {
+			const message = error instanceof Error ? error.message : 'Couldnt fetch users';
+			reply.code(400).send({
+				error: message.includes('exists') ? 'User already exists' : 'Registration failed'
+			});
+		}
+	}
 
-    // async logout(request: FastifyRequest, reply: FastifyReply) {
-    //     const userId = request.user?.userID;
-    //     if (userId) {
-    //         const userIdNumber = parseInt(userId, 10);
-    //         await this.userService.getUserService().updateRefreshToken(userIdNumber, null);
-    //     }
-    // reply.clearCookie('accessToken', { path: '/' });
-    // // reply.clearCookie('refreshToken', { path: '/api/auth/refresh' });
-    // reply.code(200).send('Logout successful');
+	async login(request: FastifyRequest<{ Body: UserCredentials }>, reply: FastifyReply) {
+		try {
+			const result = await this.userService.login(request.body);
+			// if ('requiresTwoFactor' in result) {
+			//     reply.code(200).send({
+			//         requiresTwoFactor: true,
+			//         tempToken: result.tempToken // -> send info back to frontend for requesting 2FA. -> Should maybe redirect to 2FA page / blocking pop up -> will need to send another request to verify2FA
+			//     });
+			// } else {
+			reply.setCookie('accessToken', result.accessToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'strict',
+				path: '/',
+				maxAge: 15 * 60 * 1000
+			});
+			// reply.setCookie('refreshToken', result.refreshToken,  {
+			//     httpOnly: true,
+			//     secure: process.env.NODE_ENV === 'production',
+			//     sameSite: 'strict',
+			//     path: '/api/auth/refresh',
+			//     maxAge: 7 * 24 * 60 * 60 * 1000
+			//     });
+			// reply.code(200).send('Login successful');
+			// }
+		}
+		catch (error) {
+			reply.code(400).send({ error: 'Bad Login request' });
+		}
+	}
+
+	// async logout(request: FastifyRequest, reply: FastifyReply) {
+	//     const userId = request.user?.userID;
+	//     if (userId) {
+	//         const userIdNumber = parseInt(userId, 10);
+	//         await this.userService.getUserService().updateRefreshToken(userIdNumber, null);
+	//     }
+	// reply.clearCookie('accessToken', { path: '/' });
+	// // reply.clearCookie('refreshToken', { path: '/api/auth/refresh' });
+	// reply.code(200).send('Logout successful');
 }
 
 

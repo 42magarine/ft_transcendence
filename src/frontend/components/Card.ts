@@ -32,6 +32,7 @@ interface CardProps {
 	extra?: string;
 	contentBlocks?: ContentBlock[];
 	theme?: string;
+	data?: Record<string, any>; // Added data property to pass context data
 }
 
 interface CardGroupProps {
@@ -39,14 +40,21 @@ interface CardGroupProps {
 	layout?: 'stack' | 'grid' | 'flex';
 	className?: string;
 	theme?: string;
+	data?: Record<string, any>; // Added data property for group context
 }
 
 export default class Card extends AbstractView {
 	private theme: ThemeName;
+	private contextData: Record<string, any> = {}; // Added to store context data
 
 	constructor(params: URLSearchParams = new URLSearchParams()) {
 		super(params);
 		this.theme = (params.get('theme') || this.props.theme || 'default') as ThemeName;
+	}
+
+	// Method to set context data that will be passed to templates
+	setContextData(data: Record<string, any>): void {
+		this.contextData = { ...this.contextData, ...data };
 	}
 
 	private renderContentBlock(block: ContentBlock): string {
@@ -100,6 +108,7 @@ export default class Card extends AbstractView {
 		extra = '',
 		contentBlocks = [],
 		theme = this.theme,
+		data = {}, // Accept data parameter
 	}: CardProps): Promise<string> {
 		const titleHtml = title
 			? `<div class="card-header px-6 pt-6 py-2 text-center">
@@ -131,8 +140,10 @@ export default class Card extends AbstractView {
 				</form>`
 				: '';
 
-
 		const bodyContent = [formHtml || body, extraContentHtml].filter(Boolean).join('\n');
+
+		// Combine context data with passed data
+		const mergedData = { ...this.contextData, ...data };
 
 		return this.render(`
 			<div class="${themedCard(this.theme)} ${className}">
@@ -142,7 +153,7 @@ export default class Card extends AbstractView {
 				</div>
 				${footerHtml}
 			</div>
-		`);
+		`, mergedData); // Pass the merged data to render
 	}
 
 	async renderGroup({
@@ -150,6 +161,7 @@ export default class Card extends AbstractView {
 		layout = 'grid',
 		className = '',
 		theme = this.theme,
+		data = {}, // Accept data parameter
 	}: CardGroupProps): Promise<string> {
 		const layoutClassMap: Record<string, string> = {
 			stack: 'card-group flex flex-col gap-6',
@@ -159,18 +171,25 @@ export default class Card extends AbstractView {
 
 		const wrapperClass = `${layoutClassMap[layout]} ${className}`;
 
+		// Combine context data with passed data
+		const mergedData = { ...this.contextData, ...data };
+
 		const renderedCards = await Promise.all(
-			cards.map(config => this.renderCard({ ...config, theme }))
+			cards.map(config => this.renderCard({
+				...config,
+				theme,
+				data: mergedData, // Pass merged data to each card
+			}))
 		);
 
 		return this.render(`
 			<div class="${wrapperClass}">
 				${renderedCards.join('\n')}
 			</div>
-		`);
+		`, mergedData); // Pass merged data to render
 	}
 
 	async getHtml(): Promise<string> {
-		return this.render(`<div class="${themedCard(this.theme)}">No content</div>`);
+		return this.render(`<div class="${themedCard(this.theme)}">No content</div>`, this.contextData);
 	}
 }

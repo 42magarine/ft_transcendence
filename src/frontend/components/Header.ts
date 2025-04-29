@@ -10,11 +10,8 @@ export default class Header extends AbstractView {
 	async getHtml(): Promise<string> {
 		const isLoginPage = location.pathname === '/login';
 
-		console.log('[Header] Props:', this.props); // For debugging
-
 		// Apply the theme-based class from your CSS
 		const themeClass = themedHeader(this.props?.theme || 'default');
-		console.log('[Header] Theme Class:', themeClass); // <-- this should show 'header-theme-stars'
 
 		let buttonGroupHtml = '';
 		if (!isLoginPage) {

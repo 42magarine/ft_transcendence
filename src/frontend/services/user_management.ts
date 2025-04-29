@@ -1,76 +1,79 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const createForm = document.getElementById("create-form") as HTMLFormElement;
-    const readAllForm = document.getElementById("read-all") as HTMLButtonElement;
-    const readOneForm = document.getElementById("read-one-form") as HTMLFormElement;
-    const updateForm = document.getElementById("update-form") as HTMLFormElement;
-    const deleteForm = document.getElementById("delete-form") as HTMLFormElement;
+interface User {
+	username: string;
+	email: string;
+	displayname?: string;
+	password?: string;
+}
 
-    createForm.addEventListener("submit", async (event: SubmitEvent) => {
-        event.preventDefault();
-        const name = (document.getElementById("create-name") as HTMLInputElement).value;
-        const username = (document.getElementById("create-username") as HTMLInputElement).value;
+interface ApiErrorResponse {
+	error?: string;
+}
 
-        const response = await fetch("/api/users", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, username })
-        });
-        createForm.reset();
-    });
+import Router from '../../utils/Router.js';
 
-    readAllForm.addEventListener("click", async (event: MouseEvent) => {
-        event.preventDefault();
+export class UserManagementService {
+	static async fetchAllUsers(): Promise<User[]> {
+		try {
+			const response = await fetch('/api/users/');
+			if (!response.ok) {
+				throw new Error(`Error: ${response.status}`);
+			}
+			return await response.json() as User[];
+		} catch (error) {
+			console.error('Failed to fetch users:', error);
+			return [];
+		}
+	}
 
-        const response = await fetch("/api/users", {
-            method: "GET"
-        });
+	static async registerUser(userData: User): Promise<string> {
+		try {
+			const response = await fetch('/api/users/register', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(userData),
+			});
 
-        const users = await response.json();
-        const list = document.getElementById("user-list") as HTMLUListElement;
-        list.innerHTML = "";
-        users.forEach((user: any) => {
-            const li = document.createElement("li");
-            li.textContent = `id: ${user.id} name: ${user.name} username: ${user.username}`;
-            list.appendChild(li);
-        });
-    });
+			if (!response.ok) {
+				const errorData = await response.json() as ApiErrorResponse;
+				throw new Error(errorData.error || 'Registration failed');
+			}
+			Router.update();
+			return await response.text();
+		} catch (error) {
+			console.error('Registration error:', error);
+			throw error;
+		}
+	}
 
-    readOneForm.addEventListener("submit", async (event: SubmitEvent) => {
-        event.preventDefault();
-        const id = (document.getElementById("user-id") as HTMLInputElement).value;
+	static setupEventListeners(): void {
+		const createForm = document.getElementById('create-form') as HTMLFormElement | null;
+		if (createForm) {
+			createForm.addEventListener('submit', async (e) => {
+				e.preventDefault();
 
-        const response = await fetch(`/api/users/${id}`, {
-            method: "GET"
-        });
+				try {
+					const formData = new FormData(createForm);
+					const userData: User = {
+						displayname: formData.get('displayname') as string,
+						username: formData.get('username') as string,
+						email: formData.get('email') as string,
+						password: formData.get('password') as string, // Get password from form
+					};
+					const result = await UserManagementService.registerUser(userData);
+					createForm.reset();
 
-        const user = await response.json();
-        const div = document.getElementById("read-result") as HTMLDivElement;
-        div.textContent = `id: ${user.id} name: ${user.name} username: ${user.username}`;
-        readOneForm.reset();
-    });
+				} catch (error) {
+					console.error('Failed to register user:', error);
+					alert(error instanceof Error ? error.message : 'Registration failed');
+				}
+			});
+		}
+	}
+}
 
-    updateForm.addEventListener("submit", async (event: SubmitEvent) => {
-        event.preventDefault();
-        const id = (document.getElementById("update-id") as HTMLInputElement).value;
-        const name = (document.getElementById("update-name") as HTMLInputElement).value;
-        const username = (document.getElementById("update-username") as HTMLInputElement).value;
-
-        const response = await fetch(`/api/users/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, username })
-        });
-        updateForm.reset();
-    });
-
-    deleteForm.addEventListener("submit", async (event: SubmitEvent) => {
-        event.preventDefault();
-        const id = (document.getElementById("delete-id") as HTMLInputElement).value;
-
-        const response = await fetch(`/api/users/${id}`, {
-            method: "DELETE"
-        });
-        deleteForm.reset();
-    });
-
-})
+// Initialize the event listeners when the DOM is loaded
+document.addEventListener('RouterContentLoaded', () => {
+	UserManagementService.setupEventListeners();
+});
