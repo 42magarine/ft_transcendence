@@ -1,21 +1,22 @@
-// ========================
-// File: views/UserManagement.ts
-// ========================
-
 import ThemedView from '../theme/themedView.js';
 import { ThemeName } from '../theme/themeHelpers.js';
 import Title from '../components/Title.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
+import { UserService } from '../../backend/services/UserService.js';
 
 export default class UserManagement extends ThemedView {
+	private userService: UserService;
+
 	constructor() {
 		super('stars', 'Transcendence - User Management');
+		this.userService = new UserService();
 	}
 
 	async renderView(): Promise<string> {
 		const theme = this.getTheme() as ThemeName;
-
+		const users = await this.userService.findAll();
+		console.log(users);
 		// Title section
 		const title = new Title(this.params, {
 			title: 'User Management',
@@ -105,10 +106,16 @@ export default class UserManagement extends ThemedView {
 			button: { text: 'Register', type: 'submit' }
 		});
 
-		// Final output
+		// Final output - Pass users data to the render method
 		return this.render(`
 			<div class="max-w-5xl mx-auto p-6 space-y-8">
 				${titleSection}
+
+				<ul>
+					<for each="users" as="user">
+						<li>{{user.name}} ({{user.username}})</li>
+					</for>
+				</ul>
 
 				<!-- Group: CRUD Cards -->
 				${groupedCardHtml}
@@ -121,6 +128,6 @@ export default class UserManagement extends ThemedView {
 			</div>
 
 			<script type="module" src="/dist/frontend/services/user_management.js"></script>
-		`);
+		`, { users });
 	}
 }

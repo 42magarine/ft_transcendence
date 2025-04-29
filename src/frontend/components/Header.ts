@@ -9,9 +9,9 @@ export default class Header extends AbstractView {
 
 	async getHtml(): Promise<string> {
 		const isLoginPage = location.pathname === '/login';
-		
+
 		console.log('[Header] Props:', this.props); // For debugging
-		
+
 		// Apply the theme-based class from your CSS
 		const themeClass = themedHeader(this.props?.theme || 'default');
 		console.log('[Header] Theme Class:', themeClass); // <-- this should show 'header-theme-stars'
@@ -22,6 +22,7 @@ export default class Header extends AbstractView {
 			buttonGroupHtml = await button.renderGroup({
 				layout: 'group',
 				align: 'right',
+				className: 'no-wrap',
 				buttons: [
 					{ id: 'home-btn', text: 'Home', href: '/' },
 					{ id: 'user-btn', text: 'User Management', href: '/user-mangement' },
@@ -31,18 +32,18 @@ export default class Header extends AbstractView {
 		}
 
 		return super.render(`
-			<header class="w-full  ${themeClass}">
+			<header class="header ${themeClass}">
 				<h1 class="text-2xl font-bold whitespace-nowrap">
 				  <a router href="/" class="hover:underline">Transcendence</a>
 				</h1>
 				${buttonGroupHtml}
 			</header>
 		  `);
-		  
-			}
-		}
-		
-		// <h1 class="text-2xl font-bold whitespace-nowrap">
-		// 	<a router href="/" class="hover:underline">Transcendence</a>
-		// </h1>
-		// ${buttonGroupHtml}
+
+	}
+}
+
+// <h1 class="text-2xl font-bold whitespace-nowrap">
+// 	<a router href="/" class="hover:underline">Transcendence</a>
+// </h1>
+// ${buttonGroupHtml}

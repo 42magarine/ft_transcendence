@@ -14,6 +14,7 @@ interface ButtonGroupProps {
 	buttons: ButtonProps[];
 	align?: 'left' | 'center' | 'right';
 	layout?: 'group' | 'stack' | 'grid' | 'flex';
+	className?: String;
 	columns?: number;
 }
 
@@ -55,6 +56,7 @@ export default class Button extends AbstractView {
 		align = 'left',
 		layout = 'group',
 		columns = 2,
+		className = ""
 	}: ButtonGroupProps): Promise<string> {
 		const layoutClasses: Record<string, string> = {
 			group: 'btn-group',
@@ -77,7 +79,7 @@ export default class Button extends AbstractView {
 		);
 
 		return this.render(`
-			<div class="${layoutClass} ${alignmentClass}">
+			<div class="${className} ${layoutClass} ${alignmentClass}">
 				${renderedButtons.join('\n')}
 			</div>
 		`);
