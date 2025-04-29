@@ -10,9 +10,9 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 // views
 import Home from './views/Home.js';
 import Pong from './views/Pong.js';
-import TicTacToe from './views/TicTacToe.js';
 import UserMangement from './views/UserManagement.js';
 import Login from './views/Login.js';
+import Settings from './views/Settings.js';
 
 // components
 import Card from './components/Card.js';
@@ -44,7 +44,8 @@ async function renderFooter() {
  * Dynamically render the header into <header id="header-root">
  */
 async function renderHeader() {
-	const header = new Header();
+	const header = new Header(new URLSearchParams(window.location.search)); // ✅ Pass theme properly
+
 	const headerHtml = await header.getHtml(); // no props needed for now
 	document.getElementById('header-root')!.innerHTML = headerHtml;
 }
@@ -54,8 +55,8 @@ async function renderHeader() {
  */
 document.addEventListener('DOMContentLoaded', async () => {
 	await renderHeader();
-	await router.render();
 	await renderFooter();
+	await router.render();
 });
 
 const routes = [
@@ -76,14 +77,6 @@ const routes = [
 		}
 	},
 	{
-		path: '/tictactoe',
-		view: TicTacToe,
-		metadata: {
-			title: 'Transcendence - TicTacToe',
-			description: 'Welcome to TicTacToe'
-		}
-	},
-	{
 		path: '/user-mangement',
 		view: UserMangement,
 		metadata: {
@@ -97,6 +90,14 @@ const routes = [
 		metadata: {
 			title: 'Transcendence - login',
 			description: 'Welcome to Login'
+		}
+	},
+	{
+		path: '/settings',
+		view: Settings,
+		metadata: {
+			title: 'Transcendence - settings',
+			description: 'Welcome to Settings'
 		}
 	}
 ];

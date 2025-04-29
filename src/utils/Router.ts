@@ -1,5 +1,8 @@
 import { Route } from "./types.js";
 import AbstractView from "./AbstractView.js"
+import Header from '../frontend/components/Header.js';
+import Footer from '../frontend/components/Footer.js';
+
 
 export default class Router {
 	private routes: Route[] = [];
@@ -60,7 +63,6 @@ export default class Router {
 					isMatch: true
 				};
 			} else {
-				// Default 404 handler if no route defined
 				const appElement = document.getElementById('app');
 				if (appElement) {
 					appElement.innerHTML = '<h1>404 - Page Not Found</h1>';
@@ -71,6 +73,17 @@ export default class Router {
 
 		const params = new URLSearchParams(window.location.search);
 		const view = new match.route.view(params);
+
+		// Get theme from view (e.g., 'stars', 'mechazilla')
+		const theme = typeof view.getTheme === 'function' ? view.getTheme() : 'default';
+		const themeParams = new URLSearchParams({ theme });
+
+		// 🔥 Inject header and footer with the correct theme
+		const headerHtml = await new Header(themeParams).getHtml();
+		document.getElementById('header-root')!.innerHTML = headerHtml;
+
+		const footerHtml = await new Footer(themeParams).getHtml();
+		document.getElementById('footer-root')!.innerHTML = footerHtml;
 
 		// Apply metadata if available
 		if (match.route.metadata) {
@@ -94,4 +107,5 @@ export default class Router {
 		appElement.innerHTML = await view.getHtml();
 		await view.afterRender();
 	}
+
 }

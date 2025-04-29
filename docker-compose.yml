@@ -7,10 +7,5 @@ services:
       - "3000:3000"
     volumes:
       - ./src:/app
-      - ./.env:/app/.env
-    environment:
-      - JWT_SECRET=your_jwt_secret
-      - COOKIE_SECRET=your_cookie_secret
-      - REFRESH_TOKEN_SECRET=your_refresh_token_secret
     tty: true
     stdin_open: true

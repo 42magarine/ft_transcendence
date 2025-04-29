@@ -3,4 +3,9 @@
 @import './buttons.css';
 @import './card.css';
 @import './glass.css';
-@import './tictactoe.css';
+@import './theme.css';
+@import './input_fields.css';
+
+.cell {
+	background-image: url('/assets/bg.png');
+}

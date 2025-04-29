@@ -1,7 +1,23 @@
 /* === BUTTON GROUP === */
 .btn-group {
-	@apply flex gap-2 flex-wrap;
+	@apply flex flex-wrap gap-2;
 }
+
+.btn-stack {
+	@apply flex flex-col gap-2;
+}
+
+.btn-grid {
+	@apply grid gap-2;
+}
+
+.btn-group-left { @apply justify-start; }
+.btn-group-center { @apply justify-center; }
+.btn-group-right { @apply justify-end; }
+
+.grid-cols-2 { @apply grid-cols-2; }
+.grid-cols-3 { @apply grid-cols-3; }
+.grid-cols-4 { @apply grid-cols-4; }
 
 /* === BASE BUTTON STYLE === */
 .btn {
@@ -9,37 +25,91 @@
 }
 
 /* === VARIANTS === */
+/* 🔵 Primary (default action) */
+
 .btn-primary {
-	@apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus:ring-blue-400;
+@apply bg-blue-600 text-white
+		hover:bg-blue-700
+		active:bg-blue-800
+		focus:ring-blue-400;
 }
 
+/* ⚪ Secondary (neutral action) */
 .btn-secondary {
-	@apply bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400 focus:ring-gray-400;
+@apply bg-gray-200 text-gray-900
+		hover:bg-gray-300
+		active:bg-gray-400
+		focus:ring-gray-400;
 }
 
+/* 🔴 Danger (destructive action) */
 .btn-danger {
-	@apply bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-400;
+@apply bg-red-600 text-white
+		hover:bg-red-700
+		active:bg-red-800
+		focus:ring-red-400;
 }
 
-.btn-disabled {
-	@apply bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 pointer-events-none;
+/* 🔘 Outline variant (border-only) */
+.btn-outline {
+@apply border border-gray-400 text-gray-700 bg-transparent
+		hover:bg-gray-100
+		active:bg-gray-200
+		focus:ring-gray-300;
 }
 
-/* === SUB-THEMES === */
-
-/* Night Sky Theme (Home) */
-.btn-theme-home {
-	@apply bg-white/10 text-white hover:bg-white/20 focus:ring-white/30;
+/* 🔗 Link-style button */
+.btn-link {
+@apply text-blue-600 underline
+		hover:text-blue-700
+		active:text-blue-800
+		focus:ring-blue-300;
 }
 
-/* Rocket Fire Theme (Pong) */
-.btn-theme-pong {
-	@apply bg-black/40 text-white hover:bg-orange-400/20 focus:ring-orange-500;
+/* ========================
+   === FULL-WIDTH OPTION ===
+   ======================== */
+   .btn-full {
+	@apply w-full justify-center;
+  }
+  
+  
+  /* ========================
+	 === SIZE MODIFIERS ===
+	 ======================== */
+  .btn-sm {
+	@apply px-3 py-1.5 text-sm;
+  }
+  
+  .btn-md {
+	@apply px-4 py-2 text-base;
+  }
+  
+  .btn-lg {
+	@apply px-5 py-2.5 text-lg;
+  }
+
+/* === THEMES === */
+
+/* 🌌 Stars Theme (Night Sky) */
+.btn-theme-stars {
+	@apply bg-blue-900/90 text-white hover:bg-blue-800/90 active:bg-blue-700/90 focus:ring-blue-300 border border-blue-800 shadow;
 }
 
-/* Morning Light Theme (TicTacToe) */
-.btn-theme-tictactoe {
-	@apply bg-white/40 text-black hover:bg-white/60 focus:ring-gray-300;
+/* 🔥 Mechazilla Theme (Rocket Fire) */
+.btn-theme-mechazilla {
+	@apply bg-black/40 text-orange-300 hover:bg-orange-400/30 active:bg-orange-500/40 focus:ring-orange-400 backdrop-blur-md border border-orange-400/30;
+}
+
+/* 🚀 Starship Theme (Morning Light) */
+/* 🚀 Starship Theme (Sunrise Steel) */
+.btn-theme-starship {
+  @apply bg-gradient-to-r from-sky-900 to-indigo-800 text-white font-semibold 
+         hover:from-sky-800 hover:to-indigo-700 
+         active:from-sky-700 active:to-indigo-600 
+         focus:ring-2 focus:ring-blue-300 
+         border border-white/10 
+         shadow-md transition-all duration-150;
 }
 
 

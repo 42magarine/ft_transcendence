@@ -1,72 +1,114 @@
 // ========================
 // File: views/Home.ts
 // ========================
-
 import AbstractView from '../../utils/AbstractView.js';
-import { setBackgroundImage } from '../components/BackgroundManager.js';
-import Farts from '../../utils/Farts.js';
+import ThemedView from '../theme/themedView.js';
+import { ThemeName } from '../theme/themeHelpers.js';
+import Button from '../components/Button.js';
+import Card from '../components/Card.js';
+import Input from '../components/Input.js';
+import Label from '../components/Label.js';
+import Stat from '../components/Stat.js';
+import Toggle from '../components/Toggle.js';
+import Toolbar from '../components/Toolbar.js';
 
-export default class Home extends AbstractView {
-	private fartsInstance: Farts;
+export default class Home extends ThemedView {
+	constructor() {
+		super('stars', 'Transcendence - Home');
+	}
 
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-		this.setTitle('Transcendence - Home');
+	async renderView(): Promise<string> {
 
-		// Initialize the Farts instance
-		this.fartsInstance = new Farts({
-			defaultSound: 'plop', // Different sound than header
-			volume: 75
+		const button = new Button(this.params);
+		const input = new Input(this.params);
+		const label = new Label(this.params);
+		const stat = new Stat(this.params);
+		const toggle = new Toggle(this.params);
+		const toolbar = new Toolbar(this.params);
+		const card = new Card(this.params);
+
+		const groupHtml = await button.renderGroup({
+			align: 'center',
+			layout: 'group',
+			buttons: [
+				{ id: 'g1', text: 'Play' },
+				{ id: 'g2', text: 'Learn' },
+				{ id: 'g3', text: 'Settings' }
+			]
 		});
-	}
 
-	/**
-	 * Setup event listeners after the component is mounted
-	 * Returns a Promise to match the AbstractView interface
-	 */
-	async afterRender(): Promise<void> {
-		// Get the section element we want to add the click event to
-		const sectionElement = document.querySelector('*');
-		if (sectionElement) {
-			sectionElement.addEventListener('click', (e) => {
-				this.playRandomFart();
-			});
-		}
-	}
+		const stackHtml = await button.renderGroup({
+			layout: 'stack',
+			align: 'center',
+			buttons: [
+				{ id: 's1', text: 'Login' },
+				{ id: 's2', text: 'Register' }
+			]
+		});
 
-	/**
-	 * Play a random fart sound
-	 */
-	playRandomFart(): void {
-		// Array of available fart sounds
-		const fartSounds = [
-			'toot', 'ripper', 'plop', 'squit', 'raspberry',
-			'squat', 'tuppence', 'liftoff', 'trumpet', 'fizzler',
-			'windy', 'eine', 'fartception', 'fartpoint1'
-		];
+		const gridHtml = await button.renderGroup({
+			layout: 'grid',
+			columns: 3,
+			align: 'center',
+			buttons: [
+				{ id: 'g1', text: '1' },
+				{ id: 'g2', text: '2' },
+				{ id: 'g3', text: '3' },
+				{ id: 'g4', text: '4' },
+				{ id: 'g5', text: '5' },
+				{ id: 'g6', text: '6' }
+			]
+		});
 
-		// Choose a random sound
-		const randomSound = fartSounds[Math.floor(Math.random() * fartSounds.length)];
+		const inputHtml = await input.renderInput({ id: 'email', name: 'email', placeholder: 'Enter your email' });
+		const labelHtml = await label.renderLabel({ htmlFor: 'email', text: 'Email Address' });
 
-		// Play the sound
-		this.fartsInstance.play(randomSound);
-	}
+		const statHtml = await stat.renderStat({ label: 'Users', value: '42' });
+		const toggleHtml = await toggle.renderToggle({ id: 'darkMode', label: 'Dark Mode' });
+		const toolbarHtml = await toolbar.renderToolbar({
+			align: 'center',
+			buttons: [
+				{ id: 'tb1', text: 'Undo' },
+				{ id: 'tb2', text: 'Redo' },
+				{ id: 'tb3', text: 'Reset' }
+			]
+		});
+		const demoCard = await card.renderCard({
+			title: 'Demo Card',
+			body: '<p class="text-white">This is a demo card body.</p>'
+		});
 
-	async getHtml(): Promise<string> {
-		setBackgroundImage('/assets/backgrounds/home.png');
-		document.getElementById('header-root')!.className = 'shadow-lg p-8 bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
-		document.getElementById('footer-root')!.className = 'py-4 px-6 w-full bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
+		return this.render(`
+			<section class="flex flex-col gap-10 w-full items-center justify-center px-6 py-12">
+				<h2 class="text-white text-xl font-bold">Button Group (Row)</h2>
+				${groupHtml}
 
-		// Add an ID to the section for easier access
-		const html = this.render(`
-            <section id="fartable-section" class="cursor-pointer">
-                <div class="ml-auto flex gap-2 z-10">
-                    <a router href="/pong" class="btn btn-secondary btn-theme-pong">Pong</a>
-                    <a router href="/tictactoe" class="btn btn-secondary btn-theme-tictactoe">TicTacToe</a>
-                </div>
-            </section>
-        `, {});
+				<h2 class="text-white text-xl font-bold">Stacked Buttons</h2>
+				${stackHtml}
 
-		return html;
+				<h2 class="text-white text-xl font-bold">Grid of Buttons (3 cols)</h2>
+				${gridHtml}
+
+				<h2 class="text-white text-xl font-bold">Input Field + Label</h2>
+				<div class="w-full max-w-sm">${labelHtml}${inputHtml}</div>
+
+				<h2 class="text-white text-xl font-bold">Stat Component</h2>
+				${statHtml}
+
+				<h2 class="text-white text-xl font-bold">Toggle Switch</h2>
+				${toggleHtml}
+
+				<h2 class="text-white text-xl font-bold">Toolbar</h2>
+				${toolbarHtml}
+
+				<h2 class="text-white text-xl font-bold">Card</h2>
+				${demoCard}
+				<button class="bg-blue-900 text-white px-4 py-2">Test</button>
+
+				<div class="mt-10">
+					<a router href="/pong" class="btn btn-secondary btn-theme-pong">Pong</a>
+				</div>
+			</section>
+		`);
 	}
 }
