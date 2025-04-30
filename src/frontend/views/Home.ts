@@ -1,5 +1,5 @@
 import ThemedView from '../theme/themedView.js';
-import Auth from '../services/auth.js';
+import { UserManagementService } from '../services/user_management.js';
 
 export default class Home extends ThemedView {
 	constructor() {
@@ -7,8 +7,7 @@ export default class Home extends ThemedView {
 	}
 
 	async renderView(): Promise<string> {
-		const auth = Auth.getInstance();
-		const currentUser = auth.getCurrentUser();
+		const currentUser = await UserManagementService.getCurrentUser();
 		const welcome = currentUser ? "Hello " + currentUser.displayname + ", this is Transcendence!" : "Welcome to Trancendence!";
 		return this.render(`
 			<section>

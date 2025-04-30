@@ -94,9 +94,6 @@ export class UserManagementService {
 				return null;
 			}
 
-			if (!response.ok) {
-				throw new Error(`Error: ${response.status}`);
-			}
 
 			return await response.json() as User;
 		} catch (error) {
@@ -110,13 +107,13 @@ export class UserManagementService {
 			const response = await fetch('/api/auth/logout', {
 				method: 'POST',
 			});
-
+			console.log("response logout ")
+			console.log(response)
 			if (!response.ok) {
 				throw new Error(`Error: ${response.status}`);
 			}
 
-			// Trigger router update after logout
-			Router.update();
+			window.location.href = '/';
 		} catch (error) {
 			console.error('Logout error:', error);
 			throw error;
@@ -164,9 +161,6 @@ export class UserManagementService {
 					const result = await UserManagementService.registerUser(userData);
 					createForm.reset();
 
-					// Show success message
-					alert('Registration successful!');
-
 				} catch (error) {
 					console.error('Failed to register user:', error);
 					alert(error instanceof Error ? error.message : 'Registration failed');
@@ -198,7 +192,6 @@ export class UserManagementService {
 				if (confirm('Are you sure you want to delete this user?')) {
 					try {
 						await UserManagementService.deleteUser(parseInt(userId, 10));
-						alert('User deleted successfully');
 					} catch (error) {
 						console.error('Failed to delete user:', error);
 						alert(error instanceof Error ? error.message : 'Failed to delete user');
@@ -223,11 +216,7 @@ export class UserManagementService {
 					const result = await UserManagementService.login(credentials);
 					loginForm.reset();
 
-					// Show success message and redirect
-					alert('Login successful!');
-
-					// Redirect to homepage or dashboard
-					window.location.href = '/dashboard';
+					window.location.href = '/';
 
 				} catch (error) {
 					console.error('Failed to login:', error);
@@ -254,9 +243,6 @@ export class UserManagementService {
 					const result = await UserManagementService.registerUser(userData);
 					signupForm.reset();
 
-					// Show success message
-					alert('Registration successful! Please login.');
-
 					// Redirect to login page
 					window.location.href = '/login';
 
@@ -268,14 +254,13 @@ export class UserManagementService {
 		}
 
 		// Logout button
-		const logoutButton = document.getElementById('logout-button') as HTMLElement | null;
+		const logoutButton = document.getElementById('logout-btn') as HTMLElement | null;
 		if (logoutButton) {
 			logoutButton.addEventListener('click', async (e) => {
 				e.preventDefault();
 
 				try {
 					await UserManagementService.logout();
-					alert('Logout successful!');
 
 					// Redirect to login page
 					window.location.href = '/login';

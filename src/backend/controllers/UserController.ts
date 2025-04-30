@@ -2,16 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { UserService } from "../services/UserService.js";
 import { RegisterCredentials, UserCredentials } from "../../types/auth.js";
 import { verifyJWT } from "../middleware/security.js";
-
-// Add UserModel interface definition
-interface UserModel {
-	id?: number;
-	username: string;
-	email: string;
-	password: string;
-	role: string;
-	// Add any other fields that might be in your user model
-}
+import { UserModel } from "../models/UserModel.js"; // Import the actual UserModel
 
 export class UserController {
 	private userService: UserService;
@@ -253,8 +244,9 @@ export class UserController {
 				}
 			}
 
-			// Merge updates with current user
-			const updatedUser = { ...currentUser, ...updates } as UserModel;
+			// Use the actual currentUser which is already of the correct UserModel type
+			// and merge with updates
+			const updatedUser = { ...currentUser, ...updates };
 
 			// Update user with role verification
 			const result = await this.userService.updateUser(updatedUser, payload.role);

@@ -3,7 +3,6 @@
 // ========================
 
 // services
-import '../frontend/services/auth_operations.js';
 import '../frontend/services/user_management.js';
 
 // utils

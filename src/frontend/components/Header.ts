@@ -1,7 +1,7 @@
 import AbstractView from '../../utils/AbstractView.js';
 import { themedHeader } from '../theme/themeHelpers.js';
 import Button from './Button.js';
-import Auth from '../services/auth.js';
+import { UserManagementService } from '../services/user_management.js';
 
 export default class Header extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
@@ -13,8 +13,7 @@ export default class Header extends AbstractView {
 
 		// Apply the theme-based class from your CSS
 		const themeClass = themedHeader(this.props?.theme || 'default');
-		const auth = Auth.getInstance();
-		const currentUser = auth.getCurrentUser();
+		const currentUser = await UserManagementService.getCurrentUser();
 		let buttonSet = [
 			{ id: 'login-btn', text: 'Login', href: '/login', className: 'btn btn-sm' },
 			{ id: 'signup-btn', text: 'Signup', href: '/signup', className: 'btn btn-sm' }
@@ -22,7 +21,7 @@ export default class Header extends AbstractView {
 		if (currentUser) {
 			buttonSet = [
 				{ id: 'user-btn', text: 'User Management', href: '/user-mangement', className: "btn btn-sm" },
-				{ id: 'logout-btn', text: 'Logout', href: '/logout', className: 'btn btn-danger btn-sm' }
+				{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-danger btn-sm' }
 			]
 		}
 
