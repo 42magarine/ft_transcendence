@@ -6,6 +6,27 @@
 @import './theme.css';
 @import './input_fields.css';
 
-.cell {
-	background-image: url('/assets/bg.png');
+header {
+    position: fixed;
+	width: 100%;
+	background-color: #444;
+}
+
+main {
+	min-height: 100vh;
+    padding-top: 5em;
+	background-color: beige;
+}
+
+main .container{
+	margin: auto;
+	width: 1200px;
+}
+
+footer {
+    position: fixed;
+	bottom: 0;
+	width: 100%;
+	background-color: #444;
+	color: white;
 }

@@ -13,6 +13,8 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 // views
 import Home from './views/Home.js';
 import Pong from './views/Pong.js';
+import Profile from './views/Profile.js';
+import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';
 import Login from './views/Login.js';
 import Settings from './views/Settings.js';
@@ -84,6 +86,22 @@ const routes = [
 		metadata: {
 			title: 'Transcendence - UserMangement',
 			description: 'Welcome to UserMangement'
+		}
+	},
+	{
+		path: '/users/:id',
+		view: Profile,
+		metadata: {
+			title: 'Transcendence - User Detail',
+			description: 'User Detail View'
+		}
+	},
+	{
+		path: '/users/edit/:id',
+		view: ProfileEdit,
+		metadata: {
+			title: 'Transcendence - User Edit',
+			description: 'User Edit View'
 		}
 	},
 	{

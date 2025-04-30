@@ -94,13 +94,77 @@ export default class Router {
 		window.dispatchEvent(routeChangeEvent);
 	}
 
+	/**
+	 * Parse a route pattern and extract parameters from a URL
+	 * @param pattern Route pattern like '/users/:id'
+	 * @param path Actual URL path like '/users/123'
+	 * @returns Object with parameters or null if no match
+	 */
+	private extractRouteParams(pattern: string, path: string): Record<string, string> | null {
+		// Convert pattern to regex
+		// Replace :paramName with a named capture group (?<paramName>[^/]+)
+		const paramRegex = /:([^/]+)/g;
+		const regexPattern = pattern.replace(paramRegex, (_, paramName) => `(?<${paramName}>[^/]+)`);
+
+		// Create regex with exact matching
+		const regex = new RegExp(`^${regexPattern}$`);
+
+		// Test and extract parameters
+		const match = path.match(regex);
+
+		if (!match) {
+			return null;
+		}
+
+		// Return the named groups (parameters)
+		return match.groups || {};
+	}
+
+	/**
+	 * Check if a route matches the current location
+	 */
+	private matchRoute(route: Route): { isMatch: boolean; params?: Record<string, string> } {
+		const path = location.pathname;
+
+		// Direct string match
+		if (typeof route.path === 'string') {
+			// Check for parameter pattern (contains ":")
+			if (route.path.includes(':')) {
+				const params = this.extractRouteParams(route.path, path);
+				if (params !== null) {
+					return {
+						isMatch: true,
+						params: params
+					};
+				} else {
+					return {
+						isMatch: false
+					};
+				}
+			}
+
+			// Simple direct match
+			return {
+				isMatch: route.path === path
+			};
+		}
+
+		// Regex match
+		const match = path.match(route.path);
+		return {
+			isMatch: match !== null,
+			params: match ? match.groups || {} : undefined
+		};
+	}
+
 	public async render(): Promise<void> {
+		// Map routes to potential matches with params
 		const potentialMatches = this.routes.map(route => {
+			const matchResult = this.matchRoute(route);
 			return {
 				route: route,
-				isMatch: typeof route.path === 'string'
-					? route.path === location.pathname
-					: location.pathname.match(route.path)
+				isMatch: matchResult.isMatch,
+				params: matchResult.params || {}
 			};
 		});
 
@@ -112,7 +176,8 @@ export default class Router {
 			if (notFoundRoute) {
 				match = {
 					route: notFoundRoute,
-					isMatch: true
+					isMatch: true,
+					params: {}
 				};
 			} else {
 				const appElement = document.getElementById('app');
@@ -123,8 +188,24 @@ export default class Router {
 			}
 		}
 
-		const params = new URLSearchParams(window.location.search);
-		const view = new match.route.view(params);
+		// Get URL query parameters
+		const queryParams = new URLSearchParams(window.location.search);
+
+		// Create merged params object (route params + query params)
+		const allParams = new URLSearchParams();
+
+		// Add query params
+		for (const [key, value] of queryParams.entries()) {
+			allParams.append(key, value);
+		}
+
+		// Add route params
+		for (const [key, value] of Object.entries(match.params)) {
+			allParams.append(key, value);
+		}
+
+		// Create view with all parameters
+		const view = new match.route.view(allParams);
 
 		const theme = typeof view.getTheme === 'function' ? view.getTheme() : 'default';
 		const themeParams = new URLSearchParams({ theme });

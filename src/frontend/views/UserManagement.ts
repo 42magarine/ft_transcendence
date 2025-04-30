@@ -80,7 +80,17 @@ export default class UserManagement extends ThemedView {
 			extra: `<table class="list">
 				<tr><th>ID</th><th>Name</th><th>Username</th><th>E-Mail</th><th></th></tr>
 				<for each="users" as="user">
-					<tr><td>{{user.id}}</td><td>{{user.displayname}}</td><td>{{user.username}}</td><td>{{user.email}}</td><td><button>EDIT</button><button>DELETE</button></td></tr>
+					<tr>
+						<td>{{user.id}}</td>
+						<td>{{user.displayname}}</td>
+						<td>{{user.username}}</td>
+						<td>{{user.email}}</td>
+						<td class="text-right">
+							<a class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
+							<a class="btn" href="/users/edit/{{user.id}}"><i class="fa-solid fa-pen-to-square"></i></a>
+							<a class="btn btn-danger" href="/users/delete/{{user.id}}"><i class="fa-solid fa-trash"></i></a>
+						</td>
+					</tr>
 				</for>
 			</table>`,
 			data: { users }
@@ -122,7 +132,7 @@ export default class UserManagement extends ThemedView {
 
 		// Final output - Pass users data to the render method
 		return this.render(`
-			<div class="max-w-5xl mx-auto p-6 space-y-8">
+			<div class="container">
 				${titleSection}
 
 				${registerCard}

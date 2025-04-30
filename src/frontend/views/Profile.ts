@@ -1,110 +1,169 @@
-// ========================
-// File: views/Profile.ts
-// ========================
+import ThemedView from '../theme/themedView.js';
+import { ThemeName } from '../theme/themeHelpers.js';
+import Title from '../components/Title.js';
+import Card from '../components/Card.js';
+import Button from '../components/Button.js';
+import { generateTextVisualization } from '../../utils/Avartar.js'; // Import the visualization library
 
-import AbstractView from '../../utils/AbstractView.js';
+export default class Profile extends ThemedView {
+	private userId: string;
 
-export default class UserManagement extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-		this.setTitle('Transcendence - Home');
+	constructor(params: URLSearchParams) {
+		super('stars', 'Transcendence - Profile');
+		// Extract the id parameter from the route params
+		this.userId = params.get('id') || 'unknown';
 	}
 
-	async getHtml() {
-		document.getElementById('header-root')!.className = 'shadow-lg p-8 bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
-		document.getElementById('footer-root')!.className = 'py-4 px-6 w-full bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
+	/**
+	 * Generates a profile image SVG based on user data
+	 */
+	private generateProfileImage(userData: any): string {
+		// Create a seed from user data - concatenate displayname, username and email
+		const seed = `${userData.displayname}${userData.username}${userData.email}`;
 
-		return this.render(`
-			<div class="max-w-4xl mx-auto p-6 space-y-8">
-				<h1 class="text-3xl font-bold text-center text-white">User Management</h1>
-				<!-- === BACKEND TESTING START === -->
-                <div class="">
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Read One User</h2>
-                            <form id="read-one-form" class="space-y-2">
-                                <input type="number" id="user-id" placeholder="User ID" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-primary w-full">Read User</button>
-                                <div id="read-result" class="text-white text-sm pt-2"></div>
-                            </form>
+		// Generate the visualization with appropriate options
+		return generateTextVisualization(seed, {
+			width: 200,
+			height: 200,
+			useShapes: true,
+			maxShapes: 50,
+			showText: false, // Don't show the text in the image
+			backgroundColor: '#f0f0f0'
+		});
+	}
+
+	async renderView(): Promise<string> {
+		const theme = this.getTheme() as ThemeName;
+
+		// User data will be stored here
+		let userData = null;
+		let users = [];
+
+		try {
+			// First, fetch the specific user using the userId from the route parameters
+			const userResponse = await fetch(`/api/users/${this.userId}`);
+			if (userResponse.ok) {
+				userData = await userResponse.json();
+				console.log('User data loaded:', userData);
+			} else {
+				console.error('Failed to fetch user data from API');
+			}
+		} catch (error) {
+			console.error('API request error:', error);
+		}
+
+		// Title section
+		const title = new Title(this.params, {
+			title: userData ? `Profile: ${userData.displayname}` : 'User Profile',
+		});
+		const titleSection = await title.getHtml();
+
+		// User profile card
+		const card = new Card(this.params);
+
+		let profileCardHtml = '';
+		let profileImageSvg = '';
+
+		if (userData) {
+			// Generate the profile image SVG
+			profileImageSvg = this.generateProfileImage(userData);
+
+			profileCardHtml = await card.renderCard({
+				title: 'User Profile',
+				extra: `
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar-container">
+                            ${profileImageSvg}
                         </div>
+                        <h2>${userData.displayname}</h2>
+                        <p class="username">@${userData.username}</p>
                     </div>
-                </div>
-				<!-- === BACKEND TESTING END === -->
-			</div>
-			<script type="module" src="/dist/frontend/services/user_management.js"></script>
-		`, {});
+                    <div class="profile-details">
+                        <div class="detail-row">
+                            <span class="label">Email:</span>
+                            <span class="value">${userData.email}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">User ID:</span>
+                            <span class="value">${userData.id}</span>
+                        </div>
+                        <!-- Add more user details as needed -->
+                    </div>
+                </div>`,
+				data: { user: userData }
+			});
+		} else {
+			profileCardHtml = await card.renderCard({
+				title: 'User Profile',
+				extra: `<div class="alert alert-warning">User not found or error loading user data.</div>`
+			});
+		}
+
+		// Button for edit
+		const button = new Button(this.params);
+		const buttonGroup = await button.renderGroup({
+			layout: 'stack',
+			align: 'center',
+			buttons: [
+				{
+					id: 'edit-profile',
+					text: 'Edit Profile',
+					href: '/users/edit/' + this.userId
+				},
+				{
+					id: 'back-to-list',
+					text: 'Back to User List',
+					href: '/user-mangement'
+				}
+			]
+		});
+
+		// Add CSS for the SVG avatar
+		const customStyles = `
+		<style>
+			.profile-avatar-container {
+				width: 200px;
+				height: 200px;
+				margin: 0 auto 1rem auto;
+				border-radius: 50%;
+				overflow: hidden;
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			}
+			.profile-avatar-container svg {
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
+			}
+			.profile-header {
+				text-align: center;
+				margin-bottom: 2rem;
+			}
+			.profile-details {
+				max-width: 500px;
+				margin: 0 auto;
+			}
+			.detail-row {
+				display: flex;
+				justify-content: space-between;
+				padding: 0.5rem 0;
+				border-bottom: 1px solid #eee;
+			}
+			.label {
+				font-weight: bold;
+				color: #666;
+			}
+		</style>
+		`;
+
+		// Final output
+		return this.render(`
+            ${customStyles}
+            <div class="container">
+                ${titleSection}
+                ${profileCardHtml}
+                ${buttonGroup}
+            </div>
+        `);
 	}
 }
-
-/*
-
-			<div class="max-w-4xl mx-auto p-6 space-y-8">
-				<h1 class="text-3xl font-bold text-center text-white">User Management</h1>
-				<!-- === BACKEND TESTING START === -->
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-					<!-- CREATE -->
-					<div class="card rounded-2xl bg-gray-800">
-						<div class="card-body space-y-4">
-							<h2 class="card-title text-white">Create User</h2>
-							<form id="create-form" class="space-y-2">
-								<input type="text" id="create-name" placeholder="Name" required class="w-full p-2 rounded" />
-								<input type="text" id="create-username" placeholder="Username" required class="w-full p-2 rounded" />
-								<button type="submit" class="btn btn-primary w-full">Create</button>
-							</form>
-						</div>
-					</div>
-
-					<!-- READ ONE -->
-					<div class="card rounded-2xl bg-gray-800">
-						<div class="card-body space-y-4">
-							<h2 class="card-title text-white">Read One User</h2>
-							<form id="read-one-form" class="space-y-2">
-								<input type="number" id="user-id" placeholder="User ID" required class="w-full p-2 rounded" />
-								<button type="submit" class="btn btn-primary w-full">Read User</button>
-								<div id="read-result" class="text-white text-sm pt-2"></div>
-							</form>
-						</div>
-					</div>
-
-					<!-- UPDATE -->
-					<div class="card rounded-2xl bg-gray-800">
-						<div class="card-body space-y-4">
-							<h2 class="card-title text-white">Update User</h2>
-							<form id="update-form" class="space-y-2">
-								<input type="number" id="update-id" placeholder="User ID" required class="w-full p-2 rounded" />
-								<input type="text" id="update-name" placeholder="New Name" required class="w-full p-2 rounded" />
-								<input type="text" id="update-username" placeholder="New Username" required class="w-full p-2 rounded" />
-								<button type="submit" class="btn btn-primary w-full">Update</button>
-							</form>
-						</div>
-					</div>
-
-					<!-- DELETE -->
-					<div class="card rounded-2xl bg-gray-800">
-						<div class="card-body space-y-4">
-							<h2 class="card-title text-white">Delete User</h2>
-							<form id="delete-form" class="space-y-2">
-								<input type="number" id="delete-id" placeholder="User ID" required class="w-full p-2 rounded" />
-								<button type="submit" class="btn btn-danger w-full">Delete</button>
-							</form>
-						</div>
-					</div>
-
-					<!-- READ ALL -->
-					<div class="card col-span-full rounded-2xl bg-gray-800">
-						<div class="card-body space-y-4 text-center">
-							<h2 class="card-title text-white">Read All Users</h2>
-							<button id="read-all" class="btn btn-secondary">Read all Users</button>
-							<ul id="user-list" class="text-white text-sm pt-2 space-y-1"></ul>
-						</div>
-					</div>
-
-				</div>
-				<!-- === BACKEND TESTING END === -->
-			</div>
-			<script type="module" src="/dist/frontend/services/user_management.js"></script>
-
-
-*/

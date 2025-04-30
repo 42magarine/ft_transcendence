@@ -44,7 +44,7 @@
 
 /* 🔴 Danger (destructive action) */
 .btn-danger {
-@apply bg-red-600 text-white
+@apply bg-red-400 text-white
 		hover:bg-red-700
 		active:bg-red-800
 		focus:ring-red-400;
@@ -72,19 +72,19 @@
    .btn-full {
 	@apply w-full justify-center;
   }
-  
-  
+
+
   /* ========================
 	 === SIZE MODIFIERS ===
 	 ======================== */
   .btn-sm {
 	@apply px-3 py-1.5 text-sm;
   }
-  
+
   .btn-md {
 	@apply px-4 py-2 text-base;
   }
-  
+
   .btn-lg {
 	@apply px-5 py-2.5 text-lg;
   }
@@ -104,11 +104,11 @@
 /* 🚀 Starship Theme (Morning Light) */
 /* 🚀 Starship Theme (Sunrise Steel) */
 .btn-theme-starship {
-  @apply bg-gradient-to-r from-sky-900 to-indigo-800 text-white font-semibold 
-         hover:from-sky-800 hover:to-indigo-700 
-         active:from-sky-700 active:to-indigo-600 
-         focus:ring-2 focus:ring-blue-300 
-         border border-white/10 
+  @apply bg-gradient-to-r from-sky-900 to-indigo-800 text-white font-semibold
+         hover:from-sky-800 hover:to-indigo-700
+         active:from-sky-700 active:to-indigo-600
+         focus:ring-2 focus:ring-blue-300
+         border border-white/10
          shadow-md transition-all duration-150;
 }
 

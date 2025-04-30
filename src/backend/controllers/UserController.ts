@@ -45,6 +45,37 @@ export class UserController {
 		}
 	}
 
+	async getById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+		try {
+			const { id } = request.params;
+
+			if (!id) {
+				return reply.code(400).send({ error: 'User ID is required' });
+			}
+
+			const userId = parseInt(id, 10);
+
+			if (isNaN(userId)) {
+				return reply.code(400).send({ error: 'Invalid user ID format' });
+			}
+
+			const user = await this.userService.findId(userId);
+
+			if (!user) {
+				return reply.code(404).send({ error: 'User not found' });
+			}
+
+			reply.code(200).send(user);
+		}
+		catch (error) {
+			console.error('Error fetching user by ID:', error);
+			const message = error instanceof Error ? error.message : 'Could not fetch user';
+			reply.code(500).send({
+				error: message
+			});
+		}
+	}
+
 	async login(request: FastifyRequest<{ Body: UserCredentials }>, reply: FastifyReply) {
 		try {
 			const result = await this.userService.login(request.body);
