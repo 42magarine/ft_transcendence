@@ -22,6 +22,8 @@ clean:
 fclean:
 	docker system prune --all --force --volumes
 
+prune: stop fclean
+
 re: clean all
 
 .PHONY: all up start stop ls shell logs clean fclean re

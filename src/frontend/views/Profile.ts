@@ -19,7 +19,7 @@ export default class Profile extends ThemedView {
 	 */
 	private generateProfileImage(userData: any): string {
 		// Create a seed from user data - concatenate displayname, username and email
-		const seed = `${userData.displayname}${userData.username}${userData.email}`;
+		const seed = `${userData.displayname}`;
 
 		// Generate the visualization with appropriate options
 		return generateTextVisualization(seed, {

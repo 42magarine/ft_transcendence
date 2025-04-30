@@ -1,6 +1,7 @@
 import AbstractView from '../../utils/AbstractView.js';
 import { themedHeader } from '../theme/themeHelpers.js';
 import Button from './Button.js';
+import Auth from '../services/auth.js';
 
 export default class Header extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
@@ -8,23 +9,31 @@ export default class Header extends AbstractView {
 	}
 
 	async getHtml(): Promise<string> {
-		const isLoginPage = location.pathname === '/login';
+		const noMenu = ['/login', '/signup'];
 
 		// Apply the theme-based class from your CSS
 		const themeClass = themedHeader(this.props?.theme || 'default');
+		const auth = Auth.getInstance();
+		const currentUser = auth.getCurrentUser();
+		let buttonSet = [
+			{ id: 'login-btn', text: 'Login', href: '/login', className: 'btn btn-sm' },
+			{ id: 'signup-btn', text: 'Signup', href: '/signup', className: 'btn btn-sm' }
+		];
+		if (currentUser) {
+			buttonSet = [
+				{ id: 'user-btn', text: 'User Management', href: '/user-mangement', className: "btn btn-sm" },
+				{ id: 'logout-btn', text: 'Logout', href: '/logout', className: 'btn btn-danger btn-sm' }
+			]
+		}
 
 		let buttonGroupHtml = '';
-		if (!isLoginPage) {
+		if (!noMenu.includes(location.pathname)) {
 			const button = new Button(this.params);
 			buttonGroupHtml = await button.renderGroup({
 				layout: 'group',
 				align: 'right',
 				className: 'no-wrap',
-				buttons: [
-					{ id: 'home-btn', text: 'Home', href: '/' },
-					{ id: 'user-btn', text: 'User Management', href: '/user-mangement' },
-					{ id: 'logout-btn', text: 'Logout', href: '/login', className: 'btn btn-danger btn-sm' }
-				]
+				buttons: buttonSet
 			});
 		}
 

@@ -24,51 +24,35 @@ interface PatternResult {
 	rect: string;
 }
 
-/**
- * Generiert eine zufällige Farbe
- */
-function getRandomColor(): string {
-	const letters = '0123456789ABCDEF';
-	let color = '#';
-	for (let i = 0; i < 6; i++) {
-		color += letters[Math.floor(Math.random() * 16)];
-	}
-	return color;
+function getColorFromString(text: string, index: number = 0): string {
+	// Generate a deterministic color based on the string and index
+	const charSum = text.split('').reduce((sum, char, i) => {
+		// Weight characters differently based on their position
+		return sum + char.charCodeAt(0) * (i + 1);
+	}, 0);
+
+	const hue = ((charSum + index * 83) % 360); // Use prime number 83 for better distribution
+	const saturation = 65 + ((charSum % 20) + index * 3) % 35; // Between 65% and 100%
+	const lightness = 45 + ((charSum % 15) + index * 5) % 25; // Between 45% and 70%
+
+	return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-/**
- * Generiert eine Farbpalette basierend auf dem Text
- */
 function generateColorPalette(text: string, numColors: number = 5): string[] {
 	const palette: string[] = [];
 
-	// Wenn Text leer ist, generiere zufällige Farben
 	if (!text || text.length === 0) {
-		for (let i = 0; i < numColors; i++) {
-			palette.push(getRandomColor());
-		}
-		return palette;
+		// Fallback to a default palette with blues and purples
+		return ['#3498db', '#9b59b6', '#2980b9', '#8e44ad', '#2c3e50'];
 	}
 
-	// Berechne Farben basierend auf Zeichen im Text
-	const charSum = text.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-	const hueBase = (charSum % 360);
-
 	for (let i = 0; i < numColors; i++) {
-		// Verteile Farben um den Farbkreis basierend auf dem Text
-		const hue = (hueBase + (i * (360 / numColors))) % 360;
-		const saturation = 70 + (text.length % 30); // 70-100%
-		const lightness = 45 + ((i * 10) % 30); // 45-75%
-
-		palette.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+		palette.push(getColorFromString(text, i));
 	}
 
 	return palette;
 }
 
-/**
- * Generiert eine Kreisform
- */
 function generateCircle(x: number, y: number, radius: number, options: ShapeOptions = {}): string {
 	const fill = options.fill || '#000000';
 	const stroke = options.stroke || 'none';
@@ -88,9 +72,6 @@ function generateCircle(x: number, y: number, radius: number, options: ShapeOpti
 	/>`;
 }
 
-/**
- * Generiert eine Rechteckform
- */
 function generateRect(x: number, y: number, width: number, height: number, options: ShapeOptions = {}): string {
 	const fill = options.fill || '#000000';
 	const stroke = options.stroke || 'none';
@@ -111,9 +92,6 @@ function generateRect(x: number, y: number, width: number, height: number, optio
 	/>`;
 }
 
-/**
- * Generiert eine Dreiecksform
- */
 function generateTriangle(x: number, y: number, size: number, options: ShapeOptions = {}): string {
 	const fill = options.fill || '#000000';
 	const stroke = options.stroke || 'none';
@@ -121,7 +99,6 @@ function generateTriangle(x: number, y: number, size: number, options: ShapeOpti
 	const opacity = options.opacity || 1;
 	const rotate = options.rotate || 0;
 
-	// Berechne die Punkte für das Dreieck
 	const x1 = x;
 	const y1 = y - size / 2;
 	const x2 = x - size / 2;
@@ -139,9 +116,6 @@ function generateTriangle(x: number, y: number, size: number, options: ShapeOpti
 	/>`;
 }
 
-/**
- * Generiert eine Sternform
- */
 function generateStar(x: number, y: number, size: number, points: number = 5, options: ShapeOptions = {}): string {
 	const fill = options.fill || '#000000';
 	const stroke = options.stroke || 'none';
@@ -149,7 +123,6 @@ function generateStar(x: number, y: number, size: number, points: number = 5, op
 	const opacity = options.opacity || 1;
 	const rotate = options.rotate || 0;
 
-	// Berechne die Punkte für den Stern
 	const outerRadius = size / 2;
 	const innerRadius = size / 4;
 	let pointsStr = '';
@@ -172,9 +145,6 @@ function generateStar(x: number, y: number, size: number, points: number = 5, op
 	/>`;
 }
 
-/**
- * Generiert eine Wellenform
- */
 function generateWave(startX: number, startY: number, width: number, height: number, frequency: number, options: ShapeOptions = {}): string {
 	const fill = options.fill || 'none';
 	const stroke = options.stroke || '#000000';
@@ -200,16 +170,13 @@ function generateWave(startX: number, startY: number, width: number, height: num
 	/>`;
 }
 
-/**
- * Generiert eine Spiralform
- */
 function generateSpiral(centerX: number, centerY: number, maxRadius: number, turns: number, options: ShapeOptions = {}): string {
 	const fill = options.fill || 'none';
 	const stroke = options.stroke || '#000000';
 	const strokeWidth = options.strokeWidth || 2;
 	const opacity = options.opacity || 1;
 
-	const steps = turns * 36; // 36 Schritte pro Umdrehung für eine glatte Spirale
+	const steps = turns * 36; // 36 steps per turn for a smooth spiral
 	const angleStep = (turns * Math.PI * 2) / steps;
 
 	let pathData = `M ${centerX} ${centerY}`;
@@ -231,86 +198,92 @@ function generateSpiral(centerX: number, centerY: number, maxRadius: number, tur
 	/>`;
 }
 
-/**
- * Generiert ein Muster basierend auf Text-Eigenschaften
- */
 function generatePattern(text: string, width: number, height: number, options: ShapeOptions = {}): PatternResult {
 	const patternId = `pattern-${Date.now()}`;
-	const patternSize = 20 + (text.length % 30);
+	const charSum = text.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+	const patternSize = 20 + (charSum % 30);
 	const fill = options.fill || '#000000';
 
-	// Wähle ein Muster basierend auf dem ersten Buchstaben des Textes
+	// Determine pattern type based on first character
 	const firstChar = text.charAt(0).toLowerCase();
+	const charCode = firstChar.charCodeAt(0);
+	const patternType = charCode % 5; // 5 different pattern types
+
 	let patternSvg = '';
 
-	if ('abcde'.includes(firstChar)) {
-		// Punktmuster
-		patternSvg = `
-		<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-		  <circle cx="${patternSize / 4}" cy="${patternSize / 4}" r="2" fill="${fill}" opacity="0.5" />
-		  <circle cx="${patternSize * 3 / 4}" cy="${patternSize * 3 / 4}" r="2" fill="${fill}" opacity="0.5" />
-		</pattern>
-	  `;
-	} else if ('fghij'.includes(firstChar)) {
-		// Linienmuster
-		patternSvg = `
-		<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-		  <line x1="0" y1="0" x2="${patternSize}" y2="${patternSize}" stroke="${fill}" stroke-width="1" opacity="0.5" />
-		</pattern>
-	  `;
-	} else if ('klmno'.includes(firstChar)) {
-		// Gittermuster
-		patternSvg = `
-		<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-		  <line x1="0" y1="${patternSize / 2}" x2="${patternSize}" y2="${patternSize / 2}" stroke="${fill}" stroke-width="1" opacity="0.3" />
-		  <line x1="${patternSize / 2}" y1="0" x2="${patternSize / 2}" y2="${patternSize}" stroke="${fill}" stroke-width="1" opacity="0.3" />
-		</pattern>
-	  `;
-	} else if ('pqrst'.includes(firstChar)) {
-		// Kreismuster
-		patternSvg = `
-		<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-		  <circle cx="${patternSize / 2}" cy="${patternSize / 2}" r="${patternSize / 4}" fill="none" stroke="${fill}" stroke-width="1" opacity="0.4" />
-		</pattern>
-	  `;
-	} else {
-		// Zickzackmuster
-		patternSvg = `
-		<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-		  <path d="M0,0 L${patternSize / 2},${patternSize / 2} L0,${patternSize} M${patternSize / 2},0 L${patternSize},${patternSize / 2} L${patternSize / 2},${patternSize}" stroke="${fill}" stroke-width="1" fill="none" opacity="0.4" />
-		</pattern>
-	  `;
+	switch (patternType) {
+		case 0: // Dots
+			patternSvg = `
+			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+				<circle cx="${patternSize / 4}" cy="${patternSize / 4}" r="2" fill="${fill}" opacity="0.5" />
+				<circle cx="${patternSize * 3 / 4}" cy="${patternSize * 3 / 4}" r="2" fill="${fill}" opacity="0.5" />
+			</pattern>
+			`;
+			break;
+		case 1: // Diagonal lines
+			patternSvg = `
+			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+				<line x1="0" y1="0" x2="${patternSize}" y2="${patternSize}" stroke="${fill}" stroke-width="1" opacity="0.5" />
+			</pattern>
+			`;
+			break;
+		case 2: // Grid
+			patternSvg = `
+			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+				<line x1="0" y1="${patternSize / 2}" x2="${patternSize}" y2="${patternSize / 2}" stroke="${fill}" stroke-width="1" opacity="0.3" />
+				<line x1="${patternSize / 2}" y1="0" x2="${patternSize / 2}" y2="${patternSize}" stroke="${fill}" stroke-width="1" opacity="0.3" />
+			</pattern>
+			`;
+			break;
+		case 3: // Circles
+			patternSvg = `
+			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+				<circle cx="${patternSize / 2}" cy="${patternSize / 2}" r="${patternSize / 4}" fill="none" stroke="${fill}" stroke-width="1" opacity="0.4" />
+			</pattern>
+			`;
+			break;
+		case 4: // Zigzag
+			patternSvg = `
+			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+				<path d="M0,0 L${patternSize / 2},${patternSize / 2} L0,${patternSize} M${patternSize / 2},0 L${patternSize},${patternSize / 2} L${patternSize / 2},${patternSize}" stroke="${fill}" stroke-width="1" fill="none" opacity="0.4" />
+			</pattern>
+			`;
+			break;
 	}
 
-	// Rechteck mit dem Muster
 	const rectSvg = `<rect x="0" y="0" width="${width}" height="${height}" fill="url(#${patternId})" />`;
 
 	return { pattern: patternSvg, rect: rectSvg };
 }
 
-/**
- * Generiert ein Mandala basierend auf Text-Eigenschaften
- */
 function generateMandala(centerX: number, centerY: number, radius: number, text: string, colors: string[]): string {
-	// Berechne Anzahl der Segmente basierend auf der Textlänge
-	const segments = Math.max(6, Math.min(24, text.length * 2));
-	const layers = Math.max(3, Math.min(6, Math.floor(text.length / 2)));
+	// Determine segments and layers based on text properties
+	const textHash = text.split('').reduce((sum, char, i) => {
+		return sum + char.charCodeAt(0) * (i + 1);
+	}, 0);
+
+	const segments = Math.max(6, Math.min(24, (textHash % 16) + 8)); // Between 6 and 24 segments
+	const layers = Math.max(3, Math.min(6, (textHash % 4) + 3)); // Between 3 and 6 layers
 
 	let mandalaSvg = '';
 
-	// Generiere Hintergrundkreis
+	// Base circle
 	mandalaSvg += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="${colors[0]}" opacity="0.2" />`;
 
-	// Generiere Schichten
+	// Generate layers
 	for (let layer = 0; layer < layers; layer++) {
 		const layerRadius = radius * (1 - layer / layers);
 		const layerColor = colors[layer % colors.length];
 
-		// Generiere Segmente
+		// Calculate opacity based on layer
+		const opacity = 0.8 - (layer * 0.1);
+
+		// For each segment in this layer
 		for (let segment = 0; segment < segments; segment++) {
 			const angle = (segment / segments) * Math.PI * 2;
 			const nextAngle = ((segment + 1) / segments) * Math.PI * 2;
 
+			// Calculate points for this segment
 			const x1 = centerX + Math.cos(angle) * layerRadius * 0.5;
 			const y1 = centerY + Math.sin(angle) * layerRadius * 0.5;
 			const x2 = centerX + Math.cos(angle) * layerRadius;
@@ -320,60 +293,55 @@ function generateMandala(centerX: number, centerY: number, radius: number, text:
 			const x4 = centerX + Math.cos(nextAngle) * layerRadius * 0.5;
 			const y4 = centerY + Math.sin(nextAngle) * layerRadius * 0.5;
 
-			// Abwechselnde Formen für mehr Vielfalt
+			// Alternate between shape types based on layer
 			if (layer % 2 === 0) {
-				mandalaSvg += `<path d="M ${centerX},${centerY} L ${x2},${y2} A ${layerRadius},${layerRadius} 0 0,1 ${x3},${y3} Z" fill="${layerColor}" opacity="${0.7 - layer * 0.1}" />`;
+				mandalaSvg += `<path d="M ${centerX},${centerY} L ${x2},${y2} A ${layerRadius},${layerRadius} 0 0,1 ${x3},${y3} Z" fill="${layerColor}" opacity="${opacity}" />`;
 			} else {
-				mandalaSvg += `<polygon points="${centerX},${centerY} ${x2},${y2} ${x3},${y3}" fill="${layerColor}" opacity="${0.7 - layer * 0.1}" />`;
+				mandalaSvg += `<polygon points="${centerX},${centerY} ${x2},${y2} ${x3},${y3}" fill="${layerColor}" opacity="${opacity}" />`;
 			}
 
-			// Füge Kreise an den Ecken hinzu
+			// Add dots at segment points for inner layers
 			if (layer < layers - 1) {
 				mandalaSvg += `<circle cx="${x2}" cy="${y2}" r="${radius / 40}" fill="${colors[(layer + 2) % colors.length]}" />`;
 			}
 		}
 
-		// Kreisförmige Grenzlinie für jede Schicht
+		// Add layer outline
 		mandalaSvg += `<circle cx="${centerX}" cy="${centerY}" r="${layerRadius}" fill="none" stroke="${colors[(layer + 1) % colors.length]}" stroke-width="${radius / 200}" opacity="0.5" />`;
 	}
 
-	// Zentraler Kreis
+	// Center circle
 	mandalaSvg += `<circle cx="${centerX}" cy="${centerY}" r="${radius * 0.2}" fill="${colors[colors.length - 1]}" />`;
 
 	return mandalaSvg;
 }
 
-/**
- * Wählt eine zufällige Form basierend auf dem Zeichen
- */
-function getShapeForChar(char: string, x: number, y: number, size: number, colors: string[]): string {
+function getShapeForChar(char: string, x: number, y: number, size: number, colors: string[], charIndex: number, totalChars: number): string {
 	const charCode = char.charCodeAt(0);
 	const colorIndex = charCode % colors.length;
 	const fill = colors[colorIndex];
+
+	// Derive opacity and rotation deterministically from character and its position
+	const opacity = 0.7 + ((charCode * (charIndex + 1)) % 30) / 100; // Between 0.7 and 1.0
+	const rotate = (charCode * (charIndex + 1)) % 360; // Between 0 and 359 degrees
+
 	const options: ShapeOptions = {
 		fill,
-		opacity: 0.7 + (Math.random() * 0.3),
-		rotate: (charCode * 7) % 360
+		opacity,
+		rotate
 	};
 
-	// Wähle Form basierend auf Zeichengruppen
 	if ('aeiou'.includes(char.toLowerCase())) {
-		// Vokale werden zu Kreisen
 		return generateCircle(x, y, size / 2, options);
 	} else if ('bcdfg'.includes(char.toLowerCase())) {
-		// Einige Konsonanten werden zu Rechtecken
 		return generateRect(x - size / 2, y - size / 2, size, size, options);
 	} else if ('hjklm'.includes(char.toLowerCase())) {
-		// Einige Konsonanten werden zu Dreiecken
 		return generateTriangle(x, y, size, options);
 	} else if ('npqrs'.includes(char.toLowerCase())) {
-		// Einige Konsonanten werden zu Sternen
 		return generateStar(x, y, size, 5, options);
 	} else if ('tuvwxyz'.includes(char.toLowerCase())) {
-		// Restliche Buchstaben werden zu Sternen mit mehr Zacken
 		return generateStar(x, y, size, 6, options);
 	} else if ('0123456789'.includes(char)) {
-		// Zahlen werden zu Rechtecken mit Rundungen
 		return `<rect
 		x="${x - size / 2}"
 		y="${y - size / 2}"
@@ -386,7 +354,6 @@ function getShapeForChar(char: string, x: number, y: number, size: number, color
 		transform="rotate(${options.rotate} ${x} ${y})"
 	  />`;
 	} else {
-		// Sonderzeichen werden zu spezielle Formen
 		const specialShape = `<g transform="translate(${x - size / 2}, ${y - size / 2}) scale(${size / 100})">
 		<path d="M50,10 L90,50 L50,90 L10,50 Z" fill="${fill}" opacity="${options.opacity}" transform="rotate(${options.rotate} 50 50)" />
 	  </g>`;
@@ -394,14 +361,10 @@ function getShapeForChar(char: string, x: number, y: number, size: number, color
 	}
 }
 
-/**
- * Hauptfunktion zur Generierung eines visuellen SVG basierend auf Text
- */
 function generateTextVisualization(text: string, options: TextVisualizationOptions = {
 	width: 800,
 	height: 400
 }): string {
-	// Standardwerte setzen
 	const width = options.width || 800;
 	const height = options.height || 400;
 	const backgroundColor = options.backgroundColor || '#ffffff';
@@ -412,76 +375,72 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 	const fontSize = options.fontSize || 32;
 	const fontFamily = options.fontFamily || 'Arial, sans-serif';
 
-	// Generiere Farbpalette basierend auf dem Text
 	const colors = options.colorPalette || generateColorPalette(text, 5);
 
-	// Basis SVG erstellen
 	let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
 
-	// Hintergrund
+	// Background
 	svg += `<rect width="${width}" height="${height}" fill="${backgroundColor}" />`;
 
-	// Defs-Sektion für Muster und Gradienten
+	// Add patterns
 	svg += '<defs>';
-
-	// Hintergrundmuster basierend auf dem Text
 	const patternResult = generatePattern(text, width, height, { fill: colors[0] });
 	svg += patternResult.pattern;
 	svg += '</defs>';
-
-	// Hintergrundmuster anwenden
 	svg += patternResult.rect;
 
-	// Bestimme Visualisierungstyp basierend auf Textlänge und Inhalt
+	// Content generation based on text characteristics
 	const hasNumbers = /\d/.test(text);
 	const hasSpecialChars = /[^\w\s]/.test(text);
+	const textHash = text.split('').reduce((sum, char, i) => sum + char.charCodeAt(0) * (i + 1), 0);
 
-	// Visualisierungstyp wählen
-	if (text.length > 10 && hasNumbers && hasSpecialChars) {
-		// Komplexe Visualisierung mit Mandala
+	// Advanced visualizations for longer text
+	if (text.length > 10 && (hasNumbers || hasSpecialChars)) {
 		svg += generateMandala(width / 2, height / 2, Math.min(width, height) * 0.4, text, colors);
 	} else if (text.length > 5) {
-		// Spiralen und Wellen für mittellange Texte
-		const spiralTurns = Math.max(2, Math.min(5, text.length / 3));
+		// Spiral turns based on text length
+		const spiralTurns = 2 + (textHash % 4); // Between 2 and 5 turns
 		svg += generateSpiral(width / 2, height / 2, Math.min(width, height) * 0.4, spiralTurns, {
 			stroke: colors[1],
 			strokeWidth: 3
 		});
 
-		// Wellen am unteren Rand
-		svg += generateWave(0, height * 0.75, width, height * 0.2, text.length / 5, {
+		// Wave frequency based on text characteristics
+		const waveFrequency = Math.max(1, text.length / 10);
+		svg += generateWave(0, height * 0.75, width, height * 0.2, waveFrequency, {
 			stroke: colors[2],
 			strokeWidth: 2
 		});
 	}
 
-	// Formen für jeden Buchstaben hinzufügen, wenn aktiviert
+	// Add character shapes
 	if (useShapes) {
 		const chars = text.split('');
 		const shapesCount = Math.min(chars.length, maxShapes);
 
 		for (let i = 0; i < shapesCount; i++) {
 			const char = chars[i];
-
-			// Position basierend auf Textindex berechnen (für Verteilung über Bild)
 			let x, y;
 
+			// Position shapes in a deterministic pattern
 			if (shapesCount <= 10) {
-				// Horizontale Linie für wenige Zeichen
+				// For short text, arrange in a line
 				x = width * (i + 1) / (shapesCount + 1);
 				y = height * 0.4;
 			} else {
-				// Zufällige Platzierung für viele Zeichen
-				x = width * 0.1 + (width * 0.8 * Math.random());
-				y = height * 0.1 + (height * 0.8 * Math.random());
+				// For longer text, arrange in a spiral or circular pattern
+				const angle = (i / shapesCount) * Math.PI * 2;
+				const radius = height * 0.3 * (0.5 + (i % 3) * 0.15);
+				x = width / 2 + Math.cos(angle) * radius;
+				y = height / 2 + Math.sin(angle) * radius;
 			}
 
-			const size = fontSize * 1.5;
-			svg += getShapeForChar(char, x, y, size, colors);
+			const size = fontSize * (1.2 + (char.charCodeAt(0) % 10) / 10); // Size varies slightly based on character
+			svg += getShapeForChar(char, x, y, size, colors, i, shapesCount);
 		}
 	}
 
-	// Text hinzufügen, wenn aktiviert
+	// Add centered text
 	if (showText) {
 		svg += `
 		<text
@@ -498,13 +457,11 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 	  `;
 	}
 
-	// SVG abschließen
 	svg += '</svg>';
 
 	return svg;
 }
 
-// Export der Funktionen
 export {
 	generateTextVisualization,
 	generateColorPalette,
@@ -516,5 +473,5 @@ export {
 	generateSpiral,
 	generatePattern,
 	generateMandala,
-	getRandomColor
+	getColorFromString
 };

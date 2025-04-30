@@ -66,6 +66,43 @@ export default class Router {
 		}
 	}
 
+	/**
+	 * Redirects to a specified URL
+	 * Can be called from anywhere, including views
+	 * @param url The URL to redirect to
+	 * @param options Optional configuration options
+	 */
+	public redirect(url: string, options: { replace?: boolean } = {}): Promise<void> {
+		// Replace state instead of pushing if specified
+		if (options.replace) {
+			window.history.replaceState(null, '', url);
+		} else {
+			window.history.pushState(null, '', url);
+		}
+
+		// Render the new route
+		return this.render();
+	}
+
+	/**
+	 * Static method to redirect from anywhere in the application
+	 * @param url The URL to redirect to
+	 * @param options Optional configuration options
+	 */
+	public static redirect(url: string, options: { replace?: boolean } = {}): Promise<void> {
+		if (Router.instance) {
+			return Router.instance.redirect(url, options);
+		} else {
+			const globalRouter = (window as any).router;
+			if (globalRouter && typeof globalRouter.redirect === 'function') {
+				return globalRouter.redirect(url, options);
+			} else {
+				console.error('Router.redirect() wurde aufgerufen, aber es gibt keine aktive Router-Instanz');
+				return Promise.resolve();
+			}
+		}
+	}
+
 	private async renderCurrentView(eventDetail: any = {}): Promise<void> {
 		if (!this.currentView) return;
 

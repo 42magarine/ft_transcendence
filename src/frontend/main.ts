@@ -3,6 +3,7 @@
 // ========================
 
 // services
+import '../frontend/services/auth_operations.js';
 import '../frontend/services/user_management.js';
 
 // utils
@@ -12,6 +13,7 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 
 // views
 import Home from './views/Home.js';
+import Demo from './views/Demo.js';
 import Pong from './views/Pong.js';
 import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
@@ -24,6 +26,7 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
+import Signup from './views/Signup.js';
 
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
@@ -73,6 +76,14 @@ const routes = [
 		}
 	},
 	{
+		path: '/demo',
+		view: Demo,
+		metadata: {
+			title: 'Transcendence',
+			description: 'Welcome to Transcendence - the ultimate gaming experience'
+		}
+	},
+	{
 		path: '/pong',
 		view: Pong,
 		metadata: {
@@ -110,6 +121,14 @@ const routes = [
 		metadata: {
 			title: 'Transcendence - login',
 			description: 'Welcome to Login'
+		}
+	},
+	{
+		path: '/signup',
+		view: Signup,
+		metadata: {
+			title: 'Transcendence - Signup',
+			description: 'Welcome to Signup'
 		}
 	},
 	{

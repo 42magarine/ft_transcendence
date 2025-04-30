@@ -78,17 +78,25 @@ export default class UserManagement extends ThemedView {
 		const listCard = await card.renderCard({
 			title: 'Users',
 			extra: `<table class="list">
-				<tr><th>ID</th><th>Name</th><th>Username</th><th>E-Mail</th><th></th></tr>
+				<tr>
+					<th>ID</th>
+					<th>Name</th>
+					<th>Username</th>
+					<th>E-Mail</th>
+					<th>Role</th>
+					<th></th>
+				</tr>
 				<for each="users" as="user">
 					<tr>
 						<td>{{user.id}}</td>
 						<td>{{user.displayname}}</td>
 						<td>{{user.username}}</td>
 						<td>{{user.email}}</td>
+						<td><span class="role-tag role-{{user.role}}">{{user.role}}</span></td>
 						<td class="text-right">
-							<a class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
-							<a class="btn" href="/users/edit/{{user.id}}"><i class="fa-solid fa-pen-to-square"></i></a>
-							<a class="btn btn-danger" href="/users/delete/{{user.id}}"><i class="fa-solid fa-trash"></i></a>
+							<a router class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
+							<a router class="btn" href="/users/edit/{{user.id}}"><i class="fa-solid fa-pen-to-square"></i></a>
+							<button type="button" class="btn btn-danger delete-user" data-user="{{user.id}}"><i class="fa-solid fa-trash"></i></button>
 						</td>
 					</tr>
 				</for>

@@ -8,8 +8,48 @@ export class UserService {
 	//get user table from db
 	private userRepo = AppDataSource.getRepository(UserModel);
 
+	/**
+	 * Initialize master user from environment variables during application startup
+	 */
+	async initializeMasterUser() {
+		try {
+			const masterEmail = process.env.MASTER_EMAIL;
+			const masterUsername = process.env.MASTER_USERNAME;
+			const masterPassword = process.env.MASTER_PASSWORD;
+
+			if (!masterEmail || !masterUsername || !masterPassword) {
+				console.error("Master user environment variables not set. Master user not created.");
+				return;
+			}
+
+			// Check if master already exists
+			const existingMaster = await this.userRepo.findOne({
+				where: { role: 'master' }
+			});
+
+			if (existingMaster) {
+				console.log("Master user already exists, skipping creation.");
+				return;
+			}
+
+			// Create master user
+			const hashedPassword = await hashPW(masterPassword);
+			const masterUser = this.userRepo.create({
+				email: masterEmail,
+				username: masterUsername,
+				password: hashedPassword,
+				role: 'master'
+			});
+
+			await this.userRepo.save(masterUser);
+			console.log("Master user created successfully.");
+		} catch (error) {
+			console.error("Failed to initialize master user:", error);
+		}
+	}
+
 	//Checks if user exists, throw error if yes, otherwise create user in db
-	async createUser(userData: RegisterCredentials & { password: string }) {
+	async createUser(userData: RegisterCredentials & { password: string }, requestingUserRole?: string) {
 		const existingUser = await this.userRepo.findOne({
 			where: [
 				{ email: userData.email },
@@ -18,7 +58,23 @@ export class UserService {
 		});
 
 		if (existingUser) {
-			throw new Error('User already exists')
+			throw new Error('User already exists');
+		}
+
+		// Set default role to 'user' if not provided
+		if (!userData.role) {
+			userData.role = 'user';
+		}
+
+		// Prevent creation of master user through this method
+		if (userData.role === 'master') {
+			throw new Error('Master user can only be created through environment variables');
+		}
+
+		// Check permissions for creating privileged roles
+		if (userData.role === 'admin' &&
+			(!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
+			throw new Error('Unzureichende Berechtigungen zum Erstellen von Admin-Benutzern');
 		}
 
 		const user = this.userRepo.create(userData);
@@ -44,7 +100,31 @@ export class UserService {
 	}
 
 	// updates User with new Info
-	async updateUser(user: UserModel) {
+	async updateUser(user: UserModel, requestingUserRole?: string) {
+		// Get the current user data to check if we're trying to modify a master
+		const currentUser = await this.userRepo.findOneBy({ id: user.id });
+
+		if (!currentUser) {
+			throw new Error('User not found');
+		}
+
+		// Prevent changing master role
+		if (currentUser.role === 'master') {
+			// Keep original role, prevent any role changes to master
+			user.role = 'master';
+		}
+
+		// Prevent setting role to master
+		if (user.role === 'master' && currentUser.role !== 'master') {
+			throw new Error('Master role cannot be assigned through updates');
+		}
+
+		// Check permissions for setting admin role
+		if (user.role === 'admin' && currentUser.role !== 'admin' &&
+			(!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
+			throw new Error('Unzureichende Berechtigungen, um Admin-Berechtigungen zu vergeben');
+		}
+
 		return await this.userRepo.save(user);
 	}
 
@@ -58,8 +138,42 @@ export class UserService {
 		});
 
 		if (existingUser) {
-			return await this.userRepo.delete(existingUser)
-		};
+			// Prevent master deletion
+			if (existingUser.role === 'master') {
+				throw new Error('Master user cannot be deleted');
+			}
+
+			return await this.userRepo.delete(existingUser);
+		}
+	}
+
+	async deleteById(id: number, requestingUserRole?: string): Promise<boolean> {
+		try {
+			const user = await this.userRepo.findOne({ where: { id } });
+
+			if (!user) {
+				return false;
+			}
+
+			// Never allow deletion of master users
+			if (user.role === 'master') {
+				console.log(`Prevented deletion of master user with ID: ${id}`);
+				return false;
+			}
+
+			// Only admin or master can delete admin users
+			if (user.role === 'admin' && (!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
+				console.log(`Prevented deletion of admin user with ID: ${id}`);
+				return false;
+			}
+
+			const result = await this.userRepo.delete(id);
+
+			return result.affected !== null && result.affected !== undefined && result.affected > 0;
+		} catch (error) {
+			console.error('Error deleting user:', error);
+			throw new Error('Failed to delete user');
+		}
 	}
 
 	// create a primary jwt token to hand back to user for authentications
@@ -70,14 +184,10 @@ export class UserService {
 			role: user.role
 		};
 
-		const accessToken = generateJWT(payload)
-		// const refreshToken = this.generateRefreshToken(user.id)
-
-		// this.updateRefreshToken(user.id, refreshToken)
+		const accessToken = generateJWT(payload);
 
 		return {
 			accessToken,
-			// refreshToken
 		};
 	}
 
@@ -96,7 +206,7 @@ export class UserService {
 	}
 
 	// for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
-	async register(credentials: RegisterCredentials) {
+	async register(credentials: RegisterCredentials, requestingUserRole?: string) {
 		console.log("register call");
 
 		const hashedPW = await hashPW(credentials.password);
@@ -104,7 +214,8 @@ export class UserService {
 		const user = await this.createUser({
 			...credentials,
 			password: hashedPW
-		});
+		}, requestingUserRole);
+
 		//generate security token to hand back to user because successfully registered
 		return this.generateTokens(user);
 	}
@@ -112,14 +223,9 @@ export class UserService {
 	async login(credentials: UserCredentials) {
 		const user = await this.findEmailAcc(credentials.email);
 		if (!user || !await verifyPW(credentials.password, user.password)) {
-			throw new Error('INvalid login data');
+			throw new Error('Invalid login data');
 		}
 
-		// if (user.twoFAEnabled)
-		// {}
-
 		return this.generateTokens(user);
-
-		//down here comes more security stuff with 2FA, QRCode etc... later
 	}
 }
