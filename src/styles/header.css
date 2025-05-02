@@ -1,0 +1,60 @@
+header {
+	transition: 0.5s;
+    position: fixed;
+	width: 100%;
+	background-color: #444;
+}
+
+/* === HEADER THEMES === */
+
+header.header {
+	@apply w-full p-2 flex justify-between items-center flex-wrap gap-4;
+	min-height: 80px;
+	background-color: #444;
+}
+
+/* 🌌 Stars Theme (Night Sky Background) */
+.header-theme-stars {
+  @apply bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md;
+}
+
+/* 🔥 Mechazilla Theme (Rocket Fire) */
+.header-theme-mechazilla {
+  @apply bg-gradient-to-r from-zinc-900/70 via-gray-800/70 to-zinc-700/70 text-white backdrop-blur-md;
+}
+
+/* 🚀 Starship Theme (Sunrise Steel) */
+.header-theme-starship {
+  @apply bg-gradient-to-r from-purple-800/80 via-indigo-800/80 to-sky-800/80 text-white backdrop-blur-md;
+}
+
+header .header-nav {
+	@apply flex;
+}
+header .dropdown {
+	@apply relative flex flex-col gap-2;
+}
+
+header .dropdown .dropdown-head {
+    @apply p-2 max-w-full rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white flex gap-2 justify-between items-center;
+}
+
+header .dropdown:hover .dropdown-head {
+    @apply rounded-bl-none rounded-br-none;
+}
+
+header .dropdown-head a{
+	@apply flex gap-2 justify-between items-center;
+}
+header .dropdown .dropdown-body {
+	top: 100%;
+	@apply rounded-tl-none rounded-tr-none hidden absolute w-full p-2 max-w-full rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white flex flex-col gap-2 justify-between items-center;
+}
+header .dropdown:hover .dropdown-body {
+	@apply flex;
+}
+
+
+header .dropdown-img *{
+    @apply text-white h-10 w-10 mx-auto bg-white rounded-full;
+}

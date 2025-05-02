@@ -2,42 +2,45 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColum
 
 @Entity()
 export class UserModel {
-    @PrimaryGeneratedColumn()
-    id!: number;
+	@PrimaryGeneratedColumn()
+	id!: number;
 
-    @Column({ unique: true })
-    email!: string;
+	@Column({ unique: true })
+	email!: string;
 
-    @Column()
-    username!: string;
+	@Column()
+	username!: string;
 
-    @Column()
-    password!: string;
+	@Column()
+	password!: string;
 
-    @Column()
-    displayname!: string;
+	@Column()
+	displayname!: string;
 
-    @Column({ default: 'user' })
-    role!: string;
+	@Column({ default: 'user' })
+	role!: string;
 
-    @Column({ nullable: true })
-    twoFASecret?: string;
+	@Column({ nullable: true })
+	avatar?: string;
 
-    @Column({ default: false })
-    twoFAEnabled?: boolean;
+	@Column({ nullable: true })
+	twoFASecret?: string;
 
-    @Column({ nullable: true })
-    refreshToken?: string;
+	@Column({ default: false })
+	twoFAEnabled?: boolean;
 
-    @ManyToMany(() => UserModel)
-    @JoinTable()
-    friends!: UserModel[];
+	@Column({ nullable: true })
+	refreshToken?: string;
 
-    @OneToMany(() => GameModel, (game: any) => game.Player1)
-    gameAsPlayer1!: any[];
+	@ManyToMany(() => UserModel)
+	@JoinTable()
+	friends!: UserModel[];
 
-    @OneToMany(() => GameModel, (game: any) => game.Player2)
-    gameAsPlayer2!: any[];
+	@OneToMany(() => GameModel, (game: any) => game.Player1)
+	gameAsPlayer1!: any[];
+
+	@OneToMany(() => GameModel, (game: any) => game.Player2)
+	gameAsPlayer2!: any[];
 }
 
 import { GameModel } from "./GameModel.js";

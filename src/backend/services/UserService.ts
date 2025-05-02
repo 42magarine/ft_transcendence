@@ -3,53 +3,14 @@ import { UserModel } from "../models/UserModel.js";
 import { JWTPayload, RegisterCredentials, UserCredentials, AuthTokens } from "../../types/auth.js";
 import { generateJWT, hashPW, verifyPW } from "../middleware/security.js";
 import jwt from "jsonwebtoken";
+import { deleteAvatar } from "../services/FileService.js";
 
 export class UserService {
-	//get user table from db
+	// get user table from db
 	private userRepo = AppDataSource.getRepository(UserModel);
 
-	/**
-	 * Initialize master user from environment variables during application startup
-	 */
-	async initializeMasterUser() {
-		try {
-			const masterEmail = process.env.MASTER_EMAIL;
-			const masterUsername = process.env.MASTER_USERNAME;
-			const masterPassword = process.env.MASTER_PASSWORD;
-
-			if (!masterEmail || !masterUsername || !masterPassword) {
-				console.error("Master user environment variables not set. Master user not created.");
-				return;
-			}
-
-			// Check if master already exists
-			const existingMaster = await this.userRepo.findOne({
-				where: { role: 'master' }
-			});
-
-			if (existingMaster) {
-				console.log("Master user already exists, skipping creation.");
-				return;
-			}
-
-			// Create master user
-			const hashedPassword = await hashPW(masterPassword);
-			const masterUser = this.userRepo.create({
-				email: masterEmail,
-				username: masterUsername,
-				password: hashedPassword,
-				role: 'master'
-			});
-
-			await this.userRepo.save(masterUser);
-			console.log("Master user created successfully.");
-		} catch (error) {
-			console.error("Failed to initialize master user:", error);
-		}
-	}
-
-	//Checks if user exists, throw error if yes, otherwise create user in db
-	async createUser(userData: RegisterCredentials & { password: string }, requestingUserRole?: string) {
+	// Checks if user exists, throw error if yes, otherwise create user in db
+	async createUser(userData: RegisterCredentials & { password: string, avatar?: string }, requestingUserRole?: string) {
 		const existingUser = await this.userRepo.findOne({
 			where: [
 				{ username: userData.username },
@@ -82,20 +43,20 @@ export class UserService {
 		return await this.userRepo.save(user);
 	}
 
-	//find User by email (maybe when trying to reset password to send confirmation mail of reset link or smthin)
+	// find User by email (maybe when trying to reset password to send confirmation mail of reset link or smthin)
 	async findUnameAcc(username: string) {
 		return await this.userRepo.findOne({
 			where: { username },
-			select: ['id', 'username', 'email', 'password', 'role']
+			select: ['id', 'username', 'email', 'password', 'role', 'avatar']
 		});
 	}
 
-	//find User by Id
+	// find all Users
 	async findAll() {
 		return await this.userRepo.find();
 	}
 
-	//find User by Id
+	// find User by Id
 	async findId(id: number) {
 		return await this.userRepo.findOneBy({ id });
 	}
@@ -107,6 +68,17 @@ export class UserService {
 
 		if (!currentUser) {
 			throw new Error('User not found');
+		}
+
+		// Check if avatar has changed, delete old avatar if needed
+		if (user.avatar !== currentUser.avatar && currentUser.avatar) {
+			try {
+				console.log(`Deleting old avatar for user ${currentUser.id}: ${currentUser.avatar}`);
+				await deleteAvatar(currentUser.avatar);
+			} catch (error) {
+				console.error(`Error deleting old avatar for user ${currentUser.id}:`, error);
+				// Continue with update even if avatar deletion fails
+			}
 		}
 
 		// Prevent changing master role
@@ -149,6 +121,17 @@ export class UserService {
 				return false;
 			}
 
+			// Delete user's avatar if it exists
+			if (user.avatar) {
+				try {
+					console.log(`Deleting avatar for user ${id}: ${user.avatar}`);
+					await deleteAvatar(user.avatar);
+				} catch (error) {
+					console.error(`Error deleting avatar for user ${id}:`, error);
+					// Continue with user deletion even if avatar deletion fails
+				}
+			}
+
 			const result = await this.userRepo.delete(id);
 
 			return result.affected !== null && result.affected !== undefined && result.affected > 0;
@@ -188,8 +171,7 @@ export class UserService {
 	}
 
 	// for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
-	async register(credentials: RegisterCredentials, requestingUserRole?: string) {
-
+	async register(credentials: RegisterCredentials & { avatar?: string }, requestingUserRole?: string) {
 		const hashedPW = await hashPW(credentials.password);
 
 		const user = await this.createUser({
@@ -197,12 +179,11 @@ export class UserService {
 			password: hashedPW
 		}, requestingUserRole);
 
-		//generate security token to hand back to user because successfully registered
+		// generate security token to hand back to user because successfully registered
 		return this.generateTokens(user);
 	}
 
 	async login(credentials: UserCredentials) {
-		console.log("login: login " + credentials.email)
 		console.log("login: login " + credentials.username)
 		console.log("login: login " + credentials.password)
 		const user = await this.findUnameAcc(credentials.username);
@@ -210,7 +191,6 @@ export class UserService {
 			console.log("user: null ")
 		}
 		else {
-
 			console.log("user: login " + user.username)
 			console.log("user: login " + user.email)
 		}

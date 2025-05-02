@@ -3,6 +3,8 @@ import Fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
+import fastifyMultipart from '@fastify/multipart';
+import { join } from 'path';
 import dotenv from 'dotenv';
 import fs from "node:fs";
 import path from "node:path";
@@ -23,12 +25,25 @@ const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app
 const __dirname: string = path.dirname(__filename);             // /app/dist
 const __rootdir: string = path.resolve(__dirname, "..");        // /app
 
+// Neuer permanenter Uploads-Ordner außerhalb von dist
+const UPLOADS_DIR = path.join(__rootdir, "uploads");
+const AVATARS_DIR = path.join(UPLOADS_DIR, "avatars");
+
 dotenv.config();
 checkEnvVars();
 
 // Create Fastify instance
-// const fastify = Fastify({ logger: true });
-const fastify = Fastify();
+const fastify = Fastify({
+	logger: true // Aktiviere Logger für bessere Fehlermeldungen
+});
+
+// Wichtig: Multipart muss VOR allen Routen registriert werden!
+fastify.register(fastifyMultipart, {
+	limits: {
+		fileSize: 5 * 1024 * 1024, // Auf 5MB begrenzt für Avatarbilder
+	},
+	attachFieldsToBody: false // Wichtig: Lässt Files als Stream
+});
 
 // Register Plugins
 fastify.register(fastifyWebsocket);
@@ -51,6 +66,13 @@ fastify.register(fastifyStatic, {
 fastify.register(fastifyStatic, {
 	root: path.join(__rootdir, "dist", "assets"),
 	prefix: "/assets",
+	decorateReply: false
+});
+
+// Serve uploaded avatars from the permanent uploads directory
+fastify.register(fastifyStatic, {
+	root: AVATARS_DIR,
+	prefix: "/uploads/avatars",
 	decorateReply: false
 });
 
@@ -159,6 +181,17 @@ const start = async (): Promise<void> => {
 
 		// Ensure master user exists after database is initialized
 		await ensureMasterUserExists();
+
+		// Stelle sicher, dass der permanente Upload-Ordner existiert
+		if (!fs.existsSync(UPLOADS_DIR)) {
+			fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+			console.log(`Created uploads directory: ${UPLOADS_DIR}`);
+		}
+
+		if (!fs.existsSync(AVATARS_DIR)) {
+			fs.mkdirSync(AVATARS_DIR, { recursive: true });
+			console.log(`Created avatars directory: ${AVATARS_DIR}`);
+		}
 
 		await fastify.listen({ port: 3000, host: "0.0.0.0" });
 		console.log('Server running on http://0.0.0.0:3000');

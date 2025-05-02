@@ -20,6 +20,7 @@ export default class Signup extends ThemedView {
 			prefix: '<div class="signup-avatar"></div>',
 			formId: 'signup-form',
 			inputs: [
+				{ name: 'avatar', type: 'file', placeholder: 'Avatar' },
 				{ name: 'displayname', type: 'text', placeholder: 'Name' },
 				{ name: 'username', type: 'text', placeholder: 'Username' },
 				{ name: 'email', type: 'email', placeholder: 'E-Mail' },
