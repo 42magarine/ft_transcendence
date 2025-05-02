@@ -2,14 +2,12 @@ import { PaddleDirection, ClientMessage, ServerMessage } from "../types/ft_types
 import { IGameState } from "../types/interfaces.js"
 
 // === CLEANUP LOGIC ON TAB CLOSE / NAVIGATION ===
-window.addEventListener("beforeunload", () =>
-{
+window.addEventListener("beforeunload", () => {
 	const msg: ClientMessage = { type: "resetGame" };
 	socket.send(JSON.stringify(msg));
 });
 
-window.addEventListener("unload", () =>
-{
+window.addEventListener("unload", () => {
 	const msg: ClientMessage = { type: "resetGame" };
 	socket.send(JSON.stringify(msg));
 });
@@ -23,21 +21,16 @@ let state: IGameState | null = null;
 let playerId: number | null = null;
 let keysPressed: Record<string, boolean> = {};
 
-console.log("Entered script");
-
 // The "open" event is triggered when the connection to the WebSocket server is successfully established.
-socket.addEventListener("open", () =>
-{
+socket.addEventListener("open", () => {
 	console.log("Connected to WebSocket server");
 });
 
 // The "message" event is triggered when the server sends a message over WebSocket.
-socket.addEventListener("message", (event: MessageEvent<string>) =>
-{
+socket.addEventListener("message", (event: MessageEvent<string>) => {
 	const data: ServerMessage = JSON.parse(event.data);
 
-	if (data.type === "assignPlayer")
-	{
+	if (data.type === "assignPlayer") {
 		playerId = data.id;
 		state = data.state;
 	}
@@ -46,51 +39,40 @@ socket.addEventListener("message", (event: MessageEvent<string>) =>
 		data.type === "update" ||
 		data.type === "pauseGame" ||
 		data.type === "resumeGame" ||
-		data.type === "resetGame")
-	{
+		data.type === "resetGame") {
 		state = data.state;
 		draw();
 	}
 });
 
-window.addEventListener("keydown", (event: KeyboardEvent) =>
-{
+window.addEventListener("keydown", (event: KeyboardEvent) => {
 	keysPressed[event.key] = true;
 });
 
-window.addEventListener("keyup", (event: KeyboardEvent) =>
-{
+window.addEventListener("keyup", (event: KeyboardEvent) => {
 	keysPressed[event.key] = false;
 });
 
-function handleInput()
-{
-	if (playerId === 1)
-	{
-		if (keysPressed["w"])
-		{
+function handleInput() {
+	if (playerId === 1) {
+		if (keysPressed["w"]) {
 			sendMovePaddle("up");
 		}
-		if (keysPressed["s"])
-		{
+		if (keysPressed["s"]) {
 			sendMovePaddle("down");
 		}
 	}
-	else if (playerId === 2)
-	{
-		if (keysPressed["ArrowUp"])
-		{
+	else if (playerId === 2) {
+		if (keysPressed["ArrowUp"]) {
 			sendMovePaddle("up");
 		}
-		if (keysPressed["ArrowDown"])
-		{
+		if (keysPressed["ArrowDown"]) {
 			sendMovePaddle("down");
 		}
 	}
 }
 
-function sendMovePaddle(direction: PaddleDirection)
-{
+function sendMovePaddle(direction: PaddleDirection) {
 	const moveMsg: ClientMessage = {
 		type: "movePaddle",
 		direction: direction
@@ -100,10 +82,8 @@ function sendMovePaddle(direction: PaddleDirection)
 
 setInterval(handleInput, 1000 / 60);
 
-function draw()
-{
-	if (!state || state.paused)
-	{
+function draw() {
+	if (!state || state.paused) {
 		return;
 	}
 
@@ -134,33 +114,28 @@ function draw()
 }
 
 const startGameButton = document.getElementById("startGameButton") as HTMLButtonElement;
-startGameButton.addEventListener("click", () =>
-{
+startGameButton.addEventListener("click", () => {
 	// If playerId is not null, send initGame message
-	if (playerId !== null)
-	{
+	if (playerId !== null) {
 		const initMsg: ClientMessage = { type: "initGame" };
 		socket.send(JSON.stringify(initMsg));
 	}
 });
 
 const pauseGameButton = document.getElementById("pauseGameButton") as HTMLButtonElement;
-pauseGameButton.addEventListener("click", () =>
-{
+pauseGameButton.addEventListener("click", () => {
 	const pauseMsg: ClientMessage = { type: "pauseGame" };
 	socket.send(JSON.stringify(pauseMsg));
 });
 
 const resumeGameButton = document.getElementById("resumeGameButton") as HTMLButtonElement;
-resumeGameButton.addEventListener("click", () =>
-{
+resumeGameButton.addEventListener("click", () => {
 	const resumeMsg: ClientMessage = { type: "resumeGame" };
 	socket.send(JSON.stringify(resumeMsg));
 });
 
 const resetGameButton = document.getElementById("resetGameButton") as HTMLButtonElement;
-resetGameButton.addEventListener("click", () =>
-{
+resetGameButton.addEventListener("click", () => {
 	const resetMsg: ClientMessage = { type: "resetGame" };
 	socket.send(JSON.stringify(resetMsg));
 });

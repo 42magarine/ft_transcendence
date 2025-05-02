@@ -1,11 +1,58 @@
-@import "tailwindcss";
-@import "tailwindcss/preflight";
+/* _index.css */
+@import 'tailwindcss';
 
 @import './buttons.css';
-@import './tictactoe.css';
 @import './card.css';
 @import './glass.css';
+@import './text.css';
+@import './theme.css';
+@import './signup.css';
+@import './table.css';
+@import './input_fields.css';
 
-.cell {
-	background-image: url('/assets/bg.png');
+* {
+	user-select: none;
+}
+
+header {
+	transition: 0.5s;
+    position: fixed;
+	width: 100%;
+	background-color: #444;
+}
+
+main {
+	min-height: 100vh;
+    padding-top: 5em;
+	background-color: black;
+}
+
+main .container{
+	margin: auto;
+	width: 1200px;
+}
+
+footer {
+	transition: 0.5s;
+    position: fixed;
+	bottom: 0;
+	width: 100%;
+	background-color: #444;
+	color: white;
+}
+
+@layer components {
+	.role-tag {
+		@apply px-3 py-1 rounded text-sm bg-blue-300 text-white;
+	}
+
+	.role-tag.role-admin {
+		@apply bg-yellow-700 text-white;
+	}
+	.role-tag.role-user {
+		@apply bg-green-700 text-white;
+	}
+	.role-tag.role-master {
+		@apply bg-purple-700 text-white;
+	}
 }

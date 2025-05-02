@@ -1,27 +1,69 @@
+/* === BASE CARD === */
 .card {
-	@apply max-w-sm rounded overflow-hidden shadow-lg bg-white bg-blue-800 border-4;
-}
+	@apply w-full max-w-full rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white;
+	@apply mt-2 mb-2;
+  }
 
-.card-image {
-	@apply w-screen max-w-none;
-}
+  .card-image {
+	@apply w-full h-48 object-cover;
+  }
 
-.card-body {
+  .card-body {
 	@apply px-6 py-4;
-}
+  }
 
-.card-title {
-	@apply font-bold text-xl mb-2;
-}
+  .card-title {
+	@apply font-semibold text-2xl text-white mb-2 tracking-wide;
+  }
 
-.card-text {
-	@apply text-gray-700 text-base;
-}
+  .card-text {
+	@apply text-gray-300 text-base leading-relaxed;
+  }
 
-.card-footer {
-	@apply px-6 pt-4 pb-2;
-}
+  .card-footer {
+	@apply px-6 pt-4 pb-6 flex flex-wrap gap-2;
+  }
 
-.card-tag {
-	@apply inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2;
-}
+  .card-tag {
+	@apply inline-block bg-blue-700 text-white rounded-full px-3 py-1 text-sm font-medium;
+  }
+
+  .card input {
+	@apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
+  }
+
+  /* === GROUP STYLES === */
+  .card-group {
+	@apply w-full;
+  }
+
+  .card-group .card {
+	@apply transition-transform hover:scale-[1.015];
+  }
+
+  .card-group.grid {
+	@apply gap-6;
+  }
+
+  .card-group.flex {
+	@apply gap-6 flex-wrap justify-center;
+  }
+
+  /* === THEME VARIANTS === */
+
+  /* 🌌 Stars Theme (Night Sky) */
+  .card-stars {
+	@apply bg-gray-950/50 backdrop-blur-xl border border-white/10 text-white shadow-xl;
+  }
+
+  /* 🔥 Mechazilla Theme (Rocket Fire) */
+  .card-mechazilla {
+	@apply bg-black/40 backdrop-blur-md border border-orange-400/30 text-orange-200 shadow-lg;
+  }
+
+  /* 🚀 Starship Theme (Sunrise Steel) */
+  .card-starship {
+    @apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80
+           text-white backdrop-blur-md border border-white/10
+           shadow-xl rounded-xl p-6;
+  }

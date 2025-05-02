@@ -3,9 +3,12 @@ mott:
     - user login
 
 jeberle:
-    - Berechtigungen externer Nutzer auf dist beschraenken, verfugbarkeit von /dist/assets zu /assets aendern
-    - nur frontend files in distfront alles andere in distback
-    - Tempalte Engine
+    - nur frontend files in distfront alles andere in distback ?!?!?!
+    - Password Change Users... Email
+	- Role set bei internal create;
+	- internal create avatar
+	- avatar files;
+	- User dropdown
 
 fwahl:
     - Socket Controller so ausabeun das wir dort nur noch event, callback function mapping machen, functions gehen in services (backend)
