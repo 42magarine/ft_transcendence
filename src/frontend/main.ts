@@ -19,13 +19,13 @@ import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';
 import Login from './views/Login.js';
 import Settings from './views/Settings.js';
+import Signup from './views/Signup.js';
 
 // components
 import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
-import Signup from './views/Signup.js';
 
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
@@ -52,7 +52,7 @@ async function renderFooter() {
  */
 async function renderHeader() {
 	const header = new Header(new URLSearchParams(window.location.search)); // ✅ Pass theme properly
-	const headerHtml = await header.getHtml(); // no props needed for now
+	const headerHtml = await header.getHtml();
 	document.getElementById('header-root')!.innerHTML = headerHtml;
 }
 
@@ -84,6 +84,7 @@ const routes = [
 	},
 	{
 		path: '/pong',
+		role: 'user',
 		view: Pong,
 		metadata: {
 			title: 'Transcendence - Pong',
@@ -92,6 +93,7 @@ const routes = [
 	},
 	{
 		path: '/user-mangement',
+		role: 'admin',
 		view: UserMangement,
 		metadata: {
 			title: 'Transcendence - UserMangement',
@@ -100,6 +102,7 @@ const routes = [
 	},
 	{
 		path: '/users/:id',
+		role: 'user_id',
 		view: Profile,
 		metadata: {
 			title: 'Transcendence - User Detail',
@@ -108,6 +111,7 @@ const routes = [
 	},
 	{
 		path: '/users/edit/:id',
+		role: 'user_id',
 		view: ProfileEdit,
 		metadata: {
 			title: 'Transcendence - User Edit',
@@ -116,6 +120,7 @@ const routes = [
 	},
 	{
 		path: '/login',
+		role: 'logged_out',
 		view: Login,
 		metadata: {
 			title: 'Transcendence - login',
@@ -124,6 +129,7 @@ const routes = [
 	},
 	{
 		path: '/signup',
+		role: 'logged_out',
 		view: Signup,
 		metadata: {
 			title: 'Transcendence - Signup',
@@ -132,6 +138,7 @@ const routes = [
 	},
 	{
 		path: '/settings',
+		role: 'user_id',
 		view: Settings,
 		metadata: {
 			title: 'Transcendence - settings',
@@ -139,7 +146,6 @@ const routes = [
 		}
 	}
 ];
-
 const router = new Router(routes);
 
 (window as any).router = router;

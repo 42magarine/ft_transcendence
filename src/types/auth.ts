@@ -2,6 +2,7 @@
 // Adding or updating the role property in your types
 
 export interface UserCredentials {
+	username: string;
 	email: string;
 	password: string;
 }

@@ -19,7 +19,7 @@ export default class Login extends ThemedView {
 			title: 'Login',
 			formId: 'login-form',
 			inputs: [
-				{ name: 'username', placeholder: 'Username' },
+				{ name: 'username', type: 'text', placeholder: 'Username' },
 				{ name: 'password', type: 'password', placeholder: 'Password' }
 			],
 			button: { text: 'Login', type: 'submit' },

@@ -3,10 +3,36 @@ import { ThemeName } from '../theme/themeHelpers.js';
 import Title from '../components/Title.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
+import { generateTextVisualization } from '../../utils/Avartar.js';
+
+interface UserList {
+	avatar: string;
+	id?: number;
+	username: string;
+	email: string;
+	displayname?: string;
+	password?: string;
+	role?: string;
+}
 
 export default class UserManagement extends ThemedView {
 	constructor() {
 		super('stars', 'Transcendence - User Management');
+	}
+
+	private generateProfileImage(userData: any): string {
+		// Create a seed from user data - concatenate displayname, username and email
+		const seed = `${userData.displayname}`;
+
+		// Generate the visualization with appropriate options
+		return generateTextVisualization(seed, {
+			width: 20,
+			height: 20,
+			useShapes: true,
+			maxShapes: 50,
+			showText: false, // Don't show the text in the image
+			backgroundColor: '#f0f0f0'
+		});
 	}
 
 	async renderView(): Promise<string> {
@@ -24,6 +50,11 @@ export default class UserManagement extends ThemedView {
 		} catch (error) {
 			console.error('API request error:', error);
 		}
+
+		// Correctly loop through each user and add avatar
+		users.forEach((user: UserList) => {
+			user.avatar = this.generateProfileImage(user);
+		});
 
 		// Title section
 		const title = new Title(this.params, {
@@ -79,6 +110,7 @@ export default class UserManagement extends ThemedView {
 			title: 'Users',
 			extra: `<table class="list">
 				<tr>
+					<th>Avatar</th>
 					<th>ID</th>
 					<th>Name</th>
 					<th>Username</th>
@@ -88,6 +120,7 @@ export default class UserManagement extends ThemedView {
 				</tr>
 				<for each="users" as="user">
 					<tr>
+						<td>{{user.avatar}}</td>
 						<td>{{user.id}}</td>
 						<td>{{user.displayname}}</td>
 						<td>{{user.username}}</td>
@@ -109,34 +142,28 @@ export default class UserManagement extends ThemedView {
 			title: 'Create User',
 			formId: 'create-form',
 			inputs: [
-				{ name: 'displayname', placeholder: 'Name' },
-				{ name: 'username', placeholder: 'Username' },
+				{ name: 'displayname', type: "text", placeholder: 'Name' },
+				{ name: 'username', type: "text", placeholder: 'Username' },
 				{ name: 'email', type: 'email', placeholder: 'Email Address' },
+				{
+					name: 'role',
+					type: 'select',
+					placeholder: 'Select Role',
+					options: [
+						{
+							label: "User",
+							value: "user"
+						},
+						{
+							label: "Admin",
+							value: "admin"
+						}
+					]
+				},
 				{ name: 'password', type: 'password', placeholder: 'Password' }
 			],
 			button: { text: 'Create', type: 'submit' }
 		});
-
-
-		// const groupedCardHtml = await card.renderGroup({
-		// 	layout: 'grid',
-		// 	className: 'md:grid-cols-2',
-		// 	cards: cardConfigs
-		// });
-
-		// Register Card
-		// const registerCard = await card.renderCard({
-		// 	title: 'Register New Account',
-		// 	formId: 'register-form',
-		// 	inputs: [
-		// 		{ name: 'firstName', placeholder: 'First Name' },
-		// 		{ name: 'lastName', placeholder: 'Last Name' },
-		// 		{ name: 'email', type: 'email', placeholder: 'Email Address' },
-		// 		{ name: 'password', type: 'password', placeholder: 'Password' },
-		// 		{ name: 'confirmPassword', type: 'password', placeholder: 'Confirm Password' }
-		// 	],
-		// 	button: { text: 'Register', type: 'submit' }
-		// });
 
 		// Final output - Pass users data to the render method
 		return this.render(`

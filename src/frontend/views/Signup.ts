@@ -17,9 +17,12 @@ export default class Signup extends ThemedView {
 		const card = new Card(this.params);
 		const signupCard = await card.renderCard({
 			title: 'Signup',
+			prefix: '<div class="signup-avatar"></div>',
 			formId: 'signup-form',
 			inputs: [
-				{ name: 'username', placeholder: 'Username' },
+				{ name: 'displayname', type: 'text', placeholder: 'Name' },
+				{ name: 'username', type: 'text', placeholder: 'Username' },
+				{ name: 'email', type: 'email', placeholder: 'E-Mail' },
 				{ name: 'password', type: 'password', placeholder: 'Password' },
 				{ name: 'repeat-password', type: 'password', placeholder: 'Repeat Password' }
 			],

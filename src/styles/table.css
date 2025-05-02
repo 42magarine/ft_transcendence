@@ -1,0 +1,18 @@
+/* Your existing styles */
+td svg {
+    @apply text-white h-10 w-10 mx-auto bg-white rounded-full;
+}
+
+th {
+    @apply text-left;
+}
+
+/* Add alternating row colors with transparency */
+tr:nth-child(even) {
+    @apply bg-gray-100/[.1];
+}
+
+/* Add vertical padding to all table rows */
+tr td, tr th {
+    @apply p-2;
+}

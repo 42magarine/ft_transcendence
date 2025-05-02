@@ -1,12 +1,22 @@
 import { Route } from "./types.js";
-import AbstractView from "./AbstractView.js"
+import AbstractView from "./AbstractView.js";
 import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';
+
+// Define a User interface for type safety
+interface User {
+	id: string;
+	username: string;
+	role: string; // Using string type to allow any role value
+	// Add other user properties as needed
+}
 
 export default class Router {
 	private routes: Route[] = [];
 	private currentView: AbstractView | null = null;
 	private static instance: Router | null = null;
+	// Define the role hierarchy - higher index means more privileges
+	private static ROLE_HIERARCHY = ['user', 'admin', 'master'];
 
 	constructor(routes: Route[]) {
 		this.routes = routes;
@@ -46,7 +56,6 @@ export default class Router {
 		});
 
 		document.dispatchEvent(dataUpdateEvent);
-		console.log('DataUpdateEvent ausgelöst:', detail);
 	}
 
 	public update(): void {
@@ -61,7 +70,7 @@ export default class Router {
 			if (globalRouter && typeof globalRouter.update === 'function') {
 				globalRouter.update();
 			} else {
-				console.error('Router.update() wurde aufgerufen, aber es gibt keine aktive Router-Instanz');
+				console.error('Router.update() was called, but there is no active Router instance');
 			}
 		}
 	}
@@ -80,7 +89,6 @@ export default class Router {
 			window.history.pushState(null, '', url);
 		}
 
-		// Render the new route
 		return this.render();
 	}
 
@@ -97,7 +105,7 @@ export default class Router {
 			if (globalRouter && typeof globalRouter.redirect === 'function') {
 				return globalRouter.redirect(url, options);
 			} else {
-				console.error('Router.redirect() wurde aufgerufen, aber es gibt keine aktive Router-Instanz');
+				console.error('Router.redirect() was called, but there is no active Router instance');
 				return Promise.resolve();
 			}
 		}
@@ -194,7 +202,55 @@ export default class Router {
 		};
 	}
 
+	/**
+	 * Helper method to check if a user has sufficient role privileges
+	 * 'master' > 'admin' > 'user'
+	 */
+	private hasRoleAccess(requiredRole: string, userRole: string): boolean {
+		if (!requiredRole) return true; // No role required
+		if (!userRole) return false; // No user role but role required
+
+		// Special roles like 'user_id' and 'logged_out' should be handled separately
+		if (requiredRole === 'user_id' || requiredRole === 'logged_out') {
+			return false; // These are handled specifically in the render method
+		}
+
+		// Direct match
+		if (requiredRole === userRole) return true;
+
+		// Check hierarchy: master > admin > user
+		const userRoleIndex = Router.ROLE_HIERARCHY.indexOf(userRole);
+		const requiredRoleIndex = Router.ROLE_HIERARCHY.indexOf(requiredRole);
+
+		// Higher roles can access lower role routes
+		// A valid userRoleIndex will be >= 0 and a valid requiredRoleIndex will be >= 0
+		// Higher roles have higher indices in our ROLE_HIERARCHY array
+		const hasAccess = userRoleIndex >= 0 && requiredRoleIndex >= 0 && userRoleIndex > requiredRoleIndex;
+
+		return hasAccess;
+	}
+
+	/**
+	 * Get current user from API
+	 */
+	private static async getCurrentUser(): Promise<User | null> {
+		try {
+			const response = await fetch('/api/auth/me');
+			if (response.status === 401) {
+				return null;
+			}
+
+			return await response.json() as User;
+		} catch (error) {
+			console.error('Failed to fetch current user:', error);
+			return null;
+		}
+	}
+
 	public async render(): Promise<void> {
+		// Get current user for role checking
+		const currentUser = await Router.getCurrentUser();
+
 		// Map routes to potential matches with params
 		const potentialMatches = this.routes.map(route => {
 			const matchResult = this.matchRoute(route);
@@ -222,6 +278,32 @@ export default class Router {
 					appElement.innerHTML = '<h1>404 - Page Not Found</h1>';
 				}
 				return;
+			}
+		}
+
+		// Handle role-based access control
+		if (match.route.role) {
+			// Special case: logged_out routes should only be accessible when not logged in
+			if (match.route.role === 'logged_out') {
+				if (currentUser) {
+					return this.redirect('/', { replace: true });
+				}
+			}
+			// Special case: user_id routes should only be accessible by the specific user
+			else if (match.route.role === 'user_id') {
+				const routeUserId = match.params.id;
+				if (!currentUser) {
+					return this.redirect('/login', { replace: true });
+				} else if (currentUser.role == "user" && routeUserId && String(currentUser.id) !== String(routeUserId)) {
+					return this.redirect('/', { replace: true });
+				}
+			}
+			// Standard role check (user, admin, master)
+			else if (!currentUser) {
+				return this.redirect('/login', { replace: true });
+			}
+			else if (!this.hasRoleAccess(match.route.role, currentUser.role)) {
+				return this.redirect('/', { replace: true });
 			}
 		}
 

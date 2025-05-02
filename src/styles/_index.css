@@ -6,6 +6,8 @@
 @import './glass.css';
 @import './text.css';
 @import './theme.css';
+@import './signup.css';
+@import './table.css';
 @import './input_fields.css';
 
 * {

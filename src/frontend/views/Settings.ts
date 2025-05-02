@@ -65,7 +65,7 @@ export default class Settings extends ThemedView {
 				},
 				{
 					type: 'input',
-					props: { name: 'displayName', placeholder: 'John Doe' }
+					props: { name: 'displayName', type: "text", placeholder: 'John Doe' }
 				},
 				{
 					type: 'label',

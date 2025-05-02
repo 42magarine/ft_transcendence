@@ -1,3 +1,5 @@
+import { generateTextVisualization } from "./../../utils/Avartar.js"
+
 interface User {
 	id?: number;
 	username: string;
@@ -12,7 +14,7 @@ interface ApiErrorResponse {
 }
 
 interface LoginCredentials {
-	email: string;
+	username: string;
 	password: string;
 }
 
@@ -90,10 +92,8 @@ export class UserManagementService {
 		try {
 			const response = await fetch('/api/auth/me');
 			if (response.status === 401) {
-				// Not authenticated
 				return null;
 			}
-
 
 			return await response.json() as User;
 		} catch (error) {
@@ -107,8 +107,6 @@ export class UserManagementService {
 			const response = await fetch('/api/auth/logout', {
 				method: 'POST',
 			});
-			console.log("response logout ")
-			console.log(response)
 			if (!response.ok) {
 				throw new Error(`Error: ${response.status}`);
 			}
@@ -143,7 +141,6 @@ export class UserManagementService {
 	}
 
 	static setupEventListeners(): void {
-		// Registration form
 		const createForm = document.getElementById('create-form') as HTMLFormElement | null;
 		if (createForm) {
 			createForm.addEventListener('submit', async (e) => {
@@ -209,7 +206,7 @@ export class UserManagementService {
 				try {
 					const formData = new FormData(loginForm);
 					const credentials: LoginCredentials = {
-						email: formData.get('email') as string,
+						username: formData.get('username') as string,
 						password: formData.get('password') as string,
 					};
 
@@ -228,6 +225,27 @@ export class UserManagementService {
 		// Signup form
 		const signupForm = document.getElementById('signup-form') as HTMLFormElement | null;
 		if (signupForm) {
+			const diosplaynameINput = signupForm.querySelector("input[name=displayname]")
+			const signupavatar = signupForm.querySelector(".signup-avatar")
+			if (diosplaynameINput && signupavatar) {
+				diosplaynameINput.addEventListener("keyup", function (e) {
+					if (e.target) {
+						const inputElement = e.target as HTMLInputElement;
+						const seed = inputElement.value;
+
+						const seedSvg = generateTextVisualization(seed, {
+							width: 100,
+							height: 100,
+							useShapes: true,
+							maxShapes: 50,
+							showText: false,
+							backgroundColor: '#f0f0f0'
+						});
+						signupavatar.innerHTML = seedSvg;
+					}
+				})
+			}
+
 			signupForm.addEventListener('submit', async (e) => {
 				e.preventDefault();
 
@@ -252,8 +270,10 @@ export class UserManagementService {
 				}
 			});
 		}
+	}
 
-		// Logout button
+	// Logout button
+	static setupLogoutButton(): void {
 		const logoutButton = document.getElementById('logout-btn') as HTMLElement | null;
 		if (logoutButton) {
 			logoutButton.addEventListener('click', async (e) => {
@@ -276,4 +296,5 @@ export class UserManagementService {
 // Initialize the event listeners when the DOM is loaded
 document.addEventListener('RouterContentLoaded', () => {
 	UserManagementService.setupEventListeners();
+	UserManagementService.setupLogoutButton();
 });

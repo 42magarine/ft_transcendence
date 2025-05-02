@@ -31,7 +31,7 @@ export class UserController {
 					// just without any privileged roles
 				}
 			}
-
+			console.log(request.body.role)
 			// Prevent registration of master users through API
 			if (request.body.role === 'master') {
 				return reply.code(403).send({ error: 'Master user can only be created through environment variables' });
@@ -285,7 +285,7 @@ export class UserController {
 			const token = request.cookies.accessToken;
 
 			if (!token) {
-				return reply.code(401).send({ error: 'Not authenticated' });
+				return reply.code(200).send(null);
 			}
 
 			// Verify the token

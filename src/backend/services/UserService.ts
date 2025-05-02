@@ -52,6 +52,7 @@ export class UserService {
 	async createUser(userData: RegisterCredentials & { password: string }, requestingUserRole?: string) {
 		const existingUser = await this.userRepo.findOne({
 			where: [
+				{ username: userData.username },
 				{ email: userData.email },
 				{ username: userData.username }
 			]
@@ -82,10 +83,10 @@ export class UserService {
 	}
 
 	//find User by email (maybe when trying to reset password to send confirmation mail of reset link or smthin)
-	async findEmailAcc(email: string) {
+	async findUnameAcc(username: string) {
 		return await this.userRepo.findOne({
-			where: { email },
-			select: ['id', 'email', 'password', 'role']
+			where: { username },
+			select: ['id', 'username', 'email', 'password', 'role']
 		});
 	}
 
@@ -125,26 +126,7 @@ export class UserService {
 			throw new Error('Unzureichende Berechtigungen, um Admin-Berechtigungen zu vergeben');
 		}
 
-		return await this.userRepo.save(user);
-	}
-
-	// Removes the user from DB
-	async removeUser(userData: RegisterCredentials) {
-		const existingUser = await this.userRepo.findOne({
-			where: [
-				{ email: userData.email },
-				{ username: userData.username }
-			]
-		});
-
-		if (existingUser) {
-			// Prevent master deletion
-			if (existingUser.role === 'master') {
-				throw new Error('Master user cannot be deleted');
-			}
-
-			return await this.userRepo.delete(existingUser);
-		}
+		return await this.userRepo.update(currentUser, user);
 	}
 
 	async deleteById(id: number, requestingUserRole?: string): Promise<boolean> {
@@ -207,7 +189,6 @@ export class UserService {
 
 	// for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
 	async register(credentials: RegisterCredentials, requestingUserRole?: string) {
-		console.log("register call");
 
 		const hashedPW = await hashPW(credentials.password);
 
@@ -221,7 +202,18 @@ export class UserService {
 	}
 
 	async login(credentials: UserCredentials) {
-		const user = await this.findEmailAcc(credentials.email);
+		console.log("login: login " + credentials.email)
+		console.log("login: login " + credentials.username)
+		console.log("login: login " + credentials.password)
+		const user = await this.findUnameAcc(credentials.username);
+		if (!user) {
+			console.log("user: null ")
+		}
+		else {
+
+			console.log("user: login " + user.username)
+			console.log("user: login " + user.email)
+		}
 		if (!user || !await verifyPW(credentials.password, user.password)) {
 			throw new Error('Invalid login data');
 		}

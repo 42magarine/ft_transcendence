@@ -145,10 +145,11 @@ function generateStar(x: number, y: number, size: number, points: number = 5, op
 	/>`;
 }
 
-function generateWave(startX: number, startY: number, width: number, height: number, frequency: number, options: ShapeOptions = {}): string {
+function generateWave(startX: number, startY: number, width: number, height: number, frequency: number, options: ShapeOptions = {}, relativeStrokeWidth: number = 0.008): string {
 	const fill = options.fill || 'none';
 	const stroke = options.stroke || '#000000';
-	const strokeWidth = options.strokeWidth || 2;
+	// Make stroke width relative to width
+	const strokeWidth = options.strokeWidth || width * relativeStrokeWidth;
 	const opacity = options.opacity || 1;
 
 	const steps = Math.max(10, Math.floor(width / 20));
@@ -170,10 +171,11 @@ function generateWave(startX: number, startY: number, width: number, height: num
 	/>`;
 }
 
-function generateSpiral(centerX: number, centerY: number, maxRadius: number, turns: number, options: ShapeOptions = {}): string {
+function generateSpiral(centerX: number, centerY: number, maxRadius: number, turns: number, options: ShapeOptions = {}, relativeStrokeWidth: number = 0.008): string {
 	const fill = options.fill || 'none';
 	const stroke = options.stroke || '#000000';
-	const strokeWidth = options.strokeWidth || 2;
+	// Make stroke width relative to radius
+	const strokeWidth = options.strokeWidth || maxRadius * relativeStrokeWidth;
 	const opacity = options.opacity || 1;
 
 	const steps = turns * 36; // 36 steps per turn for a smooth spiral
@@ -201,7 +203,11 @@ function generateSpiral(centerX: number, centerY: number, maxRadius: number, tur
 function generatePattern(text: string, width: number, height: number, options: ShapeOptions = {}): PatternResult {
 	const patternId = `pattern-${Date.now()}`;
 	const charSum = text.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-	const patternSize = 20 + (charSum % 30);
+
+	// Make pattern size relative to width - quadrupled size
+	const patternSizePercent = 0.1 + (charSum % 30) * 0.004; // Between 10% and 22% of width (quadrupled)
+	const patternSize = width * patternSizePercent;
+
 	const fill = options.fill || '#000000';
 
 	// Determine pattern type based on first character
@@ -209,43 +215,47 @@ function generatePattern(text: string, width: number, height: number, options: S
 	const charCode = firstChar.charCodeAt(0);
 	const patternType = charCode % 5; // 5 different pattern types
 
+	// Calculate relative stroke width - quadrupled size
+	const relativeStrokeWidth = width * 0.002; // 0.2% of width (quadrupled)
+	const relativeDotRadius = width * 0.01; // 1% of width (quadrupled)
+
 	let patternSvg = '';
 
 	switch (patternType) {
 		case 0: // Dots
 			patternSvg = `
 			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<circle cx="${patternSize / 4}" cy="${patternSize / 4}" r="2" fill="${fill}" opacity="0.5" />
-				<circle cx="${patternSize * 3 / 4}" cy="${patternSize * 3 / 4}" r="2" fill="${fill}" opacity="0.5" />
+				<circle cx="${patternSize / 4}" cy="${patternSize / 4}" r="${relativeDotRadius}" fill="${fill}" opacity="0.5" />
+				<circle cx="${patternSize * 3 / 4}" cy="${patternSize * 3 / 4}" r="${relativeDotRadius}" fill="${fill}" opacity="0.5" />
 			</pattern>
 			`;
 			break;
 		case 1: // Diagonal lines
 			patternSvg = `
 			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<line x1="0" y1="0" x2="${patternSize}" y2="${patternSize}" stroke="${fill}" stroke-width="1" opacity="0.5" />
+				<line x1="0" y1="0" x2="${patternSize}" y2="${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.5" />
 			</pattern>
 			`;
 			break;
 		case 2: // Grid
 			patternSvg = `
 			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<line x1="0" y1="${patternSize / 2}" x2="${patternSize}" y2="${patternSize / 2}" stroke="${fill}" stroke-width="1" opacity="0.3" />
-				<line x1="${patternSize / 2}" y1="0" x2="${patternSize / 2}" y2="${patternSize}" stroke="${fill}" stroke-width="1" opacity="0.3" />
+				<line x1="0" y1="${patternSize / 2}" x2="${patternSize}" y2="${patternSize / 2}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.3" />
+				<line x1="${patternSize / 2}" y1="0" x2="${patternSize / 2}" y2="${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.3" />
 			</pattern>
 			`;
 			break;
 		case 3: // Circles
 			patternSvg = `
 			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<circle cx="${patternSize / 2}" cy="${patternSize / 2}" r="${patternSize / 4}" fill="none" stroke="${fill}" stroke-width="1" opacity="0.4" />
+				<circle cx="${patternSize / 2}" cy="${patternSize / 2}" r="${patternSize / 4}" fill="none" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.4" />
 			</pattern>
 			`;
 			break;
 		case 4: // Zigzag
 			patternSvg = `
 			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<path d="M0,0 L${patternSize / 2},${patternSize / 2} L0,${patternSize} M${patternSize / 2},0 L${patternSize},${patternSize / 2} L${patternSize / 2},${patternSize}" stroke="${fill}" stroke-width="1" fill="none" opacity="0.4" />
+				<path d="M0,0 L${patternSize / 2},${patternSize / 2} L0,${patternSize} M${patternSize / 2},0 L${patternSize},${patternSize / 2} L${patternSize / 2},${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" fill="none" opacity="0.4" />
 			</pattern>
 			`;
 			break;
@@ -264,6 +274,9 @@ function generateMandala(centerX: number, centerY: number, radius: number, text:
 
 	const segments = Math.max(6, Math.min(24, (textHash % 16) + 8)); // Between 6 and 24 segments
 	const layers = Math.max(3, Math.min(6, (textHash % 4) + 3)); // Between 3 and 6 layers
+
+	// Calculate relative stroke width - quadrupled size
+	const relativeStrokeWidth = radius * 0.02; // 2% of radius (quadrupled)
 
 	let mandalaSvg = '';
 
@@ -302,16 +315,18 @@ function generateMandala(centerX: number, centerY: number, radius: number, text:
 
 			// Add dots at segment points for inner layers
 			if (layer < layers - 1) {
-				mandalaSvg += `<circle cx="${x2}" cy="${y2}" r="${radius / 40}" fill="${colors[(layer + 2) % colors.length]}" />`;
+				// Make dot size relative to radius - quadrupled size
+				const dotRadius = radius * 0.1; // Quadrupled from 0.025 to 0.1
+				mandalaSvg += `<circle cx="${x2}" cy="${y2}" r="${dotRadius}" fill="${colors[(layer + 2) % colors.length]}" />`;
 			}
 		}
 
-		// Add layer outline
-		mandalaSvg += `<circle cx="${centerX}" cy="${centerY}" r="${layerRadius}" fill="none" stroke="${colors[(layer + 1) % colors.length]}" stroke-width="${radius / 200}" opacity="0.5" />`;
+		// Add layer outline with relative stroke width
+		mandalaSvg += `<circle cx="${centerX}" cy="${centerY}" r="${layerRadius}" fill="none" stroke="${colors[(layer + 1) % colors.length]}" stroke-width="${relativeStrokeWidth}" opacity="0.5" />`;
 	}
 
-	// Center circle
-	mandalaSvg += `<circle cx="${centerX}" cy="${centerY}" r="${radius * 0.2}" fill="${colors[colors.length - 1]}" />`;
+	// Center circle with relative size - quadrupled size
+	mandalaSvg += `<circle cx="${centerX}" cy="${centerY}" r="${radius * 0.8}" fill="${colors[colors.length - 1]}" />`;
 
 	return mandalaSvg;
 }
@@ -362,8 +377,8 @@ function getShapeForChar(char: string, x: number, y: number, size: number, color
 }
 
 function generateTextVisualization(text: string, options: TextVisualizationOptions = {
-	width: 800,
-	height: 400
+	width: 100,
+	height: 100,
 }): string {
 	const width = options.width || 800;
 	const height = options.height || 400;
@@ -372,12 +387,17 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 	const maxShapes = options.maxShapes || 100;
 	const showText = options.showText !== undefined ? options.showText : true;
 	const textColor = options.textColor || '#333333';
-	const fontSize = options.fontSize || 32;
+
+	// Calculate fontSize relative to width - quadrupled size
+	const fontSizePercent = options.fontSize ? options.fontSize / width : 0.16; // Default is 16% of width (quadrupled)
+	const fontSize = width * fontSizePercent;
+
 	const fontFamily = options.fontFamily || 'Arial, sans-serif';
 
 	const colors = options.colorPalette || generateColorPalette(text, 5);
 
-	let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
+	// Use a viewBox for proper scaling regardless of the container size
+	let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">`;
 
 	// Background
 	svg += `<rect width="${width}" height="${height}" fill="${backgroundColor}" />`;
@@ -402,14 +422,14 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 		const spiralTurns = 2 + (textHash % 4); // Between 2 and 5 turns
 		svg += generateSpiral(width / 2, height / 2, Math.min(width, height) * 0.4, spiralTurns, {
 			stroke: colors[1],
-			strokeWidth: 3
+			// Stroke width now calculated relative to width inside the function
 		});
 
 		// Wave frequency based on text characteristics
 		const waveFrequency = Math.max(1, text.length / 10);
 		svg += generateWave(0, height * 0.75, width, height * 0.2, waveFrequency, {
 			stroke: colors[2],
-			strokeWidth: 2
+			// Stroke width now calculated relative to width inside the function
 		});
 	}
 
@@ -435,13 +455,19 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 				y = height / 2 + Math.sin(angle) * radius;
 			}
 
-			const size = fontSize * (1.2 + (char.charCodeAt(0) % 10) / 10); // Size varies slightly based on character
+			// Size varies slightly based on character, but always relative to fontSize
+			const sizeVariation = 1.2 + (char.charCodeAt(0) % 10) / 10;
+			const size = fontSize * sizeVariation;
+
 			svg += getShapeForChar(char, x, y, size, colors, i, shapesCount);
 		}
 	}
 
 	// Add centered text
 	if (showText) {
+		// Calculate drop shadow size relative to width - quadrupled size
+		const shadowSize = width * 0.006; // 0.6% of width (quadrupled)
+
 		svg += `
 		<text
 		  x="50%"
@@ -452,7 +478,7 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 		  font-size="${fontSize}"
 		  fill="${textColor}"
 		  font-weight="bold"
-		  filter="drop-shadow(0px 0px 3px rgba(255,255,255,0.7))"
+		  filter="drop-shadow(0px 0px ${shadowSize}px rgba(255,255,255,0.7))"
 		>${text}</text>
 	  `;
 	}
