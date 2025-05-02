@@ -1,7 +1,7 @@
 import { WebSocket } from "ws";
 import { PongGame } from "../models/Pong.js";
 import { Player } from "../models/Player.js";
-import { MessageHandlers } from "../controllers/MessageHandlers.js";
+import { MessageHandlers } from "./MessageHandlers.js";
 import { ClientMessage, ServerMessage } from "../../types/ft_types.js";
 import { IGameState } from "../../types/interfaces.js";
 import { GameLobby } from "../models/GameLobby.js";

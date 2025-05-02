@@ -3,7 +3,7 @@ import { Paddle } from "./Paddle.js";
 import { Player } from "./Player.js";
 import { IGameState } from "../../types/interfaces.js";
 import { ServerMessage, PaddleDirection } from "../../types/ft_types.js";
-import { GAME_WIDTH, GAME_HEIGHT, STEPS } from "../../types/constants.js";
+import { GAME_WIDTH, GAME_HEIGHT, STEPS, SCORE_LIMIT } from "../../types/constants.js";
 
 export class PongGame {
     private _width: number;
@@ -13,10 +13,10 @@ export class PongGame {
     private _paddle2: Paddle;
     private _score1: number = 0;
     private _score2: number = 0;
-    private _player1: Player | null = null;
-    private _player2: Player | null = null;
+    private _scoreLimit: number;
     private _paused: boolean = false;
     private _running: boolean = false;
+    private _gameIsOver: boolean = false;
     private _intervalId: NodeJS.Timeout | null = null;
 
     constructor() {
@@ -25,6 +25,7 @@ export class PongGame {
         this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
         this._paddle1 = new Paddle(10, this._height / 2 - 50);
         this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
+        this._scoreLimit = SCORE_LIMIT;
     }
 
     public startGameLoop(broadcast: (data: ServerMessage) => void): void {
@@ -62,6 +63,12 @@ export class PongGame {
         this._score2 = 0;
     }
 
+    private endGame(winner: number): void {
+    // Call a callback, emit event, or flag the game state
+    console.log(`Player ${winner} wins!`);
+    // Optionally notify controller or set state for frontend sync
+    }
+
     public pauseGame(): void {
         this._paused = true;
     }
@@ -97,11 +104,25 @@ export class PongGame {
 
             if (ballX < 0) {
                 this._score2++;
-                this.resetGame();
+                if (this._score2 >= this._scoreLimit)
+                {
+                    this._gameIsOver = true;
+                }
+                else
+                {
+                    this.resetGame();
+                }
                 break;
             } else if (ballX > this._width) {
                 this._score1++;
-                this.resetGame();
+                if (this._score1 >= this._scoreLimit)
+                {
+                    this._gameIsOver = true;
+                }
+                else
+                {
+                    this.resetGame();
+                }
                 break;
             }
         }
@@ -149,7 +170,8 @@ export class PongGame {
             score1: this._score1,
             score2: this._score2,
             paused: this._paused,
-            running: this._running
+            running: this._running,
+            gameIsOver: this._gameIsOver
         };
     }
 
@@ -170,6 +192,10 @@ export class PongGame {
         return this._paused;
     }
 
+    public get isGameOver(): boolean {
+        return this._gameIsOver;
+    }
+
     public set score1(score: number) {
         this._score1 = score;
     }
@@ -186,12 +212,7 @@ export class PongGame {
         this._paused = state;
     }
 
-    // Score incrementers
-    public incrementScore1(): void {
-        this._score1++;
-    }
-
-    public incrementScore2(): void {
-        this._score2++;
+    public set isGameOver(state: boolean) {
+        this._gameIsOver = state;
     }
 }

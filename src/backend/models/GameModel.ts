@@ -24,24 +24,24 @@ export class GameModel {
     @Column({ nullable: true })
     WinnerId?: number;
 
-    @CreateDateColumn({ type: 'datetime' })
-    CreatedAt!: Date;
+    // @CreateDateColumn({ type: 'datetime' })
+    // CreatedAt!: Date;
 
-    @Column({ type: 'datetime', nullable: true })
-    EndedAt?: Date;
+    // @Column({ type: 'datetime', nullable: true })
+    // EndedAt?: Date;
 
-    @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
+    // @Column({ default: 'pending' })
+    // status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
 
-    @Column({ default: false })
-    isLobbyOpen!: boolean;
+    // @Column({ default: false })
+    // isLobbyOpen!: boolean;
 
     @ManyToMany(() => UserModel)
     @JoinTable()
     lobbyParticipants!: any[];
 
-    @Column({ nullable: true })
-    gameAdminId?: number;
+    // @Column({ nullable: true })
+    // gameAdminId?: number;
 }
 
 // Import at the end to avoid the circular dependency issue

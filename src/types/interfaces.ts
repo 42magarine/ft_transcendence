@@ -20,4 +20,5 @@ export interface IGameState {
     score2: number;
     paused: boolean;
     running: boolean;
+    gameIsOver: boolean;
 }
