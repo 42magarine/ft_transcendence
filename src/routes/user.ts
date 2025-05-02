@@ -3,8 +3,8 @@ import { UserController } from "../backend/controllers/UserController.js";
 import { UserService } from "../backend/services/UserService.js";
 
 export default async function (fastify: FastifyInstance) {
-    const userService = new UserService();
-    const userController = new UserController(userService);
+	const userService = new UserService();
+	const userController = new UserController(userService);
 
 	fastify.get('/auth/me', userController.getCurrentUser.bind(userController));
 	fastify.post('/auth/logout', userController.logout.bind(userController));

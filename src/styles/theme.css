@@ -1,0 +1,22 @@
+#app {
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    transition: background-image 0.01s ease-in-out;
+}
+
+#app[data-theme="stars"] {
+    background-image: url(/assets/backgrounds/stars.png);
+}
+
+#app[data-theme="mechazilla"] {
+    background-image: url(/assets/backgrounds/mechazilla.png);
+}
+
+#app[data-theme="starship"] {
+    background-image: url(/assets/backgrounds/starship.png);
+}
+
+#app[data-theme="default"] {
+    background-image: url(/assets/backgrounds/default.png);
+}

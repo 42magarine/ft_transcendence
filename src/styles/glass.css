@@ -1,13 +1,40 @@
-@layer utilities {
-    .gradient-glass-header {
-      @apply backdrop-blur-md;
-      background: linear-gradient(to right, rgba(20, 30, 60, 0.6), rgba(50, 60, 90, 0.6));
+/* === HEADER THEMES === */
 
-    }
-  
-    .gradient-glass-footer {
-      @apply backdrop-blur-md;
-      background: linear-gradient(to right, rgba(0, 0, 0, 0.4), rgba(50, 50, 70, 0.4));
-    }
-  }
-  
+header.header {
+	@apply w-full p-4 flex justify-between items-center flex-wrap gap-4;
+	min-height: 80px;
+	background-color: #444;
+}
+
+/* 🌌 Stars Theme (Night Sky Background) */
+.header-theme-stars {
+  @apply bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md;
+}
+
+/* 🔥 Mechazilla Theme (Rocket Fire) */
+.header-theme-mechazilla {
+  @apply bg-gradient-to-r from-zinc-900/70 via-gray-800/70 to-zinc-700/70 text-white backdrop-blur-md;
+}
+
+/* 🚀 Starship Theme (Sunrise Steel) */
+.header-theme-starship {
+  @apply bg-gradient-to-r from-purple-800/80 via-indigo-800/80 to-sky-800/80 text-white backdrop-blur-md;
+}
+
+
+/* === FOOTER THEMES === */
+
+/* 🌌 Stars Theme */
+.footer-theme-stars {
+  @apply bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md;
+}
+
+/* 🔥 Mechazilla Theme */
+.footer-theme-mechazilla {
+  @apply bg-gradient-to-r from-zinc-900/70 via-gray-800/70 to-zinc-700/70 text-white backdrop-blur-md;
+}
+
+/* 🚀 Starship Theme */
+.footer-theme-starship {
+  @apply bg-gradient-to-r from-purple-800/80 via-indigo-800/80 to-sky-800/80 text-white backdrop-blur-md;
+}

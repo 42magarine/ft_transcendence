@@ -1,89 +1,152 @@
-// ========================
-// File: views/UserManagement.ts
-// ========================
+import ThemedView from '../theme/themedView.js';
+import { ThemeName } from '../theme/themeHelpers.js';
+import Title from '../components/Title.js';
+import Card from '../components/Card.js';
+import Button from '../components/Button.js';
 
-import AbstractView from '../../utils/AbstractView.js';
-import { setBackgroundImage } from '../components/BackgroundManager.js';
-
-export default class UserManagement extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-		this.setTitle('Transcendence - Home');
+export default class UserManagement extends ThemedView {
+	constructor() {
+		super('stars', 'Transcendence - User Management');
 	}
 
-	async getHtml() {
-        setBackgroundImage('/assets/backgrounds/home.png');
-		document.getElementById('header-root')!.className = 'shadow-lg p-8 bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
-		document.getElementById('footer-root')!.className = 'py-4 px-6 w-full bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md';
+	async renderView(): Promise<string> {
+		const theme = this.getTheme() as ThemeName;
 
+		// Fetch users from API
+		let users = [];
+		try {
+			const response = await fetch('/api/users/');
+			if (response.ok) {
+				users = await response.json();
+			} else {
+				console.error('Failed to fetch users from API');
+			}
+		} catch (error) {
+			console.error('API request error:', error);
+		}
+
+		// Title section
+		const title = new Title(this.params, {
+			title: 'User Management',
+		});
+		const titleSection = await title.getHtml();
+
+		// Button Group (uses this.params automatically)
+		const button = new Button(this.params);
+		const readAllButtonGroup = await button.renderGroup({
+			layout: 'stack',
+			align: 'center',
+			buttons: [
+				{
+					id: 'read-all',
+					text: 'Read all Users',
+					onClick: `document.getElementById('user-list').innerHTML = '<li>Loading...</li>'`
+				}
+			]
+		});
+
+		// CRUD Form Cards
+		const card = new Card(this.params);
+
+		const cardConfigs = [
+			// {
+			// 	title: 'Read One User',
+			// 	formId: 'read-one-form',
+			// 	inputs: [{ name: 'userId', type: 'number', placeholder: 'User ID' }],
+			// 	button: { text: 'Read User', type: 'submit' },
+			// 	extra: `<div id="read-result" class="text-white text-sm pt-2"></div>`
+			// },
+			// {
+			// 	title: 'Update User',
+			// 	formId: 'update-form',
+			// 	inputs: [
+			// 		{ name: 'id', type: 'number', placeholder: 'User ID' },
+			// 		{ name: 'name', placeholder: 'New Name' },
+			// 		{ name: 'username', placeholder: 'New Username' }
+			// 	],
+			// 	button: { text: 'Update', type: 'submit' }
+			// },
+			// {
+			// 	title: 'Delete User',
+			// 	formId: 'delete-form',
+			// 	inputs: [{ name: 'id', type: 'number', placeholder: 'User ID' }],
+			// 	button: { text: 'Delete', type: 'submit', className: 'btn btn-danger btn-sm' },
+			// }
+		];
+
+		// List Card
+		const listCard = await card.renderCard({
+			title: 'Users',
+			extra: `<table class="list">
+				<tr>
+					<th>ID</th>
+					<th>Name</th>
+					<th>Username</th>
+					<th>E-Mail</th>
+					<th>Role</th>
+					<th></th>
+				</tr>
+				<for each="users" as="user">
+					<tr>
+						<td>{{user.id}}</td>
+						<td>{{user.displayname}}</td>
+						<td>{{user.username}}</td>
+						<td>{{user.email}}</td>
+						<td><span class="role-tag role-{{user.role}}">{{user.role}}</span></td>
+						<td class="text-right">
+							<a router class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
+							<a router class="btn" href="/users/edit/{{user.id}}"><i class="fa-solid fa-pen-to-square"></i></a>
+							<button type="button" class="btn btn-danger delete-user" data-user="{{user.id}}"><i class="fa-solid fa-trash"></i></button>
+						</td>
+					</tr>
+				</for>
+			</table>`,
+			data: { users }
+		});
+
+		// Register Card
+		const registerCard = await card.renderCard({
+			title: 'Create User',
+			formId: 'create-form',
+			inputs: [
+				{ name: 'displayname', placeholder: 'Name' },
+				{ name: 'username', placeholder: 'Username' },
+				{ name: 'email', type: 'email', placeholder: 'Email Address' },
+				{ name: 'password', type: 'password', placeholder: 'Password' }
+			],
+			button: { text: 'Create', type: 'submit' }
+		});
+
+
+		// const groupedCardHtml = await card.renderGroup({
+		// 	layout: 'grid',
+		// 	className: 'md:grid-cols-2',
+		// 	cards: cardConfigs
+		// });
+
+		// Register Card
+		// const registerCard = await card.renderCard({
+		// 	title: 'Register New Account',
+		// 	formId: 'register-form',
+		// 	inputs: [
+		// 		{ name: 'firstName', placeholder: 'First Name' },
+		// 		{ name: 'lastName', placeholder: 'Last Name' },
+		// 		{ name: 'email', type: 'email', placeholder: 'Email Address' },
+		// 		{ name: 'password', type: 'password', placeholder: 'Password' },
+		// 		{ name: 'confirmPassword', type: 'password', placeholder: 'Confirm Password' }
+		// 	],
+		// 	button: { text: 'Register', type: 'submit' }
+		// });
+
+		// Final output - Pass users data to the render method
 		return this.render(`
-			<div class="max-w-4xl mx-auto p-6 space-y-8">
-				<h1 class="text-3xl font-bold text-center text-white">User Management</h1>
-				<!-- === BACKEND TESTING START === -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                    <!-- CREATE -->
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Create User</h2>
-                            <form id="create-form" class="space-y-2">
-                                <input type="text" id="create-name" placeholder="Name" required class="w-full p-2 rounded" />
-                                <input type="text" id="create-username" placeholder="Username" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-primary w-full">Create</button>
-                            </form>
-                        </div>
-                    </div>
-                
-                    <!-- READ ONE -->
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Read One User</h2>
-                            <form id="read-one-form" class="space-y-2">
-                                <input type="number" id="user-id" placeholder="User ID" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-primary w-full">Read User</button>
-                                <div id="read-result" class="text-white text-sm pt-2"></div>
-                            </form>
-                        </div>
-                    </div>
-                
-                    <!-- UPDATE -->
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Update User</h2>
-                            <form id="update-form" class="space-y-2">
-                                <input type="number" id="update-id" placeholder="User ID" required class="w-full p-2 rounded" />
-                                <input type="text" id="update-name" placeholder="New Name" required class="w-full p-2 rounded" />
-                                <input type="text" id="update-username" placeholder="New Username" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-primary w-full">Update</button>
-                            </form>
-                        </div>
-                    </div>
-                
-                    <!-- DELETE -->
-                    <div class="card rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4">
-                            <h2 class="card-title text-white">Delete User</h2>
-                            <form id="delete-form" class="space-y-2">
-                                <input type="number" id="delete-id" placeholder="User ID" required class="w-full p-2 rounded" />
-                                <button type="submit" class="btn btn-danger w-full">Delete</button>
-                            </form>
-                        </div>
-                    </div>
-                
-                    <!-- READ ALL -->
-                    <div class="card col-span-full rounded-2xl bg-gray-800">
-                        <div class="card-body space-y-4 text-center">
-                            <h2 class="card-title text-white">Read All Users</h2>
-                            <button id="read-all" class="btn btn-secondary">Read all Users</button>
-                            <ul id="user-list" class="text-white text-sm pt-2 space-y-1"></ul>
-                        </div>
-                    </div>
-                
-                </div>
-				<!-- === BACKEND TESTING END === -->
+			<div class="container">
+				${titleSection}
+
+				${registerCard}
+				${listCard}
+
 			</div>
-			<script type="module" src="/dist/frontend/services/user_management.js"></script>
-		`, {});
+		`);
 	}
 }
-

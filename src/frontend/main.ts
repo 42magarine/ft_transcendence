@@ -2,6 +2,9 @@
 // File: main.ts
 // ========================
 
+// services
+import '../frontend/services/user_management.js';
+
 // utils
 import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
@@ -9,16 +12,20 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 
 // views
 import Home from './views/Home.js';
+import Demo from './views/Demo.js';
 import Pong from './views/Pong.js';
-import TicTacToe from './views/TicTacToe.js';
+import Profile from './views/Profile.js';
+import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';
 import Login from './views/Login.js';
+import Settings from './views/Settings.js';
 
 // components
 import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
+import Signup from './views/Signup.js';
 
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
@@ -44,7 +51,7 @@ async function renderFooter() {
  * Dynamically render the header into <header id="header-root">
  */
 async function renderHeader() {
-	const header = new Header();
+	const header = new Header(new URLSearchParams(window.location.search)); // ✅ Pass theme properly
 	const headerHtml = await header.getHtml(); // no props needed for now
 	document.getElementById('header-root')!.innerHTML = headerHtml;
 }
@@ -54,14 +61,22 @@ async function renderHeader() {
  */
 document.addEventListener('DOMContentLoaded', async () => {
 	await renderHeader();
-	await router.render();
 	await renderFooter();
+	await router.render();
 });
 
 const routes = [
 	{
 		path: '/',
 		view: Home,
+		metadata: {
+			title: 'Transcendence',
+			description: 'Welcome to Transcendence - the ultimate gaming experience'
+		}
+	},
+	{
+		path: '/demo',
+		view: Demo,
 		metadata: {
 			title: 'Transcendence',
 			description: 'Welcome to Transcendence - the ultimate gaming experience'
@@ -76,19 +91,27 @@ const routes = [
 		}
 	},
 	{
-		path: '/tictactoe',
-		view: TicTacToe,
-		metadata: {
-			title: 'Transcendence - TicTacToe',
-			description: 'Welcome to TicTacToe'
-		}
-	},
-	{
 		path: '/user-mangement',
 		view: UserMangement,
 		metadata: {
 			title: 'Transcendence - UserMangement',
 			description: 'Welcome to UserMangement'
+		}
+	},
+	{
+		path: '/users/:id',
+		view: Profile,
+		metadata: {
+			title: 'Transcendence - User Detail',
+			description: 'User Detail View'
+		}
+	},
+	{
+		path: '/users/edit/:id',
+		view: ProfileEdit,
+		metadata: {
+			title: 'Transcendence - User Edit',
+			description: 'User Edit View'
 		}
 	},
 	{
@@ -98,7 +121,25 @@ const routes = [
 			title: 'Transcendence - login',
 			description: 'Welcome to Login'
 		}
+	},
+	{
+		path: '/signup',
+		view: Signup,
+		metadata: {
+			title: 'Transcendence - Signup',
+			description: 'Welcome to Signup'
+		}
+	},
+	{
+		path: '/settings',
+		view: Settings,
+		metadata: {
+			title: 'Transcendence - settings',
+			description: 'Welcome to Settings'
+		}
 	}
 ];
 
 const router = new Router(routes);
+
+(window as any).router = router;
