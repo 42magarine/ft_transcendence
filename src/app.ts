@@ -14,6 +14,7 @@ import checkEnvVars from "./utils/checkEnvVars.js";
 // Import route modules
 // import userRoutes from "./routes/user.js";
 import pongWebsocketRoutes from "./routes/websocket.js";
+import { GameLobby } from "./backend/models/GameLobby.js";
 import authRoutes from "./routes/auth.js";
 
 // Setup path variables
@@ -65,6 +66,7 @@ fastify.register(fastifyStatic, {
 // Register API routes under /api/*
 // fastify.register(userRoutes, { prefix: "/api" });
 fastify.register(authRoutes, { prefix: "/api" });
+// fastify.register(gameLobbyRoutes, {prefix "/api"});
 
 // Register WebSocket routes
 fastify.register(pongWebsocketRoutes);
@@ -104,6 +106,52 @@ fastify.setNotFoundHandler(async (request, reply) => {
 
     return reply.type("text/html").send(fs.createReadStream(indexPath));
 });
+
+async function ensureMasterUserExists(): Promise<void> {
+	// Get master user credentials from environment variables
+	const masterEmail = process.env.MASTER_USER_EMAIL;
+	const masterPassword = process.env.MASTER_USER_PASSWORD;
+
+	// Validate environment variables
+	if (!masterEmail || !masterPassword) {
+		console.error('MASTER_USER_EMAIL or MASTER_USER_PASSWORD not set in environment');
+		return;
+	}
+
+	// Get user repository
+	const userRepo = AppDataSource.getRepository(UserModel);
+
+	// Check if master user already exists -> db should never be accesses over initializer but over a service/middleware instead (security)
+	const existingMaster = await userRepo.findOne({
+		where: { email: masterEmail }
+	});
+
+	// If master user already exists, no need to create one
+	if (existingMaster) {
+		console.log('Master user already exists');
+		return;
+	}
+
+	try {
+		// Hash the master password
+		const hashedPassword = await hashPW(masterPassword);
+
+		// Create new master user
+		const masterUser = userRepo.create({
+			email: masterEmail,
+			username: 'MASTER',
+			password: hashedPassword,
+			displayname: 'MASTER',
+			role: 'master'
+		});
+
+		// Save master user to database
+		await userRepo.save(masterUser);
+		console.log('Master user created successfully');
+	} catch (error) {
+		console.error('Failed to create master user:', error);
+	}
+}
 
 // Start the server
 const start = async (): Promise<void> => {

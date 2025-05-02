@@ -26,3 +26,8 @@ export async function verifyPW(password: string, hash: string): Promise<boolean>
 export async function verifyJWT(token: string): Promise<JWTPayload> {
     return jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
 }
+
+
+// export async function verify2FA();
+
+// export async function createQRCode2FA();
