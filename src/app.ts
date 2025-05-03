@@ -15,10 +15,10 @@ import { initDataSource } from "./backend/DataSource.js";
 import checkEnvVars from "./utils/checkEnvVars.js";
 
 // Import route modules
-// import userRoutes from "./routes/user.js";
+import userRoutes from "./routes/user.js";
 import pongWebsocketRoutes from "./routes/websocket.js";
-import { GameLobby } from "./backend/models/GameLobby.js";
-import authRoutes from "./routes/auth.js";
+// import { GameLobby } from "./backend/models/GameLobby.js";
+// import authRoutes from "./routes/auth.js";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
@@ -67,8 +67,8 @@ fastify.register(fastifyCookie, {
 });
 
 // Register API routes under /api/*
-// fastify.register(userRoutes, { prefix: "/api" });
-fastify.register(authRoutes, { prefix: "/api" });
+fastify.register(userRoutes, { prefix: "/api" });
+// fastify.register(authRoutes, { prefix: "/api" });
 // fastify.register(gameLobbyRoutes, {prefix "/api"});
 
 // Register WebSocket routes

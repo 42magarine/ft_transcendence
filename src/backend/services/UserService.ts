@@ -4,82 +4,85 @@ import { JWTPayload, RegisterCredentials, UserCredentials, AuthTokens } from "..
 import { generateJWT, hashPW, verifyPW } from "../middleware/security.js";
 import jwt from "jsonwebtoken";
 
+import QRCode from 'qrcode';
+import speakeasy from 'speakeasy';
+
 export class UserService {
-	//get user table from db
-	private userRepo = AppDataSource.getRepository(UserModel);
+    //get user table from db
+    private userRepo = AppDataSource.getRepository(UserModel);
 
-	/**
-	 * Initialize master user from environment variables during application startup
-	 */
-	async initializeMasterUser() {
-		try {
-			const masterEmail = process.env.MASTER_EMAIL;
-			const masterUsername = process.env.MASTER_USERNAME;
-			const masterPassword = process.env.MASTER_PASSWORD;
+    /**
+     * Initialize master user from environment variables during application startup
+     */
+    async initializeMasterUser() {
+        try {
+            const masterEmail = process.env.MASTER_EMAIL;
+            const masterUsername = process.env.MASTER_USERNAME;
+            const masterPassword = process.env.MASTER_PASSWORD;
 
-			if (!masterEmail || !masterUsername || !masterPassword) {
-				console.error("Master user environment variables not set. Master user not created.");
-				return;
-			}
+            if (!masterEmail || !masterUsername || !masterPassword) {
+                console.error("Master user environment variables not set. Master user not created.");
+                return;
+            }
 
-			// Check if master already exists
-			const existingMaster = await this.userRepo.findOne({
-				where: { role: 'master' }
-			});
+            // Check if master already exists
+            const existingMaster = await this.userRepo.findOne({
+                where: { role: 'master' }
+            });
 
-			if (existingMaster) {
-				console.log("Master user already exists, skipping creation.");
-				return;
-			}
+            if (existingMaster) {
+                console.log("Master user already exists, skipping creation.");
+                return;
+            }
 
-			// Create master user
-			const hashedPassword = await hashPW(masterPassword);
-			const masterUser = this.userRepo.create({
-				email: masterEmail,
-				username: masterUsername,
-				password: hashedPassword,
-				role: 'master'
-			});
+            // Create master user
+            const hashedPassword = await hashPW(masterPassword);
+            const masterUser = this.userRepo.create({
+                email: masterEmail,
+                username: masterUsername,
+                password: hashedPassword,
+                role: 'master'
+            });
 
-			await this.userRepo.save(masterUser);
-			console.log("Master user created successfully.");
-		} catch (error) {
-			console.error("Failed to initialize master user:", error);
-		}
-	}
+            await this.userRepo.save(masterUser);
+            console.log("Master user created successfully.");
+        } catch (error) {
+            console.error("Failed to initialize master user:", error);
+        }
+    }
 
-	//Checks if user exists, throw error if yes, otherwise create user in db
-	async createUser(userData: RegisterCredentials & { password: string }, requestingUserRole?: string) {
-		const existingUser = await this.userRepo.findOne({
-			where: [
-				{ email: userData.email },
-				{ username: userData.username }
-			]
-		});
+    //Checks if user exists, throw error if yes, otherwise create user in db
+    async createUser(userData: RegisterCredentials & { password: string }, requestingUserRole?: string) {
+        const existingUser = await this.userRepo.findOne({
+            where: [
+                { email: userData.email },
+                { username: userData.username }
+            ]
+        });
 
-		if (existingUser) {
-			throw new Error('User already exists');
-		}
+        if (existingUser) {
+            throw new Error('User already exists');
+        }
 
-		// Set default role to 'user' if not provided
-		if (!userData.role) {
-			userData.role = 'user';
-		}
+        // Set default role to 'user' if not provided
+        if (!userData.role) {
+            userData.role = 'user';
+        }
 
-		// Prevent creation of master user through this method
-		if (userData.role === 'master') {
-			throw new Error('Master user can only be created through environment variables');
-		}
+        // Prevent creation of master user through this method
+        if (userData.role === 'master') {
+            throw new Error('Master user can only be created through environment variables');
+        }
 
-		// Check permissions for creating privileged roles
-		if (userData.role === 'admin' &&
-			(!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
-			throw new Error('Unzureichende Berechtigungen zum Erstellen von Admin-Benutzern');
-		}
+        // Check permissions for creating privileged roles
+        if (userData.role === 'admin' &&
+            (!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
+            throw new Error('Unzureichende Berechtigungen zum Erstellen von Admin-Benutzern');
+        }
 
-		const user = this.userRepo.create(userData);
-		return await this.userRepo.save(user);
-	}
+        const user = this.userRepo.create(userData);
+        return await this.userRepo.save(user);
+    }
 
     //find User by email (maybe when trying to reset password to send confirmation mail of reset link or smthin)
     async findEmailAcc(email: string) {
@@ -94,10 +97,10 @@ export class UserService {
         return await this.userRepo.find();
     }
 
-	//find User by Id
-	async findId(id: number) {
-		return await this.userRepo.findOneBy({ id });
-	}
+    //find User by Id
+    async findId(id: number) {
+        return await this.userRepo.findOneBy({ id });
+    }
 
     // updates User with new Info
 
@@ -130,14 +133,14 @@ export class UserService {
         return await this.userRepo.save(user);
     }
 
-	// Removes the user from DB
-	async removeUser(userData: RegisterCredentials) {
-		const existingUser = await this.userRepo.findOne({
-			where: [
-				{ email: userData.email },
-				{ username: userData.username }
-			]
-		});
+    // Removes the user from DB
+    async removeUser(userData: RegisterCredentials) {
+        const existingUser = await this.userRepo.findOne({
+            where: [
+                { email: userData.email },
+                { username: userData.username }
+            ]
+        });
 
         if (!existingUser) {
             throw new Error("User doesnt exist, and therefore cannot be removed.");
@@ -182,40 +185,41 @@ export class UserService {
         }
     }
 
-	// create a primary jwt token to hand back to user for authentications
-	private generateTokens(user: UserModel): AuthTokens {
-		const payload: JWTPayload = {
-			userID: user.id.toString(),
-			email: user.email,
-			role: user.role
-		};
+    // create a primary jwt token to hand back to user for authentications
+    private generateTokens(user: UserModel): AuthTokens {
+        const payload: JWTPayload = {
+            userID: user.id.toString(),
+            email: user.email,
+            role: user.role
+        };
 
-		const accessToken = generateJWT(payload);
+        const accessToken = generateJWT(payload);
 
-		return {
-			accessToken,
-		};
-	}
+        return {
+            accessToken,
+        };
+    }
 
-	// refresh token generator for later
-	private generateRefreshToken(userId: number): string {
-		const secret = process.env.REFRESH_TOKEN_SECRET;
+    // refresh token generator for later
+    private generateRefreshToken(userId: number): string {
+        const secret = process.env.REFRESH_TOKEN_SECRET;
 
-		if (!secret) {
-			throw new Error("REFRESH_TOKEN_SECRET not set");
-		}
-		return jwt.sign(
-			{ userId },
-			secret,
-			{ expiresIn: '7d' }
-		);
-	}
+        if (!secret) {
+            throw new Error("REFRESH_TOKEN_SECRET not set");
+        }
+        return jwt.sign(
+            { userId },
+            secret,
+            { expiresIn: '7d' }
+        );
+    }
 
     // for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
     async register(credentials: RegisterCredentials, requestingUserRole?: string) {
         console.log("register call");
 
-		const hashedPW = await hashPW(credentials.password);
+        const hashedPW = await hashPW(credentials.password);
+        const qrcode = await this.generateQR();
 
         const user = await this.createUser({
             ...credentials,
@@ -226,17 +230,31 @@ export class UserService {
         return this.generateTokens(user);
     }
 
-	async login(credentials: UserCredentials) {
-		const user = await this.findEmailAcc(credentials.email);
-		if (!user || !await verifyPW(credentials.password, user.password)) {
-			throw new Error('Invalid login data');
-		}
+    async login(credentials: UserCredentials) {
+        const user = await this.findEmailAcc(credentials.email);
+        if (!user || !await verifyPW(credentials.password, user.password)) {
+            throw new Error('Invalid login data');
+        }
 
-		return this.generateTokens(user);
-	}
-		return this.generateTokens(user);
-	}
+        return this.generateTokens(user);
+    }
+
+    async generateQR() {
+        console.log("generateQR call");
+
+        const secret = speakeasy.generateSecret();
+        console.log(secret);
+
+        const otpauthUrl = secret.otpauth_url;
+        console.log(otpauthUrl);
+
+        if (otpauthUrl) {
+            return QRCode.toDataURL(otpauthUrl);
+        }
+        // else 
+
+
+    }
 }
-
 
 // export async function register2FA();
