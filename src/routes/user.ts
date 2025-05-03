@@ -21,6 +21,7 @@ export default async function (fastify: FastifyInstance) {
 	fastify.get('/verify-email/:token', userController.verifyEmail.bind(userController));
 	fastify.post('/resend-verification', userController.resendVerificationEmail.bind(userController));
 	fastify.get('/generate-qr', userController.generateQR.bind(userController));
+	fastify.post('/users/verify-two-factor', userController.verifyTwoFactor.bind(userController));
 
 	// Password reset routes
 	fastify.post('/request-password-reset', userController.requestPasswordReset.bind(userController));

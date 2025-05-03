@@ -99,6 +99,8 @@ export default class UserManagement extends AbstractView {
 					<th>Name</th>
 					<th>Username</th>
 					<th>E-Mail</th>
+					<th>Verified</th>
+					<th>2FA</th>
 					<th>Role</th>
 					<th></th>
 				</tr>
@@ -109,6 +111,8 @@ export default class UserManagement extends AbstractView {
 						<td>{{user.displayname}}</td>
 						<td>{{user.username}}</td>
 						<td>{{user.email}}</td>
+						<td>{{user.emailVerified}}</td>
+						<td>{{user.twoFAEnabled}}</td>
 						<td><span class="role-tag role-{{user.role}}">{{user.role}}</span></td>
 						<td class="text-right">
 							<a router class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
