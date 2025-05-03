@@ -1,5 +1,6 @@
-import { CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne } from "typeorm";
+import { CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne, ChildEntity } from "typeorm";
 import { UserModel } from "./UserModel.js";
+import { MatchModel } from "./MatchModel.js";
 
 @Entity()
 export class TournamentModel {
@@ -52,43 +53,9 @@ export class TournamentRoundModel {
     matches!: TournamentMatchModel[];
 }
 
-@Entity()
-export class TournamentMatchModel {
-    @PrimaryGeneratedColumn()
-    umid!: number;
-
+@ChildEntity()
+export class TournamentMatchModel extends MatchModel {
     @ManyToOne(() => TournamentRoundModel, (round) => round.matches)
     @JoinColumn({ name: 'roundId' })
     round!: TournamentModel;
-
-    @ManyToOne(() => UserModel, (user: any) => user.gameAsPlayer1)
-    @JoinColumn({ name: 'player1Id' })
-    player1!: UserModel;
-
-    @ManyToOne(() => UserModel, (user: any) => user.gameAsPlayer2)
-    @JoinColumn({ name: 'player2Id' })
-    player2!: UserModel;
-
-    @Column({ nullable: true })
-    winnerId!: number;
-
-    @ManyToOne(() => UserModel)
-    @JoinColumn({ name: 'winnerId' })
-    winner!: UserModel;
-
-    //per match
-    @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
-
-    @Column({ type: 'datetime', nullable: true })
-    startedAt?: Date;
-
-    @Column({ type: 'datetime', nullable: true })
-    endedAt?: Date;
-
-    @Column({ default: 0 })
-    player1Score?: number;
-
-    @Column({ default: 0 })
-    player2Score?: number;
 }

@@ -26,7 +26,7 @@ export default async function (fastify: FastifyInstance) {
 		method: 'POST',
 		url: '/game/lobbies/create',
 		preHandler: authenticate,
-		handler: pongController.createLobby.bind(pongController)
+		handler: pongController.createLobbyHttp.bind(pongController)
 	});
 
 	fastify.route({
@@ -35,22 +35,7 @@ export default async function (fastify: FastifyInstance) {
 		preHandler: authenticate,
 		handler: (request, reply) => {
 			const typedRequest = request as FastifyRequest<{Params: {id: string}}>
-			return pongController.joinLobby(typedRequest, reply);
+			return pongController.joinLobbyHttp(typedRequest, reply);
 		}
 	})
-
-	// muss ich mir nochmal genauer anschauen
-	// fastify.route({
-	// 	method: 'POST',
-	// 	url: '/game/lobbies/:id/invite',
-	// 	preHandler: authenticate,
-	// 	handler: pongController.inviteToLobby.bind(pongController)
-	// })
-
-	// fastify.route({
-	// 	method: 'POST',
-	// 	url: '/game/lobbies/:id/leave',
-	// 	preHandler: authenticate,
-	// 	handler: pongController.leaveLobby.bind(pongController)
-	// })
 }

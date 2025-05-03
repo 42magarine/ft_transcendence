@@ -2,7 +2,7 @@ import {
     PADDLE_WIDTH,
     PADDLE_HEIGHT,
     PADDLE_MOVE_SPEED,
-} from "../../types/constants.js";
+} from "../../../types/constants.js";
 
 export class Paddle {
     private _x: number;

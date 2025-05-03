@@ -1,7 +1,5 @@
-import { ServerMessage, ClientMessage } from "../../types/ft_types.js";
-import { PongGame } from "../models/Pong.js";
-import { Player } from "../models/Player.js";
-import { IPaddleDirection } from "../../types/interfaces.js";
+import { ServerMessage, ClientMessage, GameActionMessage } from "../../types/interfaces.js";
+import { Player } from "../gamelogic/components/Player.js";
 
 
 export class MessageHandlers {
@@ -10,7 +8,7 @@ export class MessageHandlers {
     constructor(broadcast: (lobbyId: string, data:ServerMessage) => void)
     {this._broadcast = broadcast;};
 
-    public handleGameAction(player: Player, data: ClientMessage) {
+    public handleGameAction(player: Player, data: GameActionMessage) {
         if (!player.lobbyId)
             return;
 

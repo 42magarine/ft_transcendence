@@ -1,4 +1,4 @@
-import { Player } from "../models/Player.js";
+import { Player } from "../gamelogic/Player.js";
 import { MessageHandlers } from "../services/MessageHandlers.js";
 
 export class TournamentController {
@@ -13,4 +13,12 @@ export class TournamentController {
         this._clients = new Map<WebSocket, Player | null>;
         this._handlers = new TournamentMessageHandlers(this.tournamentBroadcast.bind(this));
     }
+
+    public handleConnection = (connection: WebSocket, userId?:number): void => {
+        console.log("new client connection")
+        this._clients.set(connection, null);
+
+    }
+
+
 }

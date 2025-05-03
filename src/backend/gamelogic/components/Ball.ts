@@ -1,4 +1,4 @@
-import { BALL_RADIUS, STEPSIZE } from "../../types/constants.js";
+import { BALL_RADIUS, STEPSIZE } from "../../../types/constants.js";
 
 export class Ball {
     private _x: number;

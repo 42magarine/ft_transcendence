@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { IGameState } from "../../types/interfaces.js";
+import { IGameState } from "../../../types/interfaces.js";
 
 export class Player {
 	private _id: number;
