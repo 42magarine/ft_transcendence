@@ -1,10 +1,8 @@
 mott:
-    - cookie controller bzw. JWT middleware
-    - user login
+	- Es muss noch eine Warnung geben, wenn beim Erstellen des Users die 2FA nicht greift!!!!
 
 jeberle:
     - nur frontend files in distfront alles andere in distback ?!?!?!
-	- Es muss noch eine Warnung geben, wenn beim Erstellen des Users die 2FA nicht greift!!!!
 	- User Editing (2FA an und abschalten)
 	- 2FA und weitere user dinge in Userverwaltung bereitstellen
 	- Uebersetzungen
