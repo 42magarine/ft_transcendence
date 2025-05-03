@@ -7,16 +7,13 @@ import {
 export class Paddle {
     private _x: number;
     private _y: number;
-    private _height: number;
-    private _width: number;
-    private _movespeed: number;
+    private _height: number = PADDLE_HEIGHT;
+    private _width: number = PADDLE_WIDTH;
+    private _movespeed: number = PADDLE_MOVE_SPEED;
 
     constructor(x: number, y: number) {
         this._x = x;
         this._y = y;
-        this._height = PADDLE_HEIGHT;
-        this._width = PADDLE_WIDTH;
-        this._movespeed = PADDLE_MOVE_SPEED;
     }
 
     public moveUp(): void {

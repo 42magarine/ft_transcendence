@@ -8,46 +8,6 @@ export class UserService {
 	//get user table from db
 	private userRepo = AppDataSource.getRepository(UserModel);
 
-	/**
-	 * Initialize master user from environment variables during application startup
-	 */
-	async initializeMasterUser() {
-		try {
-			const masterEmail = process.env.MASTER_EMAIL;
-			const masterUsername = process.env.MASTER_USERNAME;
-			const masterPassword = process.env.MASTER_PASSWORD;
-
-			if (!masterEmail || !masterUsername || !masterPassword) {
-				console.error("Master user environment variables not set. Master user not created.");
-				return;
-			}
-
-			// Check if master already exists
-			const existingMaster = await this.userRepo.findOne({
-				where: { role: 'master' }
-			});
-
-			if (existingMaster) {
-				console.log("Master user already exists, skipping creation.");
-				return;
-			}
-
-			// Create master user
-			const hashedPassword = await hashPW(masterPassword);
-			const masterUser = this.userRepo.create({
-				email: masterEmail,
-				username: masterUsername,
-				password: hashedPassword,
-				role: 'master'
-			});
-
-			await this.userRepo.save(masterUser);
-			console.log("Master user created successfully.");
-		} catch (error) {
-			console.error("Failed to initialize master user:", error);
-		}
-	}
-
 	//Checks if user exists, throw error if yes, otherwise create user in db
 	async createUser(userData: RegisterCredentials & { password: string }, requestingUserRole?: string) {
 		const existingUser = await this.userRepo.findOne({

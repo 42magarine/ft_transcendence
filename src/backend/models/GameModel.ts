@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, Ma
 // Instead of direct import, we'll use a type-only import and function references
 import { UserModel } from "./UserModel.js";
 
-@Entity()
+@Entity("games")
 export class GameModel {
     @PrimaryGeneratedColumn()
     id!: number;
@@ -15,33 +15,33 @@ export class GameModel {
     @JoinColumn({ name: 'player2Id' })
     Player2!: any;
 
-    @Column()
+    @Column({default: 0})
     Player1Score!: number;
 
-    @Column()
+    @Column({default: 0})
     Player2Score!: number;
 
     @Column({ nullable: true })
     WinnerId?: number;
 
-    // @CreateDateColumn({ type: 'datetime' })
-    // CreatedAt!: Date;
+    @CreateDateColumn({ type: 'datetime' })
+    CreatedAt!: Date;
 
-    // @Column({ type: 'datetime', nullable: true })
-    // EndedAt?: Date;
+    @Column({ type: 'datetime', nullable: true })
+    EndedAt?: Date;
 
     // @Column({ default: 'pending' })
     // status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
 
-    // @Column({ default: false })
-    // isLobbyOpen!: boolean;
+    @Column({ default: false })
+    isLobbyOpen!: boolean;
 
     @ManyToMany(() => UserModel)
     @JoinTable()
-    lobbyParticipants!: any[];
+    lobbyParticipants!: UserModel[];
 
-    // @Column({ nullable: true })
-    // gameAdminId?: number;
+    @Column({ nullable: true })
+    gameAdminId?: number;
 }
 
 // Import at the end to avoid the circular dependency issue
