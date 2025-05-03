@@ -1,4 +1,5 @@
-import { PaddleDirection, ClientMessage, ServerMessage } from "../types/ft_types.js";
+import { ClientMessage, ServerMessage } from "../types/ft_types.js";
+import { IPaddleDirection } from "../types/interfaces.js";
 import { IGameState } from "../types/interfaces.js"
 
 // === CLEANUP LOGIC ON TAB CLOSE / NAVIGATION ===
@@ -32,7 +33,7 @@ socket.addEventListener("message", (event: MessageEvent<string>) => {
 
 	if (data.type === "assignPlayer") {
 		playerId = data.id;
-		state = data.state;
+		state = data.state!;
 	}
 
 	if (data.type === "initGame" ||
@@ -40,7 +41,7 @@ socket.addEventListener("message", (event: MessageEvent<string>) => {
 		data.type === "pauseGame" ||
 		data.type === "resumeGame" ||
 		data.type === "resetGame") {
-		state = data.state;
+		state = data.state!;
 		draw();
 	}
 });
@@ -72,7 +73,7 @@ function handleInput() {
 	}
 }
 
-function sendMovePaddle(direction: PaddleDirection) {
+function sendMovePaddle(direction: IPaddleDirection) {
 	const moveMsg: ClientMessage = {
 		type: "movePaddle",
 		direction: direction

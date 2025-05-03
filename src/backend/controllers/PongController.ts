@@ -243,7 +243,7 @@ export class PongController {
         reply.code(200).send({lobbyId: lobbyId, message: "Lobby created"})
     }
 
-    public async joinLobby(request: FastifyRequest <{Params: { id: string}}>, reply: FastifyReply)
+    public async joinLobby(request: FastifyRequest <{Params: { id: string}}>, reply: FastifyReply): Promise<void>
     {
         const  {id} = request.params;
         const userId = request.user?.id;
