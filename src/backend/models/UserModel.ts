@@ -29,9 +29,6 @@ export class UserModel {
 	@Column({ default: false })
 	twoFAEnabled?: boolean;
 
-	@Column({ nullable: true })
-	refreshToken?: string;
-
 	@ManyToMany(() => UserModel)
 	@JoinTable({
 		name: "friends",

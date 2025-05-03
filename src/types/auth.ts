@@ -22,7 +22,6 @@ export interface JWTPayload {
 
 export interface AuthTokens {
 	accessToken: string;
-	refreshToken?: string; // Optional for now since refresh tokens aren't implemented yet
 }
 
 // Available roles as enum for type safety
