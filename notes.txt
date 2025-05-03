@@ -4,7 +4,6 @@ mott:
 
 jeberle:
     - nur frontend files in distfront alles andere in distback ?!?!?!
-    - Password Change Users... Email
 	- avatar files bei user update verwalten. Signup form ersetztung priefen....;
 
 fwahl:
