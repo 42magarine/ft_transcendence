@@ -47,10 +47,25 @@ export default class Header extends AbstractView {
 			});
 		}
 
-		let dropDown = ""
+		let languageDropDown = `<div class="dropdown">
+				<div class="dropdown-head">
+					<img class="flag" src="dist/assets/flags/en_EN.svg" />
+				</div>
+				<div class="dropdown-body">
+					<div class="dropdown-item">
+						<img class="flag" src="dist/assets/flags/de_DE.svg" />
+					</div>
+					<div class="dropdown-item">
+						<img class="flag" src="dist/assets/flags/it_IT.svg" />
+					</div>
+				</div>
+			</div>
+			`
+
+		let userDropDown = ""
 		if (currentUser) {
 			let dropDownAvatar = generateProfileImage(currentUser, 20, 20);
-			dropDown = `<div class="dropdown">
+			userDropDown = `<div class="dropdown">
 				<div class="dropdown-head">
 					<a router href="/users/${currentUser.id}">
 						<div class="dropdown-name">
@@ -81,7 +96,8 @@ export default class Header extends AbstractView {
 				</h1>
 				<div class="header-nav">
 					${buttonGroupHtml}
-					${dropDown}
+					${languageDropDown}
+					${userDropDown}
 				</div>
 			</header>
 		  `);

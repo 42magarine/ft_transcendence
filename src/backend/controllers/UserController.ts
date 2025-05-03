@@ -15,12 +15,13 @@ export class UserController {
 	// Existing methods remain...
 
 	// Modified login method to handle 2FA
+	// Modified login method to handle 2FA
 	async login(request: FastifyRequest<{ Body: UserCredentials }>, reply: FastifyReply) {
 		try {
 			const result = await this.userService.login(request.body);
 
 			// Check if 2FA is required
-			if (result.requireTwoFactor) {
+			if ('requireTwoFactor' in result && result.requireTwoFactor) {
 				// Return information needed for 2FA verification without setting cookies
 				return reply.code(200).send({
 					requireTwoFactor: true,
@@ -29,8 +30,11 @@ export class UserController {
 				});
 			}
 
+			// Use type assertion to tell TypeScript that at this point, result is AuthTokens
+			const authTokens = result as { accessToken: string };
+
 			// Normal login flow (no 2FA)
-			reply.setCookie('accessToken', result.accessToken, {
+			reply.setCookie('accessToken', authTokens.accessToken, {
 				httpOnly: true,
 				secure: process.env.NODE_ENV === 'production',
 				sameSite: 'strict',
@@ -45,7 +49,7 @@ export class UserController {
 		}
 	}
 
-	// New method to handle 2FA verification
+	// Fixed verifyTwoFactor method
 	async verifyTwoFactor(request: FastifyRequest<{
 		Body: {
 			userId: number;
@@ -59,14 +63,11 @@ export class UserController {
 				return reply.code(400).send({ error: 'User ID and verification code are required' });
 			}
 
-			// Combine the code digits if they're sent separately
-			let verificationCode = code;
-			if (typeof code !== 'string') {
-				verificationCode = code.toString();
-			}
+			// Use code directly since we know it's a string due to request type definition
+			// No need for the toString() conversion that was causing errors
 
 			// Verify the 2FA code
-			const result = await this.userService.verifyTwoFactorCode(userId, verificationCode);
+			const result = await this.userService.verifyTwoFactorCode(userId, code);
 
 			// Set the authentication cookie
 			reply.setCookie('accessToken', result.accessToken, {

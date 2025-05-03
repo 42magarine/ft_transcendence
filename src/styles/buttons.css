@@ -28,11 +28,12 @@
 /* === VARIANTS === */
 /* 🔵 Primary (default action) */
 
+
 .btn-primary {
-@apply bg-blue-600 text-white
-		hover:bg-blue-700
-		active:bg-blue-800;
-}
+	@apply bg-blue-900/70 text-white
+		 hover:bg-blue-800/70
+		 active:bg-blue-900/95;
+  }
 
 /* ⚪ Secondary (neutral action) */
 .btn-secondary {
