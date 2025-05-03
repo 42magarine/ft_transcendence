@@ -5,6 +5,7 @@ import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyMultipart from '@fastify/multipart';
 import { join } from 'path';
+import cors from '@fastify/cors';
 import dotenv from 'dotenv';
 import fs from "node:fs";
 import path from "node:path";
@@ -17,8 +18,9 @@ import { initDataSource } from "./backend/DataSource.js";
 import checkEnvVars from "./utils/checkEnvVars.js";
 
 // Import route modules
+import gameRoutes from "./routes/game.js";
 import userRoutes from "./routes/user.js";
-import pongWebsocketRoutes from "./routes/websocket.js";
+import pongWebsocketRoutes from "./routes/game.js";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
@@ -45,8 +47,14 @@ fastify.register(fastifyMultipart, {
 	attachFieldsToBody: false // Wichtig: Lässt Files als Stream
 });
 
+// fastify.register(fastifyCors)
+
 // Register Plugins
-fastify.register(fastifyWebsocket);
+fastify.register(fastifyWebsocket, {
+	options: {
+		maxPayload: 1048576,
+	},
+});
 
 // Serve static HTML views accessible via "/"
 fastify.register(fastifyStatic, {
@@ -88,6 +96,7 @@ fastify.register(fastifyCookie, {
 
 // Register API routes under /api/*
 fastify.register(userRoutes, { prefix: "/api" });
+fastify.register(gameRoutes, { prefix: "/api" });
 
 // Register WebSocket routes
 fastify.register(pongWebsocketRoutes);
