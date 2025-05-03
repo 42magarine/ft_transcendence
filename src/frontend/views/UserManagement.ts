@@ -1,16 +1,26 @@
-import ThemedView from '../theme/themedView.js';
-import { ThemeName } from '../theme/themeHelpers.js';
 import Title from '../components/Title.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
+import { generateProfileImage } from '../../utils/Avartar.js';
+import AbstractView from '../../utils/AbstractView.js';
 
-export default class UserManagement extends ThemedView {
+interface UserList {
+	listAvatar: string;
+	avatar: string;
+	id?: number;
+	username: string;
+	email: string;
+	displayname?: string;
+	password?: string;
+	role?: string;
+}
+
+export default class UserManagement extends AbstractView {
 	constructor() {
-		super('stars', 'Transcendence - User Management');
+		super();
 	}
 
-	async renderView(): Promise<string> {
-		const theme = this.getTheme() as ThemeName;
+	async getHtml(): Promise<string> {
 
 		// Fetch users from API
 		let users = [];
@@ -25,14 +35,19 @@ export default class UserManagement extends ThemedView {
 			console.error('API request error:', error);
 		}
 
+		// Correctly loop through each user and add avatar
+		users.forEach((user: UserList) => {
+			user.listAvatar = generateProfileImage(user, 20, 20);
+		});
+
 		// Title section
-		const title = new Title(this.params, {
+		const title = new Title({
 			title: 'User Management',
 		});
 		const titleSection = await title.getHtml();
 
-		// Button Group (uses this.params automatically)
-		const button = new Button(this.params);
+		// Button Group (uses  automatically)
+		const button = new Button();
 		const readAllButtonGroup = await button.renderGroup({
 			layout: 'stack',
 			align: 'center',
@@ -46,7 +61,7 @@ export default class UserManagement extends ThemedView {
 		});
 
 		// CRUD Form Cards
-		const card = new Card(this.params);
+		const card = new Card();
 
 		const cardConfigs = [
 			// {
@@ -79,6 +94,7 @@ export default class UserManagement extends ThemedView {
 			title: 'Users',
 			extra: `<table class="list">
 				<tr>
+					<th>Avatar</th>
 					<th>ID</th>
 					<th>Name</th>
 					<th>Username</th>
@@ -88,6 +104,7 @@ export default class UserManagement extends ThemedView {
 				</tr>
 				<for each="users" as="user">
 					<tr>
+						<td>{{user.listAvatar}}</td>
 						<td>{{user.id}}</td>
 						<td>{{user.displayname}}</td>
 						<td>{{user.username}}</td>
@@ -109,43 +126,35 @@ export default class UserManagement extends ThemedView {
 			title: 'Create User',
 			formId: 'create-form',
 			inputs: [
-				{ name: 'displayname', placeholder: 'Name' },
-				{ name: 'username', placeholder: 'Username' },
+				{ name: 'displayname', type: "text", placeholder: 'Name' },
+				{ name: 'username', type: "text", placeholder: 'Username' },
 				{ name: 'email', type: 'email', placeholder: 'Email Address' },
+				{
+					name: 'role',
+					type: 'select',
+					placeholder: 'Select Role',
+					options: [
+						{
+							label: "User",
+							value: "user"
+						},
+						{
+							label: "Admin",
+							value: "admin"
+						}
+					]
+				},
 				{ name: 'password', type: 'password', placeholder: 'Password' }
 			],
-			button: { text: 'Create', type: 'submit' }
+			button: { text: 'Create', type: 'submit', className: "btn btn-primary" }
 		});
-
-
-		// const groupedCardHtml = await card.renderGroup({
-		// 	layout: 'grid',
-		// 	className: 'md:grid-cols-2',
-		// 	cards: cardConfigs
-		// });
-
-		// Register Card
-		// const registerCard = await card.renderCard({
-		// 	title: 'Register New Account',
-		// 	formId: 'register-form',
-		// 	inputs: [
-		// 		{ name: 'firstName', placeholder: 'First Name' },
-		// 		{ name: 'lastName', placeholder: 'Last Name' },
-		// 		{ name: 'email', type: 'email', placeholder: 'Email Address' },
-		// 		{ name: 'password', type: 'password', placeholder: 'Password' },
-		// 		{ name: 'confirmPassword', type: 'password', placeholder: 'Confirm Password' }
-		// 	],
-		// 	button: { text: 'Register', type: 'submit' }
-		// });
 
 		// Final output - Pass users data to the render method
 		return this.render(`
 			<div class="container">
 				${titleSection}
-
 				${registerCard}
 				${listCard}
-
 			</div>
 		`);
 	}

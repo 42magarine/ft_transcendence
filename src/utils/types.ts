@@ -8,9 +8,10 @@ export interface RouteMetadata {
 
 export interface Route {
 	path: string | RegExp;
-	view: new (params: URLSearchParams) => any;
+	view: new (params: URLSearchParams) => AbstractView;
 	metadata?: {
 		title?: string;
 		description?: string;
 	};
+	role?: string;
 }

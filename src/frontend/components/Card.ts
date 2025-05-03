@@ -1,11 +1,11 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { themedCard, themedInput, themedBtn, ThemeName } from '../theme/themeHelpers.js';
 
 interface InputField {
 	name: string;
-	type?: string;
+	type: string;
 	placeholder?: string;
 	value?: string;
+	options?: Array<{ value: string, label: string }>; // For select inputs
 }
 
 interface CardButton {
@@ -30,29 +30,25 @@ interface CardProps {
 	button?: CardButton;
 	formId?: string;
 	extra?: string;
+	prefix?: string; // Added prefix property
 	contentBlocks?: ContentBlock[];
-	theme?: string;
-	data?: Record<string, any>; // Added data property to pass context data
+	data?: Record<string, any>;
 }
 
 interface CardGroupProps {
 	cards: CardProps[];
 	layout?: 'stack' | 'grid' | 'flex';
 	className?: string;
-	theme?: string;
-	data?: Record<string, any>; // Added data property for group context
+	data?: Record<string, any>;
 }
 
 export default class Card extends AbstractView {
-	private theme: ThemeName;
-	private contextData: Record<string, any> = {}; // Added to store context data
+	private contextData: Record<string, any> = {};
 
 	constructor(params: URLSearchParams = new URLSearchParams()) {
 		super(params);
-		this.theme = (params.get('theme') || this.props.theme || 'default') as ThemeName;
 	}
 
-	// Method to set context data that will be passed to templates
 	setContextData(data: Record<string, any>): void {
 		this.contextData = { ...this.contextData, ...data };
 	}
@@ -60,35 +56,60 @@ export default class Card extends AbstractView {
 	private renderContentBlock(block: ContentBlock): string {
 		switch (block.type) {
 			case 'input': {
-				const { name, type = 'text', placeholder = '', value = '' } = block.props;
+				const { name, type = 'text', placeholder = '', value = '', options = [] } = block.props;
+
+				// Handle different input types
+				if (type === 'select') {
+					return `<select
+                        name="${name}"
+                        class=" p-2"
+                        required
+                    >
+                        <option value="" disabled selected>${placeholder}</option>
+                        ${options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
+                    </select>`;
+				}
+
+				if (type === 'file') {
+					return `<div class="flex flex-col">
+                        <label for="${name}" class="text-sm font-medium text-white/90 mb-1">${placeholder}</label>
+                        <input
+                            type="${type}"
+                            id="${name}"
+                            name="${name}"
+                            class="file-input file-input-bordered w-full"
+                        />
+                    </div>`;
+				}
+
 				return `<input
-					type="${type}"
-					name="${name}"
-					value="${value}"
-					placeholder="${placeholder}"
-					required
-					class="${themedInput(this.theme)}"
-				/>`;
+                    type="${type}"
+                    name="${name}"
+                    value="${value}"
+                    placeholder="${placeholder}"
+                    required
+                    class=""
+                />`;
 			}
 			case 'label':
 				return `<label for="${block.props.htmlFor}" class="text-sm font-medium text-white/90">${block.props.text}</label>`;
 
 			case 'stat':
 				return `<div class="stat">
-					<div class="stat-title text-white/70">${block.props.label}</div>
-					<div class="stat-value text-white">${block.props.value}</div>
-				</div>`;
+                    <div class="stat-title text-white/70">${block.props.label}</div>
+                    <div class="stat-value text-white">${block.props.value}</div>
+                </div>`;
 
 			case 'toggle':
 				return `<label class="flex items-center gap-2 cursor-pointer">
-					<input type="checkbox" name="${block.props.name}" ${block.props.checked ? 'checked' : ''} class="toggle" />
-					<span class="text-white text-sm">${block.props.label || ''}</span>
-				</label>`;
+                    <input type="checkbox" name="${block.props.name}" ${block.props.checked ? 'checked' : ''} class="toggle" />
+                    <span class="text-white text-sm">${block.props.label || ''}</span>
+                </label>`;
 
 			case 'toolbar':
 				return `<div class="flex gap-2">${block.props.buttons
 					.map(btn =>
-						`<button onclick="${btn.onClick}" class="${themedBtn(this.theme)} btn-sm btn-secondary">${btn.text}</button>`
+						`<button onclick="${btn.onClick}" class="btn-sm btn-secondary">${btn.text}</button>`
 					)
 					.join('')}</div>`;
 
@@ -100,44 +121,54 @@ export default class Card extends AbstractView {
 	async renderCard({
 		title = '',
 		footer = '',
-		className = '',
+		className = 'card',
 		body = '',
 		inputs = [],
 		button,
 		formId,
 		extra = '',
+		prefix = '',
 		contentBlocks = [],
-		theme = this.theme,
-		data = {}, // Accept data parameter
+		data = {},
 	}: CardProps): Promise<string> {
 		const titleHtml = title
 			? `<div class="card-header px-6 pt-6 py-2 text-center">
-					<h3 class="text-xl font-bold text-white mb-2">${title}</h3>
-				</div>`
+                    <h3 class="text-xl font-bold text-white mb-2">${title}</h3>
+                </div>`
 			: '';
 
 		const footerHtml = footer
 			? `<div class="card-footer px-6 pt-4 pb-6">${footer}</div>`
 			: '';
 
-		const inputsHtml = inputs
-			.map(input => this.renderContentBlock({ type: 'input', props: input }))
+		// Map inputs to content blocks
+		const inputBlocks = inputs.map(input => ({
+			type: 'input' as const,
+			props: input
+		}));
+
+		// Render all input blocks
+		const inputsHtml = inputBlocks
+			.map(block => this.renderContentBlock(block))
 			.join('\n');
 
 		const extraContentHtml = contentBlocks.map(block => this.renderContentBlock(block)).join('\n');
 
+		// Include prefix if provided
+		const prefixHtml = prefix ? `<div class="mb-4">${prefix}</div>` : '';
+
 		const formHtml =
 			inputs.length || button || extra
-				? `<form id="${formId || ''}">
-					<div class="flex flex-col gap-4">
-					${inputsHtml}
-					${button
-					? `<button type="${button.type}" class="${button.className || themedBtn(this.theme)}">${button.text}</button>`
-					: ''
-				}
-					${extra}
-					</div>
-				</form>`
+				? `<form id="${formId || ''}" enctype="multipart/form-data">
+                    ${prefixHtml}
+                    <div class="flex flex-col gap-4">
+                    ${inputsHtml}
+                    ${button
+					? `<button type="${button.type}" class="${button.className}">${button.text}</button>`
+					: ''}
+                    ${extra}
+                    </div>
+                </form>`
 				: '';
 
 		const bodyContent = [formHtml || body, extraContentHtml].filter(Boolean).join('\n');
@@ -146,22 +177,21 @@ export default class Card extends AbstractView {
 		const mergedData = { ...this.contextData, ...data };
 
 		return this.render(`
-			<div class="${themedCard(this.theme)} ${className}">
-				${titleHtml}
-				<div class="card-body px-6 py-4">
-					${bodyContent}
-				</div>
-				${footerHtml}
-			</div>
-		`, mergedData); // Pass the merged data to render
+            <div class="${className}">
+                ${titleHtml}
+                <div class="card-body px-6 py-4">
+                    ${bodyContent}
+                </div>
+                ${footerHtml}
+            </div>
+        `, mergedData);
 	}
 
 	async renderGroup({
 		cards,
 		layout = 'grid',
-		className = '',
-		theme = this.theme,
-		data = {}, // Accept data parameter
+		className = 'card',
+		data = {},
 	}: CardGroupProps): Promise<string> {
 		const layoutClassMap: Record<string, string> = {
 			stack: 'card-group flex flex-col gap-6',
@@ -177,19 +207,18 @@ export default class Card extends AbstractView {
 		const renderedCards = await Promise.all(
 			cards.map(config => this.renderCard({
 				...config,
-				theme,
-				data: mergedData, // Pass merged data to each card
+				data: mergedData,
 			}))
 		);
 
 		return this.render(`
-			<div class="${wrapperClass}">
-				${renderedCards.join('\n')}
-			</div>
-		`, mergedData); // Pass merged data to render
+            <div class="${wrapperClass}">
+                ${renderedCards.join('\n')}
+            </div>
+        `, mergedData);
 	}
 
 	async getHtml(): Promise<string> {
-		return this.render(`<div class="${themedCard(this.theme)}">No content</div>`, this.contextData);
+		return this.render(`<div class="">No content</div>`, this.contextData);
 	}
 }

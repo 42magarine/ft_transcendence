@@ -1,5 +1,4 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { themedBtn } from '../theme/themeHelpers.js';
 
 export interface ButtonProps {
 	id: string;
@@ -31,8 +30,7 @@ export default class Button extends AbstractView {
 		onClick = '',
 		href,
 	}: ButtonProps): Promise<string> {
-		const theme = this.props?.theme || 'default';
-		const finalClass = className || themedBtn(theme);
+		const finalClass = className
 		const clickAttr = onClick ? `onclick="${onClick}"` : '';
 
 		if (href) {
@@ -85,9 +83,6 @@ export default class Button extends AbstractView {
 	}
 
 	async getHtml(): Promise<string> {
-		const theme = this.props?.theme || 'default';
-		const btnClass = themedBtn(theme);
-
-		return this.render(`<button class="${btnClass}">Default Button</button>`);
+		return this.render(`<button class="btn">Default Button</button>`);
 	}
 }

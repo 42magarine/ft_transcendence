@@ -1,5 +1,4 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { themedFooter } from '../theme/themeHelpers.js';
 
 export default class Footer extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
@@ -7,11 +6,8 @@ export default class Footer extends AbstractView {
 	}
 
 	async getHtml(): Promise<string> {
-		const theme = this.props?.theme || 'default';
-		const themeClass = themedFooter(theme);
-
 		return super.render(`
-			<footer class="w-full py-1 px-5 ${themeClass}">
+			<footer class="w-full py-1 px-5">
 				<div class="flex flex-col md:flex-row justify-between items-center text-sm w-full">
 					<p>&copy; {{props.year || '2025'}} Transcendence Project</p>
 					<if condition="props.links">

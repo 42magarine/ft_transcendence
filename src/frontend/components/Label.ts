@@ -3,7 +3,6 @@
 // ========================
 
 import AbstractView from '../../utils/AbstractView.js';
-import { themedLabel } from '../theme/themeHelpers.js';
 
 interface LabelProps {
 	htmlFor: string;
@@ -17,8 +16,7 @@ export default class Label extends AbstractView {
 	}
 
 	async renderLabel({ htmlFor, text, className = '' }: LabelProps): Promise<string> {
-		const theme = this.props?.theme || 'default';
-		const labelClass = className || themedLabel(theme);
+		const labelClass = className
 
 		return this.render(`
 			<label for="${htmlFor}" class="${labelClass}">
@@ -28,11 +26,8 @@ export default class Label extends AbstractView {
 	}
 
 	async getHtml(): Promise<string> {
-		const theme = this.props?.theme || 'default';
-		const labelClass = themedLabel(theme);
-
 		return this.render(`
-			<label for="default" class="${labelClass}">
+			<label for="default">
 				Default Label
 			</label>
 		`);

@@ -2,6 +2,9 @@
 .card {
 	@apply w-full max-w-full rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white;
 	@apply mt-2 mb-2;
+    @apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80
+           text-white backdrop-blur-md border border-white/10
+           shadow-xl rounded-xl p-6;
   }
 
   .card-image {
@@ -32,6 +35,10 @@
 	@apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
   }
 
+  .card select {
+	@apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
+  }
+
   /* === GROUP STYLES === */
   .card-group {
 	@apply w-full;
@@ -47,23 +54,4 @@
 
   .card-group.flex {
 	@apply gap-6 flex-wrap justify-center;
-  }
-
-  /* === THEME VARIANTS === */
-
-  /* 🌌 Stars Theme (Night Sky) */
-  .card-stars {
-	@apply bg-gray-950/50 backdrop-blur-xl border border-white/10 text-white shadow-xl;
-  }
-
-  /* 🔥 Mechazilla Theme (Rocket Fire) */
-  .card-mechazilla {
-	@apply bg-black/40 backdrop-blur-md border border-orange-400/30 text-orange-200 shadow-lg;
-  }
-
-  /* 🚀 Starship Theme (Sunrise Steel) */
-  .card-starship {
-    @apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80
-           text-white backdrop-blur-md border border-white/10
-           shadow-xl rounded-xl p-6;
   }
