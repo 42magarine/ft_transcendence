@@ -3,34 +3,32 @@
 // ========================
 
 import AbstractView from '../../utils/AbstractView.js';
-import { themedInput } from '../theme/themeHelpers.js';
 
 interface InputProps {
-  id?: string;
-  name: string;
-  type?: string;
-  placeholder?: string;
-  value?: string;
-  className?: string; // optional override
+	id?: string;
+	name: string;
+	type?: string;
+	placeholder?: string;
+	value?: string;
+	className?: string; // optional override
 }
 
 export default class Input extends AbstractView {
-  constructor(params: URLSearchParams = new URLSearchParams()) {
-    super(params);
-  }
+	constructor(params: URLSearchParams = new URLSearchParams()) {
+		super(params);
+	}
 
-  async renderInput({
-    id = '',
-    name,
-    type = 'text',
-    placeholder = '',
-    value = '',
-    className = ''
-  }: InputProps): Promise<string> {
-    const theme = this.props?.theme || 'default';
-    const finalClass = className || themedInput(theme);
+	async renderInput({
+		id = '',
+		name,
+		type = 'text',
+		placeholder = '',
+		value = '',
+		className = ''
+	}: InputProps): Promise<string> {
+		const finalClass = className
 
-    return this.render(`
+		return this.render(`
       <input
         type="${type}"
         id="${id}"
@@ -41,12 +39,10 @@ export default class Input extends AbstractView {
         required
       />
     `);
-  }
+	}
 
-  async getHtml(): Promise<string> {
-    const theme = this.props?.theme || 'default';
-    const finalClass = themedInput(theme);
+	async getHtml(): Promise<string> {
 
-    return this.render(`<input class="${finalClass}" placeholder="Default Input" />`);
-  }
+		return this.render(`<input placeholder="Default Input" />`);
+	}
 }

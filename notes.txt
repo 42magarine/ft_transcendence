@@ -4,11 +4,7 @@ mott:
 
 jeberle:
     - nur frontend files in distfront alles andere in distback ?!?!?!
-    - Password Change Users... Email
-	- Role set bei internal create;
-	- internal create avatar
-	- avatar files;
-	- User dropdown
+	- avatar files bei user update verwalten. Signup form ersetztung priefen....;
 
 fwahl:
     - Socket Controller so ausabeun das wir dort nur noch event, callback function mapping machen, functions gehen in services (backend)

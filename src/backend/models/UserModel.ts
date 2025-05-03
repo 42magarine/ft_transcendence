@@ -2,64 +2,74 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGen
 
 @Entity()
 export class UserModel {
-    @PrimaryGeneratedColumn()
-    id!: number;
+	@PrimaryGeneratedColumn()
+	id!: number;
 
-    @Column({ unique: true })
-    email!: string;
+	@Column({ unique: true })
+	email!: string;
 
-    @Column()
-    username!: string;
+	@Column()
+	username!: string;
 
-    @Column()
-    password!: string;
+	@Column()
+	password!: string;
 
-    @Column()
-    displayname!: string;
+	@Column()
+	displayname!: string;
 
-    @Column({ default: 'user' })
-    role!: string;
+	@Column({ default: 'user' })
+	role!: string;
 
-    @Column({ nullable: true })
-    twoFASecret?: string;
+	@Column({ nullable: true })
+	avatar?: string;
 
-    @Column({ default: false })
-    twoFAEnabled?: boolean;
+	@Column({ nullable: true })
+	twoFASecret?: string;
 
-    @Column({ nullable: true })
-    refreshToken?: string;
+	@Column({ default: false })
+	twoFAEnabled?: boolean;
 
-    @ManyToMany(() => UserModel)
-    @JoinTable({
-        name: "friends",
-        joinColumn: {name: "userId", referencedColumnName: "id"},
-        inverseJoinColumn: {name: "friendId", referencedColumnName: "id"}
-    })
-    friends!: UserModel[];
+	@ManyToMany(() => UserModel)
+	@JoinTable({
+		name: "friends",
+		joinColumn: { name: "userId", referencedColumnName: "id" },
+		inverseJoinColumn: { name: "friendId", referencedColumnName: "id" }
+	})
+	friends!: UserModel[];
 
-    @OneToMany(() => GameModel, (game: any) => game.Player1)
-    gameAsPlayer1!: any[];
+	@Column({ default: false })
+	emailVerified!: boolean;
 
-    @OneToMany(() => GameModel, (game: any) => game.Player2)
-    gameAsPlayer2!: any[];
+	@Column({ nullable: true })
+	resetPasswordToken?: string;
+
+	@Column({ nullable: true })
+	resetPasswordExpires?: Date;
+
+	@Column({ nullable: true })
+	verificationToken?: string;
+
+	@OneToMany(() => GameModel, (game: any) => game.Player1)
+	gameAsPlayer1!: any[];
+
+	@OneToMany(() => GameModel, (game: any) => game.Player2)
+	gameAsPlayer2!: any[];
 }
-
 
 // needs some work with relations to game model
 @Entity()
 export class MatchHistory {
-    @PrimaryGeneratedColumn()
-    id!:number;
+	@PrimaryGeneratedColumn()
+	id!: number;
 
-    @ManyToOne(() => GameModel, (game: any) => game.Player1)
-    playedGames?: GameModel[]
+	@ManyToOne(() => GameModel, (game: any) => game.Player1)
+	playedGames?: GameModel[]
 
-    @Column()
-    wonGames!: number;
+	@Column()
+	wonGames!: number;
 
-    @Column()
-    lostGames!: number;
+	@Column()
+	lostGames!: number;
 }
-
 
 import { GameModel } from "./GameModel.js";

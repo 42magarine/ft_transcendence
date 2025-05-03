@@ -4,41 +4,29 @@
 @import './buttons.css';
 @import './card.css';
 @import './glass.css';
+@import './header.css';
+@import './footer.css';
 @import './text.css';
 @import './theme.css';
 @import './signup.css';
 @import './table.css';
 @import './input_fields.css';
+@import './profile.css';
 
 * {
 	user-select: none;
 }
 
-header {
-	transition: 0.5s;
-    position: fixed;
-	width: 100%;
-	background-color: #444;
-}
+
 
 main {
 	min-height: 100vh;
     padding-top: 5em;
-	background-color: black;
 }
 
 main .container{
 	margin: auto;
 	width: 1200px;
-}
-
-footer {
-	transition: 0.5s;
-    position: fixed;
-	bottom: 0;
-	width: 100%;
-	background-color: #444;
-	color: white;
 }
 
 @layer components {

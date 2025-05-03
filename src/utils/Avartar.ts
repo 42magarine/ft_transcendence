@@ -488,6 +488,25 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 	return svg;
 }
 
+
+function generateProfileImage(userData: any, width: number, height: number): string {
+	if (userData.avatar) {
+		return `<img src="${userData.avatar}" alt="Avatar of ${userData.d}" />`;
+	}
+	let seed = "";
+	if (userData.displayname) {
+		seed = `${userData.displayname}`;
+	}
+	return generateTextVisualization(seed, {
+		width: width,
+		height: height,
+		useShapes: true,
+		maxShapes: 50,
+		showText: false,
+		backgroundColor: '#f0f0f0'
+	});
+}
+
 export {
 	generateTextVisualization,
 	generateColorPalette,
@@ -499,5 +518,6 @@ export {
 	generateSpiral,
 	generatePattern,
 	generateMandala,
-	getColorFromString
+	getColorFromString,
+	generateProfileImage
 };

@@ -1,5 +1,4 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { themedCard, themedInput, themedBtn, ThemeName } from '../theme/themeHelpers.js';
 
 interface InputField {
 	name: string;
@@ -33,7 +32,6 @@ interface CardProps {
 	extra?: string;
 	prefix?: string; // Added prefix property
 	contentBlocks?: ContentBlock[];
-	theme?: string;
 	data?: Record<string, any>;
 }
 
@@ -41,17 +39,14 @@ interface CardGroupProps {
 	cards: CardProps[];
 	layout?: 'stack' | 'grid' | 'flex';
 	className?: string;
-	theme?: string;
 	data?: Record<string, any>;
 }
 
 export default class Card extends AbstractView {
-	private theme: ThemeName;
 	private contextData: Record<string, any> = {};
 
 	constructor(params: URLSearchParams = new URLSearchParams()) {
 		super(params);
-		this.theme = (params.get('theme') || this.props.theme || 'default') as ThemeName;
 	}
 
 	setContextData(data: Record<string, any>): void {
@@ -67,7 +62,7 @@ export default class Card extends AbstractView {
 				if (type === 'select') {
 					return `<select
                         name="${name}"
-                        class="${themedInput(this.theme)} p-2"
+                        class=" p-2"
                         required
                     >
                         <option value="" disabled selected>${placeholder}</option>
@@ -82,7 +77,7 @@ export default class Card extends AbstractView {
                             type="${type}"
                             id="${name}"
                             name="${name}"
-                            class="file-input file-input-bordered w-full ${themedInput(this.theme)}"
+                            class="file-input file-input-bordered w-full"
                         />
                     </div>`;
 				}
@@ -93,7 +88,7 @@ export default class Card extends AbstractView {
                     value="${value}"
                     placeholder="${placeholder}"
                     required
-                    class="${themedInput(this.theme)}"
+                    class=""
                 />`;
 			}
 			case 'label':
@@ -114,7 +109,7 @@ export default class Card extends AbstractView {
 			case 'toolbar':
 				return `<div class="flex gap-2">${block.props.buttons
 					.map(btn =>
-						`<button onclick="${btn.onClick}" class="${themedBtn(this.theme)} btn-sm btn-secondary">${btn.text}</button>`
+						`<button onclick="${btn.onClick}" class="btn-sm btn-secondary">${btn.text}</button>`
 					)
 					.join('')}</div>`;
 
@@ -126,7 +121,7 @@ export default class Card extends AbstractView {
 	async renderCard({
 		title = '',
 		footer = '',
-		className = '',
+		className = 'card',
 		body = '',
 		inputs = [],
 		button,
@@ -134,7 +129,6 @@ export default class Card extends AbstractView {
 		extra = '',
 		prefix = '',
 		contentBlocks = [],
-		theme = this.theme,
 		data = {},
 	}: CardProps): Promise<string> {
 		const titleHtml = title
@@ -170,7 +164,7 @@ export default class Card extends AbstractView {
                     <div class="flex flex-col gap-4">
                     ${inputsHtml}
                     ${button
-					? `<button type="${button.type}" class="${button.className || themedBtn(this.theme)}">${button.text}</button>`
+					? `<button type="${button.type}" class="${button.className}">${button.text}</button>`
 					: ''}
                     ${extra}
                     </div>
@@ -183,7 +177,7 @@ export default class Card extends AbstractView {
 		const mergedData = { ...this.contextData, ...data };
 
 		return this.render(`
-            <div class="${themedCard(this.theme)} ${className}">
+            <div class="${className}">
                 ${titleHtml}
                 <div class="card-body px-6 py-4">
                     ${bodyContent}
@@ -196,8 +190,7 @@ export default class Card extends AbstractView {
 	async renderGroup({
 		cards,
 		layout = 'grid',
-		className = '',
-		theme = this.theme,
+		className = 'card',
 		data = {},
 	}: CardGroupProps): Promise<string> {
 		const layoutClassMap: Record<string, string> = {
@@ -214,7 +207,6 @@ export default class Card extends AbstractView {
 		const renderedCards = await Promise.all(
 			cards.map(config => this.renderCard({
 				...config,
-				theme,
 				data: mergedData,
 			}))
 		);
@@ -227,6 +219,6 @@ export default class Card extends AbstractView {
 	}
 
 	async getHtml(): Promise<string> {
-		return this.render(`<div class="${themedCard(this.theme)}">No content</div>`, this.contextData);
+		return this.render(`<div class="">No content</div>`, this.contextData);
 	}
 }

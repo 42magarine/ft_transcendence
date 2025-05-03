@@ -2,21 +2,20 @@
 // File: views/Pong.ts
 // ========================
 
-import ThemedView from '../theme/themedView.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
-import { ThemeName } from '../theme/themeHelpers.js';
+import AbstractView from '../../utils/AbstractView.js';
 
-export default class Pong extends ThemedView {
-	constructor() {
-		super('mechazilla', 'Transcendence - Pong');
+export default class Pong extends AbstractView {
+
+	constructor(params: URLSearchParams) {
+		super();
+		this.params = params;
 	}
 
-	async renderView(): Promise<string> {
-		const theme = this.getTheme() as ThemeName;
-		const params = new URLSearchParams({ theme });
+	async getHtml(): Promise<string> {
 
-		const buttonGroup = await new Button(params).renderGroup({
+		const buttonGroup = await new Button().renderGroup({
 			layout: 'group',
 			align: 'center',
 			buttons: [
@@ -27,7 +26,7 @@ export default class Pong extends ThemedView {
 			]
 		});
 
-		const card = new Card(params);
+		const card = new Card(this.params);
 		const gameCard = await card.renderCard({
 			title: 'Pong Arena',
 			body: `

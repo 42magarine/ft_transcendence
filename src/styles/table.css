@@ -1,6 +1,6 @@
 /* Your existing styles */
-td svg {
-    @apply text-white h-10 w-10 mx-auto bg-white rounded-full;
+td svg, td img{
+    @apply text-white h-10 w-10 mx-auto bg-white rounded-full object-cover object-center;
 }
 
 th {

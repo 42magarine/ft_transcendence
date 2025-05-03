@@ -3,6 +3,8 @@ import Fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
+import fastifyMultipart from '@fastify/multipart';
+import { join } from 'path';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
 import fs from "node:fs";
@@ -25,12 +27,25 @@ const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app
 const __dirname: string = path.dirname(__filename);             // /app/dist
 const __rootdir: string = path.resolve(__dirname, "..");        // /app
 
+// Neuer permanenter Uploads-Ordner außerhalb von dist
+const UPLOADS_DIR = path.join(__rootdir, "uploads");
+const AVATARS_DIR = path.join(UPLOADS_DIR, "avatars");
+
 dotenv.config();
 checkEnvVars();
 
 // Create Fastify instance
-// const fastify = Fastify({ logger: true });
-const fastify = Fastify();
+const fastify = Fastify({
+	logger: true // Aktiviere Logger für bessere Fehlermeldungen
+});
+
+// Wichtig: Multipart muss VOR allen Routen registriert werden!
+fastify.register(fastifyMultipart, {
+	limits: {
+		fileSize: 5 * 1024 * 1024, // Auf 5MB begrenzt für Avatarbilder
+	},
+	attachFieldsToBody: false // Wichtig: Lässt Files als Stream
+});
 
 // fastify.register(fastifyCors)
 
@@ -62,6 +77,13 @@ fastify.register(fastifyStatic, {
 	decorateReply: false
 });
 
+// Serve uploaded avatars from the permanent uploads directory
+fastify.register(fastifyStatic, {
+	root: AVATARS_DIR,
+	prefix: "/uploads/avatars",
+	decorateReply: false
+});
+
 fastify.register(fastifyCookie, {
 	secret: process.env.COOKIE_SECRET,
 	hook: 'onRequest',
@@ -74,7 +96,7 @@ fastify.register(fastifyCookie, {
 
 // Register API routes under /api/*
 fastify.register(userRoutes, { prefix: "/api" });
-fastify.register(gameRoutes, {prefix: "/api" });
+fastify.register(gameRoutes, { prefix: "/api" });
 
 // Register WebSocket routes
 fastify.register(pongWebsocketRoutes);
@@ -134,9 +156,17 @@ async function ensureMasterUserExists(): Promise<void> {
 		where: { email: masterEmail }
 	});
 
-	// If master user already exists, no need to create one
+	// If master user already exists, make sure it's verified
 	if (existingMaster) {
 		console.log('Master user already exists');
+
+		// Ensure master user is verified if that field exists and isn't already true
+		if (existingMaster.hasOwnProperty('emailVerified') && !existingMaster.emailVerified) {
+			existingMaster.emailVerified = true;
+			await userRepo.save(existingMaster);
+			console.log('Master user email verification status updated to verified');
+		}
+
 		return;
 	}
 
@@ -144,18 +174,19 @@ async function ensureMasterUserExists(): Promise<void> {
 		// Hash the master password
 		const hashedPassword = await hashPW(masterPassword);
 
-		// Create new master user
+		// Create new master user with email verified status
 		const masterUser = userRepo.create({
 			email: masterEmail,
 			username: 'MASTER',
 			password: hashedPassword,
 			displayname: 'MASTER',
-			role: 'master'
+			role: 'master',
+			emailVerified: true // Set the master user as verified by default
 		});
 
 		// Save master user to database
 		await userRepo.save(masterUser);
-		console.log('Master user created successfully');
+		console.log('Master user created successfully with verified email');
 	} catch (error) {
 		console.error('Failed to create master user:', error);
 	}
@@ -168,6 +199,17 @@ const start = async (): Promise<void> => {
 
 		// Ensure master user exists after database is initialized
 		await ensureMasterUserExists();
+
+		// Stelle sicher, dass der permanente Upload-Ordner existiert
+		if (!fs.existsSync(UPLOADS_DIR)) {
+			fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+			console.log(`Created uploads directory: ${UPLOADS_DIR}`);
+		}
+
+		if (!fs.existsSync(AVATARS_DIR)) {
+			fs.mkdirSync(AVATARS_DIR, { recursive: true });
+			console.log(`Created avatars directory: ${AVATARS_DIR}`);
+		}
 
 		await fastify.listen({ port: 3000, host: "0.0.0.0" });
 		console.log('Server running on http://0.0.0.0:3000');

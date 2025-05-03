@@ -1,12 +1,12 @@
-import ThemedView from '../theme/themedView.js';
 import { UserManagementService } from '../services/user_management.js';
+import AbstractView from '../../utils/AbstractView.js';
 
-export default class Home extends ThemedView {
+export default class Home extends AbstractView {
 	constructor() {
-		super('stars', 'Transcendence - Home');
+		super();
 	}
 
-	async renderView(): Promise<string> {
+	async getHtml(): Promise<string> {
 		const currentUser = await UserManagementService.getCurrentUser();
 		const welcome = currentUser ? "Hello " + currentUser.id + currentUser.displayname + ", this is Transcendence!" : "Welcome to Trancendence!";
 		return this.render(`

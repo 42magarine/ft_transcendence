@@ -2,31 +2,32 @@
 // File: views/Signup.ts
 // ========================
 
-import ThemedView from '../theme/themedView.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
+import AbstractView from '../../utils/AbstractView.js';
 
-export default class Signup extends ThemedView {
+export default class Signup extends AbstractView {
 	constructor() {
-		super('starship', 'Transcendence - Signup');
+		super();
 	}
 
-	async renderView(): Promise<string> {
-		const button = new Button(this.params);
+	async getHtml(): Promise<string> {
+		const button = new Button();
 
-		const card = new Card(this.params);
+		const card = new Card();
 		const signupCard = await card.renderCard({
 			title: 'Signup',
 			prefix: '<div class="signup-avatar"></div>',
 			formId: 'signup-form',
 			inputs: [
+				{ name: 'avatar', type: 'file', placeholder: 'Avatar' },
 				{ name: 'displayname', type: 'text', placeholder: 'Name' },
 				{ name: 'username', type: 'text', placeholder: 'Username' },
 				{ name: 'email', type: 'email', placeholder: 'E-Mail' },
 				{ name: 'password', type: 'password', placeholder: 'Password' },
 				{ name: 'repeat-password', type: 'password', placeholder: 'Repeat Password' }
 			],
-			button: { text: 'Sign up', type: 'submit' },
+			button: { text: 'Sign up', type: 'submit', className: "btn btn-primary" },
 			extra: '<p>May want to <a router href="/login">log in</a></p>'
 		});
 

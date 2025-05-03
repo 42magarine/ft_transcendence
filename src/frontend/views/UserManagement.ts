@@ -1,11 +1,11 @@
-import ThemedView from '../theme/themedView.js';
-import { ThemeName } from '../theme/themeHelpers.js';
 import Title from '../components/Title.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
-import { generateTextVisualization } from '../../utils/Avartar.js';
+import { generateProfileImage } from '../../utils/Avartar.js';
+import AbstractView from '../../utils/AbstractView.js';
 
 interface UserList {
+	listAvatar: string;
 	avatar: string;
 	id?: number;
 	username: string;
@@ -15,28 +15,12 @@ interface UserList {
 	role?: string;
 }
 
-export default class UserManagement extends ThemedView {
+export default class UserManagement extends AbstractView {
 	constructor() {
-		super('stars', 'Transcendence - User Management');
+		super();
 	}
 
-	private generateProfileImage(userData: any): string {
-		// Create a seed from user data - concatenate displayname, username and email
-		const seed = `${userData.displayname}`;
-
-		// Generate the visualization with appropriate options
-		return generateTextVisualization(seed, {
-			width: 20,
-			height: 20,
-			useShapes: true,
-			maxShapes: 50,
-			showText: false, // Don't show the text in the image
-			backgroundColor: '#f0f0f0'
-		});
-	}
-
-	async renderView(): Promise<string> {
-		const theme = this.getTheme() as ThemeName;
+	async getHtml(): Promise<string> {
 
 		// Fetch users from API
 		let users = [];
@@ -53,17 +37,17 @@ export default class UserManagement extends ThemedView {
 
 		// Correctly loop through each user and add avatar
 		users.forEach((user: UserList) => {
-			user.avatar = this.generateProfileImage(user);
+			user.listAvatar = generateProfileImage(user, 20, 20);
 		});
 
 		// Title section
-		const title = new Title(this.params, {
+		const title = new Title({
 			title: 'User Management',
 		});
 		const titleSection = await title.getHtml();
 
-		// Button Group (uses this.params automatically)
-		const button = new Button(this.params);
+		// Button Group (uses  automatically)
+		const button = new Button();
 		const readAllButtonGroup = await button.renderGroup({
 			layout: 'stack',
 			align: 'center',
@@ -77,7 +61,7 @@ export default class UserManagement extends ThemedView {
 		});
 
 		// CRUD Form Cards
-		const card = new Card(this.params);
+		const card = new Card();
 
 		const cardConfigs = [
 			// {
@@ -120,7 +104,7 @@ export default class UserManagement extends ThemedView {
 				</tr>
 				<for each="users" as="user">
 					<tr>
-						<td>{{user.avatar}}</td>
+						<td>{{user.listAvatar}}</td>
 						<td>{{user.id}}</td>
 						<td>{{user.displayname}}</td>
 						<td>{{user.username}}</td>
@@ -162,17 +146,15 @@ export default class UserManagement extends ThemedView {
 				},
 				{ name: 'password', type: 'password', placeholder: 'Password' }
 			],
-			button: { text: 'Create', type: 'submit' }
+			button: { text: 'Create', type: 'submit', className: "btn btn-primary" }
 		});
 
 		// Final output - Pass users data to the render method
 		return this.render(`
 			<div class="container">
 				${titleSection}
-
 				${registerCard}
 				${listCard}
-
 			</div>
 		`);
 	}

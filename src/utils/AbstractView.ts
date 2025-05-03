@@ -11,10 +11,6 @@ export default abstract class AbstractView {
 		this.params = params;
 		this.props = Object.fromEntries(params.entries());
 
-		if (!this.props.theme) {
-			this.props.theme = 'default';
-		}
-
 		this.title = 'Transcendence';
 		this.description = '';
 		this.templateEngine = new TemplateEngine();
@@ -52,10 +48,6 @@ export default abstract class AbstractView {
 	renderWithProps(props: Record<string, any> = {}): Promise<string> {
 		this.props = props;
 		return this.getHtml();
-	}
-
-	getTheme(): string {
-		return 'default';
 	}
 
 	abstract getHtml(): Promise<string>;
