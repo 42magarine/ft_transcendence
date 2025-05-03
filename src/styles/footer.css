@@ -1,0 +1,6 @@
+
+footer {
+	@apply fixed w-full bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80 text-white backdrop-blur-md border-white/10 shadow-xl;
+	bottom: 0;
+}
+

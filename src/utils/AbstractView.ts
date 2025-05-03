@@ -9,13 +9,16 @@ export default abstract class AbstractView {
 
 	constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
 		this.params = params;
+		this.props = Object.fromEntries(params.entries());
+
 		this.title = 'Transcendence';
 		this.description = '';
 		this.templateEngine = new TemplateEngine();
-		this.props = {};
+
 		this.setTitle(this.title);
 		this.setDescription(this.description);
 	}
+
 
 	setTitle(title: string): void {
 		document.title = title;

@@ -1,28 +1,32 @@
+// types/auth.ts
+
 export interface UserCredentials {
-    email: string;
-    password: string;
+	username: string;
+	password: string;
 }
 
-export interface RegisterCredentials extends UserCredentials {
-    username: string;
-    displayName: string;
-}
-
-export interface TwoFactorInfo {
-    secret: string;
-    otpauthUrl: string;
-    qrCodeUrl: string;
+export interface RegisterCredentials {
+	username: string;
+	email: string;
+	password: string;
+	displayname?: string;
+	role?: string; // Role property (optional during registration)
+	avatar?: string; // Avatar path (optional during registration)
 }
 
 export interface JWTPayload {
-    userID: string;
-    email: string;
-    role: string;
-    userId?: number;
-    type?: string;
+	userID: string;
+	email: string;
+	role: string; // Role is required in the JWT payload
 }
 
 export interface AuthTokens {
-    accessToken: string;
-    // refreshToken: string;
+	accessToken: string;
+}
+
+// Available roles as enum for type safety
+export enum UserRole {
+	USER = 'user',
+	ADMIN = 'admin',
+	MASTER = 'master'
 }

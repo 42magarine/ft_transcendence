@@ -3,44 +3,26 @@ import { UserController } from "../backend/controllers/UserController.js";
 import { UserService } from "../backend/services/UserService.js";
 
 export default async function (fastify: FastifyInstance) {
-    const userService = new UserService();
-    const userController = new UserController(userService);
+	const userService = new UserService();
+	const userController = new UserController(userService);
 
-    fastify.post('/register', userController.register.bind(userController));
-    fastify.post('/login', userController.login.bind(userController));
-    // fastify.post('/logout', userController.logout.bind(userController));
+	// Authentication routes
+	fastify.get('/auth/me', userController.getCurrentUser.bind(userController));
+	fastify.post('/auth/logout', userController.logout.bind(userController));
+
+	// User management routes
+	fastify.get('/users/', userController.getAll.bind(userController));
+	fastify.get('/users/:id', userController.getById.bind(userController));
+	fastify.get('/users/delete/:id', userController.deleteById.bind(userController));
+	fastify.post('/users/register', userController.register.bind(userController));
+	fastify.post('/users/login', userController.login.bind(userController));
+
+	// Email verification routes
+	fastify.get('/verify-email/:token', userController.verifyEmail.bind(userController));
+	fastify.post('/resend-verification', userController.resendVerificationEmail.bind(userController));
+
+	// Password reset routes
+	fastify.post('/request-password-reset', userController.requestPasswordReset.bind(userController));
+	fastify.get('/reset-password/:token', userController.checkResetToken.bind(userController));
+	fastify.post('/reset-password/:token', userController.resetPassword.bind(userController));
 }
-
-// export default async function (fastify: FastifyInstance) {
-//     const userController = UserController.getInstance();
-
-//     // POST to create a user
-//     // curl -X POST http://localhost:3000/api/users -H "Content-Type: application/json" -d '{ "name": "Bob", "username": "bob42" }'
-//     fastify.post("/users", (request, reply) => {
-//         userController.createUser(request, reply)
-//     });
-
-//     // GET all users
-//     // curl -X GET http://localhost:3000/api/users
-//     fastify.get("/users", (request, reply) => {
-//         userController.readAllUser(request, reply)
-//     });
-
-//     // GET one user by id
-//     // curl -X GET http://localhost:3000/api/users/1
-//     fastify.get("/users/:id", (request, reply) => {
-//         userController.readOneUser(request, reply)
-//     });
-
-//     // PUT to update a user
-//     // curl -X PUT http://localhost:3000/api/users/1 -H "Content-Type: application/json" -d '{ "name": "Alice", "username": "Alice42" }'
-//     fastify.put("/users/:id", (request, reply) => {
-//         userController.updateUser(request, reply)
-//     });
-
-//     // DELETE to remove a user
-//     // curl -X DELETE http://localhost:3000/api/users/1
-//     fastify.delete("/users/:id", (request, reply) => {
-//         userController.deleteUser(request, reply)
-//     });
-// }

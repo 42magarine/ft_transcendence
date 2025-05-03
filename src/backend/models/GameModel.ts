@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, Ma
 // Instead of direct import, we'll use a type-only import and function references
 import { UserModel } from "./UserModel.js";
 
-@Entity()
+@Entity("games")
 export class GameModel {
     @PrimaryGeneratedColumn()
     id!: number;
@@ -15,10 +15,10 @@ export class GameModel {
     @JoinColumn({ name: 'player2Id' })
     Player2!: any;
 
-    @Column()
+    @Column({default: 0})
     Player1Score!: number;
 
-    @Column()
+    @Column({default: 0})
     Player2Score!: number;
 
     @Column({ nullable: true })
@@ -30,15 +30,15 @@ export class GameModel {
     @Column({ type: 'datetime', nullable: true })
     EndedAt?: Date;
 
-    @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
+    // @Column({ default: 'pending' })
+    // status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
 
     @Column({ default: false })
     isLobbyOpen!: boolean;
 
     @ManyToMany(() => UserModel)
     @JoinTable()
-    lobbyParticipants!: any[];
+    lobbyParticipants!: UserModel[];
 
     @Column({ nullable: true })
     gameAdminId?: number;
