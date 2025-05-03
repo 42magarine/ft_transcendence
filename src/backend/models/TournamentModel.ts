@@ -22,6 +22,7 @@ export class TournamentModel {
     @OneToMany(() => TournamentRoundModel, (round) => round.tournament)
     rounds!: TournamentRoundModel[];
 
+    // waiting for all rounds to finish
     @Column({ default: 'pending' })
     status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
 
@@ -60,11 +61,11 @@ export class TournamentMatchModel {
     @JoinColumn({ name: 'roundId' })
     round!: TournamentModel;
 
-    @ManyToOne(() => UserModel)
+    @ManyToOne(() => UserModel, (user: any) => user.gameAsPlayer1)
     @JoinColumn({ name: 'player1Id' })
     player1!: UserModel;
 
-    @ManyToOne(() => UserModel)
+    @ManyToOne(() => UserModel, (user: any) => user.gameAsPlayer2)
     @JoinColumn({ name: 'player2Id' })
     player2!: UserModel;
 
@@ -75,6 +76,7 @@ export class TournamentMatchModel {
     @JoinColumn({ name: 'winnerId' })
     winner!: UserModel;
 
+    //per match
     @Column({ default: 'pending' })
     status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
 
@@ -84,9 +86,9 @@ export class TournamentMatchModel {
     @Column({ type: 'datetime', nullable: true })
     endedAt?: Date;
 
-    @Column({ nullable: true })
+    @Column({ default: 0 })
     player1Score?: number;
 
-    @Column({ nullable: true })
+    @Column({ default: 0 })
     player2Score?: number;
 }
