@@ -1,26 +1,6 @@
 
 footer {
-	transition: 0.5s;
-    position: fixed;
+	@apply fixed w-full bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80 text-white backdrop-blur-md border-white/10 shadow-xl;
 	bottom: 0;
-	width: 100%;
-	background-color: #444;
-	color: white;
 }
 
-/* === FOOTER THEMES === */
-
-/* 🌌 Stars Theme */
-.footer-theme-stars {
-	@apply bg-gradient-to-r from-indigo-900/80 via-blue-900/80 to-sky-900/80 text-white backdrop-blur-md;
-  }
-
-  /* 🔥 Mechazilla Theme */
-  .footer-theme-mechazilla {
-	@apply bg-gradient-to-r from-zinc-900/70 via-gray-800/70 to-zinc-700/70 text-white backdrop-blur-md;
-  }
-
-  /* 🚀 Starship Theme */
-  .footer-theme-starship {
-	@apply bg-gradient-to-r from-purple-800/80 via-indigo-800/80 to-sky-800/80 text-white backdrop-blur-md;
-  }

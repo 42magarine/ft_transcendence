@@ -1,21 +1,18 @@
-import ThemedView from '../theme/themedView.js';
-import { ThemeName } from '../theme/themeHelpers.js';
 import Title from '../components/Title.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
-import { generateProfileImage } from '../../utils/Avartar.js'; // Import the visualization library
+import AbstractView from '../../utils/AbstractView.js';
+import { generateProfileImage } from '../../utils/Avartar.js';
 
-export default class ProfileEdit extends ThemedView {
+export default class ProfileEdit extends AbstractView {
 	private userId: string;
 
 	constructor(params: URLSearchParams) {
-		super('stars', 'Transcendence - Profile');
-		// Extract the id parameter from the route params
+		super();
 		this.userId = params.get('id') || 'unknown';
 	}
 
-	async renderView(): Promise<string> {
-		const theme = this.getTheme() as ThemeName;
+	async getHtml(): Promise<string> {
 
 		// User data will be stored here
 		let userData = null;
@@ -35,13 +32,13 @@ export default class ProfileEdit extends ThemedView {
 		}
 
 		// Title section
-		const title = new Title(this.params, {
+		const title = new Title({
 			title: userData ? `Profile: ${userData.displayname}` : 'User Profile',
 		});
 		const titleSection = await title.getHtml();
 
 		// User profile card
-		const card = new Card(this.params);
+		const card = new Card();
 
 		let profileCardHtml = '';
 		let profileImageSvg = '';
@@ -83,7 +80,7 @@ export default class ProfileEdit extends ThemedView {
 		}
 
 		// Button for edit
-		const button = new Button(this.params);
+		const button = new Button();
 		const buttonGroup = await button.renderGroup({
 			layout: 'stack',
 			align: 'center',

@@ -12,7 +12,7 @@
 		"dev:server": "nodemon --watch dist/app.js --watch dist/routes --watch dist/controller --ext js ./dist/app.js",
 		"dev": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"npm run dev:server\"",
 		"dev:fastify": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"fastify start -w -l info -P dist/app.js\"",
-		"refresh": "rm db.sqlite && rm -rf node_modules && rm -rf dist && rm package-lock.json && npm i && npm run dev",
+		"refresh": "rm -rf uploads && rm db.sqlite && rm -rf node_modules && rm -rf dist && rm package-lock.json && npm i && npm run dev",
 		"build:css": "mkdir -p ./dist/assets/styles && postcss ./styles/_index.css -o dist/assets/styles/main.css",
 		"watch:css": "set NODE_OPTIONS=--max-old-space-size=2048 && postcss ./styles/_index.css -o ./dist/assets/styles/main.css --watch"
 	},
@@ -33,6 +33,7 @@
 		"dotenv": "^16.5.0",
 		"fastify": "^5.3.0",
 		"jsonwebtoken": "^9.0.2",
+		"nodemailer": "^6.10.1",
 		"tailwindcss": "^4.1.3",
 		"typeorm": "^0.3.22",
 		"typeorm-fastify-plugin": "^3.0.0",
@@ -40,6 +41,7 @@
 	},
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4.1.3",
+		"@types/nodemailer": "^6.4.17",
 		"autoprefixer": "^10.4.21",
 		"concurrently": "^9.1.2",
 		"nodemon": "^3.1.9",

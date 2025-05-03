@@ -1,5 +1,4 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { themedHeader } from '../theme/themeHelpers.js';
 import Button from './Button.js';
 import { UserManagementService } from '../services/user_management.js';
 import { generateProfileImage } from '../../utils/Avartar.js';
@@ -13,8 +12,6 @@ export default class Header extends AbstractView {
 	async getHtml(): Promise<string> {
 		const noMenu = ['/login', '/signup'];
 
-		// Apply the theme-based class from your CSS
-		const themeClass = themedHeader(this.props?.theme || 'default');
 		const currentUser = await UserManagementService.getCurrentUser();
 		let buttonSet = [
 			{ id: 'login-btn', text: 'Login', href: '/login', className: 'btn btn-sm' },
@@ -24,17 +21,24 @@ export default class Header extends AbstractView {
 			if (currentUser.role == 'admin' || currentUser.role == 'master') {
 
 				buttonSet = [
+					{ id: 'user-btn', text: 'Pong', href: '/pong', className: "btn btn-sm" },
+					{ id: 'user-btn', text: 'TicTacToe', href: '/tictactoe', className: "btn btn-sm" },
+					{ id: 'user-btn', text: 'Turnaments', href: '/turnaments', className: "btn btn-sm" },
 					{ id: 'user-btn', text: 'User Management', href: '/user-mangement', className: "btn btn-sm" }
 				]
 			}
 			else {
-				buttonSet = []
+				buttonSet = [
+					{ id: 'user-btn', text: 'Pong', href: '/pong', className: "btn btn-sm" },
+					{ id: 'user-btn', text: 'TicTacToe', href: '/tictactoe', className: "btn btn-sm" },
+					{ id: 'user-btn', text: 'Turnaments', href: '/turnaments', className: "btn btn-sm" }
+				]
 			}
 		}
 
 		let buttonGroupHtml = '';
 		if (!noMenu.includes(location.pathname)) {
-			const button = new Button(this.params);
+			const button = new Button();
 			buttonGroupHtml = await button.renderGroup({
 				layout: 'group',
 				align: 'right',
@@ -71,7 +75,7 @@ export default class Header extends AbstractView {
 
 		//{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-danger btn-sm' }
 		return super.render(`
-			<header class="header ${themeClass}">
+			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">
 				  <a router href="/" class="hover:underline">Transcendence</a>
 				</h1>

@@ -20,6 +20,7 @@ import UserMangement from './views/UserManagement.js';
 import Login from './views/Login.js';
 import Settings from './views/Settings.js';
 import Signup from './views/Signup.js';
+import PasswordReset from './views/PasswordReset.js';
 
 // components
 import Card from './components/Card.js';
@@ -51,7 +52,7 @@ async function renderFooter() {
  * Dynamically render the header into <header id="header-root">
  */
 async function renderHeader() {
-	const header = new Header(new URLSearchParams(window.location.search)); // ✅ Pass theme properly
+	const header = new Header(new URLSearchParams(window.location.search));
 	const headerHtml = await header.getHtml();
 	document.getElementById('header-root')!.innerHTML = headerHtml;
 }
@@ -125,6 +126,24 @@ const routes = [
 		metadata: {
 			title: 'Transcendence - login',
 			description: 'Welcome to Login'
+		}
+	},
+	{
+		path: '/password-reset',
+		role: 'logged_out',
+		view: PasswordReset,
+		metadata: {
+			title: 'Transcendence - Password Reset',
+			description: 'Welcome to Password Reset'
+		}
+	},
+	{
+		path: '/password-reset/:token',  // Added new route with token parameter
+		role: 'logged_out',
+		view: PasswordReset,
+		metadata: {
+			title: 'Transcendence - Reset Your Password',
+			description: 'Reset your password with the provided token'
 		}
 	},
 	{

@@ -2,30 +2,26 @@
 // File: views/Home.ts
 // ========================
 import AbstractView from '../../utils/AbstractView.js';
-import ThemedView from '../theme/themedView.js';
-import { ThemeName } from '../theme/themeHelpers.js';
 import Button from '../components/Button.js';
 import Card from '../components/Card.js';
 import Input from '../components/Input.js';
 import Label from '../components/Label.js';
 import Stat from '../components/Stat.js';
 import Toggle from '../components/Toggle.js';
-import Toolbar from '../components/Toolbar.js';
 
-export default class Home extends ThemedView {
+export default class Home extends AbstractView {
 	constructor() {
-		super('stars', 'Transcendence - Home');
+		super();
 	}
 
-	async renderView(): Promise<string> {
+	async getHtml(): Promise<string> {
 
-		const button = new Button(this.params);
-		const input = new Input(this.params);
-		const label = new Label(this.params);
-		const stat = new Stat(this.params);
-		const toggle = new Toggle(this.params);
-		const toolbar = new Toolbar(this.params);
-		const card = new Card(this.params);
+		const button = new Button();
+		const input = new Input();
+		const label = new Label();
+		const stat = new Stat();
+		const toggle = new Toggle();
+		const card = new Card();
 
 		const groupHtml = await button.renderGroup({
 			align: 'center',
@@ -65,14 +61,7 @@ export default class Home extends ThemedView {
 
 		const statHtml = await stat.renderStat({ label: 'Users', value: '42' });
 		const toggleHtml = await toggle.renderToggle({ id: 'darkMode', label: 'Dark Mode' });
-		const toolbarHtml = await toolbar.renderToolbar({
-			align: 'center',
-			buttons: [
-				{ id: 'tb1', text: 'Undo' },
-				{ id: 'tb2', text: 'Redo' },
-				{ id: 'tb3', text: 'Reset' }
-			]
-		});
+
 		const demoCard = await card.renderCard({
 			title: 'Demo Card',
 			body: '<p class="text-white">This is a demo card body.</p>'
@@ -98,16 +87,9 @@ export default class Home extends ThemedView {
 				<h2 class="text-white text-xl font-bold">Toggle Switch</h2>
 				${toggleHtml}
 
-				<h2 class="text-white text-xl font-bold">Toolbar</h2>
-				${toolbarHtml}
-
 				<h2 class="text-white text-xl font-bold">Card</h2>
 				${demoCard}
 				<button class="bg-blue-900 text-white px-4 py-2">Test</button>
-
-				<div class="mt-10">
-					<a router href="/pong" class="btn btn-secondary btn-theme-pong">Pong</a>
-				</div>
 			</section>
 		`);
 	}

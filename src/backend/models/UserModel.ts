@@ -1,4 +1,5 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { GameModel } from "./GameModel.js";
 
 @Entity()
 export class UserModel {
@@ -32,6 +33,18 @@ export class UserModel {
 	@Column({ nullable: true })
 	refreshToken?: string;
 
+	@Column({ default: false })
+	emailVerified!: boolean;
+
+	@Column({ nullable: true })
+	resetPasswordToken?: string;
+
+	@Column({ nullable: true })
+	resetPasswordExpires?: Date;
+
+	@Column({ nullable: true })
+	verificationToken?: string;
+
 	@ManyToMany(() => UserModel)
 	@JoinTable()
 	friends!: UserModel[];
@@ -42,5 +55,3 @@ export class UserModel {
 	@OneToMany(() => GameModel, (game: any) => game.Player2)
 	gameAsPlayer2!: any[];
 }
-
-import { GameModel } from "./GameModel.js";

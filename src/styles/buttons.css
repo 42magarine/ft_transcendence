@@ -21,7 +21,8 @@
 
 /* === BASE BUTTON STYLE === */
 .btn {
-	@apply inline-flex items-center justify-center px-4 py-2 rounded text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
+	border-radius: 0.75rem;
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-0 focus:ring-offset-0;
 }
 
 /* === VARIANTS === */
@@ -30,40 +31,35 @@
 .btn-primary {
 @apply bg-blue-600 text-white
 		hover:bg-blue-700
-		active:bg-blue-800
-		focus:ring-blue-400;
+		active:bg-blue-800;
 }
 
 /* ⚪ Secondary (neutral action) */
 .btn-secondary {
 @apply bg-gray-200 text-gray-900
 		hover:bg-gray-300
-		active:bg-gray-400
-		focus:ring-gray-400;
+		active:bg-gray-400;
 }
 
 /* 🔴 Danger (destructive action) */
 .btn-danger {
 @apply bg-red-400 text-white
 		hover:bg-red-700
-		active:bg-red-800
-		focus:ring-red-400;
+		active:bg-red-800;
 }
 
 /* 🔘 Outline variant (border-only) */
 .btn-outline {
 @apply border border-gray-400 text-gray-700 bg-transparent
 		hover:bg-gray-100
-		active:bg-gray-200
-		focus:ring-gray-300;
+		active:bg-gray-200;
 }
 
 /* 🔗 Link-style button */
 .btn-link {
 @apply text-blue-600 underline
 		hover:text-blue-700
-		active:text-blue-800
-		focus:ring-blue-300;
+		active:text-blue-800;
 }
 
 /* ========================
@@ -88,29 +84,6 @@
   .btn-lg {
 	@apply px-5 py-2.5 text-lg;
   }
-
-/* === THEMES === */
-
-/* 🌌 Stars Theme (Night Sky) */
-.btn-theme-stars {
-	@apply bg-blue-900/90 text-white hover:bg-blue-800/90 active:bg-blue-700/90 focus:ring-blue-300 border border-blue-800 shadow;
-}
-
-/* 🔥 Mechazilla Theme (Rocket Fire) */
-.btn-theme-mechazilla {
-	@apply bg-black/40 text-orange-300 hover:bg-orange-400/30 active:bg-orange-500/40 focus:ring-orange-400 backdrop-blur-md border border-orange-400/30;
-}
-
-/* 🚀 Starship Theme (Morning Light) */
-/* 🚀 Starship Theme (Sunrise Steel) */
-.btn-theme-starship {
-  @apply bg-gradient-to-r from-sky-900 to-indigo-800 text-white font-semibold
-         hover:from-sky-800 hover:to-indigo-700
-         active:from-sky-700 active:to-indigo-600
-         focus:ring-2 focus:ring-blue-300
-         border border-white/10
-         shadow-md transition-all duration-150;
-}
 
 
 /* === STATE STYLES === */

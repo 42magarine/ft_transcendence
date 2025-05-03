@@ -12,6 +12,141 @@ export class UserController {
 		this.userService = userService;
 	}
 
+	// Existing methods remain...
+
+	// New methods for password reset and email verification
+
+	async requestPasswordReset(request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) {
+		try {
+			const { email } = request.body;
+
+			if (!email) {
+				return reply.code(400).send({ error: 'Email is required' });
+			}
+
+			await this.userService.requestPasswordReset(email);
+
+			// Always return success for security reasons, even if email doesn't exist
+			return reply.code(200).send({
+				message: 'If an account with that email exists, a password reset link has been sent.'
+			});
+		} catch (error) {
+			console.error('Password reset request error:', error);
+			// For security, don't reveal if the process failed due to user not found
+			return reply.code(200).send({
+				message: 'If an account with that email exists, a password reset link has been sent.'
+			});
+		}
+	}
+
+	async checkResetToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+		try {
+			const { token } = request.params;
+
+			if (!token) {
+				return reply.code(400).send({ error: 'Reset token is required' });
+			}
+
+			await this.userService.verifyResetToken(token);
+
+			return reply.code(200).send({ valid: true });
+		} catch (error) {
+			console.error('Token verification error:', error);
+			const message = error instanceof Error ? error.message : 'Invalid token';
+			return reply.code(400).send({ error: message, valid: false });
+		}
+	}
+
+	async resetPassword(request: FastifyRequest<{
+		Params: { token: string },
+		Body: { password: string, confirmPassword: string }
+	}>, reply: FastifyReply) {
+		try {
+			const { token } = request.params;
+			const { password, confirmPassword } = request.body;
+
+			if (!token) {
+				return reply.code(400).send({ error: 'Reset token is required' });
+			}
+
+			if (!password || !confirmPassword) {
+				return reply.code(400).send({ error: 'Password and confirmation are required' });
+			}
+
+			if (password !== confirmPassword) {
+				return reply.code(400).send({ error: 'Passwords do not match' });
+			}
+
+			// Minimum password requirements
+			if (password.length < 8) {
+				return reply.code(400).send({ error: 'Password must be at least 8 characters long' });
+			}
+
+			await this.userService.resetPassword(token, password);
+
+			return reply.code(200).send({ message: 'Password has been reset successfully' });
+		} catch (error) {
+			console.error('Password reset error:', error);
+			const message = error instanceof Error ? error.message : 'Failed to reset password';
+			return reply.code(400).send({ error: message });
+		}
+	}
+
+	async verifyEmail(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+		try {
+			const { token } = request.params;
+
+			if (!token) {
+				return reply.code(400).send({ error: 'Verification token is required' });
+			}
+
+			await this.userService.verifyEmail(token);
+
+			// Redirect to login page after successful verification
+			return reply.redirect('/login?verified=true');
+		} catch (error) {
+			console.error('Email verification error:', error);
+			const message = error instanceof Error ? error.message : 'Invalid verification token';
+			return reply.code(400).send({ error: message });
+		}
+	}
+
+	async resendVerificationEmail(request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) {
+		try {
+			const { email } = request.body;
+
+			if (!email) {
+				return reply.code(400).send({ error: 'Email is required' });
+			}
+
+			// Find user by email
+			const user = await this.userService.findByEmail(email);
+
+			if (!user) {
+				// Don't reveal if email exists or not
+				return reply.code(200).send({
+					message: 'If your account exists, a verification email has been sent.'
+				});
+			}
+
+			if (user.emailVerified) {
+				return reply.code(400).send({ error: 'Email is already verified' });
+			}
+
+			// Rest of the logic will be implemented in UserService
+			// Here we would regenerate verification token and send email
+
+			return reply.code(200).send({
+				message: 'If your account exists, a verification email has been sent.'
+			});
+		} catch (error) {
+			console.error('Resend verification error:', error);
+			return reply.code(200).send({
+				message: 'If your account exists, a verification email has been sent.'
+			});
+		}
+	}
+
 	async register(request: FastifyRequest, reply: FastifyReply) {
 		try {
 			console.log("Register endpoint called");
@@ -45,7 +180,7 @@ export class UserController {
 
 				// Benutzer mit Rollenüberprüfung registrieren
 				await this.userService.register(userData, requestingUserRole);
-				return reply.code(201).send({ message: "Registration successful" });
+				return reply.code(201).send({ message: "Registration successful. Please check your email to verify your account." });
 			}
 
 			console.log("Processing multipart request");
@@ -118,7 +253,7 @@ export class UserController {
 
 			// Benutzer mit Rollenüberprüfung registrieren
 			await this.userService.register(userData, requestingUserRole);
-			return reply.code(201).send({ message: "Registration successful" });
+			return reply.code(201).send({ message: "Registration successful. Please check your email to verify your account." });
 		}
 		catch (error) {
 			console.error('Registration error:', error);
@@ -402,7 +537,8 @@ export class UserController {
 			reply.code(200).send({ message: 'Login successful' });
 		}
 		catch (error) {
-			reply.code(400).send({ error: 'Invalid login credentials' });
+			const message = error instanceof Error ? error.message : 'Invalid login credentials';
+			reply.code(400).send({ error: message });
 		}
 	}
 
@@ -430,7 +566,7 @@ export class UserController {
 			}
 
 			// Return user data without sensitive information
-			const { password, ...userData } = user;
+			const { password, resetPasswordToken, resetPasswordExpires, verificationToken, ...userData } = user;
 			return reply.code(200).send(userData);
 		}
 		catch (error) {

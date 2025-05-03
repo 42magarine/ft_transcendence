@@ -2,27 +2,25 @@
 // File: views/Settings.ts
 // ========================
 
-import ThemedView from '../theme/themedView.js';
 import Title from '../components/Title.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
-import { ThemeName } from '../theme/themeHelpers.js';
+import AbstractView from '../../utils/AbstractView.js';
 
-export default class Settings extends ThemedView {
+export default class Settings extends AbstractView {
 	constructor() {
-		super('starship', 'Transcendence - Settings');
+		super();
 	}
 
-	async renderView(): Promise<string> {
-		const theme = this.getTheme() as ThemeName;
+	async getHtml(): Promise<string> {
 
 		// Title using existing params
-		const title = await new Title(this.params, {
+		const title = await new Title({
 			title: 'Settings'
 		}).getHtml();
 
 		// Button using existing params
-		const button = new Button(this.params);
+		const button = new Button();
 		const saveButtonGroup = await button.renderGroup({
 			layout: 'stack',
 			align: 'center',
@@ -43,7 +41,7 @@ export default class Settings extends ThemedView {
 			</div>
 		`;
 
-		const card = new Card(this.params);
+		const card = new Card();
 		const settingsCard = await card.renderCard({
 			title: 'Profile Settings',
 			formId: 'settings-form',
@@ -114,13 +112,6 @@ export default class Settings extends ThemedView {
 			<div class="max-w-5xl mx-auto p-6 space-y-10">
 				${settingsCard}
 			</div>
-
-			<script>
-				window.toggleDarkMode = function () {
-					document.documentElement.classList.toggle('dark');
-					localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-				}
-			</script>
 		`);
 	}
 }

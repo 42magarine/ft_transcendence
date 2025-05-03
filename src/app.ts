@@ -147,9 +147,17 @@ async function ensureMasterUserExists(): Promise<void> {
 		where: { email: masterEmail }
 	});
 
-	// If master user already exists, no need to create one
+	// If master user already exists, make sure it's verified
 	if (existingMaster) {
 		console.log('Master user already exists');
+
+		// Ensure master user is verified if that field exists and isn't already true
+		if (existingMaster.hasOwnProperty('emailVerified') && !existingMaster.emailVerified) {
+			existingMaster.emailVerified = true;
+			await userRepo.save(existingMaster);
+			console.log('Master user email verification status updated to verified');
+		}
+
 		return;
 	}
 
@@ -157,18 +165,19 @@ async function ensureMasterUserExists(): Promise<void> {
 		// Hash the master password
 		const hashedPassword = await hashPW(masterPassword);
 
-		// Create new master user
+		// Create new master user with email verified status
 		const masterUser = userRepo.create({
 			email: masterEmail,
 			username: 'MASTER',
 			password: hashedPassword,
 			displayname: 'MASTER',
-			role: 'master'
+			role: 'master',
+			emailVerified: true // Set the master user as verified by default
 		});
 
 		// Save master user to database
 		await userRepo.save(masterUser);
-		console.log('Master user created successfully');
+		console.log('Master user created successfully with verified email');
 	} catch (error) {
 		console.error('Failed to create master user:', error);
 	}

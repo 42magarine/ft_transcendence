@@ -1,4 +1,5 @@
 import { generateTextVisualization } from "./../../utils/Avartar.js"
+import Router from '../../utils/Router.js';
 
 interface User {
 	id?: number;
@@ -8,6 +9,7 @@ interface User {
 	password?: string;
 	role?: string;
 	avatar?: string;
+	emailVerified?: boolean;
 }
 
 interface ApiErrorResponse {
@@ -24,7 +26,15 @@ interface AuthResponse {
 	error?: string;
 }
 
-import Router from '../../utils/Router.js';
+interface PasswordResetRequest {
+	email: string;
+}
+
+interface PasswordResetConfirm {
+	password: string;
+	confirmPassword: string;
+	token: string;
+}
 
 export class UserManagementService {
 	static async fetchAllUsers(): Promise<User[]> {
@@ -134,6 +144,62 @@ export class UserManagementService {
 		}
 	}
 
+	static async requestPasswordReset(email: string): Promise<AuthResponse> {
+		try {
+			const response = await fetch('/api/request-password-reset', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email }),
+			});
+
+			return await response.json() as AuthResponse;
+		} catch (error) {
+			console.error('Password reset request error:', error);
+			throw error;
+		}
+	}
+
+	static async resetPassword(token: string, password: string, confirmPassword: string): Promise<AuthResponse> {
+		try {
+			const response = await fetch(`/api/reset-password/${token}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ password, confirmPassword }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json() as ApiErrorResponse;
+				throw new Error(errorData.error || 'Password reset failed');
+			}
+
+			return await response.json() as AuthResponse;
+		} catch (error) {
+			console.error('Password reset error:', error);
+			throw error;
+		}
+	}
+
+	static async resendVerificationEmail(email: string): Promise<AuthResponse> {
+		try {
+			const response = await fetch('/api/resend-verification', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email }),
+			});
+
+			return await response.json() as AuthResponse;
+		} catch (error) {
+			console.error('Resend verification error:', error);
+			throw error;
+		}
+	}
+
 	static async getCurrentUser(): Promise<User | null> {
 		try {
 			const response = await fetch('/api/auth/me');
@@ -186,7 +252,54 @@ export class UserManagementService {
 		}
 	}
 
+	// New method to verify password reset token
+	static async verifyPasswordResetToken(token: string): Promise<boolean> {
+		try {
+			const response = await fetch(`/api/reset-password/${token}`);
+			const data = await response.json();
+
+			if (!response.ok || !data.valid) {
+				throw new Error(data.error || 'Invalid token');
+			}
+
+			return true;
+		} catch (error) {
+			console.error('Token verification error:', error);
+			throw error;
+		}
+	}
+
+	// New method to verify email
+	static async verifyEmail(token: string): Promise<boolean> {
+		try {
+			const response = await fetch(`/api/verify-email/${token}`);
+
+			if (response.ok) {
+				return true;
+			} else {
+				const data = await response.json();
+				throw new Error(data.error || 'Email verification failed');
+			}
+		} catch (error) {
+			console.error('Email verification error:', error);
+			throw error;
+		}
+	}
+
+	// Setup all event listeners across the application
 	static setupEventListeners(): void {
+		this.setupCreateForm();
+		this.setupDeleteButtons();
+		this.setupLoginForm();
+		this.setupSignupForm();
+		this.setupPasswordResetRequestForm();
+		this.setupPasswordResetForm();
+		this.setupResendVerificationForm();
+		this.setupLogoutButton();
+		this.setupVerifyEmail();
+	}
+
+	private static setupCreateForm(): void {
 		const createForm = document.getElementById('create-form') as HTMLFormElement | null;
 		if (createForm) {
 			createForm.addEventListener('submit', async (e) => {
@@ -212,8 +325,9 @@ export class UserManagementService {
 				}
 			});
 		}
+	}
 
-		// Delete user buttons
+	private static setupDeleteButtons(): void {
 		const deleteButtons = document.querySelectorAll('.delete-user') as NodeListOf<HTMLElement>;
 		deleteButtons.forEach((button) => {
 			button.addEventListener("click", async function (e) {
@@ -244,8 +358,9 @@ export class UserManagementService {
 				}
 			});
 		});
+	}
 
-		// Login form
+	private static setupLoginForm(): void {
 		const loginForm = document.getElementById('login-form') as HTMLFormElement | null;
 		if (loginForm) {
 			loginForm.addEventListener('submit', async (e) => {
@@ -261,16 +376,68 @@ export class UserManagementService {
 					const result = await UserManagementService.login(credentials);
 					loginForm.reset();
 
+					// Check if the user was redirected with a verified=true parameter
+					const urlParams = new URLSearchParams(window.location.search);
+					if (urlParams.get('verified') === 'true') {
+						alert('Your email has been verified. You can now log in.');
+					}
+
 					window.location.href = '/';
 
 				} catch (error) {
 					console.error('Failed to login:', error);
 					alert(error instanceof Error ? error.message : 'Login failed');
+
+					// Add a link to request password reset or resend verification email
+					const errorMessage = document.createElement('div');
+					errorMessage.className = 'mt-4 text-red-500';
+					errorMessage.innerHTML = `
+						<p>${error instanceof Error ? error.message : 'Login failed'}</p>
+						<p class="mt-2">
+							<a href="/password-reset" class="text-blue-500 underline">Forgot password?</a> |
+							<a href="#" id="resend-verification" class="text-blue-500 underline">Resend verification email</a>
+						</p>
+					`;
+
+					const existingError = document.querySelector('.login-error');
+					if (existingError) {
+						existingError.remove();
+					}
+
+					errorMessage.classList.add('login-error');
+					loginForm.appendChild(errorMessage);
+
+					// Add event listener for resend verification link
+					const resendLink = document.getElementById('resend-verification');
+					if (resendLink) {
+						resendLink.addEventListener('click', async (e) => {
+							e.preventDefault();
+							// Get the username value from the loginForm
+							const loginFormData = new FormData(loginForm);
+							const username = loginFormData.get('username') as string;
+
+							if (!username) {
+								alert('Please enter your username to resend verification email');
+								return;
+							}
+
+							try {
+								// For simplicity, we'll use the username as email here
+								// In a real app, you might want to show another form or have a dedicated page
+								const result = await UserManagementService.resendVerificationEmail(username);
+								alert(result.message || 'Verification email sent if account exists');
+							} catch (error) {
+								console.error('Failed to resend verification:', error);
+								alert('Failed to resend verification email');
+							}
+						});
+					}
 				}
 			});
 		}
+	}
 
-		// Signup form
+	private static setupSignupForm(): void {
 		const signupForm = document.getElementById('signup-form') as HTMLFormElement | null;
 		if (signupForm) {
 			// Set accept attribute for avatar file input to only allow image files
@@ -398,6 +565,9 @@ export class UserManagementService {
 
 					signupForm.reset();
 
+					// Show success message
+					alert('Registration successful! Please check your email to verify your account.');
+
 					// Redirect to login page
 					window.location.href = '/login';
 
@@ -409,7 +579,108 @@ export class UserManagementService {
 		}
 	}
 
-	// Logout button
+	private static setupPasswordResetRequestForm(): void {
+		const passwordResetForm = document.getElementById('password-reset-request-form') as HTMLFormElement | null;
+		if (passwordResetForm) {
+			passwordResetForm.addEventListener('submit', async (e) => {
+				e.preventDefault();
+
+				try {
+					const formData = new FormData(passwordResetForm);
+					const email = formData.get('email') as string;
+
+					if (!email) {
+						alert('Please enter your email address');
+						return;
+					}
+
+					const result = await UserManagementService.requestPasswordReset(email);
+					alert(result.message || 'If your email exists in our system, you will receive a password reset link.');
+					passwordResetForm.reset();
+				} catch (error) {
+					console.error('Failed to request password reset:', error);
+					// For security reasons, we still give a generic message
+					alert('If your email exists in our system, you will receive a password reset link.');
+				}
+			});
+		}
+	}
+
+	private static setupPasswordResetForm(): void {
+		const resetForm = document.getElementById('password-reset-form') as HTMLFormElement | null;
+		if (resetForm) {
+			resetForm.addEventListener('submit', async (e) => {
+				e.preventDefault();
+
+				try {
+					const formData = new FormData(resetForm);
+					const password = formData.get('password') as string;
+					const confirmPassword = formData.get('confirmPassword') as string;
+
+					// Get token from URL or parameters
+					// In this case, we'll need to get it from the current path
+					const pathParts = window.location.pathname.split('/');
+					const token = pathParts[pathParts.length - 1];
+
+					if (!token) {
+						alert('Missing reset token');
+						return;
+					}
+
+					if (!password || !confirmPassword) {
+						alert('Please fill in all fields');
+						return;
+					}
+
+					if (password !== confirmPassword) {
+						alert('Passwords do not match');
+						return;
+					}
+
+					if (password.length < 8) {
+						alert('Password must be at least 8 characters long');
+						return;
+					}
+
+					const result = await UserManagementService.resetPassword(token, password, confirmPassword);
+					alert(result.message || 'Password reset successful');
+					resetForm.reset();
+
+					// Redirect to login page
+					window.location.href = '/login';
+				} catch (error) {
+					console.error('Failed to reset password:', error);
+					alert(error instanceof Error ? error.message : 'Failed to reset password');
+				}
+			});
+		}
+	}
+
+	private static setupResendVerificationForm(): void {
+		const resendForm = document.getElementById('resend-verification-form') as HTMLFormElement | null;
+		if (resendForm) {
+			resendForm.addEventListener('submit', async (e) => {
+				e.preventDefault();
+
+				const formData = new FormData(resendForm);
+				const email = formData.get('email');
+
+				if (!email) {
+					alert('Please enter your email address');
+					return;
+				}
+
+				try {
+					const response = await UserManagementService.resendVerificationEmail(email as string);
+					alert(response.message || 'If your account exists, a verification email has been sent.');
+				} catch (error) {
+					console.error('Error resending verification email:', error);
+					alert('Failed to resend verification email. Please try again later.');
+				}
+			});
+		}
+	}
+
 	static setupLogoutButton(): void {
 		const logoutButton = document.getElementById('logout-btn') as HTMLElement | null;
 		if (logoutButton) {
@@ -428,10 +699,70 @@ export class UserManagementService {
 			});
 		}
 	}
+
+	// Handle email verification process - this corresponds to the inline script in EmailVerification.ts
+	private static setupVerifyEmail(): void {
+		// Check if we're on the email verification page
+		if (window.location.pathname.startsWith('/verify-email')) {
+			// Extract token from URL path
+			const pathParts = window.location.pathname.split('/');
+			const token = pathParts.length > 2 ? pathParts[pathParts.length - 1] : null;
+
+			// If we have a token, try to verify the email
+			if (token) {
+				this.handleEmailVerification(token);
+			}
+		}
+	}
+
+	// Process email verification with token
+	private static async handleEmailVerification(token: string): Promise<void> {
+		try {
+			const success = await this.verifyEmail(token);
+
+			if (success) {
+				// Verification successful
+				window.location.href = '/login?verified=true';
+			}
+		} catch (error) {
+			console.error('Error verifying email:', error);
+
+			// Display error message
+			const cardContainer = document.querySelector('.space-y-8');
+			if (cardContainer) {
+				const errorMessage = error instanceof Error ? error.message : 'Email verification failed';
+
+				const errorCard = document.createElement('div');
+				errorCard.className = 'bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6';
+				errorCard.innerHTML = `
+					<h2 class="text-xl font-semibold text-gray-900 dark:text-white">Verification Failed</h2>
+					<div class="mt-4">
+						<p class="text-red-500">${errorMessage}</p>
+						<p class="mt-4">You can try the following:</p>
+						<ul class="list-disc pl-5 mt-2 text-gray-700 dark:text-gray-300">
+							<li>Check if you clicked the correct link from your email</li>
+							<li>Request a new verification email</li>
+							<li>Contact support if the problem persists</li>
+						</ul>
+						<div class="mt-6">
+							<a href="/verify-email" class="text-blue-500 hover:underline">Request New Verification Email</a>
+						</div>
+					</div>
+				`;
+
+				cardContainer.innerHTML = '';
+				cardContainer.appendChild(errorCard);
+			}
+		}
+	}
+
+	// Initialize all event listeners when the content is loaded
+	static initialize(): void {
+		document.addEventListener('RouterContentLoaded', () => {
+			this.setupEventListeners();
+		});
+	}
 }
 
-// Initialize the event listeners when the DOM is loaded
-document.addEventListener('RouterContentLoaded', () => {
-	UserManagementService.setupEventListeners();
-	UserManagementService.setupLogoutButton();
-});
+// Call the initialize method to setup all the listeners
+UserManagementService.initialize();
