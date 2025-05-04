@@ -17,7 +17,7 @@ export class GameService extends MatchService{
 	{
 		return await this.gameRepo.findOne({
 			where: { id },
-			relations: ['player1', 'player2', 'winner', 'lobbyParticipants'] //lobbyparts is neu fuer det tournuerii ich werd wahnsinig
+			relations: ['player1', 'player2', 'winner', 'lobbyParticipants'] //lobbyparticis is neu fuer det tournuerii ich werd wahnsinig
 		})
 	}
 

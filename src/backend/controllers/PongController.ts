@@ -144,7 +144,6 @@ export class PongController extends MatchController {
         }
     }
 
-
     //maybe need to modify to check if lobby is public in if condition
     private handleGetLobbyList(connection: WebSocket)
     {

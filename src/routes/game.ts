@@ -6,15 +6,19 @@ import fastifyStatic from "@fastify/static";
 import { authenticate, verifyJWT } from "../backend/middleware/security.js";
 import { error } from "console";
 
-export default async function (fastify: FastifyInstance) {
+export default async function (fastify: FastifyInstance)
+{
     const pongController = new PongController();
 
+	// mir egal wir machen alles ueber websocket kein bock auf api zweial schreiben und dann benutzen wir eh nur ws
     // Websocket route handler
     fastify.get('/game/ws', { websocket: true }, (connection, request) => {
 		const userId = request.user?.id;
         pongController.handleConnection(connection, userId);
     });
 
+
+	// show open lobbies
 	fastify.route({
 		method: 'GET',
 		url: '/game/lobbies',
@@ -22,21 +26,12 @@ export default async function (fastify: FastifyInstance) {
 		handler: pongController.getPublicLobbies.bind(pongController)
 	})
 
-fastify.get('/game/:id', {
-	onRequest: authenticate,
-	schema: {
-		params: {
-			type: 'object',
-			properties: {
-				id: {type: 'string'}
-			},
-			required: ['id']
-		}
-	}
-}, async (request,reply) => {
-	return pongController.getGameById(request, reply);
-})
-
-
-
+	//get your game history <-- maybe move to user instead
+	fastify.get('/game/history',
+		{
+			onRequest: authenticate,
+		},
+			async (request, reply) => {
+				return pongController.getUserGames(request, reply)
+		})
 }
