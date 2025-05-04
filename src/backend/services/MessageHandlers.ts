@@ -25,7 +25,14 @@ export class MessageHandlers {
                         })
                     }
                     break;
-
+                case "ready":
+                    player._isReady = data.ready;
+                    this._broadcast(player.lobbyId, {
+                        type: "playerReady",
+                        playerId: player.id,
+                        ready: player._isReady
+                    })
+                    break;
                 case "pauseGame":
                     this._broadcast(player.lobbyId, {
                         type: "gamePaused",

@@ -84,6 +84,10 @@ export interface GameActionMessage extends ClientMessage {
     action?: string;
 }
 
+export interface ReadyMessage extends ClientMessage {
+    ready: boolean;
+}
+
 export interface joinLobbyMessage extends ClientMessage {
     type: "joinLobby"
 }

@@ -14,8 +14,21 @@ export class GameLobby extends MatchLobby{
 	private _gameId: number | null = null
 	private _saveScoreInterval: NodeJS.Timeout | null = null;
 
-	constructor(id: string, broadcast:( lobbyId: string, data: ServerMessage) => void, gameService?: GameService) {
-		super(id, broadcast, gameService)
+	constructor(
+		id: string,
+		broadcast:( lobbyId: string, data: ServerMessage) => void,
+		gameService?: GameService,
+		options?: {
+			name?: string,
+			maxPlayers?: number,
+			isPublic?: boolean,
+			password?: string
+		}) {
+		super(id, broadcast, gameService, {
+			...options,
+			maxPlayers: 2,
+			lobbyType: 'game'
+		})
 		this._gameService = gameService || null;
 		this._game = new PongGame(gameService);
 	}
@@ -40,16 +53,16 @@ export class GameLobby extends MatchLobby{
 
 		this._game.startGameLoop((data) => {
 
-			if (data.type === "gameState")
+			if (data.type === "gameUpdate")
 			{
-				const state = data as GameStateMessage;
+				const state = data.state;
 
-				if (state.player1Score >= this._game._scoreLimit || state.player2Score >= this._game._scoreLimit)
+				if (state.score1 >= this._game._scoreLimit || state.score2 >= this._game._scoreLimit)
 				{
-					const winningPlayerId = state.player1Score >= this._game._scoreLimit ? 1 : 2;
+					const winningPlayerId = state.score1 >= this._game._scoreLimit ? 1 : 2;
 					const winningPlayer = this._players.get(winningPlayerId);
 
-					this.handleGameWin(winningPlayerId, state.player1Score, state.player2Score)
+					this.handleGameWin(winningPlayerId, state.score1, state.score2)
 				}
 			}
 			this._broadcast(this._id, data)
