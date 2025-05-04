@@ -171,7 +171,7 @@ export class PongController extends MatchController {
         )
     }
 
-    public async getGamebyId(request: FastifyRequest<{Params: {id: string} }>, reply: FastifyReply)
+    public async getGameById(request: FastifyRequest<{Params: {id: string} }>, reply: FastifyReply)
     {
         const {id} = request.params
         const userId = request.user?.id;

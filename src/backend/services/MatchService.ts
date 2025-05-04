@@ -5,7 +5,7 @@ import { UserService } from "./UserService.js";
 export abstract class MatchService {
 
     protected matchRepo = AppDataSource.getRepository(MatchModel);
-    protected userService: UserService;
+    public userService: UserService;
 
     constructor(userService: UserService)
     {

@@ -149,7 +149,7 @@ export abstract class MatchLobby {
 
     }
 
-    protected checkAllPlayersReady()
+    public checkAllPlayersReady()
     {
         const minPlayers = this._lobbyType === 'game' ? 2 : this._maxPlayers;
 

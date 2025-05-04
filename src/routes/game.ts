@@ -15,27 +15,28 @@ export default async function (fastify: FastifyInstance) {
         pongController.handleConnection(connection, userId);
     });
 
-	// fastify.route({
-	// 	method: 'GET',
-	// 	url: '/game/lobbies',
-	// 	preHandler: authenticate,
-	// 	handler: pongController.getLobbies.bind(pongController)
-	// })
+	fastify.route({
+		method: 'GET',
+		url: '/game/lobbies',
+		preHandler: authenticate,
+		handler: pongController.getPublicLobbies.bind(pongController)
+	})
 
-	// fastify.route({
-	// 	method: 'POST',
-	// 	url: '/game/lobbies/create',
-	// 	preHandler: authenticate,
-	// 	handler: pongController.createLobbyHttp.bind(pongController)
-	// });
+fastify.get('/game/:id', {
+	onRequest: authenticate,
+	schema: {
+		params: {
+			type: 'object',
+			properties: {
+				id: {type: 'string'}
+			},
+			required: ['id']
+		}
+	}
+}, async (request,reply) => {
+	return pongController.getGameById(request, reply);
+})
 
-	// fastify.route({
-	// 	method: 'POST',
-	// 	url: '/game/lobbies/:id/join',
-	// 	preHandler: authenticate,
-	// 	handler: (request, reply) => {
-	// 		const typedRequest = request as FastifyRequest<{Params: {id: string}}>
-	// 		return pongController.joinLobbyHttp(typedRequest, reply);
-	// 	}
-	// })
+
+
 }

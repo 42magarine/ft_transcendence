@@ -42,7 +42,7 @@ export class TournamentLobby extends MatchLobby {
 
     protected onPlayerRemoved(player: Player): void {
         if (this._gameStarted && player.userId) {
-            this.handlePlayerForfeit(player.userId);
+            // this.handlePlayerForfeit(player.userId);
         }
     }
 
@@ -139,25 +139,25 @@ export class TournamentLobby extends MatchLobby {
         //get final winner, update in db, announce results, closeLobby
     }
 
-    private async handlePlayerForfeit(userId: number){
-        if (this._gameStarted && this._tournamentId) {
-            for (const [lobbyId, matchLobby] of this._currentMatches.entries())
-            {
-                const players = Array.from(matchLobby._players.values())
-                const playerInMatch = players.find(p => p.userId === userId)
+    // private async handlePlayerForfeit(userId: number){
+    //     if (this._gameStarted && this._tournamentId) {
+    //         for (const [lobbyId, matchLobby] of this._currentMatches.entries())
+    //         {
+    //             const players = Array.from(matchLobby._players.values())
+    //             const playerInMatch = players.find(p => p.userId === userId)
 
-                if (playerInMatch) {
-                    const opponent = players.find(p => p.userId !== userId)
-                    if (opponent)
-                    {
-                        await this.handleMatchComplete(lobbyId, opponent.userId!)
+    //             if (playerInMatch) {
+    //                 const opponent = players.find(p => p.userId !== userId)
+    //                 if (opponent)
+    //                 {
+    //                     await this.handleMatchComplete(lobbyId, opponent.userId!)
 
-                        matchLobby.stopGame();
-                    }
-                }
-            }
-        }
-    }
+    //                     matchLobby.stopGame();
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     public async stopGame(): Promise<void> {
         if (!this._gameStarted)
