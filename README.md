@@ -46,6 +46,6 @@ If needed, run this inside the container:
 
 ---
 
-## Default Port
+## 🌐 Default Port
 
 The application runs on [http://localhost:3000](http://localhost:3000)
