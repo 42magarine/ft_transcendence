@@ -19,10 +19,8 @@ logs:
 clean:
 	docker compose down
 
-fclean:
+fclean: clean
 	docker system prune --all --force --volumes
-
-prune: stop fclean
 
 re: clean all
 
