@@ -1,5 +1,8 @@
 .signup-avatar {
-	@apply text-white h-25 w-25 mx-auto bg-white rounded-full;
+	@apply text-white h-75 w-75 mx-auto bg-white rounded-full;
+}
+.signup-avatar img{
+	@apply h-75 w-75 rounded-full object-center object-cover;
 }
 .signup-avatar svg{
 	@apply rounded-full;

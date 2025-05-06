@@ -44,3 +44,23 @@ main .container{
 		@apply bg-purple-700 text-white;
 	}
 }
+
+
+::-webkit-scrollbar {
+	width: 2px;
+	height: 2px;
+  }
+
+  ::-webkit-scrollbar-track {
+	background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+	background-color: white;
+  }
+
+  /* For Firefox */
+  * {
+	scrollbar-width: thin;
+	scrollbar-color: white transparent;
+  }

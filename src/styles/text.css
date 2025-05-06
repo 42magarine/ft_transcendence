@@ -8,3 +8,13 @@ h2 {
 * {
 	@apply text-white;
 }
+
+p a {
+	text-decoration: underline;
+	transition: 0.2s;
+}
+
+p a:hover {
+	opacity: 0.7;
+	text-decoration: none;
+}

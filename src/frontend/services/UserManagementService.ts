@@ -68,6 +68,46 @@ export class UserManagementService {
 	static async registerUser(userData: User, avatarFile?: File): Promise<string> {
 		console.log("Registering user with data:", userData);
 		try {
+			// Check if 2FA is enabled but code verification is needed
+			if (userData.secret &&
+				userData.tf_one && userData.tf_two && userData.tf_three &&
+				userData.tf_four && userData.tf_five && userData.tf_six) {
+
+				// Combine the 2FA code
+				const code = `${userData.tf_one}${userData.tf_two}${userData.tf_three}${userData.tf_four}${userData.tf_five}${userData.tf_six}`;
+
+				// Verify the 2FA code before registration
+				try {
+					// Call to verify the code with the controller
+					const verifyResponse = await fetch('/api/users/verify-two-factor-setup', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							code: code,
+							secret: userData.secret
+						}),
+					});
+
+					if (!verifyResponse.ok) {
+						const errorData = await verifyResponse.json() as ApiErrorResponse;
+						throw new Error(errorData.error || 'Two-factor code verification failed');
+					}
+				} catch (error) {
+					alert('User registration successful, but two-factor authentication could not be enabled due to invalid code. You can enable it later in your account settings.');
+
+					// Remove 2FA data before proceeding with registration
+					userData.secret = undefined;
+					userData.tf_one = undefined;
+					userData.tf_two = undefined;
+					userData.tf_three = undefined;
+					userData.tf_four = undefined;
+					userData.tf_five = undefined;
+					userData.tf_six = undefined;
+				}
+			}
+
 			// Check if we have an avatar file
 			if (avatarFile && avatarFile.size > 0) {
 				console.log("Uploading avatar file:", avatarFile.name);
@@ -87,6 +127,8 @@ export class UserManagementService {
 				if (userData.role) {
 					formData.append('role', userData.role);
 				}
+
+				// Only add 2FA data if it exists
 				if (userData.tf_one) {
 					formData.append('tf_one', userData.tf_one);
 				}
@@ -568,7 +610,7 @@ export class UserManagementService {
 					// Verify the 2FA code
 					await UserManagementService.verifyTwoFactor(parseInt(userId, 10), code);
 
-					// Form will be reset by the verifyTwoFactor method
+
 				} catch (error) {
 					console.error('Two-factor verification failed:', error);
 					alert(error instanceof Error ? error.message : 'Two-factor verification failed');
@@ -586,7 +628,7 @@ export class UserManagementService {
 				avatarInput.setAttribute('accept', 'image/jpeg, image/png');
 			}
 
-			const displaynameInput = signupForm.querySelector("input[name=displayname]");
+			const usernameInput = signupForm.querySelector("input[name=username]");
 			const signupavatar = signupForm.querySelector(".signup-avatar");
 			const enableTwoFactor = signupForm.querySelector("input[name=enableTwoFactor]");
 			const qrDisplay = document.querySelector("#qr-display");
@@ -622,8 +664,8 @@ export class UserManagementService {
 			}
 
 			// Keep the existing SVG generation based on displayname
-			if (displaynameInput && signupavatar && avatarInput) {
-				displaynameInput.addEventListener("keyup", function (e) {
+			if (usernameInput && signupavatar && avatarInput) {
+				usernameInput.addEventListener("keyup", function (e) {
 					if (e.target && (avatarInput.value == "" || avatarInput.value == null)) {
 						const inputElement = e.target as HTMLInputElement;
 						const seed = inputElement.value;
@@ -667,10 +709,6 @@ export class UserManagementService {
 							if (signupavatar && e.target) {
 								const img = document.createElement('img');
 								img.src = e.target.result as string;
-								img.style.width = '100px';
-								img.style.height = '100px';
-								img.style.objectFit = 'cover';
-								img.style.borderRadius = '50%';
 
 								signupavatar.innerHTML = '';
 								signupavatar.appendChild(img);
@@ -678,9 +716,9 @@ export class UserManagementService {
 						};
 
 						reader.readAsDataURL(file);
-					} else if (displaynameInput) {
+					} else if (usernameInput) {
 						// If file is removed, revert to generated avatar based on displayname
-						const inputElement = displaynameInput as HTMLInputElement;
+						const inputElement = usernameInput as HTMLInputElement;
 						const seed = inputElement.value;
 
 						const seedSvg = generateTextVisualization(seed, {
