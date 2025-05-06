@@ -14,7 +14,7 @@ window.addEventListener("unload", () => {
 });
 
 // const socket: WebSocket = new WebSocket("ws://10.11.2.27:3000/ws");
-const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
+const socket: WebSocket = new WebSocket("ws://localhost:3000/game/ws");
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
@@ -25,7 +25,20 @@ let keysPressed: Record<string, boolean> = {};
 // The "open" event is triggered when the connection to the WebSocket server is successfully established.
 socket.addEventListener("open", () => {
 	console.log("Connected to WebSocket server");
+
+	createLobby();
 });
+
+function createLobby() {
+    // Get user ID from localStorage or session if available
+
+    const createMsg: ClientMessage = {
+        type: "createLobby"
+    };
+
+    socket.send(JSON.stringify(createMsg));
+    console.log("Creating lobby...");
+}
 
 // The "message" event is triggered when the server sends a message over WebSocket.
 socket.addEventListener("message", (event: MessageEvent<string>) => {
@@ -117,10 +130,10 @@ function draw() {
 const startGameButton = document.getElementById("startGameButton") as HTMLButtonElement;
 startGameButton.addEventListener("click", () => {
 	// If playerId is not null, send initGame message
-	if (playerId !== null) {
+	// if (playerId !== null) {
 		const initMsg: ClientMessage = { type: "initGame" };
 		socket.send(JSON.stringify(initMsg));
-	}
+	// }
 });
 
 const pauseGameButton = document.getElementById("pauseGameButton") as HTMLButtonElement;

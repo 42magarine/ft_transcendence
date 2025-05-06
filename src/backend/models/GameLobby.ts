@@ -30,7 +30,6 @@ export class GameLobby {
 		if (this._players.size >= this._maxPlayers) {
 			return null;
 		}
-
 		const playerNum = this._players.size + 1;
 
 		const player = new Player(connection, playerNum, userId || null);

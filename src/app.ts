@@ -36,7 +36,7 @@ checkEnvVars();
 
 // Create Fastify instance
 const fastify = Fastify({
-	logger: true // Aktiviere Logger für bessere Fehlermeldungen
+	// logger: true // Aktiviere Logger für bessere Fehlermeldungen
 });
 
 // Wichtig: Multipart muss VOR allen Routen registriert werden!
