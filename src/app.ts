@@ -35,14 +35,18 @@ dotenv.config();
 checkEnvVars();
 
 // Create Fastify instance
-const fastify = Fastify();
+// const fastify = Fastify();
 // const fastify = Fastify({ logger: true });
+const fastify = Fastify({
+    https: {
+        key: fs.readFileSync("/etc/ssl/private/key.pem"),
+        cert: fs.readFileSync("/etc/ssl/private/cert.pem")
+    }
+});
 
 // Wichtig: Multipart muss VOR allen Routen registriert werden!
 fastify.register(fastifyMultipart, {
-    limits: {
-        fileSize: 5 * 1024 * 1024, // Auf 5MB begrenzt für Avatarbilder
-    },
+    limits: { fileSize: 5 * 1024 * 1024 }, // Auf 5MB begrenzt für Avatarbilder
     attachFieldsToBody: false // Wichtig: Lässt Files als Stream
 });
 
@@ -50,9 +54,7 @@ fastify.register(fastifyMultipart, {
 
 // Register Plugins
 fastify.register(fastifyWebsocket, {
-    options: {
-        maxPayload: 1048576,
-    },
+    options: { maxPayload: 1048576 }
 });
 
 // Serve static HTML views accessible via "/"
@@ -210,7 +212,8 @@ const start = async (): Promise<void> => {
         }
 
         await fastify.listen({ port: 3000, host: "0.0.0.0" });
-        console.log('Server running on http://0.0.0.0:3000');
+        // console.log('Server running on http://0.0.0.0:3000');
+        console.log('HTTPS Server running at https://0.0.0.0:3000');
     }
     catch (error) {
         fastify.log.error(error);
