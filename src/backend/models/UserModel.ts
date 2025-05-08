@@ -49,31 +49,11 @@ export class UserModel {
 	@Column({ nullable: true })
 	verificationToken?: string;
 
-	@OneToMany(() => MatchModel, (match: any) => match.player1)
+	@OneToMany("MatchModel", (match: any) => match.player1)
 	matchAsPlayer1!: any[];
 
-	@OneToMany(() => MatchModel, (match: any) => match.player2)
+	@OneToMany("MatchModel", (match: any) => match.player2)
 	matchAsPlayer2!: any[];
 }
 
-@Entity()
-export class MatchHistory {
-	@PrimaryGeneratedColumn()
-	id!: number;
 
-	@ManyToOne(() => UserModel)
-	@JoinColumn({name: 'userId'})
-	user!: UserModel
-
-	@OneToMany(() => MatchModel, (match) => match.player1 || match.player2)
-	@JoinTable()
-	playedGames!: MatchModel[]
-
-	@Column({default: 0})
-	wonGames!: number;
-
-	@Column({default: 0})
-	lostGames!: number;
-}
-
-import { MatchModel } from "./MatchModel.js";

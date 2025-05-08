@@ -1,17 +1,17 @@
 all: up shell
 
 up:
-	docker compose up --build --detach
+	docker-compose up --build --detach
 
 start stop:
-	docker compose $@
+	docker-compose $@
 
 ls:
 	docker compose ps --all
 	docker compose images
 
 shell:
-	docker compose exec ft_transcendence bash
+	docker-compose exec ft_transcendence bash
 
 logs:
 	docker compose logs

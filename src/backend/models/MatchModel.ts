@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance } from "typeorm";
-import { UserModel } from "./UserModel.js";
+import { UserModel } from "./common.js";
 
 
 @Entity()
@@ -9,11 +9,11 @@ export class MatchModel
     @PrimaryGeneratedColumn()
     id!: number
 
-    @ManyToOne(() => UserModel, (user: any) => user.gameAsPlayer1)
+    @ManyToOne(() => UserModel, (user: any) => user.matchAsPlayer1)
     @JoinColumn({ name: 'player1Id' })
     player1!: any;
 
-    @ManyToOne(() => UserModel, (user: any) => user.gameAsPlayer2)
+    @ManyToOne(() => UserModel, (user: any) => user.matchAsPlayer2)
     @JoinColumn({ name: 'player2Id' })
     player2!: any;
 
