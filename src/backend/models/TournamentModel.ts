@@ -1,94 +1,77 @@
-import { CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne } from "typeorm";
+import { CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne, ChildEntity } from "typeorm";
 import { UserModel } from "./UserModel.js";
+import { MatchModel } from "./MatchModel.js";
+import { GameModel } from "./GameModel.js";
 
-@Entity()
-export class TournamentModel {
-    @PrimaryGeneratedColumn()
-    utid!: number;
+@ChildEntity("tournaments")
+export class TournamentModel extends MatchModel {
+  @Column({ default: 8 })
+  maxParticipants!: number;
 
-    @Column({ nullable: true })
-    tournamendAdminId?: number;
+  @ManyToMany(() => UserModel)
+  @JoinTable()
+  participants!: UserModel[];
 
-    @ManyToMany(() => UserModel)
-    @JoinTable()
-    participants!: UserModel[];
+  @ManyToMany(() => GameModel)
+  @JoinTable()
+  matches!: GameModel[];
 
-    @Column({ default: 4 })
-    minPlayers!: number;
-
-    @Column({ default: 8 })
-    maxPlayers!: number;
-
-    @OneToMany(() => TournamentRoundModel, (round) => round.tournament)
-    rounds!: TournamentRoundModel[];
-
-    // waiting for all rounds to finish
-    @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
-
-    @CreateDateColumn({ type: 'datetime' })
-    createdAt!: Date;
-
-    @Column({ type: 'datetime', nullable: true })
-    startedAt?: Date;
-
-    @Column({ type: 'datetime', nullable: true })
-    endedAt?: Date;
+  @Column({ default: 'registration' })
+  tournamentPhase!: 'registration' | 'in_progress' | 'completed';
 }
 
-@Entity()
-export class TournamentRoundModel {
+
+@Entity('tournament_matches')
+export class TournamentMatchModel {
     @PrimaryGeneratedColumn()
-    urid!: number;
+    id!: number;
 
     @Column()
-    roundNumber!: number;
+    tournamentId!: number;
 
-    @ManyToOne(() => TournamentModel, (tournament) => tournament.rounds)
+    @ManyToOne(() => TournamentModel, tournament => tournament.matches)
     @JoinColumn({ name: 'tournamentId' })
     tournament!: TournamentModel;
 
-    @OneToMany(() => TournamentMatchModel, (match) => match.round)
-    matches!: TournamentMatchModel[];
-}
-
-@Entity()
-export class TournamentMatchModel {
-    @PrimaryGeneratedColumn()
-    umid!: number;
-
-    @ManyToOne(() => TournamentRoundModel, (round) => round.matches)
-    @JoinColumn({ name: 'roundId' })
-    round!: TournamentModel;
-
-    @ManyToOne(() => UserModel, (user: any) => user.gameAsPlayer1)
+    @ManyToOne(() => UserModel)
     @JoinColumn({ name: 'player1Id' })
     player1!: UserModel;
 
-    @ManyToOne(() => UserModel, (user: any) => user.gameAsPlayer2)
+    @Column()
+    player1Id!: number;
+
+    @ManyToOne(() => UserModel)
     @JoinColumn({ name: 'player2Id' })
     player2!: UserModel;
+
+    @Column()
+    player2Id!: number;
+
+    @Column({ default: 0 })
+    player1Score!: number;
+
+    @Column({ default: 0 })
+    player2Score!: number;
+
+    @ManyToOne(() => UserModel, { nullable: true })
+    @JoinColumn({ name: 'winnerId' })
+    winner!: UserModel;
 
     @Column({ nullable: true })
     winnerId!: number;
 
-    @ManyToOne(() => UserModel)
-    @JoinColumn({ name: 'winnerId' })
-    winner!: UserModel;
-
-    //per match
     @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
+    status!: 'pending' | 'ongoing' | 'paused' | 'completed' | 'cancelled';
 
-    @Column({ type: 'datetime', nullable: true })
-    startedAt?: Date;
+    @Column()
+    matchNumber!: number;
 
-    @Column({ type: 'datetime', nullable: true })
-    endedAt?: Date;
+    @CreateDateColumn()
+    createdAt!: Date;
 
-    @Column({ default: 0 })
-    player1Score?: number;
+    @Column({ nullable: true, type: 'timestamp' })
+    startedAt!: Date;
 
-    @Column({ default: 0 })
-    player2Score?: number;
+    @Column({ nullable: true, type: 'timestamp' })
+    endedAt!: Date;
 }

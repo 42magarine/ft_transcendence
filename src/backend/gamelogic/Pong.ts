@@ -1,8 +1,8 @@
-import { Ball } from "./Ball.js";
-import { Paddle } from "./Paddle.js";
-import { Player } from "./Player.js";
+import { Ball } from "../gamelogic/components/Ball.js";
+import { Paddle } from "../gamelogic/components/Paddle.js";
+import { Player } from "../gamelogic/components/Player.js";
 import { IGameState, IPaddleDirection } from "../../types/interfaces.js";
-import { ServerMessage} from "../../types/ft_types.js";
+import { ServerMessage } from "../../types/interfaces.js";
 import { GAME_WIDTH, GAME_HEIGHT, STEPS, SCORE_LIMIT } from "../../types/constants.js";
 import { GameService } from "../services/GameService.js";
 
@@ -14,7 +14,7 @@ export class PongGame {
     private _paddle2: Paddle;
     private _score1: number = 0;
     private _score2: number = 0;
-    private _scoreLimit: number;
+    public _scoreLimit: number;
     private _paused: boolean = true;
     private _running: boolean = false;
     private _gameIsOver: boolean = false;

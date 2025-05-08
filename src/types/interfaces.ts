@@ -1,5 +1,3 @@
-import { Player } from "../backend/models/Player.js";
-
 export type IPaddleDirection = 'up' | 'down';
 
 export interface IBallState {
@@ -64,4 +62,56 @@ declare module 'fastify' {
             role: string;
         }
     }
+}
+
+export interface BaseMessage {
+    type: string
+}
+
+export interface ClientMessage {
+    type: string;
+    userId?: number;
+    targetUserId: number;
+    inviteId?: string;
+    lobbyId?: string;
+    direction?: IPaddleDirection;
+    message?: string;
+    [key: string]: any;
+}
+
+export interface GameActionMessage extends ClientMessage {
+    type: "gameAction";
+    action?: string;
+}
+
+export interface ReadyMessage extends ClientMessage {
+    ready: boolean;
+}
+
+export interface joinLobbyMessage extends ClientMessage {
+    type: "joinLobby"
+}
+
+export interface createLobbyMessage extends ClientMessage {
+    type: "createLobby"
+}
+
+export interface leaveLobby extends ClientMessage {
+    type: "leaveLobby"
+}
+
+export interface ServerMessage extends BaseMessage{
+    message?: string;
+    playerId?: number;
+    playerCount?: number;
+    lobbyId?: string;
+    userId?: number;
+    direction?: IPaddleDirection;
+    timestamp?: string;
+    [key: string]: any;
+}
+
+export interface GameStateMessage extends ServerMessage {
+    type: "gameState";
+    gameState: IGameState;
 }

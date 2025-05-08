@@ -1,4 +1,4 @@
-import { BALL_RADIUS, STEPSIZE } from "../../types/constants.js";
+import { BALL_RADIUS, STEPSIZE } from "../../../types/constants.js";
 
 export class Ball {
     private _x: number;
@@ -34,23 +34,6 @@ export class Ball {
         this._speedX *= randomXDirection;
         this._speedY *= randomYDirection;
     }
-
-
-    // alternative code try it out maybe better? dont know yet
-    // public randomizeDirection(): void {
-    //     // Add some random angle to make gameplay less predictable
-    //     const angle = Math.random() * Math.PI / 4 - Math.PI / 8; // -π/8 to π/8
-
-    //     // Reset to initial speed but in potentially random direction
-    //     const speed = 4;
-
-    //     // Random direction (left or right)
-    //     const direction = Math.random() > 0.5 ? 1 : -1;
-
-    //     this._speedX = Math.cos(angle) * speed * direction;
-    //     this._speedY = Math.sin(angle) * speed;
-    // }
-
 
     // Getters and Setters
 

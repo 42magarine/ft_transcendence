@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class UserModel {
@@ -49,27 +49,31 @@ export class UserModel {
 	@Column({ nullable: true })
 	verificationToken?: string;
 
-	@OneToMany(() => GameModel, (game: any) => game.Player1)
-	gameAsPlayer1!: any[];
+	@OneToMany(() => MatchModel, (match: any) => match.player1)
+	matchAsPlayer1!: any[];
 
-	@OneToMany(() => GameModel, (game: any) => game.Player2)
-	gameAsPlayer2!: any[];
+	@OneToMany(() => MatchModel, (match: any) => match.player2)
+	matchAsPlayer2!: any[];
 }
 
-// needs some work with relations to game model
 @Entity()
 export class MatchHistory {
 	@PrimaryGeneratedColumn()
 	id!: number;
 
-	@ManyToOne(() => GameModel, (game: any) => game.Player1)
-	playedGames?: GameModel[]
+	@ManyToOne(() => UserModel)
+	@JoinColumn({name: 'userId'})
+	user!: UserModel
 
-	@Column()
+	@OneToMany(() => MatchModel, (match) => match.player1 || match.player2)
+	@JoinTable()
+	playedGames!: MatchModel[]
+
+	@Column({default: 0})
 	wonGames!: number;
 
-	@Column()
+	@Column({default: 0})
 	lostGames!: number;
 }
 
-import { GameModel } from "./GameModel.js";
+import { MatchModel } from "./MatchModel.js";
