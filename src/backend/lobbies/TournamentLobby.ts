@@ -47,20 +47,20 @@ export class TournamentLobby extends MatchLobby {
         if (player.userId && !this._playerPoints.has(player.userId)) {
             this._playerPoints.set(player.userId, 0);
         }
-        
+
         this.updateTournamentInfo();
     }
 
     protected onPlayerRemoved(player: Player): void {
         if (this._gameStarted && player.userId) {
             this._matches.forEach(match => {
-                if (match.status === 'ongoing' && 
+                if (match.status === 'ongoing' &&
                     (match.player1Id === player.userId || match.player2Id === player.userId)) {
                     match.status = 'completed';
 
                     const opponentId = match.player1Id === player.userId ? match.player2Id : match.player1Id;
                     this._playerPoints.set(opponentId, (this._playerPoints.get(opponentId) || 0) + 3);
-                    
+
                     if (match.gameLobbyId) {
                         const gameLobby = this._gameLobbies.get(match.gameLobbyId);
                         if (gameLobby) {
@@ -70,10 +70,10 @@ export class TournamentLobby extends MatchLobby {
                     }
                 }
             });
-            
+
             this.checkAndProgressTournament();
         }
-        
+
         this.updateTournamentInfo();
     }
 
@@ -89,7 +89,7 @@ export class TournamentLobby extends MatchLobby {
                 };
             })
             .sort((a, b) => b.points - a.points);
-        
+
         this._broadcast(this._id, {
             type: "tournamentInfo",
             id: this._id,
@@ -111,7 +111,7 @@ export class TournamentLobby extends MatchLobby {
         }
 
         this._gameStarted = true;
-        
+
         if (!this._tournamentId && this._creatorId) {
             try {
                 const tournament = await this._tournamentService.createTournament(
@@ -119,17 +119,17 @@ export class TournamentLobby extends MatchLobby {
                     this._creatorId,
                     this._maxPlayers
                 );
-                
+
                 this._tournamentId = tournament.id;
-                
+
                 for (const player of this._players.values()) {
                     if (player.userId) {
                         await this._tournamentService.addParticipant(this._tournamentId, player.userId);
                     }
                 }
-                
+
                 const startedTournament = await this._tournamentService.startTournament(this._tournamentId);
-                
+
                 this._matches = startedTournament.matches.map(match => ({
                     player1Id: match.player1.id,
                     player2Id: match.player2.id,
@@ -137,13 +137,13 @@ export class TournamentLobby extends MatchLobby {
                     gameLobbyId: null,
                     status: 'pending'
                 }));
-                
+
                 for (const player of this._players.values()) {
                     if (player.userId) {
                         this._playerPoints.set(player.userId, 0);
                     }
                 }
-                
+
                 this._broadcast(this._id, {
                     type: "tournamentStarted",
                     tournamentId: this._tournamentId,
@@ -167,64 +167,64 @@ export class TournamentLobby extends MatchLobby {
             await this.finishTournament();
             return;
         }
-        
+
         const currentMatch = this._matches[this._currentMatchIndex];
         if (currentMatch.status !== 'pending') {
             this._currentMatchIndex++;
             this.startNextMatch();
             return;
         }
-        
+
         const gameLobbyId = randomUUID();
         const gameLobby = new GameLobby(
             gameLobbyId,
             this._broadcast,
             this._gameService
         );
-        
+
         this._gameLobbies.set(gameLobbyId, gameLobby);
         currentMatch.gameLobbyId = gameLobbyId;
         currentMatch.status = 'ongoing';
-        
+
         const player1 = Array.from(this._players.values()).find(p => p.userId === currentMatch.player1Id);
         const player2 = Array.from(this._players.values()).find(p => p.userId === currentMatch.player2Id);
-        
+
         if (!player1 || !player2) {
             currentMatch.status = 'completed';
             this._currentMatchIndex++;
             this.startNextMatch();
             return;
         }
-        
-        gameLobby.onGameCompleted = async (winnerId, player1Score, player2Score) => {
-            await this.handleMatchCompleted(currentMatch, winnerId, player1Score, player2Score);
-        };
 
-        if (player1.connection && player2.connection) {
-            gameLobby.addPlayer(player1.connection, player1.userId);
-            gameLobby.addPlayer(player2.connection, player2.userId);
+        // gameLobby.onGameCompleted = async (winnerId, player1Score, player2Score) => {
+        //     await this.handleMatchCompleted(currentMatch, winnerId, player1Score, player2Score);
+        // };
 
-            gameLobby.setPlayerReady(1, true);
-            gameLobby.setPlayerReady(2, true);
-            
-            setTimeout(() => {
-                gameLobby.startGame();
-            }, 3000);
-            
-            this._broadcast(this._id, {
-                type: "matchStarted",
-                matchIndex: this._currentMatchIndex,
-                player1Id: currentMatch.player1Id,
-                player2Id: currentMatch.player2Id,
-                gameLobbyId
-            });
-            
-            this.updateTournamentInfo();
-        } else {
-            currentMatch.status = 'completed';
-            this._currentMatchIndex++;
-            this.startNextMatch();
-        }
+        // if (player1.connection && player2.connection) {
+        //     gameLobby.addPlayer(player1.connection, player1.userId);
+        //     gameLobby.addPlayer(player2.connection, player2.userId);
+
+        //     gameLobby.setPlayerReady(1, true);
+        //     gameLobby.setPlayerReady(2, true);
+
+        //     setTimeout(() => {
+        //         gameLobby.startGame();
+        //     }, 3000);
+
+        //     this._broadcast(this._id, {
+        //         type: "matchStarted",
+        //         matchIndex: this._currentMatchIndex,
+        //         player1Id: currentMatch.player1Id,
+        //         player2Id: currentMatch.player2Id,
+        //         gameLobbyId
+        //     });
+
+        //     this.updateTournamentInfo();
+        // } else {
+        //     currentMatch.status = 'completed';
+        //     this._currentMatchIndex++;
+        //     this.startNextMatch();
+        // }
     }
 
     private async handleMatchCompleted(
@@ -240,7 +240,7 @@ export class TournamentLobby extends MatchLobby {
         player2Score: number
     ): Promise<void> {
         match.status = 'completed';
-        
+
         if (match.matchId) {
             try {
                 await this._tournamentService.updateMatchScore(match.matchId, player1Score, player2Score);
@@ -248,7 +248,7 @@ export class TournamentLobby extends MatchLobby {
                 console.error("Failed to update match score:", error);
             }
         }
-        
+
         if (player1Score > player2Score) {
             this._playerPoints.set(match.player1Id, (this._playerPoints.get(match.player1Id) || 0) + 3);
         } else if (player1Score < player2Score) {
@@ -257,7 +257,7 @@ export class TournamentLobby extends MatchLobby {
             this._playerPoints.set(match.player1Id, (this._playerPoints.get(match.player1Id) || 0) + 1);
             this._playerPoints.set(match.player2Id, (this._playerPoints.get(match.player2Id) || 0) + 1);
         }
-        
+
         if (match.gameLobbyId && this._gameLobbies.has(match.gameLobbyId)) {
             const gameLobby = this._gameLobbies.get(match.gameLobbyId);
             if (gameLobby) {
@@ -265,7 +265,7 @@ export class TournamentLobby extends MatchLobby {
                 this._gameLobbies.delete(match.gameLobbyId);
             }
         }
-        
+
         this._broadcast(this._id, {
             type: "matchCompleted",
             matchIndex: this._currentMatchIndex,
@@ -275,9 +275,9 @@ export class TournamentLobby extends MatchLobby {
             player2Score,
             winnerId
         });
-        
+
         this.updateTournamentInfo();
-        
+
         this._currentMatchIndex++;
         setTimeout(() => {
             this.checkAndProgressTournament();
@@ -286,7 +286,7 @@ export class TournamentLobby extends MatchLobby {
 
     private checkAndProgressTournament(): void {
         const allMatchesCompleted = this._matches.every(match => match.status === 'completed');
-        
+
         if (allMatchesCompleted) {
             this.finishTournament();
         } else if (this._currentMatchIndex < this._matches.length) {
@@ -296,36 +296,36 @@ export class TournamentLobby extends MatchLobby {
 
     private async finishTournament(): Promise<void> {
         if (!this._tournamentId) return;
-        
+
         const standings = Array.from(this._playerPoints.entries())
             .sort((a, b) => b[1] - a[1]);
-        
+
         const winner = standings.length > 0 ? standings[0][0] : null;
-        
+
         this._broadcast(this._id, {
             type: "tournamentCompleted",
             tournamentId: this._tournamentId,
             standings: standings.map(([userId, points]) => ({ userId, points })),
             winnerId: winner
         });
-        
+
         this._gameStarted = false;
     }
 
     public stopGame(): void {
-        if (!this._gameStarted) 
+        if (!this._gameStarted)
         {
             return;
         }
 
-        for (const [id, lobby] of this._gameLobbies.entries()) 
+        for (const [id, lobby] of this._gameLobbies.entries())
         {
             lobby.stopGame();
         }
-        
+
         this._gameLobbies.clear();
         this._gameStarted = false;
-        
+
         this._broadcast(this._id, {
             type: "tournamentStopped"
         });

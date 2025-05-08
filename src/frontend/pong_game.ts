@@ -1,4 +1,4 @@
-import { ClientMessage, ServerMessage } from "../types/ft_types.js";
+import { ClientMessage, ServerMessage } from "../types/interfaces.js";
 import { IPaddleDirection } from "../types/interfaces.js";
 import { IGameState } from "../types/interfaces.js"
 

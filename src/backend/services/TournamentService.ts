@@ -20,10 +20,10 @@ export class TournamentService extends MatchService {
             throw new Error("Creator not found")
 
         const tournament = new TournamentModel();
-        tournament.name = name;
-        tournament.creator = creator;
-        tournament.creatorId = creatorId;
-        tournament.maxPlayers = maxPlayers;
+        // tournament.name = name;
+        // tournament.creator = creator;
+        // tournament.creatorId = creatorId;
+        // tournament.maxPlayers = maxPlayers;
         tournament.status = 'pending'
         tournament.participants = [creator]
 
@@ -42,7 +42,7 @@ export class TournamentService extends MatchService {
         const tournament = await this.getTournamentById(tournamentId)
         if(!tournament)
             throw new Error("aahahahahahaha")
-    
+
         if (tournament.status !== 'pending' || tournament.participants.length >= tournament.maxParticipants)
             throw new Error("you shouldn dawdad mate lol kakakaka")
 
@@ -61,7 +61,7 @@ export class TournamentService extends MatchService {
         const tournament = await this.getTournamentById(tournamenId)
         if(!tournament)
             throw new Error("aahahahahahaha")
-    
+
         if (tournament.status !== 'pending' || tournament.participants.length < 2)
             throw new Error("you shouldn dawdad mate lol kakakaka")
 
@@ -87,7 +87,7 @@ export class TournamentService extends MatchService {
                 matches.push(await this.tournamentMatchRepo.save(match))
             }
         }
-        tournament.matches = matches;
+        // tournament.matches = matches;
         return await this.tournamentRepo.save(tournament)
     }
 
@@ -106,7 +106,7 @@ export class TournamentService extends MatchService {
             losses: number
         }> = {};
 
-     
+
         tournament.participants.forEach(player => {
             standings[player.id] = {
                 userId: player.id,
@@ -148,28 +148,28 @@ export class TournamentService extends MatchService {
             where: { id: matchId },
             relations: ['player1', 'player2', 'tournament']
         });
-        
+
         if (!match) {
             throw new Error("Match not found");
         }
 
         match.player1Score = player1Score;
         match.player2Score = player2Score;
-        
+
         if (match.player1Score !== match.player2Score) {
             const winnerId = match.player1Score > match.player2Score ? match.player1.id : match.player2.id;
             const winner = match.player1Score > match.player2Score ? match.player1 : match.player2;
             match.winnerId = winnerId;
             match.winner = winner;
         }
-        
+
         match.status = 'completed';
         match.endedAt = new Date();
-        
+
         await this.tournamentMatchRepo.save(match);
-        
+
         await this.checkTournamentCompletion(match.tournamentId);
-        
+
         return match;
     }
 
@@ -178,11 +178,11 @@ export class TournamentService extends MatchService {
         if (!tournament) return;
 
         const allMatchesCompleted = tournament.matches.every(match => match.status === 'completed');
-        
+
         if (allMatchesCompleted && tournament.status === 'ongoing') {
             tournament.status = 'completed';
             tournament.endedAt = new Date();
-            
+
             const standings = await this.getTournamentStandings(tournamentId);
             if (standings.length > 0) {
                 const winner = await this.userService.findId(standings[0].userId);
@@ -191,7 +191,7 @@ export class TournamentService extends MatchService {
                     tournament.winner = winner;
                 }
             }
-            
+
             await this.tournamentRepo.save(tournament);
         }
     }
@@ -209,7 +209,7 @@ export class TournamentService extends MatchService {
             .leftJoinAndSelect("tournament.creator", "creator")
             .where("participants.id = :userId", { userId })
             .getMany();
-        
+
         return tournaments;
     }
 }

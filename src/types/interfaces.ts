@@ -64,14 +64,14 @@ declare module 'fastify' {
     }
 }
 
-export interface BaseMessage {
-    type: string
-}
+// export interface BaseMessage {
+//     type: string
+// }
 
 export interface ClientMessage {
     type: string;
     userId?: number;
-    targetUserId: number;
+    targetUserId?: number;
     inviteId?: string;
     lobbyId?: string;
     direction?: IPaddleDirection;
@@ -100,7 +100,8 @@ export interface leaveLobby extends ClientMessage {
     type: "leaveLobby"
 }
 
-export interface ServerMessage extends BaseMessage{
+export interface ServerMessage {
+    type: string;
     message?: string;
     playerId?: number;
     playerCount?: number;
