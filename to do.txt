@@ -5,7 +5,8 @@ TypeScript Richtlinien:
 - Type Definition in TypeScript
 - camelCase => Functions and Variables /  PascalCase => Classes
 
-
+IP-Adresse Mac-Rechner:
+    ipconfig getifaddr en0
 
 Modules:
     Web:

@@ -3,7 +3,7 @@
 // ========================
 
 import Card from '../components/Card.js';
-import Button from '../components/Button.js';
+// import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class Signup extends AbstractView {
@@ -12,7 +12,7 @@ export default class Signup extends AbstractView {
 	}
 
 	async getHtml(): Promise<string> {
-		const button = new Button();
+		// const button = new Button();
 
 		const twoFactorInterface = `
 			<div id="twoFactorInterface">
@@ -22,7 +22,6 @@ export default class Signup extends AbstractView {
 					<input type="number" id="tf_one" name="tf_one" value="" placeholder="" min="0" max="9" class="tf_numeric" >
 					<input type="number" id="tf_two" name="tf_two" value="" placeholder="" min="0" max="9" class="tf_numeric" >
 					<input type="number" id="tf_three" name="tf_three" value="" placeholder="" min="0" max="9" class="tf_numeric" >
-					<div class="spacer"></div>
 					<input type="number" id="tf_four" name="tf_four" value="" placeholder="" min="0" max="9" class="tf_numeric" >
 					<input type="number" id="tf_five" name="tf_five" value="" placeholder="" min="0" max="9" class="tf_numeric" >
 					<input type="number" id="tf_six" name="tf_six" value="" placeholder="" min="0" max="9" class="tf_numeric" >
@@ -45,8 +44,34 @@ export default class Signup extends AbstractView {
 			],
 			preButton: twoFactorInterface,
 			button: { text: 'Sign up', type: 'submit', className: "btn btn-primary" },
-			extra: '<p>May want to <a router href="/login">log in</a></p>'
+			// extra: '<p>May want to <a router href="/login">log in</a></p>'
+            extra: `
+                <p>May want to <a router href="/login">log in</a></p>
+
+                <!-- Google Sign-In Button -->
+                <div id="g_id_onload"
+                    data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                    data-login_uri="https://your.domain/your_login_endpoint"
+                    data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                    data-type="standard"
+                    data-theme="filled_blue"
+                    data-size="medium"
+                    data-text="signup_with"
+                    data-shape="rectangular"
+                    data-logo_alignment="left">
+                </div>
+            `
 		});
+
+        if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
 
 		return this.render(`
 			<div class="flex justify-center items-center min-h-[80vh] px-4">
