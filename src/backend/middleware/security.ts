@@ -40,3 +40,6 @@ export const authenticate = async (request: FastifyRequest, reply : FastifyReply
 			return reply.code(401).send({error: 'Authentication failed'});
 		}
 };
+
+// export async function verify2FA();
+// export async function createQRCode2FA();

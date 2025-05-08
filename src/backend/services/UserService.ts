@@ -6,6 +6,9 @@ import jwt from "jsonwebtoken";
 import { deleteAvatar } from "../services/FileService.js";
 import { EmailService } from "../services/EmailService.js";
 
+import QRCode from 'qrcode';
+import speakeasy from 'speakeasy';
+
 export class UserService {
 	// get user table from db
 	private userRepo = AppDataSource.getRepository(UserModel);
@@ -158,7 +161,7 @@ export class UserService {
 	async findUnameAcc(username: string) {
 		return await this.userRepo.findOne({
 			where: { username },
-			select: ['id', 'username', 'email', 'password', 'role', 'avatar', 'emailVerified']
+			select: ['id', 'username', 'email', 'password', 'role', 'avatar', 'emailVerified', 'twoFAEnabled', 'twoFASecret']
 		});
 	}
 
@@ -219,6 +222,7 @@ export class UserService {
 		return await this.userRepo.update(currentUser, user);
 	}
 
+	//Decide which one to use, removeUser and deletebyId are similar.
 	async deleteById(id: number, requestingUserRole?: string): Promise<boolean> {
 		try {
 			const user = await this.userRepo.findOne({ where: { id } });
@@ -289,15 +293,37 @@ export class UserService {
 	}
 
 	// for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
-	async register(credentials: RegisterCredentials & { avatar?: string }, requestingUserRole?: string) {
+	async register(credentials: RegisterCredentials & { avatar?: string, secret?: string }, requestingUserRole?: string) {
 		const hashedPW = await hashPW(credentials.password);
 
-		const user = await this.createUser({
+		// Create user data with potential 2FA settings
+		const userData: any = {
 			...credentials,
 			password: hashedPW
-		}, requestingUserRole);
+		};
 
-		// generate security token to hand back to user because successfully registered
+		// If secret is provided and 2FA token is valid, enable 2FA
+		if (credentials.secret) {
+			// Get the token from the tf_ fields if they exist
+			const token = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
+				credentials.tf_four && credentials.tf_five && credentials.tf_six ?
+				`${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` : '';
+
+			if (token) {
+				const verified = speakeasy.totp.verify({
+					secret: credentials.secret,
+					encoding: 'base32',
+					token: token
+				});
+
+				if (verified) {
+					userData.twoFAEnabled = true;
+					userData.twoFASecret = credentials.secret;
+				}
+			}
+		}
+
+		const user = await this.createUser(userData, requestingUserRole);
 		return this.generateTokens(user);
 	}
 
@@ -321,6 +347,60 @@ export class UserService {
 			throw new Error('Email not verified. Please check your email for verification link.');
 		}
 
+		// Check if 2FA is enabled for this user
+		if (user.twoFAEnabled && user.twoFASecret) {
+			// Return a response indicating 2FA is required, but without generating a token yet
+			return {
+				requireTwoFactor: true,
+				userId: user.id,
+				username: user.username
+			};
+		}
+
+		// If no 2FA, proceed with normal login
 		return this.generateTokens(user);
+	}
+
+	// Add new method to verify 2FA code
+	async verifyTwoFactorCode(userId: number, code: string): Promise<AuthTokens> {
+		const user = await this.userRepo.findOneBy({ id: userId });
+
+		if (!user) {
+			throw new Error('User not found');
+		}
+
+		if (!user.twoFAEnabled || !user.twoFASecret) {
+			throw new Error('Two-factor authentication is not enabled for this user');
+		}
+
+		// Verify the provided code
+		const verified = speakeasy.totp.verify({
+			secret: user.twoFASecret,
+			encoding: 'base32',
+			token: code
+		});
+
+		if (!verified) {
+			throw new Error('Invalid two-factor authentication code');
+		}
+
+		// Code is valid, generate tokens
+		return this.generateTokens(user);
+	}
+
+	async generateQR() {
+		const secret = speakeasy.generateSecret();
+
+		const otpauthUrl = secret.otpauth_url;
+		const otpauthUrlBase = secret.base32;
+
+		if (otpauthUrl && otpauthUrlBase) {
+			const otpauthUrlData = await QRCode.toDataURL(otpauthUrl);
+			if (otpauthUrlData) {
+				return { qr: otpauthUrlData, secret: otpauthUrlBase };
+			}
+		}
+
+		return null;
 	}
 }

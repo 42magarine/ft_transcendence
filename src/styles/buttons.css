@@ -28,11 +28,12 @@
 /* === VARIANTS === */
 /* 🔵 Primary (default action) */
 
+
 .btn-primary {
-@apply bg-blue-600 text-white
-		hover:bg-blue-700
-		active:bg-blue-800;
-}
+	@apply bg-blue-900/70 text-white
+		 hover:bg-blue-800/70
+		 active:bg-blue-900/95;
+  }
 
 /* ⚪ Secondary (neutral action) */
 .btn-secondary {
@@ -43,9 +44,9 @@
 
 /* 🔴 Danger (destructive action) */
 .btn-danger {
-@apply bg-red-400 text-white
-		hover:bg-red-700
-		active:bg-red-800;
+@apply bg-red-800/80 text-white
+		hover:bg-red-900/80
+		active:bg-red-800/80;
 }
 
 /* 🔘 Outline variant (border-only) */

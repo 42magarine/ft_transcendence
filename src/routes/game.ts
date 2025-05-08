@@ -12,7 +12,11 @@ export default async function (fastify: FastifyInstance)
 
 	// mir egal wir machen alles ueber websocket kein bock auf api zweial schreiben und dann benutzen wir eh nur ws
     // Websocket route handler
-    fastify.get('/game/ws', { websocket: true }, (connection, request) => {
+    // fastify.get('/game/ws', { websocket: true }, (connection, request) => {
+	// 	const userId = request.user?.id;
+    //     pongController.handleConnection(connection, userId);
+    // });
+    fastify.get('/game/wss', { websocket: true }, (connection, request) => {
 		const userId = request.user?.id;
         pongController.handleConnection(connection, userId);
     });

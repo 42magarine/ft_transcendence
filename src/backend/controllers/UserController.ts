@@ -14,6 +14,77 @@ export class UserController {
 
 	// Existing methods remain...
 
+	// Modified login method to handle 2FA
+	// Modified login method to handle 2FA
+	async login(request: FastifyRequest<{ Body: UserCredentials }>, reply: FastifyReply) {
+		try {
+			const result = await this.userService.login(request.body);
+
+			// Check if 2FA is required
+			if ('requireTwoFactor' in result && result.requireTwoFactor) {
+				// Return information needed for 2FA verification without setting cookies
+				return reply.code(200).send({
+					requireTwoFactor: true,
+					userId: result.userId,
+					username: result.username
+				});
+			}
+
+			// Use type assertion to tell TypeScript that at this point, result is AuthTokens
+			const authTokens = result as { accessToken: string };
+
+			// Normal login flow (no 2FA)
+			reply.setCookie('accessToken', authTokens.accessToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'strict',
+				path: '/',
+				maxAge: 15 * 60 * 1000
+			});
+			return reply.code(200).send({ message: 'Login successful' });
+		}
+		catch (error) {
+			const message = error instanceof Error ? error.message : 'Invalid login credentials';
+			reply.code(400).send({ error: message });
+		}
+	}
+
+	// Fixed verifyTwoFactor method
+	async verifyTwoFactor(request: FastifyRequest<{
+		Body: {
+			userId: number;
+			code: string;
+		}
+	}>, reply: FastifyReply) {
+		try {
+			const { userId, code } = request.body;
+
+			if (!userId || !code) {
+				return reply.code(400).send({ error: 'User ID and verification code are required' });
+			}
+
+			// Use code directly since we know it's a string due to request type definition
+			// No need for the toString() conversion that was causing errors
+
+			// Verify the 2FA code
+			const result = await this.userService.verifyTwoFactorCode(userId, code);
+
+			// Set the authentication cookie
+			reply.setCookie('accessToken', result.accessToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'strict',
+				path: '/',
+				maxAge: 15 * 60 * 1000
+			});
+
+			return reply.code(200).send({ message: 'Two-factor authentication successful' });
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Two-factor authentication failed';
+			reply.code(400).send({ error: message });
+		}
+	}
+
 	// New methods for password reset and email verification
 
 	async requestPasswordReset(request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) {
@@ -151,14 +222,60 @@ export class UserController {
 		try {
 			console.log("Register endpoint called");
 
-			// Prüfen, ob es sich um einen Multipart-Request handelt
-			if (!request.isMultipart()) {
-				console.log("Processing JSON request");
+			// Handle multipart form data
+			if (request.isMultipart()) {
+				console.log("Processing multipart request");
 
-				// Bei JSON-Anfragen das Body direkt verwenden
-				const userData = request.body as RegisterCredentials;
+				const userData: RegisterCredentials & {
+					avatar?: string,
+					secret?: string,
+					tf_one?: string,
+					tf_two?: string,
+					tf_three?: string,
+					tf_four?: string,
+					tf_five?: string,
+					tf_six?: string
+				} = {
+					username: "",
+					email: "",
+					password: "",
+					displayname: "",
+				};
 
-				// Überprüfen, ob der Benutzer bereits angemeldet ist und seine Rolle erhalten
+				let avatarData = null;
+
+				// Process multipart form data
+				const parts = request.parts();
+
+				for await (const part of parts) {
+					console.log(`Processing part: ${part.type}, fieldname: ${part.fieldname}`);
+
+					if (part.type === 'file' && part.fieldname === 'avatar') {
+						try {
+							console.log("Saving avatar file");
+							const result = await saveAvatar(part);
+							avatarData = result.publicPath;
+							console.log(`Avatar saved: ${avatarData}`);
+						} catch (error) {
+							console.error("Error saving avatar:", error);
+							return reply.code(400).send({ error: 'Failed to save avatar file' });
+						}
+					} else if (part.type === 'field') {
+						console.log(`Field ${part.fieldname}: ${part.value}`);
+						(userData as any)[part.fieldname] = part.value;
+					}
+				}
+
+				if (avatarData) {
+					userData.avatar = avatarData;
+				}
+
+				console.log("Processed user data:", userData);
+
+				if (!userData.username || !userData.email || !userData.password) {
+					return reply.code(400).send({ error: 'Missing required fields' });
+				}
+
 				let requestingUserRole: string | undefined;
 				const token = request.cookies.accessToken;
 
@@ -169,93 +286,63 @@ export class UserController {
 							requestingUserRole = payload.role;
 						}
 					} catch (error) {
-						// Ohne Berechtigungen fortfahren
+						// Continue without permissions
 					}
 				}
 
-				// Verhindern der Registrierung von Master-Benutzern über die API
+				if (userData.role === 'master') {
+					return reply.code(403).send({ error: 'Master user can only be created through environment variables' });
+				}
+
+				// Register user with 2FA data included
+				await this.userService.register(userData, requestingUserRole);
+
+				return reply.code(201).send({
+					message: "Registration successful. Please check your email to verify your account.",
+					twoFAEnabled: userData.secret && userData.tf_one && userData.tf_two && userData.tf_three &&
+						userData.tf_four && userData.tf_five && userData.tf_six ? true : false
+				});
+			} else {
+				console.log("Processing JSON request");
+
+				const userData = request.body as RegisterCredentials & {
+					secret?: string,
+					tf_one?: string,
+					tf_two?: string,
+					tf_three?: string,
+					tf_four?: string,
+					tf_five?: string,
+					tf_six?: string
+				};
+
+				let requestingUserRole: string | undefined;
+				const token = request.cookies.accessToken;
+
+				if (token) {
+					try {
+						const payload = await verifyJWT(token);
+						if (payload && payload.role) {
+							requestingUserRole = payload.role;
+						}
+					} catch (error) {
+						// Continue without permissions
+					}
+				}
+
 				if (userData && userData.role === 'master') {
 					return reply.code(403).send({ error: 'Master user can only be created through environment variables' });
 				}
 
-				// Benutzer mit Rollenüberprüfung registrieren
+				// Register user with 2FA data
 				await this.userService.register(userData, requestingUserRole);
-				return reply.code(201).send({ message: "Registration successful. Please check your email to verify your account." });
+
+				return reply.code(201).send({
+					message: "Registration successful. Please check your email to verify your account.",
+					twoFAEnabled: userData.secret && userData.tf_one && userData.tf_two && userData.tf_three &&
+						userData.tf_four && userData.tf_five && userData.tf_six ? true : false
+				});
 			}
-
-			console.log("Processing multipart request");
-
-			// Bei Multipart-Anfragen die Teile verarbeiten
-			const userData: RegisterCredentials & { avatar?: string } = {
-				username: "",
-				email: "",
-				password: "",
-				displayname: "",
-			};
-
-			let avatarData = null;
-
-			// Multipart-Form-Daten verarbeiten
-			const parts = request.parts();
-
-			for await (const part of parts) {
-				console.log(`Processing part: ${part.type}, fieldname: ${part.fieldname}`);
-
-				if (part.type === 'file' && part.fieldname === 'avatar') {
-					// Avatar-Datei speichern
-					try {
-						console.log("Saving avatar file");
-						const result = await saveAvatar(part);
-						avatarData = result.publicPath;
-						console.log(`Avatar saved: ${avatarData}`);
-					} catch (error) {
-						console.error("Error saving avatar:", error);
-						return reply.code(400).send({ error: 'Failed to save avatar file' });
-					}
-				} else if (part.type === 'field') {
-					// Form-Felder verarbeiten
-					console.log(`Field ${part.fieldname}: ${part.value}`);
-					(userData as any)[part.fieldname] = part.value;
-				}
-			}
-
-			// Avatar-Pfad hinzufügen, falls vorhanden
-			if (avatarData) {
-				userData.avatar = avatarData;
-			}
-
-			console.log("Processed user data:", userData);
-
-			// Überprüfen, ob alle erforderlichen Felder vorhanden sind
-			if (!userData.username || !userData.email || !userData.password) {
-				return reply.code(400).send({ error: 'Missing required fields' });
-			}
-
-			// Überprüfen, ob der Benutzer bereits angemeldet ist und seine Rolle erhalten
-			let requestingUserRole: string | undefined;
-			const token = request.cookies.accessToken;
-
-			if (token) {
-				try {
-					const payload = await verifyJWT(token);
-					if (payload && payload.role) {
-						requestingUserRole = payload.role;
-					}
-				} catch (error) {
-					// Ohne Berechtigungen fortfahren
-				}
-			}
-
-			// Verhindern der Registrierung von Master-Benutzern über die API
-			if (userData.role === 'master') {
-				return reply.code(403).send({ error: 'Master user can only be created through environment variables' });
-			}
-
-			// Benutzer mit Rollenüberprüfung registrieren
-			await this.userService.register(userData, requestingUserRole);
-			return reply.code(201).send({ message: "Registration successful. Please check your email to verify your account." });
-		}
-		catch (error) {
+		} catch (error) {
 			console.error('Registration error:', error);
 			const message = error instanceof Error ? error.message : 'Registration failed';
 
@@ -524,24 +611,6 @@ export class UserController {
 		}
 	}
 
-	async login(request: FastifyRequest<{ Body: UserCredentials }>, reply: FastifyReply) {
-		try {
-			const result = await this.userService.login(request.body);
-			reply.setCookie('accessToken', result.accessToken, {
-				httpOnly: true,
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'strict',
-				path: '/',
-				maxAge: 15 * 60 * 1000
-			});
-			reply.code(200).send({ message: 'Login successful' });
-		}
-		catch (error) {
-			const message = error instanceof Error ? error.message : 'Invalid login credentials';
-			reply.code(400).send({ error: message });
-		}
-	}
-
 	async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
 		try {
 			// Get the token from cookies
@@ -586,5 +655,13 @@ export class UserController {
 		});
 
 		return reply.code(200).send({ message: 'Logout successful' });
+	}
+
+	async generateQR(request: FastifyRequest, reply: FastifyReply) {
+		let secAQrCode = await this.userService.generateQR();
+		if (!secAQrCode) {
+			return reply.code(500).send({ error: "QR generation failed!" });
+		}
+		return reply.code(200).send(secAQrCode);
 	}
 }

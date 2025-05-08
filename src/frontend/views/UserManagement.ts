@@ -92,16 +92,21 @@ export default class UserManagement extends AbstractView {
 		// List Card
 		const listCard = await card.renderCard({
 			title: 'Users',
-			extra: `<table class="list">
+			extra: `<table class="list" data-height="400px">
+				<thead>
 				<tr>
 					<th>Avatar</th>
 					<th>ID</th>
 					<th>Name</th>
 					<th>Username</th>
 					<th>E-Mail</th>
+					<th>Verified</th>
+					<th>2FA</th>
 					<th>Role</th>
 					<th></th>
 				</tr>
+				</thead>
+				<tbody>
 				<for each="users" as="user">
 					<tr>
 						<td>{{user.listAvatar}}</td>
@@ -109,6 +114,8 @@ export default class UserManagement extends AbstractView {
 						<td>{{user.displayname}}</td>
 						<td>{{user.username}}</td>
 						<td>{{user.email}}</td>
+						<td>{{user.emailVerified}}</td>
+						<td>{{user.twoFAEnabled}}</td>
 						<td><span class="role-tag role-{{user.role}}">{{user.role}}</span></td>
 						<td class="text-right">
 							<a router class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
@@ -117,6 +124,7 @@ export default class UserManagement extends AbstractView {
 						</td>
 					</tr>
 				</for>
+				</tbody>
 			</table>`,
 			data: { users }
 		});

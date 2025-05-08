@@ -39,3 +39,7 @@ header .dropdown:hover .dropdown-body {
 header .dropdown-img *{
     @apply text-white h-10 w-10 mx-auto bg-white rounded-full;
 }
+
+img.flag {
+	width: 30px;
+}

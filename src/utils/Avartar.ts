@@ -380,6 +380,9 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 	width: 100,
 	height: 100,
 }): string {
+	while (text.length < 25 && text.length > 0) {
+		text += text;
+	}
 	const width = options.width || 800;
 	const height = options.height || 400;
 	const backgroundColor = options.backgroundColor || '#ffffff';
@@ -494,8 +497,8 @@ function generateProfileImage(userData: any, width: number, height: number): str
 		return `<img src="${userData.avatar}" alt="Avatar of ${userData.d}" />`;
 	}
 	let seed = "";
-	if (userData.displayname) {
-		seed = `${userData.displayname}`;
+	if (userData.username) {
+		seed = `${userData.username}`;
 	}
 	return generateTextVisualization(seed, {
 		width: width,

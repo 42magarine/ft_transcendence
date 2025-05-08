@@ -9,9 +9,9 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(12px);
   color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(255, 255, 255, 0.2);
   transition: box-shadow 0.2s, outline-color 0.2s;
-  
+
 }
 
 /* optional base style for placeholder color (v4 uses currentColor/50) */

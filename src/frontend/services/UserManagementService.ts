@@ -1,4 +1,4 @@
-import { generateTextVisualization } from "./../../utils/Avartar.js"
+import { generateTextVisualization } from "../../utils/Avartar.js"
 import Router from '../../utils/Router.js';
 
 interface User {
@@ -10,6 +10,13 @@ interface User {
 	role?: string;
 	avatar?: string;
 	emailVerified?: boolean;
+	tf_one?: string;
+	tf_two?: string;
+	tf_three?: string;
+	tf_four?: string;
+	tf_five?: string;
+	tf_six?: string;
+	secret?: string;
 }
 
 interface ApiErrorResponse {
@@ -24,6 +31,9 @@ interface LoginCredentials {
 interface AuthResponse {
 	message?: string;
 	error?: string;
+	requireTwoFactor?: boolean;
+	userId?: number;
+	username?: string;
 }
 
 interface PasswordResetRequest {
@@ -34,6 +44,11 @@ interface PasswordResetConfirm {
 	password: string;
 	confirmPassword: string;
 	token: string;
+}
+
+interface QRResponse {
+	secret: string,
+	qr: string
 }
 
 export class UserManagementService {
@@ -53,6 +68,46 @@ export class UserManagementService {
 	static async registerUser(userData: User, avatarFile?: File): Promise<string> {
 		console.log("Registering user with data:", userData);
 		try {
+			// Check if 2FA is enabled but code verification is needed
+			if (userData.secret &&
+				userData.tf_one && userData.tf_two && userData.tf_three &&
+				userData.tf_four && userData.tf_five && userData.tf_six) {
+
+				// Combine the 2FA code
+				const code = `${userData.tf_one}${userData.tf_two}${userData.tf_three}${userData.tf_four}${userData.tf_five}${userData.tf_six}`;
+
+				// Verify the 2FA code before registration
+				try {
+					// Call to verify the code with the controller
+					const verifyResponse = await fetch('/api/users/verify-two-factor-setup', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							code: code,
+							secret: userData.secret
+						}),
+					});
+
+					if (!verifyResponse.ok) {
+						const errorData = await verifyResponse.json() as ApiErrorResponse;
+						throw new Error(errorData.error || 'Two-factor code verification failed');
+					}
+				} catch (error) {
+					alert('User registration successful, but two-factor authentication could not be enabled due to invalid code. You can enable it later in your account settings.');
+
+					// Remove 2FA data before proceeding with registration
+					userData.secret = undefined;
+					userData.tf_one = undefined;
+					userData.tf_two = undefined;
+					userData.tf_three = undefined;
+					userData.tf_four = undefined;
+					userData.tf_five = undefined;
+					userData.tf_six = undefined;
+				}
+			}
+
 			// Check if we have an avatar file
 			if (avatarFile && avatarFile.size > 0) {
 				console.log("Uploading avatar file:", avatarFile.name);
@@ -71,6 +126,29 @@ export class UserManagementService {
 
 				if (userData.role) {
 					formData.append('role', userData.role);
+				}
+
+				// Only add 2FA data if it exists
+				if (userData.tf_one) {
+					formData.append('tf_one', userData.tf_one);
+				}
+				if (userData.tf_two) {
+					formData.append('tf_two', userData.tf_two);
+				}
+				if (userData.tf_three) {
+					formData.append('tf_three', userData.tf_three);
+				}
+				if (userData.tf_four) {
+					formData.append('tf_four', userData.tf_four);
+				}
+				if (userData.tf_five) {
+					formData.append('tf_five', userData.tf_five);
+				}
+				if (userData.tf_six) {
+					formData.append('tf_six', userData.tf_six);
+				}
+				if (userData.secret) {
+					formData.append('secret', userData.secret);
 				}
 
 				// Add the file with fieldname 'avatar'
@@ -134,12 +212,59 @@ export class UserManagementService {
 
 			const result = await response.json() as AuthResponse;
 
-			// Trigger router update after successful login
+			// Check if 2FA is required
+			if (result.requireTwoFactor) {
+				// Store credentials temporarily (for the 2FA verification)
+				sessionStorage.setItem('pendingUserId', result.userId?.toString() || '');
+				sessionStorage.setItem('pendingUsername', result.username || '');
+
+				// Redirect to 2FA page
+				window.location.href = '/two-factor';
+				return result;
+			}
+
+			// Normal login flow
 			Router.update();
+			window.location.href = '/';
 
 			return result;
 		} catch (error) {
 			console.error('Login error:', error);
+			throw error;
+		}
+	}
+
+	// New method to verify 2FA code
+	static async verifyTwoFactor(userId: number, code: string): Promise<AuthResponse> {
+		try {
+			const response = await fetch('/api/users/verify-two-factor', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ userId, code }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json() as ApiErrorResponse;
+				throw new Error(errorData.error || 'Two-factor verification failed');
+			}
+
+			const result = await response.json() as AuthResponse;
+
+			// Clear temporary storage
+			sessionStorage.removeItem('pendingUserId');
+			sessionStorage.removeItem('pendingUsername');
+
+			// Trigger router update after successful login
+			Router.update();
+
+			// Redirect to home page
+			window.location.href = '/';
+
+			return result;
+		} catch (error) {
+			console.error('Two-factor verification error:', error);
 			throw error;
 		}
 	}
@@ -297,6 +422,7 @@ export class UserManagementService {
 		this.setupResendVerificationForm();
 		this.setupLogoutButton();
 		this.setupVerifyEmail();
+		this.setupTwoFactorForm(); // Add the new 2FA form setup
 	}
 
 	private static setupCreateForm(): void {
@@ -373,16 +499,11 @@ export class UserManagementService {
 						password: formData.get('password') as string,
 					};
 
-					const result = await UserManagementService.login(credentials);
+					// The login method now handles redirection to 2FA if needed
+					await UserManagementService.login(credentials);
+
+					// Form reset only happens if we don't redirect to 2FA
 					loginForm.reset();
-
-					// Check if the user was redirected with a verified=true parameter
-					const urlParams = new URLSearchParams(window.location.search);
-					if (urlParams.get('verified') === 'true') {
-						alert('Your email has been verified. You can now log in.');
-					}
-
-					window.location.href = '/';
 
 				} catch (error) {
 					console.error('Failed to login:', error);
@@ -423,7 +544,6 @@ export class UserManagementService {
 
 							try {
 								// For simplicity, we'll use the username as email here
-								// In a real app, you might want to show another form or have a dedicated page
 								const result = await UserManagementService.resendVerificationEmail(username);
 								alert(result.message || 'Verification email sent if account exists');
 							} catch (error) {
@@ -432,6 +552,68 @@ export class UserManagementService {
 							}
 						});
 					}
+				}
+			});
+		}
+	}
+
+	// New method to setup 2FA verification form
+	private static setupTwoFactorForm(): void {
+		const twoFactorForm = document.getElementById('TwoFactorLogin-form') as HTMLFormElement | null;
+		if (twoFactorForm) {
+			// Populate hidden fields with stored values from the session storage
+			const hiddenUsername = twoFactorForm.querySelector('input[name="username"]') as HTMLInputElement;
+			const userId = sessionStorage.getItem('pendingUserId');
+			const username = sessionStorage.getItem('pendingUsername');
+
+			if (!userId || !username) {
+				// No pending 2FA verification, redirect back to login
+				window.location.href = '/login';
+				return;
+			}
+
+			if (hiddenUsername) {
+				hiddenUsername.value = username;
+			}
+
+			// Add submit button dynamically if it doesn't exist
+			if (!twoFactorForm.querySelector('button[type="submit"]')) {
+				const submitButton = document.createElement('button');
+				submitButton.type = 'submit';
+				submitButton.className = 'btn btn-primary mt-4';
+				submitButton.textContent = 'Verify';
+				twoFactorForm.appendChild(submitButton);
+			}
+
+			// Setup form submission
+			twoFactorForm.addEventListener('submit', async (e) => {
+				e.preventDefault();
+
+				try {
+					// Get all the 2FA code digits
+					const tf_one = (document.getElementById('tf_one') as HTMLInputElement).value;
+					const tf_two = (document.getElementById('tf_two') as HTMLInputElement).value;
+					const tf_three = (document.getElementById('tf_three') as HTMLInputElement).value;
+					const tf_four = (document.getElementById('tf_four') as HTMLInputElement).value;
+					const tf_five = (document.getElementById('tf_five') as HTMLInputElement).value;
+					const tf_six = (document.getElementById('tf_six') as HTMLInputElement).value;
+
+					// Combine the digits
+					const code = `${tf_one}${tf_two}${tf_three}${tf_four}${tf_five}${tf_six}`;
+
+					// Validate code format
+					if (code.length !== 6 || !/^\d+$/.test(code)) {
+						alert('Please enter a valid 6-digit code');
+						return;
+					}
+
+					// Verify the 2FA code
+					await UserManagementService.verifyTwoFactor(parseInt(userId, 10), code);
+
+
+				} catch (error) {
+					console.error('Two-factor verification failed:', error);
+					alert(error instanceof Error ? error.message : 'Two-factor verification failed');
 				}
 			});
 		}
@@ -446,13 +628,45 @@ export class UserManagementService {
 				avatarInput.setAttribute('accept', 'image/jpeg, image/png');
 			}
 
-			const displaynameInput = signupForm.querySelector("input[name=displayname]");
+			const usernameInput = signupForm.querySelector("input[name=username]");
 			const signupavatar = signupForm.querySelector(".signup-avatar");
+			const enableTwoFactor = signupForm.querySelector("input[name=enableTwoFactor]");
+			const qrDisplay = document.querySelector("#qr-display");
+			const twoFactorInterface = document.querySelector("#twoFactorInterface");
+			const secHidden = document.querySelector("input[type=hidden][name=secret]") as HTMLInputElement;
+
+			if (enableTwoFactor && qrDisplay && twoFactorInterface) {
+				enableTwoFactor.addEventListener("click", async function (e) {
+					const clickedElement = e.target as HTMLInputElement;
+					if (clickedElement.checked) {
+						twoFactorInterface.classList.add('active')
+						try {
+							const response = await fetch('/api/generate-qr');
+							if (!response.ok) {
+								throw new Error(`Error: ${response.status}`);
+							}
+							let qr_response = await response.json() as QRResponse;
+							if (qr_response) {
+								let qrImg = `<img src="${qr_response.qr}"/>`
+								qrDisplay.innerHTML = qrImg;
+								secHidden.value = qr_response.secret
+							}
+						} catch (error) {
+							console.error('Failed to fetch users:', error);
+							return [];
+						}
+					} else {
+						twoFactorInterface?.classList.remove('active')
+						qrDisplay.innerHTML = '';
+						secHidden.value = ''
+					}
+				})
+			}
 
 			// Keep the existing SVG generation based on displayname
-			if (displaynameInput && signupavatar) {
-				displaynameInput.addEventListener("keyup", function (e) {
-					if (e.target) {
+			if (usernameInput && signupavatar && avatarInput) {
+				usernameInput.addEventListener("keyup", function (e) {
+					if (e.target && (avatarInput.value == "" || avatarInput.value == null)) {
 						const inputElement = e.target as HTMLInputElement;
 						const seed = inputElement.value;
 
@@ -495,10 +709,6 @@ export class UserManagementService {
 							if (signupavatar && e.target) {
 								const img = document.createElement('img');
 								img.src = e.target.result as string;
-								img.style.width = '100px';
-								img.style.height = '100px';
-								img.style.objectFit = 'cover';
-								img.style.borderRadius = '50%';
 
 								signupavatar.innerHTML = '';
 								signupavatar.appendChild(img);
@@ -506,9 +716,9 @@ export class UserManagementService {
 						};
 
 						reader.readAsDataURL(file);
-					} else if (displaynameInput) {
+					} else if (usernameInput) {
 						// If file is removed, revert to generated avatar based on displayname
-						const inputElement = displaynameInput as HTMLInputElement;
+						const inputElement = usernameInput as HTMLInputElement;
 						const seed = inputElement.value;
 
 						const seedSvg = generateTextVisualization(seed, {
@@ -546,6 +756,13 @@ export class UserManagementService {
 						email: formData.get('email') as string,
 						password: password,
 						role: "user",
+						tf_one: formData.get('tf_one') as string,
+						tf_two: formData.get('tf_two') as string,
+						tf_three: formData.get('tf_three') as string,
+						tf_four: formData.get('tf_four') as string,
+						tf_five: formData.get('tf_five') as string,
+						tf_six: formData.get('tf_six') as string,
+						secret: formData.get('secret') as string
 					};
 
 					// Get the avatar file if it exists
@@ -756,10 +973,69 @@ export class UserManagementService {
 		}
 	}
 
+	private static twoFactorNumberActions(): void {
+		// Get all numeric input fields
+		const numericInputs = document.querySelectorAll('.tf_numeric') as NodeListOf<HTMLInputElement>;
+
+		// Add event listeners to each input
+		numericInputs.forEach((input, index) => {
+			// Handle input event (when value changes)
+			input.addEventListener('input', function (this: HTMLInputElement, e: Event) {
+				// Restrict to only one digit
+				if (this.value.length > 1) {
+					this.value = this.value.slice(0, 1);
+				}
+
+				// If we have a digit and we're not at the last input, focus on next available empty input
+				if (this.value.length === 1 && index < numericInputs.length - 1) {
+					// Find the next empty input, if any
+					let nextInputIndex = index + 1;
+					while (nextInputIndex < numericInputs.length) {
+						if (!numericInputs[nextInputIndex].value) {
+							numericInputs[nextInputIndex].focus();
+							break;
+						}
+						nextInputIndex++;
+					}
+				}
+			});
+
+			// Handle keydown for special cases like delete/backspace
+			input.addEventListener('keydown', function (this: HTMLInputElement, e: KeyboardEvent) {
+				// If backspace/delete on empty field, go back to previous field
+				if ((e.key === 'Backspace' || e.key === 'Delete') && !this.value && index > 0) {
+					numericInputs[index - 1].focus();
+				}
+
+				// If left arrow and not first field, go to previous field
+				if (e.key === 'ArrowLeft' && index > 0) {
+					numericInputs[index - 1].focus();
+				}
+
+				// If right arrow and not last field, go to next field
+				if (e.key === 'ArrowRight' && index < numericInputs.length - 1) {
+					numericInputs[index + 1].focus();
+				}
+			});
+
+			// Prevent non-numeric input
+			input.addEventListener('keypress', function (this: HTMLInputElement, e: KeyboardEvent) {
+				if (!/[0-9]/.test(e.key)) {
+					e.preventDefault();
+				}
+			});
+
+			// Select all text when focused
+			input.addEventListener('focus', function (this: HTMLInputElement) {
+				this.select();
+			});
+		});
+	}
 	// Initialize all event listeners when the content is loaded
 	static initialize(): void {
 		document.addEventListener('RouterContentLoaded', () => {
 			this.setupEventListeners();
+			this.twoFactorNumberActions();
 		});
 	}
 }

@@ -3,9 +3,10 @@
 // ========================
 
 // services
-import '../frontend/services/user_management.js';
+import './services/UserManagementService.js';
 
 // utils
+import '../utils/table.js';
 import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
 import { TemplateEngine } from '../utils/TemplateEngine.js';
@@ -27,6 +28,7 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
+import TwoFactorLogin from './views/TwoFactorLogin.js';
 
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
@@ -126,6 +128,15 @@ const routes = [
 		metadata: {
 			title: 'Transcendence - login',
 			description: 'Welcome to Login'
+		}
+	},
+	{
+		path: '/two-factor',
+		role: 'logged_out',
+		view: TwoFactorLogin,
+		metadata: {
+			title: 'Transcendence - 2FA Login',
+			description: 'Welcome to 2FA Login'
 		}
 	},
 	{

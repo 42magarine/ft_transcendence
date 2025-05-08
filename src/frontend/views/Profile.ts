@@ -89,12 +89,14 @@ export default class Profile extends AbstractView {
 				{
 					id: 'edit-profile',
 					text: 'Edit Profile',
-					href: '/users/edit/' + this.userId
+					href: '/users/edit/' + this.userId,
+					className: 'btn btn-primary'
 				},
 				{
 					id: 'back-to-list',
 					text: 'Back to User List',
-					href: '/user-mangement'
+					href: '/user-mangement',
+					className: 'btn btn-primary'
 				}
 			]
 		});

@@ -6,6 +6,10 @@ interface InputField {
 	placeholder?: string;
 	value?: string;
 	options?: Array<{ value: string, label: string }>; // For select inputs
+	min?: number;         // For number inputs
+	max?: number;         // For number inputs
+	step?: number;        // For number inputs
+	className?: string;   // Added className for custom styling
 }
 
 interface CardButton {
@@ -30,7 +34,8 @@ interface CardProps {
 	button?: CardButton;
 	formId?: string;
 	extra?: string;
-	prefix?: string; // Added prefix property
+	prefix?: string;
+	preButton?: string;
 	contentBlocks?: ContentBlock[];
 	data?: Record<string, any>;
 }
@@ -56,13 +61,23 @@ export default class Card extends AbstractView {
 	private renderContentBlock(block: ContentBlock): string {
 		switch (block.type) {
 			case 'input': {
-				const { name, type = 'text', placeholder = '', value = '', options = [] } = block.props;
+				const {
+					name,
+					type = 'text',
+					placeholder = '',
+					value = '',
+					options = [],
+					min = undefined,
+					max = undefined,
+					step = undefined,
+					className = ''
+				} = block.props;
 
 				// Handle different input types
 				if (type === 'select') {
 					return `<select
                         name="${name}"
-                        class=" p-2"
+                        class="p-2 ${className}"
                         required
                     >
                         <option value="" disabled selected>${placeholder}</option>
@@ -72,23 +87,60 @@ export default class Card extends AbstractView {
 
 				if (type === 'file') {
 					return `<div class="flex flex-col">
-                        <label for="${name}" class="text-sm font-medium text-white/90 mb-1">${placeholder}</label>
+                        <label for="${name}" class="text-sm font-medium text-white/90">${placeholder}</label>
                         <input
                             type="${type}"
                             id="${name}"
                             name="${name}"
-                            class="file-input file-input-bordered w-full"
+                            class="file-input file-input-bordered w-full ${className}"
                         />
                     </div>`;
 				}
 
+				if (type === 'checkbox') {
+					return `<div class="flex items-center gap-2">
+                        <input
+                            type="${type}"
+                            id="${name}"
+                            name="${name}"
+                            class="${className}"
+                        />
+                        <label for="${name}" class="text-sm font-medium text-white/90">${placeholder}</label>
+                    </div>`;
+				}
+
+				if (type === 'number') {
+					return `<input
+                        type="${type}"
+                        id="${name}"
+                        name="${name}"
+                        value="${value}"
+                        placeholder="${placeholder}"
+                        ${min !== undefined ? `min="${min}"` : ''}
+                        ${max !== undefined ? `max="${max}"` : ''}
+                        ${step !== undefined ? `step="${step}"` : ''}
+                        class="${className}"
+                        required
+                    />`;
+				}
+
+				if (type === 'hidden') {
+					return `<input
+                        type="${type}"
+                        name="${name}"
+                        value="${value}"
+                        id="${name}"
+                    />`;
+				}
+
 				return `<input
                     type="${type}"
+                    id="${name}"
                     name="${name}"
                     value="${value}"
                     placeholder="${placeholder}"
                     required
-                    class=""
+                    class="${className}"
                 />`;
 			}
 			case 'label':
@@ -128,6 +180,7 @@ export default class Card extends AbstractView {
 		formId,
 		extra = '',
 		prefix = '',
+		preButton = '',
 		contentBlocks = [],
 		data = {},
 	}: CardProps): Promise<string> {
@@ -155,6 +208,7 @@ export default class Card extends AbstractView {
 		const extraContentHtml = contentBlocks.map(block => this.renderContentBlock(block)).join('\n');
 
 		// Include prefix if provided
+		const preButtonHtml = preButton ? `<div class="mb-4">${preButton}</div>` : '';
 		const prefixHtml = prefix ? `<div class="mb-4">${prefix}</div>` : '';
 
 		const formHtml =
@@ -163,6 +217,7 @@ export default class Card extends AbstractView {
                     ${prefixHtml}
                     <div class="flex flex-col gap-4">
                     ${inputsHtml}
+                    ${preButtonHtml}
                     ${button
 					? `<button type="${button.type}" class="${button.className}">${button.text}</button>`
 					: ''}
