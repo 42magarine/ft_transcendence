@@ -6,6 +6,7 @@
 import './services/UserManagementService.js';
 
 // utils
+import '../utils/table.js';
 import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
 import { TemplateEngine } from '../utils/TemplateEngine.js';

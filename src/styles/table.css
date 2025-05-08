@@ -16,3 +16,7 @@ tr:nth-child(even) {
 tr td, tr th {
     @apply p-2;
 }
+
+thead {
+	@apply border-b-1 border-b-white;
+}

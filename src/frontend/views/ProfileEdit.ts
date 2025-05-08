@@ -88,7 +88,8 @@ export default class ProfileEdit extends AbstractView {
 				{
 					id: 'back-to-list',
 					text: 'Back to User List',
-					href: '/user-mangement'
+					href: '/user-mangement',
+					className: 'btn btn-primary'
 				}
 			]
 		});
