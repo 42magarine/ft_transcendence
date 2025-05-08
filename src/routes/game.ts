@@ -10,7 +10,11 @@ export default async function (fastify: FastifyInstance) {
     const pongController = new PongController();
 
     // Websocket route handler
-    fastify.get('/game/ws', { websocket: true }, (connection, request) => {
+    // fastify.get('/game/ws', { websocket: true }, (connection, request) => {
+	// 	const userId = request.user?.id;
+    //     pongController.handleConnection(connection, userId);
+    // });
+    fastify.get('/game/wss', { websocket: true }, (connection, request) => {
 		const userId = request.user?.id;
         pongController.handleConnection(connection, userId);
     });
