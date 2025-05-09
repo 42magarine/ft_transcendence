@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { UserService } from "../services/UserService.js";
 import { RegisterCredentials, UserCredentials } from "../../types/auth.js";
 import { verifyJWT } from "../middleware/security.js";
-import { UserModel } from "../models/UserModel.js";
+import { UserModel } from "../models/MatchModel.js";
 import { saveAvatar, deleteAvatar } from "../services/FileService.js";
 
 export class UserController {

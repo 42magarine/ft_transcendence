@@ -7,7 +7,7 @@ import { GameService } from "../services/GameService.js";
 import { MatchLobby } from "./MatchLobby.js";
 import game from "../../routes/game.js";
 import { randomUUID } from "crypto";
-import { GameModel } from "../models/GameModel.js";
+import { GameModel } from "../models/MatchModel.js";
 
 export class GameLobby extends MatchLobby{
 	private _game: PongGame;

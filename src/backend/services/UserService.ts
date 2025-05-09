@@ -1,5 +1,5 @@
 import { AppDataSource } from "../DataSource.js";
-import { UserModel } from "../models/UserModel.js";
+import { UserModel } from "../models/MatchModel.js";
 import { JWTPayload, RegisterCredentials, UserCredentials, AuthTokens } from "../../types/auth.js";
 import { generateJWT, hashPW, verifyPW } from "../middleware/security.js";
 import jwt from "jsonwebtoken";
@@ -178,8 +178,11 @@ export class UserService {
 	}
 
 	// find User by Id
-	async findId(id: number) {
-		return await this.userRepo.findOneBy({ id });
+	async findId(id: number): Promise<UserModel> {
+		const user = await this.userRepo.findOneBy({ id })
+		if (user == null)
+			throw new Error("fuck you");
+		return user;
 	}
 
 	// updates User with new Info

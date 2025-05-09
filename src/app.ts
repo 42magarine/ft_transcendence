@@ -11,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { UserModel } from "./backend/models/UserModel.js";
+import { UserModel } from "./backend/models/MatchModel.js";
 import { AppDataSource } from "./backend/DataSource.js";
 import { hashPW } from "./backend/middleware/security.js";
 import { initDataSource } from "./backend/DataSource.js";
@@ -21,6 +21,7 @@ import checkEnvVars from "./utils/checkEnvVars.js";
 import gameRoutes from "./routes/game.js";
 import userRoutes from "./routes/user.js";
 import pongWebsocketRoutes from "./routes/game.js";
+import { Console } from "node:console";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
@@ -38,10 +39,10 @@ checkEnvVars();
 // const fastify = Fastify();
 // const fastify = Fastify({ logger: true });
 const fastify = Fastify({
-    https: {
-        key: fs.readFileSync("/etc/ssl/private/key.pem"),
-        cert: fs.readFileSync("/etc/ssl/private/cert.pem")
-    }
+    // https: {
+        //     key: fs.readFileSync("/etc/ssl/private/key.pem"),
+        //     cert: fs.readFileSync("/etc/ssl/private/cert.pem")
+        // }
 });
 
 // Wichtig: Multipart muss VOR allen Routen registriert werden!
@@ -112,7 +113,6 @@ fastify.setNotFoundHandler(async (request, reply) => {
             path: request.url
         });
     }
-
     // Check if the requested path has a file extension
     // If it does, it's likely an explicit file request and shouldn't fall back to index.html
     const hasFileExtension = path.extname(request.url) !== '';
@@ -196,7 +196,6 @@ async function ensureMasterUserExists(): Promise<void> {
 const start = async (): Promise<void> => {
     try {
         await initDataSource();
-
         // Ensure master user exists after database is initialized
         await ensureMasterUserExists();
 

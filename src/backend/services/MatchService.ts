@@ -99,8 +99,8 @@ export abstract class MatchService {
         const player2 = await this.userService.findId(player2Id);
 
         const match = new MatchModel()
-        match.player1 = player1;
-        match.player2 = player2;
+        match.player1 = player1!;
+        match.player2 = player2!;
         match.player1Score = 0;
         match.player2Score = 0;
 

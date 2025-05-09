@@ -7,7 +7,7 @@ import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
-import { TournamentLobby } from "../lobbies/TournamentLobby.js";
+// import { TournamentLobby } from "../lobbies/TournamentLobby.js";
 
 export abstract class MatchController {
 
@@ -311,7 +311,7 @@ export abstract class MatchController {
         }
     }
 
-    protected abstract createLobby(lobbyId: string): GameLobby | TournamentLobby
+    protected abstract createLobby(lobbyId: string): GameLobby //| TournamentLobby
 
     protected handleJoinLobby(connection: WebSocket, userId?: number, lobbyId?: string)
     {
