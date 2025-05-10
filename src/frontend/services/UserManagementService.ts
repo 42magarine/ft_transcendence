@@ -234,6 +234,29 @@ export class UserManagementService {
 		}
 	}
 
+    static async loginWithGoogle(idToken: string) {
+        console.log("sjfgiodshgoroaigoatng");
+
+        const response = await fetch('/api/users/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: idToken }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json() as ApiErrorResponse;
+            throw new Error(errorData.error || 'Google login failed');
+        }
+
+        const result = await response.json() as AuthResponse;
+
+        // Normal login flow
+        Router.update();
+        window.location.href = '/';
+
+        return result;
+    }
+
 	// New method to verify 2FA code
 	static async verifyTwoFactor(userId: number, code: string): Promise<AuthResponse> {
 		try {
@@ -1042,3 +1065,13 @@ export class UserManagementService {
 
 // Call the initialize method to setup all the listeners
 UserManagementService.initialize();
+
+(window as any).handleGoogleLogin = async function (response: any) {
+    try {
+        await UserManagementService.loginWithGoogle(response.credential);
+    }
+    catch (err) {
+        alert('Google login failed');
+        console.error(err);
+    }
+};
