@@ -5,17 +5,17 @@ import { IGameState } from "../types/interfaces.js"
 // === CLEANUP LOGIC ON TAB CLOSE / NAVIGATION ===
 window.addEventListener("beforeunload", () => {
 	const msg: ClientMessage = { type: "resetGame" };
-	socket.send(JSON.stringify(msg));
+	safeSend(msg);
 });
 
 window.addEventListener("unload", () => {
 	const msg: ClientMessage = { type: "resetGame" };
-	socket.send(JSON.stringify(msg));
+	safeSend(msg);
 });
 
 // const socket: WebSocket = new WebSocket("ws://10.11.2.27:3000/ws");
 // const socket: WebSocket = new WebSocket("ws://localhost:3000/ws");
-const socket: WebSocket = new WebSocket("wss://localhost:3000/wss");
+const socket: WebSocket = new WebSocket("wss://localhost:3000/game/wss");
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
@@ -27,19 +27,18 @@ let keysPressed: Record<string, boolean> = {};
 socket.addEventListener("open", () => {
 	console.log("Connected to WebSocket server");
 
-	createLobby();
+	// createLobby();
 });
 
-function createLobby() {
-    // Get user ID from localStorage or session if available
+// function createLobby() {
+// 	// Get user ID from localStorage or session if available
 
-    const createMsg: ClientMessage = {
-        type: "createLobby"
-    };
-
-    socket.send(JSON.stringify(createMsg));
-    console.log("Creating lobby...");
-}
+// 	const createMsg: ClientMessage = {
+// 		type: "createLobby"
+// 	};
+// 	safeSend(createMsg);
+// 	console.log("Creating lobby...");
+// }
 
 // The "message" event is triggered when the server sends a message over WebSocket.
 socket.addEventListener("message", (event: MessageEvent<string>) => {
@@ -50,7 +49,7 @@ socket.addEventListener("message", (event: MessageEvent<string>) => {
 		state = data.state!;
 	}
 
-	if (data.type === "initGame" ||
+	if (data.type === "startGame" ||
 		data.type === "update" ||
 		data.type === "pauseGame" ||
 		data.type === "resumeGame" ||
@@ -92,7 +91,16 @@ function sendMovePaddle(direction: IPaddleDirection) {
 		type: "movePaddle",
 		direction: direction
 	};
-	socket.send(JSON.stringify(moveMsg));
+	safeSend(moveMsg);
+}
+
+function safeSend(msg: ClientMessage) {
+	if (socket.readyState === WebSocket.OPEN) {
+		socket.send(JSON.stringify(msg));
+	}
+	else {
+		console.warn("Tried to send a message but WebSocket is not open:", msg);
+	}
 }
 
 setInterval(handleInput, 1000 / 60);
@@ -129,28 +137,28 @@ function draw() {
 }
 
 const startGameButton = document.getElementById("startGameButton") as HTMLButtonElement;
-startGameButton.addEventListener("click", () => {
+startGameButton.addEventListener("submit", () => {
 	// If playerId is not null, send initGame message
 	// if (playerId !== null) {
-		const initMsg: ClientMessage = { type: "initGame" };
-		socket.send(JSON.stringify(initMsg));
+	const startMsg: ClientMessage = { type: "startGame" };
+	safeSend(startMsg);
 	// }
 });
 
 const pauseGameButton = document.getElementById("pauseGameButton") as HTMLButtonElement;
 pauseGameButton.addEventListener("click", () => {
 	const pauseMsg: ClientMessage = { type: "pauseGame" };
-	socket.send(JSON.stringify(pauseMsg));
+	safeSend(pauseMsg);
 });
 
 const resumeGameButton = document.getElementById("resumeGameButton") as HTMLButtonElement;
 resumeGameButton.addEventListener("click", () => {
 	const resumeMsg: ClientMessage = { type: "resumeGame" };
-	socket.send(JSON.stringify(resumeMsg));
+	safeSend(resumeMsg);
 });
 
 const resetGameButton = document.getElementById("resetGameButton") as HTMLButtonElement;
 resetGameButton.addEventListener("click", () => {
 	const resetMsg: ClientMessage = { type: "resetGame" };
-	socket.send(JSON.stringify(resetMsg));
+	safeSend(resetMsg);
 });

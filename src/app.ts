@@ -39,10 +39,10 @@ checkEnvVars();
 // const fastify = Fastify();
 // const fastify = Fastify({ logger: true });
 const fastify = Fastify({
-    // https: {
-        //     key: fs.readFileSync("/etc/ssl/private/key.pem"),
-        //     cert: fs.readFileSync("/etc/ssl/private/cert.pem")
-        // }
+    https: {
+            key: fs.readFileSync("/etc/ssl/private/key.pem"),
+            cert: fs.readFileSync("/etc/ssl/private/cert.pem")
+        }
 });
 
 // Wichtig: Multipart muss VOR allen Routen registriert werden!

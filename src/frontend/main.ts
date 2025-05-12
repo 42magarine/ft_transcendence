@@ -29,6 +29,7 @@ import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
+import Lobby from './views/Lobby.js';
 
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
@@ -92,6 +93,15 @@ const routes = [
 		metadata: {
 			title: 'Transcendence - Pong',
 			description: 'Welcome to Pong'
+		}
+	},
+	{
+		path: '/lobby',
+		role: 'user',
+		view: Lobby,
+		metadata: {
+			title: 'Transcendence - Lobby',
+			description: 'Invite players to matches'
 		}
 	},
 	{

@@ -22,7 +22,8 @@ export default class Header extends AbstractView {
                 buttonSet = [
                     { id: 'user-btn', text: 'Pong', href: '/pong', className: "btn btn-sm" },
                     { id: 'user-btn', text: 'Tournaments', href: '/tournaments', className: "btn btn-sm" },
-                    { id: 'user-btn', text: 'User Management', href: '/user-mangement', className: "btn btn-sm" }
+                    { id: 'user-btn', text: 'User Management', href: '/user-mangement', className: "btn btn-sm" },
+					{ id: 'user-btn', text: 'Game Lobby', href: '/lobby', className: "btn btn-sm" }
                 ]
             }
             else {

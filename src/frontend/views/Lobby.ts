@@ -1,12 +1,8 @@
-// ========================
-// File: views/Pong.ts
-// ========================
-
-import Card from '../components/Card.js';
-import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
+import Button from '../components/Button.js';
+import Card from '../components/Card.js';
 
-export default class Pong extends AbstractView {
+export default class Lobby extends AbstractView {
 
 	constructor(params: URLSearchParams) {
 		super();
@@ -19,18 +15,31 @@ export default class Pong extends AbstractView {
 			layout: 'group',
 			align: 'center',
 			buttons: [
-				{ id: 'pauseGameButton', text: 'Pause', className: "btn btn-primary" },
-				{ id: 'resumeGameButton', text: 'Resume', className: "btn btn-primary" },
-				{ id: 'resetGameButton', text: 'Reset', className: "btn btn-primary" }
+				{
+					id: 'startGameButton',
+					type: "submit",
+					text: 'Start Game',
+					className: "btn btn-primary",
+					// disabled: true // Initially disabled until lobby is ready
+				},
+				{
+					id: 'readyButton',
+					type: "button",
+					text: 'Ready',
+					className: "btn btn-secondary"
+				}
 			]
 		});
 
 		const card = new Card(this.params);
 		const gameCard = await card.renderCard({
-			title: 'Pong Arena',
+			title: 'Game Lobby',
 			body: `
 				<div class="flex flex-col gap-6 items-center justify-center">
 					<canvas id="gameCanvas" width="800" height="600" class="bg-black border-4 border-white rounded-lg shadow-lg"></canvas>
+					<div id="lobbyStatus" class="text-center text-gray-600">
+						Waiting for players to join...
+					</div>
 					${buttonGroup}
 				</div>
 			`
@@ -43,13 +52,13 @@ export default class Pong extends AbstractView {
 			</div>
 		`);
 
-		// 👇 Nachträglich pong_game.js importieren
+		// Dynamically load the lobby service script
 		setTimeout(() => {
-			// @ts-ignore
-			import('/dist/frontend/pong_game.js')
-				.then(() => console.log('[Pong] Game script loaded'))
-				.catch(err => console.error('[Pong] Failed to load game script', err));
+			import('../services/LobbyService.js')
+				.then(() => console.log('Lobby script loaded'))
+				.catch(err => console.error('Failed to load Lobby script', err));
 		}, 0);
+
 
 		return html;
 	}
