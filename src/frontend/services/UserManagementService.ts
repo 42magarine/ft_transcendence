@@ -1,23 +1,24 @@
 import { generateTextVisualization } from "../../utils/Avartar.js"
 import Router from '../../utils/Router.js';
+import { User } from '../../types/interfaces.js'
 
-interface User {
-	id?: number;
-	username: string;
-	email: string;
-	displayname?: string;
-	password?: string;
-	role?: string;
-	avatar?: string;
-	emailVerified?: boolean;
-	tf_one?: string;
-	tf_two?: string;
-	tf_three?: string;
-	tf_four?: string;
-	tf_five?: string;
-	tf_six?: string;
-	secret?: string;
-}
+// interface User {
+// 	id?: number;
+// 	username: string;
+// 	email: string;
+// 	displayname?: string;
+// 	password?: string;
+// 	role?: string;
+// 	avatar?: string;
+// 	emailVerified?: boolean;
+// 	tf_one?: string;
+// 	tf_two?: string;
+// 	tf_three?: string;
+// 	tf_four?: string;
+// 	tf_five?: string;
+// 	tf_six?: string;
+// 	secret?: string;
+// }
 
 interface ApiErrorResponse {
 	error?: string;

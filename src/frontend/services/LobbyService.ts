@@ -18,16 +18,6 @@ export default class LobbyService {
 		this.initSocket();
 		this.setupEventListeners();
 		this.renderPlayerNames();
-
-		window.addEventListener('beforeunload', () => {
-			const msg: ClientMessage = { type: 'resetGame' };
-			this.safeSend(msg);
-		});
-
-		window.addEventListener('unload', () => {
-			const msg: ClientMessage = { type: 'resetGame' };
-			this.safeSend(msg);
-		});
 	}
 
 	private initSocket() {
@@ -35,8 +25,9 @@ export default class LobbyService {
 
 		this.socket.addEventListener('open', () => {
 			console.log('Connected to WebSocket server');
-			this.createOrJoinLobby();
 		});
+
+		this.createOrJoinLobby();
 
 		this.socket.addEventListener('message', (event: MessageEvent<string>) => {
 			const data: ServerMessage = JSON.parse(event.data);
@@ -59,10 +50,16 @@ export default class LobbyService {
 			if (data.type === 'playerDisconnected') {
 				this.removePlayer(data.id!);
 			}
+
+			// if (data.type === 'lobbyCreated') {
+			// }
+
 		});
 	}
 
 	private async createOrJoinLobby() {
+
+		// next 3 lines we need to send request to backend to get lobbyInfo
 		this.currentUser = await this.userService.getCurrentUser();
 
 		const urlParams = new URLSearchParams(window.location.search);
@@ -75,12 +72,33 @@ export default class LobbyService {
 					lobbyId: existingLobbyId,
 			  }
 			: {
+
 					type: 'createLobby',
 					userId: this.currentUser.id,
 			  };
+		console.log(msg);
 
 		this.safeSend(msg);
+
+		// Store the resolved lobbyId so we can fetch the info later
+		if (existingLobbyId) {
+			this.lobbyId = existingLobbyId;
+			await this.fetchAndUpdateLobbyPlayers(existingLobbyId);
+		}
 	}
+
+	private async fetchAndUpdateLobbyPlayers(lobbyId: string) {
+		try {
+			const response = await fetch(`/api/lobbies/${lobbyId}`);
+			if (!response.ok) throw new Error('Failed to fetch lobby');
+
+			const data = await response.json();
+			this.updatePlayerList(data.players); // array of { id, userId, isReady }
+		} catch (err) {
+			console.error('Could not fetch lobby players:', err);
+		}
+	}
+
 
 	private safeSend(msg: ClientMessage) {
 		if (this.socket.readyState === WebSocket.OPEN) {
@@ -95,6 +113,17 @@ export default class LobbyService {
 		if (startGameButton) {
 			startGameButton.addEventListener('click', () => this.startGame());
 		}
+		const readyButton = document.getElementById('readyButton');
+		if (readyButton) {
+			readyButton.addEventListener('click', () => {
+			const readyMsg: ClientMessage = {
+				type: 'ready',
+				ready: true, // or toggle ready status if you want
+			};
+			this.safeSend(readyMsg);
+		});
+}
+
 	}
 
 	private async startGame() {

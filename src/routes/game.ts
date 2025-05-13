@@ -21,7 +21,7 @@ export default async function (fastify: FastifyInstance)
         pongController.handleConnection(connection, userId);
     });
 
-
+	fastify.get('/lobbies', pongController.getLobbies.bind(pongController));
 	// show open lobbies
 	fastify.route({
 		method: 'GET',

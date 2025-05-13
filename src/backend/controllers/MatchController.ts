@@ -7,6 +7,7 @@ import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
+import { measureMemory } from "vm";
 // import { TournamentLobby } from "../lobbies/TournamentLobby.js";
 
 export abstract class MatchController {
@@ -20,13 +21,14 @@ export abstract class MatchController {
     constructor(userService: UserService, lobbies: Map<string,MatchLobby>) {
         this._userService = userService;
         this._lobbies = lobbies;
-        this._clients = new Map<WebSocket, Player | null>;
+        this._clients = new Map<WebSocket, Player | null>();
         this._handlers = new MessageHandlers(this.broadcast.bind(this));
-        this._invites = new Map<string, { from: number, to: number, lobbyId:string, expires: Date}>()
+        this._invites = new Map<string, { from: number, to: number, lobbyId:string, expires: Date}>();
 
         setInterval(() => {
-            this.cleanUpInvites(), 60000
-        })
+            this.cleanUpInvites();
+        }, 60000);
+
     }
 
     private async cleanUpInvites()
@@ -53,6 +55,8 @@ export abstract class MatchController {
         this._clients.set(connection, null);
 
         connection.on("message", (message: string | Buffer): void => {
+            // console.log(connection);
+            // console.log(message);
             this.handleMessage(message, connection);
         });
 
@@ -71,6 +75,7 @@ export abstract class MatchController {
         let data: ClientMessage;
         try {
             data = JSON.parse(message.toString()) as ClientMessage;
+            console.log(data);
         } catch (error: unknown) {
             console.error("Invalid message format", error)
             return;
@@ -301,7 +306,7 @@ export abstract class MatchController {
 
         if (player) {
             this._clients.set(connection, player);
-
+            //what does this frontend want to do with this message?
             this.sendMessage(connection, {
                 type: "lobbyCreated",
                 lobbyId: lobbyId,
