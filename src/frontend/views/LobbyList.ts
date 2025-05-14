@@ -1,18 +1,17 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Title from '../components/Title.js';
-import LobbyService from '../services/LobbyService.js';
+import lobbyService from '../services/LobbyService.js'; // singleton instance
 import { LobbyInfo } from '../../types/interfaces.js';
 import Button from '../components/Button.js';
 
 export default class Lobby extends AbstractView {
-    private lobbyService: LobbyService;
     private lobbyData: LobbyInfo[] = [];
 
     constructor(params: URLSearchParams) {
         super();
         this.params = params;
-        this.lobbyService = new LobbyService();
+        // no need to assign lobbyService anymore
     }
 
     async getHtml(): Promise<string> {
@@ -23,6 +22,7 @@ export default class Lobby extends AbstractView {
         const createLobbyButton = await button.renderButton({
             id: 'createLobbyBtn',
             text: 'Create Lobby',
+            type: 'submit',
             className: 'btn btn-primary'
         });
 
@@ -33,14 +33,13 @@ export default class Lobby extends AbstractView {
             extra: `<div>Loading lobbies...</div>`,
         });
 
-        // Register listener after rendering
-        setTimeout(() => {
-            this.lobbyService.registerLobbyListListener(() => {
-                this.lobbyData = this.lobbyService.getLobbyList();
-                this.updateLobbyList();
-            });
-            this.lobbyService.safeSend({ type: 'getLobbyList' });
-        }, 0);
+        // Register listener
+        lobbyService.registerLobbyListListener(() => {
+            this.lobbyData = lobbyService.getLobbyList();
+            this.updateLobbyList();
+        });
+
+        lobbyService.safeSend({ type: 'getLobbyList' });
 
         return this.render(`
             <div class="container">
@@ -68,6 +67,21 @@ export default class Lobby extends AbstractView {
     }
 
     private buildLobbyTable(): string {
+        const rows = this.lobbyData.map(lobby => `
+            <tr>
+                <td>${lobby.name}</td>
+                <td>${lobby.id}</td>
+                <td>${lobby.creatorId}</td>
+                <td>${lobby.currentPlayers} / ${lobby.maxPlayers}</td>
+                <td>${lobby.isStarted ? 'Started' : 'Waiting'}</td>
+                <td class="text-right">
+                    <a router class="btn btn-primary" href="/lobby/${lobby.id}">
+                        Join Lobby
+                    </a>
+                </td>
+            </tr>
+        `).join('');
+
         return `
             <table class="list" data-height="400px">
                 <thead>
@@ -81,20 +95,7 @@ export default class Lobby extends AbstractView {
                     </tr>
                 </thead>
                 <tbody>
-                    <for each="lobbies" as="lobby">
-                        <tr>
-                            <td>{{lobby.name}}</td>
-                            <td>{{lobby.id}}</td>
-                            <td>{{lobby.creatorId}}</td>
-                            <td>{{lobby.currentPlayers}} / {{lobby.maxPlayers}}</td>
-                            <td>{{lobby.isStarted ? 'Started' : 'Waiting'}}</td>
-                            <td class="text-right">
-                                <a router class="btn btn-primary" href="/lobby/{{lobby.id}}">
-                                    Join Lobby
-                                </a>
-                            </td>
-                        </tr>
-                    </for>
+                    ${rows}
                 </tbody>
             </table>
         `;

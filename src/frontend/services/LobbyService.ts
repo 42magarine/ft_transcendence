@@ -1,7 +1,7 @@
 import UserService from './UserService.js';
 import { ClientMessage, LobbyInfo, ServerMessage } from '../../types/interfaces.js';
 
-export default class LobbyService {
+class LobbyService {
 	private socket: any;
 	private userService: UserService;
 	private currentUser: any = null;
@@ -10,11 +10,9 @@ export default class LobbyService {
 
 	constructor() {
 		this.userService = new UserService();
-		this.initSocket();
-		this.setupEventListeners();
 	}
 
-	private initSocket() {
+	public initSocket() {
 		this.socket = new WebSocket('wss://localhost:3000/game/wss');
 
 		this.fuckYouWebsocket(this.socket).then(() => {
@@ -76,10 +74,12 @@ export default class LobbyService {
 		}
 	}
 
-	private setupEventListeners() {
-		const createBtn = document.getElementById('createLobbyBtn');
+	public setupEventListeners() {
+		const createBtn = document.getElementById('createLobbyBtn') as HTMLElement | null;
 		if (createBtn) {
-			createBtn.addEventListener('click', () => {
+			createBtn.addEventListener('click', async (e) => {
+				e.preventDefault();
+
 				// Call the service method to create a lobby (uses existing WebSocket logic)
 				this.createLobby();
 			});
@@ -110,7 +110,18 @@ export default class LobbyService {
         // Assuming that the lobby data will be updated by the WebSocket message
         return this.lobbyData || [];  // Return the lobby data or an empty array if not loaded yet
     }
+
+	public initialize(): void {
+		document.addEventListener('RouterContentLoaded', () =>
+		{
+			this.initSocket();
+			this.setupEventListeners();
+		})
+	}
 }
 
+const lobbyService = new LobbyService()
+lobbyService.initialize();
+export default lobbyService;
 // Auto-initialize
 // new LobbyService();

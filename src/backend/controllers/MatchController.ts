@@ -80,7 +80,7 @@ export abstract class MatchController {
             console.error("Invalid message format", error)
             return;
         }
-
+        console.log(data);
         const player = this._clients.get(connection);
 
         switch (data.type) {

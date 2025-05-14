@@ -144,22 +144,19 @@ export class PongController extends MatchController {
         }
     }
 
-    //maybe need to modify to check if lobby is public in if condition
-    private handleGetLobbyList(connection: WebSocket)
-    {
-        const publicLobbies = []
 
-        for (const [id, lobby] of this._lobbies.entries()){
-            if (!lobby.isFull && !lobby.isGameStarted())
-            {
-                publicLobbies.push(lobby.getLobbyInfo())
-            }
+    private handleGetLobbyList(connection: WebSocket) {
+        const allLobbies = [];
+
+        for (const [id, lobby] of this._lobbies.entries()) {
+            const info = lobby.getLobbyInfo();
+            allLobbies.push(info);
         }
-
+        
         this.sendMessage(connection, {
             type: "lobbyList",
-            lobbies: publicLobbies
-        })
+            lobbies: allLobbies
+        });
     }
 
     protected createLobby(lobbyId: string): GameLobby {
