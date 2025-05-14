@@ -43,11 +43,17 @@ export interface User {
 	secret?: string;
 }
 
-export interface LobbyInfo {
+export interface LobbyInfo{
     id: string;
-    players: number;
+    name: string;
+    creatorId: number
     maxPlayers: number;
-    creator: string | number;
+    currentPlayers: number;
+    isPublic: boolean;
+    hasPassword: boolean;
+    createdAt: Date;
+    lobbyType: "game" | "tournament"
+    isStarted: boolean
 }
 
 export interface PlayerInfo {
@@ -123,6 +129,7 @@ export interface ServerMessage {
     userId?: number;
     direction?: IPaddleDirection;
     timestamp?: string;
+    lobbies?: LobbyInfo[]
     [key: string]: any;
 }
 

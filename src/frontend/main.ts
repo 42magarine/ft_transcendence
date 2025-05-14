@@ -29,7 +29,7 @@ import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
-import Lobby from './views/Lobby.js';
+import LobbyList from './views/LobbyList.js';
 
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
@@ -96,9 +96,9 @@ const routes = [
 		}
 	},
 	{
-		path: '/lobby',
+		path: '/lobbylist',
 		role: 'user',
-		view: Lobby,
+		view: LobbyList,
 		metadata: {
 			title: 'Transcendence - Lobby',
 			description: 'Invite players to matches'

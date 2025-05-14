@@ -198,7 +198,7 @@ export abstract class MatchLobby {
         return {
             id: this._id,
             name: this._lobbyName,
-            creatorId: this._creatorId,
+            creatorId: this._creatorId!,
             maxPlayers: this._maxPlayers,
             currentPlayers: this._players.size,
             isPublic: this._isPublic,

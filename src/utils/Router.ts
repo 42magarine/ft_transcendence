@@ -2,7 +2,6 @@ import { Route } from "./types.js";
 import AbstractView from "./AbstractView.js";
 import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';
-import Farts from './Farts.js';
 
 // Define a User interface for type safety
 interface User {
@@ -19,17 +18,12 @@ export default class Router {
 	// Define the role hierarchy - higher index means more privileges
 	private static ROLE_HIERARCHY = ['user', 'admin', 'master'];
 	// Add a farts instance
-	private fartsPlayer: Farts;
 
 	constructor(routes: Route[]) {
 		this.routes = routes;
 		this.initEventListeners();
 
-		// Initialize the farts player
-		this.fartsPlayer = new Farts({
-			volume: 70, // Set an appropriate volume
-			loop: false // Don't loop the sounds
-		});
+
 
 		if (!Router.instance) {
 			Router.instance = this;
@@ -50,13 +44,11 @@ export default class Router {
 
 		window.addEventListener('popstate', () => {
 			// Play a random fart when user uses browser back/forward
-			this.fartsPlayer.random();
 			this.render();
 		});
 
 		document.addEventListener('DataUpdateEvent', ((e: CustomEvent) => {
 			// Play a random fart on data update
-			this.fartsPlayer.random();
 			this.renderCurrentView(e.detail);
 		}) as EventListener);
 	}
@@ -73,7 +65,6 @@ export default class Router {
 
 	public update(): void {
 		// Play a random fart on update
-		this.fartsPlayer.random();
 		this.renderCurrentView();
 	}
 
@@ -98,7 +89,6 @@ export default class Router {
 	 */
 	public redirect(url: string, options: { replace?: boolean } = {}): Promise<void> {
 		// Play a random fart on redirect
-		this.fartsPlayer.random();
 
 		// Replace state instead of pushing if specified
 		if (options.replace) {
@@ -149,7 +139,6 @@ export default class Router {
 
 	public async navigateTo(url: string): Promise<void> {
 		// Play a random fart on navigation
-		this.fartsPlayer.random();
 
 		window.history.pushState(null, '', url);
 		await this.render();
@@ -270,7 +259,6 @@ export default class Router {
 
 	public async render(): Promise<void> {
 		// Play a random fart when rendering
-		this.fartsPlayer.random();
 
 		// Get current user for role checking
 		const currentUser = await Router.getCurrentUser();
@@ -382,7 +370,6 @@ export default class Router {
 
 	private dispatchRouterContentLoaded(isDataUpdate: boolean = false): void {
 		// Play a random fart when content is loaded
-		this.fartsPlayer.random();
 
 		const RouterContentLoadedEvent = new CustomEvent('RouterContentLoaded', {
 			bubbles: true,
