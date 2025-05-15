@@ -9,6 +9,7 @@ export default async function (fastify: FastifyInstance) {
 	// Authentication routes
 	fastify.get('/auth/me', userController.getCurrentUser.bind(userController));
 	fastify.post('/auth/logout', userController.logout.bind(userController));
+	fastify.post('/users/auth/google', userController.loginWithGoogle.bind(userController));
 
 	// User management routes
 	fastify.get('/users/', userController.getAll.bind(userController));
