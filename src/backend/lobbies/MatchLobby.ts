@@ -1,10 +1,7 @@
 import { WebSocket } from "ws";
-import { match } from "assert";
-import { ServerMessage } from "../../types/interfaces.js";
+import { LobbyInfo, ServerMessage } from "../../interfaces/interfaces.js";
 import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
-import { IGameState } from "../../types/interfaces.js";
-import { isReadable } from "stream";
 
 export abstract class MatchLobby {
     protected _id: string;
@@ -22,13 +19,13 @@ export abstract class MatchLobby {
     protected _matchService: MatchService | null = null;
 
     constructor(id: string,
-        broadcast:( lobbyId: string, data: ServerMessage) => void,
+        broadcast: (lobbyId: string, data: ServerMessage) => void,
         matchService?: MatchService,
         options?: {
-            name?:string,
-            maxPlayers?:number,
-            isPublic?:boolean,
-            password?:string,
+            name?: string,
+            maxPlayers?: number,
+            isPublic?: boolean,
+            password?: string,
             lobbyType?: 'game' | 'tournament'
         }) {
         this._id = id;
@@ -38,7 +35,7 @@ export abstract class MatchLobby {
         this._maxPlayers = options?.maxPlayers || 2;
         this._isPublic = options?.isPublic || true;
         this._password = options?.password
-        this._lobbyName = options?.name || `Lobby ${id.substring(0,6)}`
+        this._lobbyName = options?.name || `Lobby ${id.substring(0, 6)}`
         this._createdAt = new Date();
         this._lobbyType = options?.lobbyType || 'game';
     }
@@ -51,8 +48,7 @@ export abstract class MatchLobby {
     public addPlayer(
         connection: WebSocket,
         userId?: number
-    )
-    {
+    ) {
         if (this._players.size >= this._maxPlayers || this._gameStarted) {
             return null
         }
@@ -71,15 +67,15 @@ export abstract class MatchLobby {
         this.onPlayerAdded(player);
 
         this._broadcast(this._id, {
-			type: "playerJoined",
-			playerId: playerNum,
-			playerCount: this._players.size,
+            type: "playerJoined",
+            playerId: playerNum,
+            playerCount: this._players.size,
             playerInfo: {
                 id: playerNum,
                 userId: player.userId,
                 isReady: player._isReady
             }
-		})
+        })
 
         const playerList = this.getPlayerList()
 
@@ -97,24 +93,22 @@ export abstract class MatchLobby {
     }
 
     public removePlayer(player: Player): void {
-		this._players.delete(player.id);
+        this._players.delete(player.id);
         this._readyPlayers.delete(player.id);
         this.onPlayerRemoved(player);
 
-		console.log(`Player ${player.id} disconnected`);
+        console.log(`Player ${player.id} disconnected`);
 
-		this._broadcast(this._id, {
-			type: "playerDisconnected",
-			id: player.id,
-			playerCount: this._players.size
-		});
+        this._broadcast(this._id, {
+            type: "playerDisconnected",
+            id: player.id,
+            playerCount: this._players.size
+        });
 
-        if (this._creatorId === player.userId && this._players.size > 0)
-        {
+        if (this._creatorId === player.userId && this._players.size > 0) {
             const nextPlayer = this._players.values().next().value;
 
-            if (nextPlayer && nextPlayer.userId)
-            {
+            if (nextPlayer && nextPlayer.userId) {
                 this._creatorId = nextPlayer.userId;
                 this._broadcast(this._id, {
                     type: "newCreator",
@@ -123,18 +117,16 @@ export abstract class MatchLobby {
                 })
             }
         }
-	}
+    }
 
-    public setPlayerReady(playerId: number, isReady: boolean){
+    public setPlayerReady(playerId: number, isReady: boolean) {
         const player = this._players.get(playerId)
         if (!player) return
 
         player._isReady = isReady;
-        if(isReady)
-        {
+        if (isReady) {
             this._readyPlayers.add(playerId)
-        } else
-        {
+        } else {
             this._readyPlayers.delete(playerId);
         }
 
@@ -149,17 +141,15 @@ export abstract class MatchLobby {
 
     }
 
-    public checkAllPlayersReady()
-    {
+    public checkAllPlayersReady() {
         const minPlayers = this._lobbyType === 'game' ? 2 : this._maxPlayers;
 
         if (this._players.size < minPlayers) return false;
 
         const allReady = this._readyPlayers.size === this._players.size;
 
-        if (allReady)
-        {
-            this._broadcast(this._id , {
+        if (allReady) {
+            this._broadcast(this._id, {
                 type: "allPlayersReady"
             })
         }
@@ -194,7 +184,7 @@ export abstract class MatchLobby {
         return this._id;
     }
 
-    public getLobbyInfo() {
+    public getLobbyInfo(): LobbyInfo{
         return {
             id: this._id,
             name: this._lobbyName,
@@ -221,8 +211,7 @@ export abstract class MatchLobby {
         if (this.isFull() || this._gameStarted) return false;
         if (this._password && this._password !== password) return false;
 
-        for (const player of this._players.values())
-        {
+        for (const player of this._players.values()) {
             if (player.userId === userId) return false;
         }
 

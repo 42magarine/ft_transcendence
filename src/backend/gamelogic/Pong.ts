@@ -1,8 +1,8 @@
 import { Ball } from "../gamelogic/components/Ball.js";
 import { Paddle } from "../gamelogic/components/Paddle.js";
 import { Player } from "../gamelogic/components/Player.js";
-import { IGameState, IPaddleDirection } from "../../types/interfaces.js";
-import { ServerMessage } from "../../types/interfaces.js";
+import { IGameState, IPaddleDirection } from "../../interfaces/interfaces.js";
+import { ServerMessage } from "../../interfaces/interfaces.js";
 import { GAME_WIDTH, GAME_HEIGHT, STEPS, SCORE_LIMIT } from "../../types/constants.js";
 import { GameService } from "../services/GameService.js";
 

@@ -1,7 +1,7 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
 import { UserManagementService } from '../services/UserManagementService.js';
-import { generateProfileImage } from '../../utils/Avartar.js';
+import { generateProfileImage } from '../../utils/Avatar.js';
 
 export default class Header extends AbstractView {
     constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
@@ -23,14 +23,14 @@ export default class Header extends AbstractView {
                     { id: 'user-btn', text: 'Pong', href: '/pong', className: "btn btn-sm" },
                     { id: 'user-btn', text: 'Tournaments', href: '/tournaments', className: "btn btn-sm" },
                     { id: 'user-btn', text: 'User Management', href: '/user-mangement', className: "btn btn-sm" },
-					{ id: 'user-btn', text: 'Lobby List', href: '/lobbylist', className: "btn btn-sm" }
+                    { id: 'user-btn', text: 'Lobby List', href: '/lobbylist', className: "btn btn-sm" }
                 ]
             }
             else {
                 buttonSet = [
                     { id: 'user-btn', text: 'Pong', href: '/pong', className: "btn btn-sm" },
                     { id: 'user-btn', text: 'Tournaments', href: '/tournaments', className: "btn btn-sm" },
-					{ id: 'user-btn', text: 'Lobby List', href: '/lobbylist', className: "btn btn-sm" }
+                    { id: 'user-btn', text: 'Lobby List', href: '/lobbylist', className: "btn btn-sm" }
                 ]
             }
         }

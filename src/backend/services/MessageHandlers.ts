@@ -1,4 +1,4 @@
-import { ServerMessage, ClientMessage, GameActionMessage } from "../../types/interfaces.js";
+import { ServerMessage, ClientMessage, GameActionMessage } from "../../interfaces/interfaces.js";
 import { Player } from "../gamelogic/components/Player.js";
 
 

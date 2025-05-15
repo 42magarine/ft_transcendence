@@ -117,7 +117,7 @@
     "routes/**/*",
     "types/**/*",
     "utils/**/*"
-    ],
+, "interfaces/interfaces.ts", "interfaces/userInterfaces.ts", "interfaces/authInterfaces.ts"    ],
   "exclude": [
     "node_modules",
     "dist"

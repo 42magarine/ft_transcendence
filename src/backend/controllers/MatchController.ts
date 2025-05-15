@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { ClientMessage, createLobbyMessage, GameActionMessage, joinLobbyMessage, ServerMessage } from "../../types/interfaces.js";
+import { ClientMessage, createLobbyMessage, GameActionMessage, joinLobbyMessage, ServerMessage } from "../../interfaces/interfaces.js";
 import { GameLobby } from "../lobbies/GameLobby.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { MessageHandlers } from "../services/MessageHandlers.js";
@@ -7,7 +7,6 @@ import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
-import { measureMemory } from "vm";
 // import { TournamentLobby } from "../lobbies/TournamentLobby.js";
 
 export abstract class MatchController {
@@ -16,14 +15,14 @@ export abstract class MatchController {
     protected _clients: Map<WebSocket, Player | null>; //
     protected _handlers: MessageHandlers;
     protected _userService: UserService;
-    protected _invites: Map<string, { from: number, to: number, lobbyId:string, expires: Date}>
+    protected _invites: Map<string, { from: number, to: number, lobbyId: string, expires: Date }>
 
-    constructor(userService: UserService, lobbies: Map<string,MatchLobby>) {
+    constructor(userService: UserService, lobbies: Map<string, MatchLobby>) {
         this._userService = userService;
         this._lobbies = lobbies;
         this._clients = new Map<WebSocket, Player | null>();
         this._handlers = new MessageHandlers(this.broadcast.bind(this));
-        this._invites = new Map<string, { from: number, to: number, lobbyId:string, expires: Date}>();
+        this._invites = new Map<string, { from: number, to: number, lobbyId: string, expires: Date }>();
 
         setInterval(() => {
             this.cleanUpInvites();
@@ -31,20 +30,16 @@ export abstract class MatchController {
 
     }
 
-    private async cleanUpInvites()
-    {
+    private async cleanUpInvites() {
         const now = new Date();
 
-        for (const [inviteId, invite] of this._invites.entries())
-        {
-            if (invite.expires < now)
-            {
+        for (const [inviteId, invite] of this._invites.entries()) {
+            if (invite.expires < now) {
                 this._invites.delete(inviteId);
             }
 
             const lobby = this._lobbies.get(invite.lobbyId)
-            if(lobby && lobby.isEmpty())
-            {
+            if (lobby && lobby.isEmpty()) {
                 this._lobbies.delete(invite.lobbyId);
             }
         }
@@ -117,13 +112,12 @@ export abstract class MatchController {
 
     protected abstract handleSpecificMessage(data: ClientMessage, connection: WebSocket, player: Player | null): void
 
-    private handleInvite(connection: WebSocket, fromUserId?: number, toUserId?: number)
-    {
-        if (!fromUserId || !toUserId)
-        {
+    private handleInvite(connection: WebSocket, fromUserId?: number, toUserId?: number) {
+        if (!fromUserId || !toUserId) {
             this.sendMessage(connection, {
-            type: "error",
-            message: "Not user to send from/to"})
+                type: "error",
+                message: "Not user to send from/to"
+            })
             return;
         }
 
@@ -153,12 +147,9 @@ export abstract class MatchController {
         this.NotifyUserOfInvite(toUserId, fromUserId, inviteId)
     }
 
-    private async NotifyUserOfInvite(toUserId: number, fromUserId: number, inviteId: string)
-    {
-        for (const [conn, player] of this._clients.entries())
-        {
-            if (player?.userId === toUserId)
-            {
+    private async NotifyUserOfInvite(toUserId: number, fromUserId: number, inviteId: string) {
+        for (const [conn, player] of this._clients.entries()) {
+            if (player?.userId === toUserId) {
                 const fromUser = await this._userService.findId(fromUserId);
                 this.sendMessage(conn, {
                     type: "inviteReceived",
@@ -171,10 +162,8 @@ export abstract class MatchController {
         }
     }
 
-    private handleAcceptInvite(connection: WebSocket, userId?: number, inviteId?: string)
-    {
-        if (!userId || !inviteId)
-        {
+    private handleAcceptInvite(connection: WebSocket, userId?: number, inviteId?: string) {
+        if (!userId || !inviteId) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "user or invite not found"
@@ -183,8 +172,7 @@ export abstract class MatchController {
         }
 
         const invite = this._invites.get(inviteId)
-        if (!invite || invite.to !== userId)
-        {
+        if (!invite || invite.to !== userId) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "invite not found in list or not for user"
@@ -193,8 +181,7 @@ export abstract class MatchController {
         }
 
         const lobby = this._lobbies.get(invite.lobbyId)
-        if (!lobby)
-        {
+        if (!lobby) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "lobby not found"
@@ -203,8 +190,7 @@ export abstract class MatchController {
         }
 
         const player = lobby.addPlayer(connection, userId);
-        if (player)
-        {
+        if (player) {
             this._clients.set(connection, player);
         }
 
@@ -217,14 +203,12 @@ export abstract class MatchController {
         this._invites.delete(inviteId);
     }
 
-    private handleDeclineInvite(connection: WebSocket, userId?: number, inviteId?: string)
-    {
-        if (!userId || !inviteId)
-        {
+    private handleDeclineInvite(connection: WebSocket, userId?: number, inviteId?: string) {
+        if (!userId || !inviteId) {
             return
         }
         const invite = this._invites.get(inviteId);
-        if(!invite || invite.to !== userId)
+        if (!invite || invite.to !== userId)
             return
 
         this._invites.delete(inviteId)
@@ -232,8 +216,7 @@ export abstract class MatchController {
         this.NotifyUserOfDeclinedInvite(invite.from, userId);
 
         const lobby = this._lobbies.get(invite.lobbyId)
-        if (lobby && lobby.isEmpty())
-        {
+        if (lobby && lobby.isEmpty()) {
             this._lobbies.delete(invite.lobbyId)
         }
 
@@ -245,12 +228,9 @@ export abstract class MatchController {
 
 
 
-    private async NotifyUserOfDeclinedInvite(userId:number, declinedBy: number)
-    {
-        for (const [conn, player] of this._clients.entries())
-        {
-            if (player?.userId === userId)
-            {
+    private async NotifyUserOfDeclinedInvite(userId: number, declinedBy: number) {
+        for (const [conn, player] of this._clients.entries()) {
+            if (player?.userId === userId) {
                 const decliningUser = await this._userService.findId(declinedBy);
                 this.sendMessage(conn, {
                     type: "inviteDeclined",
@@ -277,8 +257,7 @@ export abstract class MatchController {
             if (lobby) {
                 lobby.removePlayer(player);
 
-                if (lobby.isEmpty())
-                {
+                if (lobby.isEmpty()) {
                     this._lobbies.delete(player.lobbyId);
                 }
             }
@@ -295,8 +274,7 @@ export abstract class MatchController {
         }
     }
 
-    protected handleCreateLobby(connection: WebSocket, userId?: number)
-    {
+    protected handleCreateLobby(connection: WebSocket, userId?: number) {
         const lobbyId = randomUUID();
         const lobby = this.createLobby(lobbyId);
 
@@ -318,10 +296,8 @@ export abstract class MatchController {
 
     protected abstract createLobby(lobbyId: string): GameLobby //| TournamentLobby
 
-    protected handleJoinLobby(connection: WebSocket, userId?: number, lobbyId?: string)
-    {
-        if (!lobbyId)
-        {
+    protected handleJoinLobby(connection: WebSocket, userId?: number, lobbyId?: string) {
+        if (!lobbyId) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "Lobby Id is required"
@@ -352,8 +328,7 @@ export abstract class MatchController {
         })
     }
 
-    protected handleLeaveLobby(connection: WebSocket)
-    {
+    protected handleLeaveLobby(connection: WebSocket) {
         const player = this._clients.get(connection);
 
         if (player && player.lobbyId) {
@@ -362,8 +337,7 @@ export abstract class MatchController {
             if (lobby)
                 lobby.removePlayer(player);
 
-            if (lobby?.isEmpty())
-            {
+            if (lobby?.isEmpty()) {
                 this._lobbies.delete(player.lobbyId)
             }
         }
@@ -375,8 +349,7 @@ export abstract class MatchController {
         })
     }
 
-    public async getLobbies(request: FastifyRequest, reply: FastifyReply)
-    {
+    public async getLobbies(request: FastifyRequest, reply: FastifyReply) {
         const lobbies = [];
 
         for (const [id, lobby] of this._lobbies.entries()) {
@@ -389,6 +362,6 @@ export abstract class MatchController {
                 })
             }
         }
-        reply.code(200).send({lobbies});
+        reply.code(200).send({ lobbies });
     }
 }

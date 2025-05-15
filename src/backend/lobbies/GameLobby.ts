@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
-import { ServerMessage, GameStateMessage } from "../../types/interfaces.js";
-import { IGameState } from "../../types/interfaces.js";
+import { ServerMessage, GameStateMessage } from "../../interfaces/interfaces.js";
+import { IGameState } from "../../interfaces/interfaces.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { PongGame } from "../gamelogic/Pong.js";
 import { GameService } from "../services/GameService.js";

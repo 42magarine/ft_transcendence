@@ -1,34 +1,22 @@
-// ========================
-// File: components/Input.ts
-// ========================
-
 import AbstractView from '../../utils/AbstractView.js';
-
-interface InputProps {
-	id?: string;
-	name: string;
-	type?: string;
-	placeholder?: string;
-	value?: string;
-	className?: string; // optional override
-}
+import { InputProps } from '../../interfaces/abstractViewInterfaces.js';
 
 export default class Input extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-	}
+    constructor(params: URLSearchParams = new URLSearchParams()) {
+        super(params);
+    }
 
-	async renderInput({
-		id = '',
-		name,
-		type = 'text',
-		placeholder = '',
-		value = '',
-		className = ''
-	}: InputProps): Promise<string> {
-		const finalClass = className
+    async renderInput({
+        id = '',
+        name,
+        type = 'text',
+        placeholder = '',
+        value = '',
+        className = ''
+    }: InputProps): Promise<string> {
+        const finalClass = className
 
-		return this.render(`
+        return this.render(`
       <input
         type="${type}"
         id="${id}"
@@ -39,10 +27,10 @@ export default class Input extends AbstractView {
         required
       />
     `);
-	}
+    }
 
-	async getHtml(): Promise<string> {
+    async getHtml(): Promise<string> {
 
-		return this.render(`<input placeholder="Default Input" />`);
-	}
+        return this.render(`<input placeholder="Default Input" />`);
+    }
 }

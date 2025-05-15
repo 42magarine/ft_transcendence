@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { ClientMessage, ReadyMessage, ServerMessage } from "../../types/interfaces.js";
+import { ClientMessage, ReadyMessage, ServerMessage } from "../../interfaces/interfaces.js";
 import { GameLobby } from "../lobbies/GameLobby.js";
 import { GameService } from "../services/GameService.js";
 import { UserService } from "../services/UserService.js";
@@ -20,8 +20,7 @@ export class PongController extends MatchController {
     }
 
     protected handleSpecificMessage(data: ClientMessage, connection: WebSocket, player: Player): void {
-        switch(data.type)
-        {
+        switch (data.type) {
             case "ready":
                 this.handlePlayerReady(connection, player, (data as ReadyMessage).ready)
                 break;
@@ -41,10 +40,8 @@ export class PongController extends MatchController {
         }
     }
 
-    private handlePlayerReady(connection: WebSocket, player: Player, isReady: boolean)
-    {
-        if (!player || !player.lobbyId)
-        {
+    private handlePlayerReady(connection: WebSocket, player: Player, isReady: boolean) {
+        if (!player || !player.lobbyId) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "not in a lobby"
@@ -53,7 +50,7 @@ export class PongController extends MatchController {
         }
 
         const lobby = this._lobbies.get(player.lobbyId) as GameLobby
-        if(!lobby){
+        if (!lobby) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "Lobby not found"
@@ -63,9 +60,8 @@ export class PongController extends MatchController {
         lobby.setPlayerReady(player.id, isReady)
     }
 
-    private handleStartGame(connection: WebSocket, player: Player)
-    {
-        if(!player || !player.lobbyId) {
+    private handleStartGame(connection: WebSocket, player: Player) {
+        if (!player || !player.lobbyId) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "not in lobby"
@@ -82,8 +78,7 @@ export class PongController extends MatchController {
             return;
         }
 
-        if (lobby.getCreatorId() !== player.userId)
-        {
+        if (lobby.getCreatorId() !== player.userId) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "Only creator can start game"
@@ -91,8 +86,7 @@ export class PongController extends MatchController {
             return;
         }
 
-        if (lobby.getPlayerCount() < 2)
-        {
+        if (lobby.getPlayerCount() < 2) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "Need at least 2 players"
@@ -111,10 +105,8 @@ export class PongController extends MatchController {
         lobby.startGame();
     }
 
-    private handlePauseGame(connection: WebSocket, player: Player)
-    {
-        if (!player || !player.lobbyId)
-        {   return;}
+    private handlePauseGame(connection: WebSocket, player: Player) {
+        if (!player || !player.lobbyId) { return; }
 
         const lobby = this._lobbies.get(player.lobbyId) as GameLobby
         if (lobby && lobby.getCreatorId() === player.userId) {
@@ -128,10 +120,8 @@ export class PongController extends MatchController {
     }
 
 
-    private handleResumeGame(connection: WebSocket, player: Player)
-    {
-        if (!player || !player.lobbyId)
-        {return;}
+    private handleResumeGame(connection: WebSocket, player: Player) {
+        if (!player || !player.lobbyId) { return; }
 
         const lobby = this._lobbies.get(player.lobbyId) as GameLobby
         if (lobby && lobby.getCreatorId() === player.userId) {
@@ -152,7 +142,7 @@ export class PongController extends MatchController {
             const info = lobby.getLobbyInfo();
             allLobbies.push(info);
         }
-        
+
         this.sendMessage(connection, {
             type: "lobbyList",
             lobbies: allLobbies
@@ -167,9 +157,8 @@ export class PongController extends MatchController {
         )
     }
 
-    public async getGameById(request: FastifyRequest<{Params: {id: string} }>, reply: FastifyReply)
-    {
-        const {id} = request.params
+    public async getGameById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+        const { id } = request.params
         const userId = request.user?.id;
 
         if (!userId) {
@@ -187,7 +176,7 @@ export class PongController extends MatchController {
             const gameState = this._gameService.getGameStateById(gameId, userId)
 
             if (!gameState)
-                return reply.code(404).send({error: "Couldnt find this game"})
+                return reply.code(404).send({ error: "Couldnt find this game" })
 
             return reply.code(200).send(gameState);
         }
@@ -196,19 +185,17 @@ export class PongController extends MatchController {
         }
     }
 
-    public async getUserGames(request: FastifyRequest, reply: FastifyReply)
-    {
+    public async getUserGames(request: FastifyRequest, reply: FastifyReply) {
         const userId = request.user?.id;
 
         if (!userId)
-            return reply.code(400).send({error: "Invalid user"})
+            return reply.code(400).send({ error: "Invalid user" })
 
-            const games = await this._gameService.findGameByPlayerId(userId);
+        const games = await this._gameService.findGameByPlayerId(userId);
 
-            const gameHistories = await Promise.all(games.map(async (game) =>
-                {return await this._gameService.getGameStateById(game.id, userId)}))
+        const gameHistories = await Promise.all(games.map(async (game) => { return await this._gameService.getGameStateById(game.id, userId) }))
 
-            return reply.code(200).send({ game: gameHistories.filter(game => game !== null)})
+        return reply.code(200).send({ game: gameHistories.filter(game => game !== null) })
     }
 
     public async getPublicLobbies(request: FastifyRequest, reply: FastifyReply) {
@@ -219,6 +206,6 @@ export class PongController extends MatchController {
                 lobbies.push(lobby.getLobbyInfo());
         }
 
-    return reply.code(200).send({lobbies});
+        return reply.code(200).send({ lobbies });
     }
 }

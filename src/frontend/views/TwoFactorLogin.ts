@@ -3,24 +3,24 @@ import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class TwoFactorLogin extends AbstractView {
-	constructor() {
-		super();
-	}
+    constructor() {
+        super();
+    }
 
-	async getHtml(): Promise<string> {
-		// Check if we have pending 2FA data
-		const userId = sessionStorage.getItem('pendingUserId');
-		const username = sessionStorage.getItem('pendingUsername');
+    async getHtml(): Promise<string> {
+        // Check if we have pending 2FA data
+        const userId = sessionStorage.getItem('pendingUserId');
+        const username = sessionStorage.getItem('pendingUsername');
 
-		if (!userId || !username) {
-			// Redirect to login if no pending verification
-			window.location.href = '/login';
-			return '';
-		}
+        if (!userId || !username) {
+            // Redirect to login if no pending verification
+            window.location.href = '/login';
+            return '';
+        }
 
-		const button = new Button();
+        const button = new Button();
 
-		const twoFactorInterfaceLogin = `
+        const twoFactorInterfaceLogin = `
 			<div id="twoFactorInterfaceLogin" class="mb-6">
 				<h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">
 					Enter the 6-digit code from your authenticator app
@@ -39,25 +39,25 @@ export default class TwoFactorLogin extends AbstractView {
 				</div>
 			</div>`;
 
-		const card = new Card();
-		const TwoFactorLoginCard = await card.renderCard({
-			title: 'Two-Factor Authentication',
-			formId: 'TwoFactorLogin-form',
-			inputs: [
-				{ name: 'username', type: 'hidden', placeholder: 'Username', value: username },
-				{ name: 'userId', type: 'hidden', placeholder: 'User ID', value: userId }
-			],
-			preButton: twoFactorInterfaceLogin,
-			button: { text: 'Verify', type: 'submit', className: "btn btn-primary w-full" },
-			extra: '<p class="mt-4 text-center text-gray-600 dark:text-gray-400">Open your authenticator app to view your verification code.</p>'
-		});
+        const card = new Card();
+        const TwoFactorLoginCard = await card.renderCard({
+            title: 'Two-Factor Authentication',
+            formId: 'TwoFactorLogin-form',
+            inputs: [
+                { name: 'username', type: 'hidden', placeholder: 'Username', value: username },
+                { name: 'userId', type: 'hidden', placeholder: 'User ID', value: userId }
+            ],
+            preButton: twoFactorInterfaceLogin,
+            button: { text: 'Verify', type: 'submit', className: "btn btn-primary w-full" },
+            extra: '<p class="mt-4 text-center text-gray-600 dark:text-gray-400">Open your authenticator app to view your verification code.</p>'
+        });
 
-		return this.render(`
+        return this.render(`
 			<div class="flex justify-center items-center min-h-[80vh] px-4">
 				<div class="w-full max-w-xl space-y-8">
 					${TwoFactorLoginCard}
 				</div>
 			</div>
 		`);
-	}
+    }
 }

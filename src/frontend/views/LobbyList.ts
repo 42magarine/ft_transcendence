@@ -2,7 +2,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Title from '../components/Title.js';
 import lobbyService from '../services/LobbyService.js'; // singleton instance
-import { LobbyInfo } from '../../types/interfaces.js';
+import { LobbyInfo } from '../../interfaces/interfaces.js';
 import Button from '../components/Button.js';
 
 export default class Lobby extends AbstractView {

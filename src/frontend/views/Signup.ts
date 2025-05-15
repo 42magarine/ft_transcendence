@@ -1,20 +1,16 @@
-// ========================
-// File: views/Signup.ts
-// ========================
-
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class Signup extends AbstractView {
-	constructor() {
-		super();
-	}
+    constructor() {
+        super();
+    }
 
-	async getHtml(): Promise<string> {
-		const button = new Button();
+    async getHtml(): Promise<string> {
+        const button = new Button();
 
-		const twoFactorInterface = `
+        const twoFactorInterface = `
 			<div id="twoFactorInterface">
 				<input type="hidden" name="secret" value="" id="secret">
 				<div id="qr-display"></div>
@@ -29,31 +25,31 @@ export default class Signup extends AbstractView {
 				</div>
 			</div>`
 
-		const card = new Card();
-		const signupCard = await card.renderCard({
-			title: 'Signup',
-			prefix: '<div class="signup-avatar"></div>',
-			formId: 'signup-form',
-			inputs: [
-				{ name: 'avatar', type: 'file', placeholder: 'Avatar' },
-				{ name: 'displayname', type: 'text', placeholder: 'Name' },
-				{ name: 'username', type: 'text', placeholder: 'Username' },
-				{ name: 'email', type: 'email', placeholder: 'E-Mail' },
-				{ name: 'password', type: 'password', placeholder: 'Password' },
-				{ name: 'repeat-password', type: 'password', placeholder: 'Repeat Password' },
-				{ name: 'enableTwoFactor', type: 'checkbox', placeholder: 'Enable 2FA (Requires Mobile App)' }
-			],
-			preButton: twoFactorInterface,
-			button: { text: 'Sign up', type: 'submit', className: "btn btn-primary" },
-			extra: '<p>May want to <a router href="/login">log in</a></p>'
-		});
+        const card = new Card();
+        const signupCard = await card.renderCard({
+            title: 'Signup',
+            prefix: '<div class="signup-avatar"></div>',
+            formId: 'signup-form',
+            inputs: [
+                { name: 'avatar', type: 'file', placeholder: 'Avatar' },
+                { name: 'displayname', type: 'text', placeholder: 'Name' },
+                { name: 'username', type: 'text', placeholder: 'Username' },
+                { name: 'email', type: 'email', placeholder: 'E-Mail' },
+                { name: 'password', type: 'password', placeholder: 'Password' },
+                { name: 'repeat-password', type: 'password', placeholder: 'Repeat Password' },
+                { name: 'enableTwoFactor', type: 'checkbox', placeholder: 'Enable 2FA (Requires Mobile App)' }
+            ],
+            preButton: twoFactorInterface,
+            button: { text: 'Sign up', type: 'submit', className: "btn btn-primary" },
+            extra: '<p>May want to <a router href="/login">log in</a></p>'
+        });
 
-		return this.render(`
+        return this.render(`
 			<div class="flex justify-center items-center min-h-[80vh] px-4">
 				<div class="w-full max-w-xl space-y-8">
 					${signupCard}
 				</div>
 			</div>
 		`);
-	}
+    }
 }
