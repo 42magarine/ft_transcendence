@@ -5,7 +5,6 @@ import { Player } from "../gamelogic/components/Player.js";
 import { PongGame } from "../gamelogic/Pong.js";
 import { GameService } from "../services/GameService.js";
 import { MatchLobby } from "./MatchLobby.js";
-import game from "../../routes/game.js";
 import { randomUUID } from "crypto";
 import { GameModel } from "../models/MatchModel.js";
 

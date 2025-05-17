@@ -15,26 +15,7 @@ export class UserManagementService {
             return [];
         }
     }
-    static async fetchAllUsers(): Promise<User[]> {
-        try {
-            const response = await fetch('/api/users/');
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
-            }
-            return await response.json() as User[];
-        } catch (error) {
-            console.error('Failed to fetch users:', error);
-            return [];
-        }
-    }
 
-    static async registerUser(userData: User, avatarFile?: File): Promise<string> {
-        console.log("Registering user with data:", userData);
-        try {
-            // Check if 2FA is enabled but code verification is needed
-            if (userData.secret &&
-                userData.tf_one && userData.tf_two && userData.tf_three &&
-                userData.tf_four && userData.tf_five && userData.tf_six) {
     static async registerUser(userData: User, avatarFile?: File): Promise<string> {
         console.log("Registering user with data:", userData);
         try {
