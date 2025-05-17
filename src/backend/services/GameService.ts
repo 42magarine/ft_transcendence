@@ -1,189 +1,224 @@
-import game from "../../routes/game.js";
-import user from "../../routes/user.js";
 import { AppDataSource } from "../DataSource.js";
-import { GameModel } from "../models/GameModel.js";
+import { GameModel } from "../models/MatchModel.js";
+import { MatchService } from "./MatchService.js";
 import { UserService } from "./UserService.js";
 
-export class GameService {
+export class GameService extends MatchService {
+    private gameRepo = AppDataSource.getRepository(GameModel);
 
-	private _gameRepo: GameRepository;
-	private _userService: UserService;
+    constructor(userService: UserService) {
+        super(userService);
+    }
 
-	constructor(gameRepo: GameRepository, userService: UserService)
-	{
-		this._gameRepo = gameRepo;
-		this._userService = userService;
-	}
+    async getGameById(id: number) {
+        return await this.gameRepo.findOne({
+            where: { id },
+            relations: ['player1', 'player2', 'winner', 'lobbyParticipants'] //lobbyparticis is neu fuer det tournuerii ich werd wahnsinig
+        })
+    }
 
-	public async createGame(player1Id: number, player2Id: number) {
-		try{
-			const player1 = await this._userService.findId(player1Id)
-			const player2 = await this._userService.findId(player2Id)
+    async updateGameScore(gameId: number, player1Score: number, player2Score: number, winnerId?: number) {
+        const game = await this.getGameById(gameId);
 
-			if (!player1 || !player2) {
-				throw new Error("One or both players not registered")
-			}
+        if (!game) {
+            throw new Error("game not found");
+        }
 
-			const game = new GameModel();
-			game.Player1 = player1;
-			game.Player2 = player2;
-			game.Player1Score = 0;
-			game.Player2Score = 0;
+        game.player1Score = player1Score;
+        game.player2Score = player2Score;
 
-			return await this._gameRepo.createGame(game);
-		}
-		catch (error) {
-			console.error("Couldnt create game:", error );
-			throw new Error("Failed to create game");
-		}
-	}
+        if (winnerId) {
+            const winner = await this.userService.findId(winnerId)
+            if (!winner) {
+                throw new Error("Couldn't find winner in users");
+            }
+            game.winner = winner;
+            game.winnerId = winnerId;
+            game.status = 'completed'
+            game.endedAt = new Date();
+        }
+        return await this.saveGame(game);
+    }
 
+    async saveGame(game: GameModel) {
+        return await this.gameRepo.save(game);
+    }
 
-	public async updateGameScore(
-		gameId: number,
-		player1Score: number,
-		player2Score: number,
-		WinnerId?: number
-	)
-	{
-		try {
-			const game = await this._gameRepo.findGameById(gameId)
+    async deleteGame(gameId: number) {
+        const game = await this.getGameById(gameId)
+        if (!game) {
+            throw new Error("couldnt do it");
+        }
+        return await this.gameRepo.remove(game);
+    }
 
-			if(!game) {
-				throw new Error("game not found");
-			}
+    async findGameByPlayerId(playerId: number) {
+        return await this.gameRepo.createQueryBuilder("game")
+            .leftJoinAndSelect("game.player1", "player1")
+            .leftJoinAndSelect("game.player2", "player2")
+            .leftJoinAndSelect("game.winnder", "winner")
+            .where("player1.id = :id", { id: playerId })
+            .orWhere("player2.id = :id", { id: playerId })
+            .orderBy("game.id", "DESC")
+            .getMany();
+    }
 
-			game.Player1Score = player1Score;
-			game.Player2Score = player2Score;
+    async findPendingLobbyGames() {
+        return await this.gameRepo.createQueryBuilder("game")
+            .leftJoinAndSelect("game.player1", "player1")
+            .leftJoinAndSelect("game.player2", "player2")
+            .where("game.status = :status", { status: 'pending' })
+            .andWhere("game.isLobbyOpen = :isOpen", { isOpen: true })
+            .getMany()
+    }
 
-			if (WinnerId)
-				game.WinnerId = WinnerId;
+    async setWinner(gameId: number, winnerId: number) {
+        const game = await this.getGameById(gameId)
 
-			return await this._gameRepo.createGame(game);
-		}
-		catch (error) {
-			console.error("Couldnt update game:", error)
-			throw new Error("Error updating game");
-		}
-	}
+        if (!game) {
+            throw new Error("Did not know this game blabla adwdoajwdioajwdo");
+        }
 
-	public async getGameStateById(gameId: number, userId: number) {
-		try {
-			const game = await this._gameRepo.findGameById(gameId)
+        const winner = await this.userService.findId(winnerId);
+        if (!winner) {
+            throw new Error("couldnt find winner");
+        }
 
-			if(!game)
-				return null;
+        game.winner = winner;
+        game.winnerId = winnerId;
+        game.status = 'completed'
+        game.endedAt = new Date();
 
-			if (game.Player1.Id !== userId && game.Player2.id !== userId)
-				throw new Error( "User Not part of game")
+        return await this.saveGame(game);
+    }
 
-			const isPlayer1 = game.Player1.id === userId;
+    protected async getUsernameById(userId: number) {
+        const user = await this.userService.findId(userId)
+        return user?.username;
+    }
 
-			return {
-				id: game.id,
-				player: {
-					id: userId,
-					username: isPlayer1 ? game.Player1.username : game.Player2.username,
-					score: isPlayer1 ? game.Player1Score : game.Player2Score
-				},
-				opponent: {
-					id: isPlayer1 ? game.Player2.id : game.Player1.id,
-					username: isPlayer1 ? game.Player2.username : game.Player1.username,
-					score: isPlayer1 ? game.Player2Score : game.Player1Score
-				},
-				winner: game.WinnerId ? await this.getUsernameById(game.WinnerId)
-				: "Game not finished",
-				date: game.CreatedAt || new Date()
-			}
-		}
-		catch (error) {
-			console.error("couldnt get game from db", error);
-			throw new Error("Error fetching game from db");
-		}
-	}
+    protected getGameResult(game: GameModel, userId: number) {
+        if (!game.winnerId) {
+            return "In Progress";
+        }
+        return game.winnerId === userId ? "Won" : "Lost";
+    }
 
-	private getGameResult(game: GameModel, userId: number) {
-		if (!game.WinnerId)
-			return "in Progress"
+    async createGame(player1Id: number, player2Id: number) {
+        const player1 = await this.userService.findId(player1Id);
+        const player2 = await this.userService.findId(player2Id);
 
-		return game.WinnerId === userId ? "Won" : "Lost"
-	}
+        const game = new GameModel();
+        game.player1 = player1!;
+        if (player2 && player1Id !== player2Id) {
+            game.player2 = player2;
+        }
+        else {
+            game.isLobbyOpen = true;
+        }
 
+        game.player1Score = 0;
+        game.player2Score = 0;
+        game.status = 'pending';
+        game.isLobbyOpen = true;
+        game.gameAdminId = player1Id;
+        game.lobbyParticipants = [player1!];
 
-	private async getUsernameById(userId: number) {
-		try {
-			const user = await this._userService.findId(userId)
-			return user ? user.username : "Unknown";
-		}
-		catch (error) {
-			return "Unknown"
-		}
-	}
+        return await this.saveGame(game);
+    }
 
-	public async addLobbyParticipant(gameId: number, userId: number) {
-		try {
-			const game = await this._gameRepo.findGameById(gameId)
-			const user = await this._userService.findId(userId)
+    async getGameStateById(gameId: number, userId: number) {
+        const game = await this.getGameById(gameId);
+        if (!game) {
+            throw new Error("adjaowdhaiowdn AHHHHHHHH FKIN TYPESCIPRTYa wda awD AWd");
+        }
 
-			if (!game || !user)
-			{
-				throw new Error("Couldnt find correct game/user")
-			}
+        const isPlayer1 = game.player1?.id === userId;
+        const isPlayer2 = game.player2?.id === userId;
 
-			if (!game.lobbyParticipants) {
-				game.lobbyParticipants = []
-			}
+        return {
+            id: game.id,
+            status: game.status,
+            player1: {
+                id: game.player1?.id,
+                username: game.player1?.username,
+                score: game.player1Score
+            },
+            player2: {
+                id: game.player2?.id,
+                username: game.player2?.username,
+                score: game.player2Score
+            },
+            winner: game.winnerId ? {
+                id: game.winner?.id,
+                username: game.winner?.username
+            } : null,
+            createdAt: game.createdAt,
+            startedAt: game.startedAt,
+            endedAt: game.endedAt,
+            isYourTurn: !game.startedAt, // <-- is nur fuer tictactoe spaeter vll auch eh egal
+            yourRole: isPlayer1 ? 'player1' : (isPlayer2 ? 'player2' : 'spectator'),
+            result: this.getMatchResult(game, userId)
+        };
+    }
 
-			if (!game.lobbyParticipants.some(p => p.id === userId)) {
-				game.lobbyParticipants.push(user);
-				await this._gameRepo.createGame(game);
-			}
-		}
-		catch (error) {
-			console.error("Couldnt add user to lobby", error)
-			throw new Error("Failed to add user")
-		}
-	}
+    async addLobbyParticipant(gameId: number, userId: number) {
+        try {
+            const game = await this.getGameById(gameId);
+            const user = await this.userService.findId(userId);
 
+            if (!game || !user) {
+                throw new Error("Couldn't find correct game/user");
+            }
 
-}
+            if (!game.lobbyParticipants) {
+                game.lobbyParticipants = [];
+            }
 
-export class GameRepository {
+            const existingParticipant = game.lobbyParticipants.find(p => p.id === userId);
+            if (!existingParticipant) {
+                game.lobbyParticipants.push(user);
+            }
 
-	//get game table from db
-	private gameRepo = AppDataSource.getRepository(GameModel);
-	// private matchHistory = AppDataSource.getRepository(this.matchHistory);
+            if (game.lobbyParticipants.length === 2 && !game.player2?.id && game.player1?.id !== userId) {
+                game.player2 = user;
+            }
 
+            return await this.saveGame(game);
+        }
+        catch (error) {
+            console.error("Couldn't add user to lobby", error);
+            throw new Error("Failed to add user");
+        }
+    }
 
-	//create and save game
-	async createGame(game: GameModel)
-	{
-		return await this.gameRepo.save(game);
-	}
+    async closeLobby(gameId: number) {
+        const game = await this.getGameById(gameId);
+        if (!game) {
+            throw new Error("fk all the checks man");
+        }
 
-	//remove game from db -> doesnt matter if doesnt exist nothing will happen
-	async deleteGame(game: GameModel)
-	{
-		return await this.gameRepo.delete(game);
-	}
+        game.isLobbyOpen = false;
+        return await this.saveGame(game);
+    }
 
-	async findGameById(id: number)
-	{
-		return await this.gameRepo.findOneBy({id});
-	}
+    async getOpenLobbies() {
+        return await this.gameRepo.find({
+            where: {
+                isLobbyOpen: true,
+                status: 'pending'
+            },
+            relations: ['player1', 'lobbyParticipants']
+        })
+    }
 
-	//find list of games where player 1 or 2 are active
-	async findGamebyPlayerId(playerId: number)
-	{
-		return await this.gameRepo.createQueryBuilder("game")
-		.leftJoinAndSelect("game.Player1", "player1")
-		.leftJoinAndSelect("game.Player2", "player2")
-		.where("player1.id = :id", {id: playerId})
-		.orWhere("player2.id = :id", {id: playerId})
-		.orderBy("game.id", "DESC")
-		.getMany();
-	}
-
-	// optional if we want to show how good the opponent is in game lobby -> use matchHistory -> need to add relation to users
-	// async getUserStats()
+    async getUserActiveGames(userId: number) {
+        return await this.gameRepo.createQueryBuilder("game")
+            .leftJoinAndSelect("game.player1", "player1")
+            .leftJoinAndSelect("game.player2", "player2")
+            .leftJoinAndSelect("game.lobbyParticipants", "participants")
+            .where("(player1.id = :userId OR player2.id = :userId)", { userId })
+            .andWhere("gameStatus IN (:...statuses)", { statuses: ['pending', 'ongoing', 'paused'] })
+            .getMany()
+    }
 }

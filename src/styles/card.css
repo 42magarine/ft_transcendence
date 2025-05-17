@@ -1,57 +1,94 @@
 /* === BASE CARD === */
 .card {
-	@apply w-full max-w-full rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white;
+	@apply w-full max-w-full rounded-2xl overflow-hidden shadow-xl border border-gray-700 text-white;
 	@apply mt-2 mb-2;
-    @apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80
-           text-white backdrop-blur-md border border-white/10
-           shadow-xl rounded-xl p-6;
-  }
+@apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80
+ text-white backdrop-blur-md border border-white/10
+ shadow-xl rounded-xl p-6;
+}
 
-  .card-image {
+.card-image {
 	@apply w-full h-48 object-cover;
-  }
+}
 
-  .card-body {
+.card-body {
 	@apply px-6 py-4;
-  }
+}
 
-  .card-title {
+.card-title {
 	@apply font-semibold text-2xl text-white mb-2 tracking-wide;
-  }
+}
 
-  .card-text {
+.card-text {
 	@apply text-gray-300 text-base leading-relaxed;
-  }
+}
 
-  .card-footer {
+.card-footer {
 	@apply px-6 pt-4 pb-6 flex flex-wrap gap-2;
-  }
+}
 
-  .card-tag {
+.card-tag {
 	@apply inline-block bg-blue-700 text-white rounded-full px-3 py-1 text-sm font-medium;
-  }
+}
 
-  .card input {
+.card input {
 	@apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
+}
+
+.card input[type=checkbox] {
+	/* Base checkbox size */
+	height: 1em;
+	width: 1em;
+
+	/* Card styling */
+	border-radius: 0.75rem;
+	background-color: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	backdrop-filter: blur(12px);
+	color: white;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+	/* Transition effects */
+	transition: box-shadow 0.2s, outline-color 0.2s;
+
+	/* Remove default checkbox appearance */
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	outline: none;
+	cursor: pointer;
   }
 
-  .card select {
+  /* Style for checked state with white marker */
+  .card input[type=checkbox]:checked {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 0.7em;
+  }
+
+  /* Add focus state for accessibility */
+  .card input[type=checkbox]:focus {
+	outline: 2px solid rgba(255, 255, 255, 0.4);
+  }
+
+.card select {
 	@apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
-  }
+}
 
-  /* === GROUP STYLES === */
-  .card-group {
+/* === GROUP STYLES === */
+.card-group {
 	@apply w-full;
-  }
+}
 
-  .card-group .card {
+.card-group .card {
 	@apply transition-transform hover:scale-[1.015];
-  }
+}
 
-  .card-group.grid {
+.card-group.grid {
 	@apply gap-6;
-  }
+}
 
-  .card-group.flex {
+.card-group.flex {
 	@apply gap-6 flex-wrap justify-center;
-  }
+}

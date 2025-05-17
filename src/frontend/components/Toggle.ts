@@ -1,23 +1,14 @@
-// ========================
-// File: components/Toggle.ts
-// ========================
-
 import AbstractView from '../../utils/AbstractView.js';
-
-interface ToggleProps {
-	id: string;
-	label: string;
-	checked?: boolean;
-}
+import { ToggleProps } from '../../interfaces/abstractViewInterfaces.js';
 
 export default class Toggle extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-	}
+    constructor(params: URLSearchParams = new URLSearchParams()) {
+        super(params);
+    }
 
-	async renderToggle({ id, label, checked = false }: ToggleProps): Promise<string> {
+    async renderToggle({ id, label, checked = false }: ToggleProps): Promise<string> {
 
-		return this.render(`
+        return this.render(`
 			<label for="${id}" class="flex items-center gap-3 cursor-pointer">
 				<input
 					type="checkbox"
@@ -31,11 +22,11 @@ export default class Toggle extends AbstractView {
 				<span >${label}</span>
 			</label>
 		`);
-	}
+    }
 
-	async getHtml(): Promise<string> {
+    async getHtml(): Promise<string> {
 
-		return this.render(`
+        return this.render(`
 			<label class="flex items-center gap-3 cursor-pointer">
 				<input type="checkbox" class="toggle-checkbox hidden" />
 				<span class="w-12 h-6 rounded-full flex items-center px-1">
@@ -44,5 +35,5 @@ export default class Toggle extends AbstractView {
 				<span>Default toggle</span>
 			</label>
 		`);
-	}
+    }
 }

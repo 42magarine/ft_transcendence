@@ -1,23 +1,18 @@
-import { ServerMessage, ClientMessage } from "../../types/ft_types.js";
-import { PongGame } from "../models/Pong.js";
-import { Player } from "../models/Player.js";
-import { IPaddleDirection } from "../../types/interfaces.js";
-
+import { ServerMessage, ClientMessage, GameActionMessage } from "../../interfaces/interfaces.js";
+import { Player } from "../gamelogic/components/Player.js";
 
 export class MessageHandlers {
-    private _broadcast: (lobbyId: string, data:ServerMessage) => void;
+    private _broadcast: (lobbyId: string, data: ServerMessage) => void;
 
-    constructor(broadcast: (lobbyId: string, data:ServerMessage) => void)
-    {this._broadcast = broadcast;};
+    constructor(broadcast: (lobbyId: string, data: ServerMessage) => void) { this._broadcast = broadcast; };
 
-    public handleGameAction(player: Player, data: ClientMessage) {
-        if (!player.lobbyId)
+    public handleGameAction(player: Player, data: GameActionMessage) {
+        if (!player.lobbyId) {
             return;
+        }
 
-        if (data.action)
-        {
-            switch(data.action)
-            {
+        if (data.action) {
+            switch (data.action) {
                 case "movePaddle":
                     if (data.direction) {
                         this._broadcast(player.lobbyId, {
@@ -27,25 +22,32 @@ export class MessageHandlers {
                         })
                     }
                     break;
-
+                case "ready":
+                    player._isReady = data.ready;
+                    this._broadcast(player.lobbyId, {
+                        type: "playerReady",
+                        playerId: player.id,
+                        ready: player._isReady
+                    })
+                    break;
                 case "pauseGame":
                     this._broadcast(player.lobbyId, {
                         type: "gamePaused",
-                        playerId: player.id
-                    })
+                        playerId: player.id,
+                    });
                     break;
-
                 case "resumeGame":
-                    this._broadcast(player.lobbyId, {
-                        type: "gameResumed",
-                        playerId: player.id
-                    })
+                    if (player?.lobbyId) {
+                        this._broadcast(player.lobbyId, {
+                            type: "gameResumed",
+                            playerId: player.id,
+                        });
+                    }
                     break;
-
                 default:
-                    console.warn("Unknown game action", data.action);
+                    console.warn(`Unhandled message type: ${data.type}`);
+                    break;
             }
         }
     }
-
 }

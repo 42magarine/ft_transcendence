@@ -1,59 +1,51 @@
-## Tic Tac Toe with TypeScript
+# ft_transcendence
 
-### Docker Compose
+## This project is about making a website where you can play Pong against other players online.
 
-- **Build and start the container in detached mode:**
+## 🛠️ Project Setup
   ```bash
-  docker compose up --build --detach
+  # Clone the Repository
+  git clone git@github.com:42magarine/ft_transcendence.git
+  cd ft_transcendence
+
+  # Set Up Environment Variables.
+  cp .env.example .env
+
+  # Build and Start the Docker Container
+  make
+
+  # Start the Game Server
+  npm run dev
   ```
 
-- **Access the running container's shell:**
-  ```bash
-  docker compose exec ft_transcendence sh
-  ```
+---
 
-### npm (Node Package Manager) / npx (Node Package eXecute)
+## 🔧 Useful Makefile Commands
 
-- **Create a `package.json` file**:
-  ```bash
-  npm init -y
-  ```
+| Command       | Description                                      |
+| ------------- | ------------------------------------------------ |
+| `make`        | Builds and starts the container (`up` + `shell`) |
+| `make up`     | Builds and starts the container (detached)       |
+| `make start`  | Starts the container                             |
+| `make stop`   | Stops the container                              |
+| `make shell`  | Opens an interactive shell in the container      |
+| `make ls`     | Lists containers and Docker images               |
+| `make logs`   | Shows container logs                             |
+| `make clean`  | Stops and removes the container                  |
+| `make fclean` | Removes all containers, images, and volumes      |
+| `make re`     | Rebuilds everything from scratch                 |
 
-- **Install all required packages**:
+---
+
+## 📦 Install Node.js Dependencies
+
+If needed, run this inside the container:
   ```bash
   npm install
   ```
 
-- **Run the `build` , `start` or `dev` script**
-  ```bash
-  npm run build # start or dev
-  ```
+---
 
-- **`package.json`**:
-  This file manages project metadata and scripts.
+## 🌐 Default Port
 
-### TypeScript (tsc - TypeScript Compiler)
-
-- **Create a `tsconfig.json` configuration file** with the recommended settings:
-  ```bash
-  tsc --init
-  ```
-
-- **Compile the TypeScript project**:
-  ```bash
-  tsc
-  ```
-  This will compile the project based on the `tsconfig.json` file.
-
-- **Generate a `.d.ts` declaration file** for type definitions:
-  ```bash
-  tsc --declaration  # or -d
-  ```
-
-- **Watch for file changes and recompile automatically**:
-  ```bash
-  tsc --watch  # or -w
-  ```
-
-- **`tsconfig.json`**:
-  This file configures the TypeScript compiler settings (e.g., target, module, source directories).
+The application runs on [http://localhost:3000](http://localhost:3000)

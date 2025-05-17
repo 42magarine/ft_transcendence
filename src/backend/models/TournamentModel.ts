@@ -1,92 +1,77 @@
-import { CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne } from "typeorm";
-import { UserModel } from "./UserModel.js";
+// import { CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne, ChildEntity } from "typeorm";
+// import { UserModel } from "./UserModel.js";
+// import { MatchModel } from "./MatchModel.js";
+// import { GameModel } from "./GameModel.js";
 
-@Entity()
-export class TournamentModel {
-    @PrimaryGeneratedColumn()
-    utid!: number;
+// @ChildEntity("tournaments")
+// export class TournamentModel extends MatchModel {
+//   @Column({ default: 8 })
+//   maxParticipants!: number;
 
-    @Column({ nullable: true })
-    tournamendAdminId?: number;
+//   @ManyToMany(() => UserModel)
+//   @JoinTable()
+//   participants!: UserModel[];
 
-    @ManyToMany(() => UserModel)
-    @JoinTable()
-    participants!: UserModel[];
+//   @ManyToMany(() => GameModel)
+//   @JoinTable()
+//   matches!: GameModel[];
 
-    @Column({ default: 4 })
-    minPlayers!: number;
+//   @Column({ default: 'registration' })
+//   tournamentPhase!: 'registration' | 'in_progress' | 'completed';
+// }
 
-    @Column({ default: 8 })
-    maxPlayers!: number;
 
-    @OneToMany(() => TournamentRoundModel, (round) => round.tournament)
-    rounds!: TournamentRoundModel[];
+// @Entity('tournament_matches')
+// export class TournamentMatchModel {
+//     @PrimaryGeneratedColumn()
+//     id!: number;
 
-    @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
+//     @Column()
+//     tournamentId!: number;
 
-    @CreateDateColumn({ type: 'datetime' })
-    createdAt!: Date;
+//     @ManyToOne(() => TournamentModel, tournament => tournament.matches)
+//     @JoinColumn({ name: 'tournamentId' })
+//     tournament!: TournamentModel;
 
-    @Column({ type: 'datetime', nullable: true })
-    startedAt?: Date;
+//     @ManyToOne(() => UserModel)
+//     @JoinColumn({ name: 'player1Id' })
+//     player1!: UserModel;
 
-    @Column({ type: 'datetime', nullable: true })
-    endedAt?: Date;
-}
+//     @Column()
+//     player1Id!: number;
 
-@Entity()
-export class TournamentRoundModel {
-    @PrimaryGeneratedColumn()
-    urid!: number;
+//     @ManyToOne(() => UserModel)
+//     @JoinColumn({ name: 'player2Id' })
+//     player2!: UserModel;
 
-    @Column()
-    roundNumber!: number;
+//     @Column()
+//     player2Id!: number;
 
-    @ManyToOne(() => TournamentModel, (tournament) => tournament.rounds)
-    @JoinColumn({ name: 'tournamentId' })
-    tournament!: TournamentModel;
+//     @Column({ default: 0 })
+//     player1Score!: number;
 
-    @OneToMany(() => TournamentMatchModel, (match) => match.round)
-    matches!: TournamentMatchModel[];
-}
+//     @Column({ default: 0 })
+//     player2Score!: number;
 
-@Entity()
-export class TournamentMatchModel {
-    @PrimaryGeneratedColumn()
-    umid!: number;
+//     @ManyToOne(() => UserModel, { nullable: true })
+//     @JoinColumn({ name: 'winnerId' })
+//     winner!: UserModel;
 
-    @ManyToOne(() => TournamentRoundModel, (round) => round.matches)
-    @JoinColumn({ name: 'roundId' })
-    round!: TournamentModel;
+//     @Column({ nullable: true })
+//     winnerId!: number;
 
-    @ManyToOne(() => UserModel)
-    @JoinColumn({ name: 'player1Id' })
-    player1!: UserModel;
+//     @Column({ default: 'pending' })
+//     status!: 'pending' | 'ongoing' | 'paused' | 'completed' | 'cancelled';
 
-    @ManyToOne(() => UserModel)
-    @JoinColumn({ name: 'player2Id' })
-    player2!: UserModel;
+//     @Column()
+//     matchNumber!: number;
 
-    @Column({ nullable: true })
-    winnerId!: number;
+//     @CreateDateColumn()
+//     createdAt!: Date;
 
-    @ManyToOne(() => UserModel)
-    @JoinColumn({ name: 'winnerId' })
-    winner!: UserModel;
+//     @Column({ nullable: true, type: 'timestamp' })
+//     startedAt!: Date;
 
-    @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
-
-    @Column({ type: 'datetime', nullable: true })
-    startedAt?: Date;
-
-    @Column({ type: 'datetime', nullable: true })
-    endedAt?: Date;
-
-    @Column({ nullable: true })
-    player1Score?: number;
-
-    @Column({ nullable: true })
-    player2Score?: number;
-}
+//     @Column({ nullable: true, type: 'timestamp' })
+//     endedAt!: Date;
+// }

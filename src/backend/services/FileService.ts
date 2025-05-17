@@ -7,40 +7,40 @@ import { v4 as uuidv4 } from "uuid";
 const UPLOAD_DIR = join(process.cwd(), "uploads", "avatars");
 
 export interface FileUploadResult {
-	filename: string;
-	path: string;
-	publicPath: string;
+    filename: string;
+    path: string;
+    publicPath: string;
 }
 
 export async function saveAvatar(file: any): Promise<FileUploadResult> {
-	await mkdir(UPLOAD_DIR, { recursive: true });
+    await mkdir(UPLOAD_DIR, { recursive: true });
 
-	const extension = extname(file.filename).toLowerCase();
+    const extension = extname(file.filename).toLowerCase();
 
-	if (extension !== ".jpg" && extension !== ".jpeg" && extension !== ".png") {
-		throw new Error("Only JPG and PNG files are allowed");
-	}
+    if (extension !== ".jpg" && extension !== ".jpeg" && extension !== ".png") {
+        throw new Error("Only JPG and PNG files are allowed");
+    }
 
-	const filename = `${uuidv4()}${extension}`;
-	const filepath = join(UPLOAD_DIR, filename);
+    const filename = `${uuidv4()}${extension}`;
+    const filepath = join(UPLOAD_DIR, filename);
 
-	return new Promise((resolve, reject) => {
-		const writeStream = createWriteStream(filepath);
+    return new Promise((resolve, reject) => {
+        const writeStream = createWriteStream(filepath);
 
-		writeStream.on("error", (err) => {
-			reject(err);
-		});
+        writeStream.on("error", (err) => {
+            reject(err);
+        });
 
-		writeStream.on("finish", () => {
-			resolve({
-				filename,
-				path: filepath,
-				publicPath: `/uploads/avatars/${filename}`
-			});
-		});
+        writeStream.on("finish", () => {
+            resolve({
+                filename,
+                path: filepath,
+                publicPath: `/uploads/avatars/${filename}`
+            });
+        });
 
-		file.file.pipe(writeStream);
-	});
+        file.file.pipe(writeStream);
+    });
 }
 
 /**
@@ -49,29 +49,29 @@ export async function saveAvatar(file: any): Promise<FileUploadResult> {
  * @returns A promise that resolves when the file is deleted
  */
 export async function deleteAvatar(avatarPath: string): Promise<boolean> {
-	// If there's no avatar path, nothing to delete
-	if (!avatarPath) {
-		return false;
-	}
+    // If there's no avatar path, nothing to delete
+    if (!avatarPath) {
+        return false;
+    }
 
-	// Extract just the filename from the path
-	const filename = avatarPath.split('/').pop();
+    // Extract just the filename from the path
+    const filename = avatarPath.split('/').pop();
 
-	if (!filename) {
-		return false;
-	}
+    if (!filename) {
+        return false;
+    }
 
-	const filepath = join(UPLOAD_DIR, filename);
+    const filepath = join(UPLOAD_DIR, filename);
 
-	return new Promise((resolve) => {
-		unlink(filepath, (err) => {
-			if (err) {
-				console.error(`Error deleting file ${filepath}:`, err);
-				resolve(false);
-			} else {
-				console.log(`Successfully deleted file ${filepath}`);
-				resolve(true);
-			}
-		});
-	});
+    return new Promise((resolve) => {
+        unlink(filepath, (err) => {
+            if (err) {
+                console.error(`Error deleting file ${filepath}:`, err);
+                resolve(false);
+            } else {
+                console.log(`Successfully deleted file ${filepath}`);
+                resolve(true);
+            }
+        });
+    });
 }
