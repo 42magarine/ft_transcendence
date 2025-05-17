@@ -16,7 +16,7 @@ class LobbyService {
 
     public initSocket() {
         this.socket = new WebSocket('wss://localhost:3000/game/wss');
-
+        // this.socket = new WebSocket("wss://10.12.6.7:3000/game/wss");
         this.fuckYouWebsocket(this.socket).then(() => {
             console.log('Connected to WebSocket server');
         });
