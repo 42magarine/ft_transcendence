@@ -1,12 +1,15 @@
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
+import { LobbyInfo } from '../../interfaces/interfaces.js';
 
 export default class Pong extends AbstractView {
+    private lobbyId: string;
 
     constructor(params: URLSearchParams) {
         super();
         this.params = params;
+        this.lobbyId = params.get('id') || '';
     }
 
     async getHtml(): Promise<string> {
@@ -17,7 +20,8 @@ export default class Pong extends AbstractView {
             buttons: [
                 { id: 'pauseGameButton', text: 'Pause', className: "btn btn-primary" },
                 { id: 'resumeGameButton', text: 'Resume', className: "btn btn-primary" },
-                { id: 'resetGameButton', text: 'Reset', className: "btn btn-primary" }
+                { id: 'resetGameButton', text: 'Reset', className: "btn btn-primary" },
+                { id: 'lobbyGameButton', text: 'Back to Lobby', className: "btn btn-primary", href: `/lobby/${this.lobbyId}` }
             ]
         });
 
@@ -39,7 +43,6 @@ export default class Pong extends AbstractView {
 			</div>
 		`);
 
-        // 👇 Nachträglich pong_game.js importieren
         setTimeout(() => {
             // @ts-ignore
             import('/dist/frontend/pong_game.js')

@@ -1,6 +1,7 @@
 import { TemplateEngine } from "./TemplateEngine.js"
 
 export default abstract class AbstractView {
+    async mount(): Promise<void> { }
     protected params: URLSearchParams;
     protected title: string;
     protected description: string;

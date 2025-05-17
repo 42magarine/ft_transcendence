@@ -13,8 +13,16 @@ export default class Button extends AbstractView {
         type = 'button',
         onClick = '',
         href,
+        status,
     }: ButtonProps): Promise<string> {
-        const finalClass = className
+        const statusClassMap: Record<string, string> = {
+            ready: 'btn-success',
+            waiting: 'btn-warning',
+            unavailable: 'btn-danger',
+        };
+
+        const statusClass = status ? statusClassMap[status] || '' : '';
+        const finalClass = ['btn', statusClass, className].join(' ').trim();
         const clickAttr = onClick ? `onclick="${onClick}"` : '';
 
         if (href) {
@@ -31,6 +39,7 @@ export default class Button extends AbstractView {
 			</button>
 		`);
     }
+
 
     async renderGroup({
         buttons,

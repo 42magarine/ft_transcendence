@@ -7,6 +7,7 @@ export interface ButtonProps {
     type?: 'submit' | 'button';
     onClick?: string;
     href?: string;
+    status?: 'ready' | 'waiting' | 'unavailable';
 }
 
 export interface ButtonGroupProps {

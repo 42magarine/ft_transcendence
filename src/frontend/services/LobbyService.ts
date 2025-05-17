@@ -1,5 +1,7 @@
 import UserService from './UserService.js';
 import { ClientMessage, LobbyInfo, ServerMessage } from '../../interfaces/interfaces.js';
+import Router from '../../utils/Router.js';
+
 
 class LobbyService {
     private socket: any;
@@ -23,8 +25,12 @@ class LobbyService {
             const data: ServerMessage = JSON.parse(event.data);
 
             if (data.type === 'lobbyCreated') {
-                this.safeSend({ type: 'getLobbyList' });
+                const lobbyId = data.lobbyId;
+                if (lobbyId) {
+                    Router.redirect(`/lobby/${lobbyId}`);
+                }
             }
+
 
             if (data.type === 'lobbyList') {
                 this.lobbyData = data.lobbies!;
@@ -37,12 +43,36 @@ class LobbyService {
             // if (data.type === 'lobbyInfo') {
             // }
 
-            // if (data.type === 'playerJoined') {
-            // }
+            if (data.type === 'playerJoined') {
+                const lobbyId = data.lobbyId;
+                if (window.location.pathname === `/lobby/${lobbyId}`) {
+                    const liveUpdateEvent = new CustomEvent('LobbyPlayerJoined', {
+                        bubbles: true,
+                        detail: { lobbyId }
+                    });
+                    document.dispatchEvent(liveUpdateEvent);
+                }
+            }
 
             // if (data.type === 'playerDisconnected') {
             // }
 
+            if (data.type === 'gameStarted') {
+                const lobbyId = data.lobbyId;
+                if (lobbyId) {
+                    window.history.pushState({}, '', `/pong/${lobbyId}`);
+                    document.dispatchEvent(new Event('popstate'));
+                }
+            }
+
+            if (data.type === 'inviteReceived') {
+                const { lobbyId, userId } = data;
+                console.log('[LobbyService] Invite received:', lobbyId, userId);
+                document.dispatchEvent(new CustomEvent('LobbyInviteReceived', {
+                    bubbles: true,
+                    detail: { lobbyId, userId }
+                }));
+            }
         });
     }
 
@@ -50,19 +80,17 @@ class LobbyService {
         this.onLobbyListUpdated.push(callback);
     }
 
-
     private fuckYouWebsocket(socket: WebSocket): Promise<void> {
         return new Promise((resolve, reject) => {
             if (socket.readyState === WebSocket.OPEN) {
                 resolve();
             } else {
-                socket.addEventListener('open', () => resolve(), { once: true })
-                socket.addEventListener('error', () => reject(new Error('Websocket is shit fuck you websocket')), { once: true })
+                socket.addEventListener('open', () => resolve(), { once: true });
+                socket.addEventListener('error', () =>
+                    reject(new Error('Websocket is shit fuck you websocket')), { once: true });
             }
-        })
+        });
     }
-
-
 
     public safeSend(msg: ClientMessage) {
         if (this.socket.readyState === WebSocket.OPEN) {
@@ -82,7 +110,6 @@ class LobbyService {
                 this.createLobby();
             });
         }
-
     }
 
     public async createLobby() {
@@ -95,6 +122,7 @@ class LobbyService {
         };
         this.safeSend(msg);
     }
+
     public async joinGame(lobbyId: string) {
         // Logic to join a game
         const msg = {
@@ -105,20 +133,60 @@ class LobbyService {
     }
 
     public getLobbyList(): LobbyInfo[] {
-        // Assuming that the lobby data will be updated by the WebSocket message
-        return this.lobbyData || [];  // Return the lobby data or an empty array if not loaded yet
+        return this.lobbyData || [];
     }
 
     public initialize(): void {
         document.addEventListener('RouterContentLoaded', () => {
             this.initSocket();
             this.setupEventListeners();
-        })
+        });
+    }
+
+    public startGame(lobbyId: string) {
+        const msg: ClientMessage = {
+            type: 'startGame',
+            lobbyId,
+        };
+        this.safeSend(msg);
+    }
+
+    public markReady(userID: string, lobbyId: string) {
+        const msg: ClientMessage = {
+            type: 'playerReady',
+            userID,
+            lobbyId,
+        };
+        this.safeSend(msg);
+    }
+
+    public leaveLobby(lobbyId: string) {
+        const msg: ClientMessage = {
+            type: 'leaveLobby',
+            lobbyId,
+        };
+        this.safeSend(msg);
+    }
+
+    public sendInvite(userID: string, lobbyId: string) {
+        const msg: ClientMessage = {
+            type: 'sendInvite',
+            userID,
+            lobbyId,
+        };
+        this.safeSend(msg);
+    }
+
+    public acceptInvite(userID: string, lobbyId: string) {
+        const msg: ClientMessage = {
+            type: 'acceptInvite',
+            userID,
+            lobbyId,
+        };
+        this.safeSend(msg);
     }
 }
 
-const lobbyService = new LobbyService()
+const lobbyService = new LobbyService();
 lobbyService.initialize();
 export default lobbyService;
-// Auto-initialize
-// new LobbyService();
