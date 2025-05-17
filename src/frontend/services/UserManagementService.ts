@@ -15,7 +15,26 @@ export class UserManagementService {
             return [];
         }
     }
+    static async fetchAllUsers(): Promise<User[]> {
+        try {
+            const response = await fetch('/api/users/');
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+            return await response.json() as User[];
+        } catch (error) {
+            console.error('Failed to fetch users:', error);
+            return [];
+        }
+    }
 
+    static async registerUser(userData: User, avatarFile?: File): Promise<string> {
+        console.log("Registering user with data:", userData);
+        try {
+            // Check if 2FA is enabled but code verification is needed
+            if (userData.secret &&
+                userData.tf_one && userData.tf_two && userData.tf_three &&
+                userData.tf_four && userData.tf_five && userData.tf_six) {
     static async registerUser(userData: User, avatarFile?: File): Promise<string> {
         console.log("Registering user with data:", userData);
         try {
@@ -183,6 +202,29 @@ export class UserManagementService {
             console.error('Login error:', error);
             throw error;
         }
+    }
+
+    static async loginWithGoogle(idToken: string) {
+        console.log("loginWithGoogle");
+
+        const response = await fetch('/api/users/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: idToken }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json() as ApiErrorResponse;
+            throw new Error(errorData.error || 'Google login failed');
+        }
+
+        const result = await response.json() as AuthResponse;
+
+        // Normal login flow
+        Router.update();
+        window.location.href = '/';
+
+        return result;
     }
 
     // New method to verify 2FA code
@@ -993,3 +1035,14 @@ export class UserManagementService {
 
 // Call the initialize method to setup all the listeners
 UserManagementService.initialize();
+
+
+(window as any).handleGoogleLogin = async function (response: any) {
+    try {
+        await UserManagementService.loginWithGoogle(response.credential);
+    }
+    catch (error) {
+        console.error('Google login failed:', error);
+        throw error;
+    }
+};

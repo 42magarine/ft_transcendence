@@ -17,7 +17,6 @@ export default class Router {
     private static instance: Router | null = null;
     // Define the role hierarchy - higher index means more privileges
     private static ROLE_HIERARCHY = ['user', 'admin', 'master'];
-    // Add a farts instance
 
     constructor(routes: Route[]) {
         this.routes = routes;
@@ -43,12 +42,10 @@ export default class Router {
         });
 
         window.addEventListener('popstate', () => {
-            // Play a random fart when user uses browser back/forward
             this.render();
         });
 
         document.addEventListener('DataUpdateEvent', ((e: CustomEvent) => {
-            // Play a random fart on data update
             this.renderCurrentView(e.detail);
         }) as EventListener);
     }
@@ -64,7 +61,6 @@ export default class Router {
     }
 
     public update(): void {
-        // Play a random fart on update
         this.renderCurrentView();
     }
 
@@ -88,8 +84,6 @@ export default class Router {
      * @param options Optional configuration options
      */
     public redirect(url: string, options: { replace?: boolean } = {}): Promise<void> {
-        // Play a random fart on redirect
-
         // Replace state instead of pushing if specified
         if (options.replace) {
             window.history.replaceState(null, '', url);
@@ -138,8 +132,6 @@ export default class Router {
     }
 
     public async navigateTo(url: string): Promise<void> {
-        // Play a random fart on navigation
-
         window.history.pushState(null, '', url);
         await this.render();
 
@@ -258,8 +250,6 @@ export default class Router {
     }
 
     public async render(): Promise<void> {
-        // Play a random fart when rendering
-
         // Get current user for role checking
         const currentUser = await Router.getCurrentUser();
 
@@ -369,8 +359,6 @@ export default class Router {
     }
 
     private dispatchRouterContentLoaded(isDataUpdate: boolean = false): void {
-        // Play a random fart when content is loaded
-
         const RouterContentLoadedEvent = new CustomEvent('RouterContentLoaded', {
             bubbles: true,
             cancelable: true,

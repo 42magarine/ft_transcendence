@@ -19,8 +19,35 @@ export default class Login extends AbstractView {
                 { name: 'password', type: 'password', placeholder: 'Password' }
             ],
             button: { text: 'Login', type: 'submit', className: "btn btn-primary" },
-            extra: '<p>May want to <a router href="/signup">sign up</a></p><p>Did you forget your Password <a router href="/password-reset">Reset Password</a></p>'
+            extra: `
+                <p>May want to <a router href="/signup">sign up</a></p>
+                <p>Did you forget your Password? <a router href="/password-reset">Reset Password</a></p>
+
+                <!-- Google Sign-In Button -->
+                <div id="g_id_onload"
+                    data-client_id="671485849622-fgg1js34vhtv9tsrifg717hti161gvum.apps.googleusercontent.com"
+                    data-callback="handleGoogleLogin"
+                    data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                    data-type="standard"
+                    data-size="medium"
+                    data-theme="filled_blue"
+                    data-text="signin_with"
+                    data-shape="rectangular"
+                    data-logo_alignment="left">
+                </div>
+            `
         });
+
+        if (!document.querySelector('#google-login-script')) {
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.async = true;
+            script.defer = true;
+            script.id = 'google-login-script';
+            document.head.appendChild(script);
+        }
 
         return this.render(`
 			<div class="flex justify-center items-center min-h-[80vh] px-4">

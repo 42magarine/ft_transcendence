@@ -8,6 +8,9 @@ import { EmailService } from "../services/EmailService.js";
 
 import QRCode from 'qrcode';
 import speakeasy from 'speakeasy';
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client();
 
 export class UserService {
     // get user table from db
@@ -63,7 +66,8 @@ export class UserService {
                 verificationToken,
                 userData.username
             );
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Failed to send verification email:', error);
             // Continue with user creation even if email fails
         }
@@ -115,7 +119,8 @@ export class UserService {
                 user.username
             );
             return true;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Failed to send password reset email:', error);
             throw new Error('Failed to send password reset email');
         }
@@ -178,11 +183,8 @@ export class UserService {
     }
 
     // find User by Id
-    async findId(id: number): Promise<UserModel> {
-        const user = await this.userRepo.findOneBy({ id })
-        if (user == null)
-            throw new Error("fuck you");
-        return user;
+    async findId(id: number) {
+        return await this.userRepo.findOneBy({ id });
     }
 
     // updates User with new Info
@@ -199,7 +201,8 @@ export class UserService {
             try {
                 console.log(`Deleting old avatar for user ${currentUser.id}: ${currentUser.avatar}`);
                 await deleteAvatar(currentUser.avatar);
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error deleting old avatar for user ${currentUser.id}:`, error);
                 // Continue with update even if avatar deletion fails
             }
@@ -260,7 +263,8 @@ export class UserService {
             const result = await this.userRepo.delete(id);
 
             return result.affected !== null && result.affected !== undefined && result.affected > 0;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error deleting user:', error);
             throw new Error('Failed to delete user');
         }
@@ -333,6 +337,7 @@ export class UserService {
     async login(credentials: UserCredentials) {
         console.log("login: login " + credentials.username)
         console.log("login: login " + credentials.password)
+
         const user = await this.findUnameAcc(credentials.username);
         if (!user) {
             console.log("user: null ")
@@ -361,6 +366,54 @@ export class UserService {
         }
 
         // If no 2FA, proceed with normal login
+        return this.generateTokens(user);
+    }
+
+    async loginWithGoogle(idToken: string): Promise<{ accessToken: string }> {
+        console.log('[UserService] Verifying Google token...');
+        let payload;
+        try {
+            const ticket = await googleClient.verifyIdToken({
+                idToken,
+                audience: '671485849622-fgg1js34vhtv9tsrifg717hti161gvum.apps.googleusercontent.com', // deine Client ID
+            });
+            payload = ticket.getPayload();
+            console.log('[UserService] Payload received:', payload);
+        }
+        catch (error) {
+            console.error('[UserService] Token verification failed:', error);
+            throw new Error('Invalid Google token');
+        }
+
+        if (!payload || !payload.email) {
+            throw new Error('Invalid token payload');
+        }
+
+        // Benutzer in DB suchen oder neu anlegen
+        let user = await this.findByEmail(payload.email);
+        if (!user) {
+            console.log('[UserService] User not found, creating new user...');
+
+            const username = payload.name || payload.email;
+            const displayname = username;
+            const avatar = payload.picture;
+            const password = "null";  // todo
+
+            user = await this.createUser({
+                username,
+                email: payload.email,
+                password,
+                displayname,
+                role: 'user',
+                avatar
+            });
+        }
+        else {
+            console.log('[UserService] User found in database');
+        }
+
+        // JWT erzeugen
+        console.log('[UserService] Creating access token...');
         return this.generateTokens(user);
     }
 

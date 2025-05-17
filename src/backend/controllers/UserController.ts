@@ -12,9 +12,6 @@ export class UserController {
         this.userService = userService;
     }
 
-    // Existing methods remain...
-
-    // Modified login method to handle 2FA
     // Modified login method to handle 2FA
     async login(request: FastifyRequest<{ Body: UserCredentials }>, reply: FastifyReply) {
         try {
@@ -49,6 +46,33 @@ export class UserController {
         }
     }
 
+    async loginWithGoogle(request: FastifyRequest<{ Body: { token: string } }>, reply: FastifyReply) {
+        console.log('[GoogleLogin] Received Google login request');
+        const { token } = request.body;
+
+        try {
+            console.log('[GoogleLogin] Verifying ID token...');
+            const authResult = await this.userService.loginWithGoogle(token);
+
+            console.log('[GoogleLogin] Token verified, setting cookie...');
+            reply.setCookie('accessToken', authResult.accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/',
+                maxAge: 15 * 60 * 1000
+            });
+
+            console.log('[GoogleLogin] Login successful');
+            return reply.code(200).send({ message: 'Login successful' });
+        }
+        catch (error) {
+            console.error('[GoogleLogin] Login failed:', error);
+            const message = error instanceof Error ? error.message : 'Google login failed';
+            return reply.code(400).send({ error: message });
+        }
+    }
+
     // Fixed verifyTwoFactor method
     async verifyTwoFactor(request: FastifyRequest<{
         Body: {
@@ -79,14 +103,14 @@ export class UserController {
             });
 
             return reply.code(200).send({ message: 'Two-factor authentication successful' });
-        } catch (error) {
+        }
+        catch (error) {
             const message = error instanceof Error ? error.message : 'Two-factor authentication failed';
             reply.code(400).send({ error: message });
         }
     }
 
     // New methods for password reset and email verification
-
     async requestPasswordReset(request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) {
         try {
             const { email } = request.body;
@@ -101,7 +125,8 @@ export class UserController {
             return reply.code(200).send({
                 message: 'If an account with that email exists, a password reset link has been sent.'
             });
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Password reset request error:', error);
             // For security, don't reveal if the process failed due to user not found
             return reply.code(200).send({
@@ -121,7 +146,8 @@ export class UserController {
             await this.userService.verifyResetToken(token);
 
             return reply.code(200).send({ valid: true });
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Token verification error:', error);
             const message = error instanceof Error ? error.message : 'Invalid token';
             return reply.code(400).send({ error: message, valid: false });
@@ -156,7 +182,8 @@ export class UserController {
             await this.userService.resetPassword(token, password);
 
             return reply.code(200).send({ message: 'Password has been reset successfully' });
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Password reset error:', error);
             const message = error instanceof Error ? error.message : 'Failed to reset password';
             return reply.code(400).send({ error: message });
@@ -175,7 +202,8 @@ export class UserController {
 
             // Redirect to login page after successful verification
             return reply.redirect('/login?verified=true');
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Email verification error:', error);
             const message = error instanceof Error ? error.message : 'Invalid verification token';
             return reply.code(400).send({ error: message });
@@ -210,11 +238,10 @@ export class UserController {
             return reply.code(200).send({
                 message: 'If your account exists, a verification email has been sent.'
             });
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Resend verification error:', error);
-            return reply.code(200).send({
-                message: 'If your account exists, a verification email has been sent.'
-            });
+            return reply.code(200).send({ message: 'If your account exists, a verification email has been sent.' });
         }
     }
 
@@ -260,7 +287,8 @@ export class UserController {
                             console.error("Error saving avatar:", error);
                             return reply.code(400).send({ error: 'Failed to save avatar file' });
                         }
-                    } else if (part.type === 'field') {
+                    }
+                    else if (part.type === 'field') {
                         console.log(`Field ${part.fieldname}: ${part.value}`);
                         (userData as any)[part.fieldname] = part.value;
                     }
@@ -285,7 +313,8 @@ export class UserController {
                         if (payload && payload.role) {
                             requestingUserRole = payload.role;
                         }
-                    } catch (error) {
+                    }
+                    catch (error) {
                         // Continue without permissions
                     }
                 }
@@ -302,7 +331,8 @@ export class UserController {
                     twoFAEnabled: userData.secret && userData.tf_one && userData.tf_two && userData.tf_three &&
                         userData.tf_four && userData.tf_five && userData.tf_six ? true : false
                 });
-            } else {
+            }
+            else {
                 console.log("Processing JSON request");
 
                 const userData = request.body as RegisterCredentials & {
@@ -324,7 +354,8 @@ export class UserController {
                         if (payload && payload.role) {
                             requestingUserRole = payload.role;
                         }
-                    } catch (error) {
+                    }
+                    catch (error) {
                         // Continue without permissions
                     }
                 }
@@ -342,15 +373,18 @@ export class UserController {
                         userData.tf_four && userData.tf_five && userData.tf_six ? true : false
                 });
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Registration error:', error);
             const message = error instanceof Error ? error.message : 'Registration failed';
 
             if (message.includes('exists')) {
                 reply.code(400).send({ error: 'User already exists' });
-            } else if (message.includes('permissions') || message.includes('Master user')) {
+            }
+            else if (message.includes('permissions') || message.includes('Master user')) {
                 reply.code(403).send({ error: message });
-            } else {
+            }
+            else {
                 reply.code(400).send({ error: 'Registration failed' });
             }
         }
@@ -402,11 +436,13 @@ export class UserController {
                         try {
                             const result = await saveAvatar(part);
                             avatarData = result.publicPath;
-                        } catch (error) {
+                        }
+                        catch (error) {
                             console.error("Error saving avatar:", error);
                             return reply.code(400).send({ error: 'Failed to save avatar file' });
                         }
-                    } else if (part.type === 'field') {
+                    }
+                    else if (part.type === 'field') {
                         if (part.fieldname === 'role') {
                             // Special handling for role updates
                             if (currentUser.role === 'master' && part.value !== 'master') {
@@ -434,7 +470,8 @@ export class UserController {
                 if (avatarData) {
                     updates.avatar = avatarData;
                 }
-            } else {
+            }
+            else {
                 // Handle JSON request
                 updates = request.body as Partial<UserModel>;
 
