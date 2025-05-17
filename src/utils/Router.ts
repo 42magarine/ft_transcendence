@@ -364,6 +364,7 @@ export default class Router {
 
 		appElement.innerHTML = await view.getHtml();
 		await view.afterRender();
+		await view.mount();
 
 		this.dispatchRouterContentLoaded();
 	}

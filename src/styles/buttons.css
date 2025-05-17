@@ -95,3 +95,23 @@
 .btn:active:not(.btn-disabled) {
 	@apply scale-95;
 }
+
+/* ✅ Green = Ready */
+.btn-success {
+	@apply bg-green-600 text-white
+		hover:bg-green-700
+		active:bg-green-800;
+}
+
+/* 🟡 Yellow = Waiting */
+.btn-warning {
+	@apply bg-yellow-400 text-black
+		hover:bg-yellow-500
+		active:bg-yellow-600;
+}
+
+/* 🔴 Red = Unavailable — already exists, reuse `btn-danger` */
+
+.hidden {
+	display: none;
+}

@@ -15,6 +15,8 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 import Home from './views/Home.js';
 import Demo from './views/Demo.js';
 import Pong from './views/Pong.js';
+import Lobby from './views/Lobby.js';
+import Tournament  from './views/Tournament.js';
 import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';
@@ -87,11 +89,29 @@ const routes = [
 		}
 	},
 	{
-		path: '/pong',
+		path: '/pong/:id',
 		role: 'user',
 		view: Pong,
 		metadata: {
 			title: 'Transcendence - Pong',
+			description: 'Welcome to Pong'
+		}
+	},
+	{
+		path: '/lobby/:id',
+		role: 'user',
+		view: Lobby,
+		metadata: {
+			title: 'Transcendence - Lobby',
+			description: 'Welcome to Pong'
+		}
+	},
+	{
+		path: '/tournament/:id',
+		role: 'user',
+		view: Tournament,
+		metadata: {
+			title: 'Transcendence - Tournament',
 			description: 'Welcome to Pong'
 		}
 	},
@@ -189,3 +209,6 @@ const routes = [
 const router = new Router(routes);
 
 (window as any).router = router;
+
+// https://localhost:3000/lobbylist
+// https://localhost:3000/lobbyList

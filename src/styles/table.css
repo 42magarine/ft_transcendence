@@ -20,3 +20,14 @@ tr td, tr th {
 thead {
 	@apply border-b-1 border-b-white;
 }
+
+.invited-lobby-row {
+	background-color: rgba(255, 255, 255, 0.05); /* subtle transparency */
+	border-left: 4px solid #38bdf8; /* sky-blue stripe */
+	font-weight: 500;
+}
+
+.btn-accent {
+	background-color: #38bdf8;
+	color: white;
+}
