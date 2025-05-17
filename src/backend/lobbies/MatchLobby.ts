@@ -50,7 +50,7 @@ export abstract class MatchLobby {
         userId?: number
     ) {
         if (this._players.size >= this._maxPlayers || this._gameStarted) {
-            return null
+            return null;
         }
 
         const playerNum = this._players.size + 1;
@@ -77,7 +77,7 @@ export abstract class MatchLobby {
             }
         })
 
-        const playerList = this.getPlayerList()
+        const playerList = this.getPlayerList();
 
         connection.send(JSON.stringify({
             type: "lobbyInfo",
@@ -89,7 +89,7 @@ export abstract class MatchLobby {
             lobbyType: this._lobbyType
         }))
 
-        return player
+        return player;
     }
 
     public removePlayer(player: Player): void {
@@ -120,8 +120,10 @@ export abstract class MatchLobby {
     }
 
     public setPlayerReady(playerId: number, isReady: boolean) {
-        const player = this._players.get(playerId)
-        if (!player) return
+        const player = this._players.get(playerId);
+        if (!player) {
+            return;
+        }
 
         player._isReady = isReady;
         if (isReady) {
@@ -138,13 +140,14 @@ export abstract class MatchLobby {
         })
 
         this.checkAllPlayersReady();
-
     }
 
     public checkAllPlayersReady() {
         const minPlayers = this._lobbyType === 'game' ? 2 : this._maxPlayers;
 
-        if (this._players.size < minPlayers) return false;
+        if (this._players.size < minPlayers) {
+            return false;
+        }
 
         const allReady = this._readyPlayers.size === this._players.size;
 
@@ -153,7 +156,6 @@ export abstract class MatchLobby {
                 type: "allPlayersReady"
             })
         }
-
         return allReady;
     }
 
@@ -184,7 +186,7 @@ export abstract class MatchLobby {
         return this._id;
     }
 
-    public getLobbyInfo(): LobbyInfo{
+    public getLobbyInfo(): LobbyInfo {
         return {
             id: this._id,
             name: this._lobbyName,
@@ -196,7 +198,7 @@ export abstract class MatchLobby {
             createdAt: this._createdAt,
             lobbyType: this._lobbyType,
             isStarted: this._gameStarted
-        }
+        };
     }
 
     public getPlayerList() {
@@ -204,17 +206,20 @@ export abstract class MatchLobby {
             id: p.id,
             userId: p.userId,
             isReady: p._isReady
-        }))
+        }));
     }
 
     public canJoin(userId: number, password?: string) {
-        if (this.isFull() || this._gameStarted) return false;
-        if (this._password && this._password !== password) return false;
+        if (this.isFull() || this._gameStarted) {
+            return false;
+        }
+        if (this._password && this._password !== password) {
+            return false;
+        }
 
         for (const player of this._players.values()) {
             if (player.userId === userId) return false;
         }
-
         return true;
     }
 }

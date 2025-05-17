@@ -13,7 +13,6 @@ export interface IPaddleState {
     height: number;
 }
 
-
 export interface IGameState {
     ball: IBallState
     paddle1: IPaddleState
@@ -25,7 +24,7 @@ export interface IGameState {
     gameIsOver: boolean;
 }
 
-export interface LobbyInfo{
+export interface LobbyInfo {
     id: string;
     name: string;
     creatorId: number
@@ -35,7 +34,7 @@ export interface LobbyInfo{
     hasPassword: boolean;
     createdAt: Date;
     lobbyType: "game" | "tournament"
-    isStarted: boolean
+    isStarted: boolean;
 }
 
 export interface PlayerInfo {
@@ -91,15 +90,15 @@ export interface ReadyMessage extends ClientMessage {
 }
 
 export interface joinLobbyMessage extends ClientMessage {
-    type: "joinLobby"
+    type: "joinLobby";
 }
 
 export interface createLobbyMessage extends ClientMessage {
-    type: "createLobby"
+    type: "createLobby";
 }
 
 export interface leaveLobby extends ClientMessage {
-    type: "leaveLobby"
+    type: "leaveLobby";
 }
 
 export interface ServerMessage {
@@ -119,4 +118,3 @@ export interface GameStateMessage extends ServerMessage {
     type: "gameState";
     gameState: IGameState;
 }
-

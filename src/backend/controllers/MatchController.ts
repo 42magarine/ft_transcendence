@@ -10,7 +10,6 @@ import { MatchLobby } from "../lobbies/MatchLobby.js";
 // import { TournamentLobby } from "../lobbies/TournamentLobby.js";
 
 export abstract class MatchController {
-
     protected _lobbies: Map<string, MatchLobby>;
     protected _clients: Map<WebSocket, Player | null>; //
     protected _handlers: MessageHandlers;
@@ -27,7 +26,6 @@ export abstract class MatchController {
         setInterval(() => {
             this.cleanUpInvites();
         }, 60000);
-
     }
 
     private async cleanUpInvites() {
@@ -79,7 +77,6 @@ export abstract class MatchController {
         const player = this._clients.get(connection);
 
         switch (data.type) {
-
             case "joinLobby":
                 this.handleJoinLobby(connection, (data as joinLobbyMessage).userId, (data as joinLobbyMessage).lobbyId)
                 break;
@@ -97,11 +94,9 @@ export abstract class MatchController {
             case "invite":
                 this.handleInvite(connection, data.userId, data.targetUserId)
                 break;
-
             case "acceptInvite":
                 this.handleAcceptInvite(connection, data.userId, data.inviteId)
                 break;
-
             case "declineInvite":
                 this.handleDeclineInvite(connection, data.userId, data.inviteId)
                 break;
@@ -157,7 +152,7 @@ export abstract class MatchController {
                     fromUserId,
                     fromUsername: fromUser?.username || "unknown user"
                 })
-                return
+                return;
             }
         }
     }
@@ -226,8 +221,6 @@ export abstract class MatchController {
         })
     }
 
-
-
     private async NotifyUserOfDeclinedInvite(userId: number, declinedBy: number) {
         for (const [conn, player] of this._clients.entries()) {
             if (player?.userId === userId) {
@@ -237,7 +230,7 @@ export abstract class MatchController {
                     byUserId: declinedBy,
                     declinedByUser: decliningUser?.username
                 })
-                return
+                return;
             }
         }
     }
@@ -265,7 +258,6 @@ export abstract class MatchController {
         this._clients.delete(connection);
     }
 
-
     protected broadcast(lobbyId: string, data: ServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
             if (player?.lobbyId === lobbyId && connection.readyState === WebSocket.OPEN) {
@@ -290,7 +282,6 @@ export abstract class MatchController {
                 lobbyId: lobbyId,
                 playerId: player.id
             })
-
         }
     }
 
@@ -312,7 +303,7 @@ export abstract class MatchController {
                 type: "error",
                 message: "Lobby no idea"
             })
-            return
+            return;
         }
 
         const player = lobby.addPlayer(connection, userId)

@@ -1,5 +1,4 @@
 import Card from '../components/Card.js';
-// import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class Signup extends AbstractView {
@@ -8,8 +7,6 @@ export default class Signup extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        // const button = new Button();
-
         const twoFactorInterface = `
 			<div id="twoFactorInterface">
 				<input type="hidden" name="secret" value="" id="secret">

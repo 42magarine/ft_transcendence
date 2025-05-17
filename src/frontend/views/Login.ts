@@ -1,5 +1,4 @@
 import Card from '../components/Card.js';
-import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class Login extends AbstractView {
@@ -8,8 +7,6 @@ export default class Login extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        const button = new Button();
-
         const card = new Card();
         const loginCard = await card.renderCard({
             title: 'Login',

@@ -58,4 +58,3 @@ export interface QRResponse {
     secret: string,
     qr: string
 }
-

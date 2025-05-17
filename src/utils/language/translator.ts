@@ -7,9 +7,8 @@ const translator = new Translations();
 await translator.loadFromFile("utils/language/translations.json");
 
 // Expose for global script use if needed
-if (typeof window !== "undefined")
-{
-	(window as any).translator = translator;
+if (typeof window !== "undefined") {
+    (window as any).translator = translator;
 }
 
 export default translator;

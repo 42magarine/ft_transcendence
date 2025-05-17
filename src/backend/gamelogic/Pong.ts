@@ -80,7 +80,7 @@ export class PongGame {
     }
 
     private async createGameRecord() {
-        if (this._gameService && this._player1?.userId && this._player2?.userId)
+        if (this._gameService && this._player1?.userId && this._player2?.userId) {
             try {
                 const game = await this._gameService.createGame(
                     this._player1.userId,
@@ -90,12 +90,12 @@ export class PongGame {
             } catch (error) {
                 console.error("Failed to create game record:", error)
             }
+        }
     }
 
     private async updateGameRecord() {
-        if (this._gameService && this._gameId)
+        if (this._gameService && this._gameId) {
             try {
-
                 const WinnerId = this._score1 > this._score2 ? this._player1?.userId : this._player2?.userId;
 
                 await this._gameService.updateGameScore(
@@ -107,13 +107,14 @@ export class PongGame {
             } catch (error) {
                 console.error("Failed to update db", error)
             }
+        }
     }
 
     private endGame(winner: number): void {
-    // Call a callback, emit event, or flag the game state
-    this._gameIsOver = true;
-    console.log(`Player ${winner} wins!`);
-    // Optionally notify controller or set state for frontend sync
+        // Call a callback, emit event, or flag the game state
+        this._gameIsOver = true;
+        console.log(`Player ${winner} wins!`);
+        // Optionally notify controller or set state for frontend sync
     }
 
     public pauseGame(): void {
@@ -125,7 +126,9 @@ export class PongGame {
     }
 
     public update(): void {
-        if (this._paused || this._gameIsOver) return;
+        if (this._paused || this._gameIsOver) {
+            return;
+        }
 
         for (let i = 0; i < STEPS; i++) {
             this._ball.update();
@@ -151,30 +154,25 @@ export class PongGame {
 
             if (ballX < 0) {
                 this._score2++;
-                if (this._score2 >= this._scoreLimit)
-                {
+                if (this._score2 >= this._scoreLimit) {
                     this.endGame(2)
                 }
-                else
-                {
+                else {
                     this.resetGame();
                 }
                 break;
             } else if (ballX > this._width) {
                 this._score1++;
-                if (this._score1 >= this._scoreLimit)
-                {
+                if (this._score1 >= this._scoreLimit) {
                     this.endGame(1)
                 }
-                else
-                {
+                else {
                     this.resetGame();
                 }
                 break;
             }
         }
     }
-
 
     private isColliding(ball: Ball, paddle: Paddle): boolean {
         return (
@@ -196,10 +194,12 @@ export class PongGame {
     }
 
     public setPlayer(playerNum: 1 | 2, player: Player) {
-        if (playerNum === 1)
+        if (playerNum === 1) {
             this._player1 = player
-        else
+        }
+        else {
             this._player2 = player
+        }
     }
 
     public getState(): IGameState {

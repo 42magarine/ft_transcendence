@@ -24,7 +24,6 @@ export class PongController extends MatchController {
             case "ready":
                 this.handlePlayerReady(connection, player, (data as ReadyMessage).ready)
                 break;
-
             case "startGame":
                 this.handleStartGame(connection, player);
                 break;
@@ -119,7 +118,6 @@ export class PongController extends MatchController {
         }
     }
 
-
     private handleResumeGame(connection: WebSocket, player: Player) {
         if (!player || !player.lobbyId) { return; }
 
@@ -133,7 +131,6 @@ export class PongController extends MatchController {
             })
         }
     }
-
 
     private handleGetLobbyList(connection: WebSocket) {
         const allLobbies = [];
@@ -170,13 +167,13 @@ export class PongController extends MatchController {
 
             if (isNaN(gameId)) {
                 return reply.code(400).send({ error: "invalid game id" });
-
             }
 
             const gameState = this._gameService.getGameStateById(gameId, userId)
 
-            if (!gameState)
+            if (!gameState) {
                 return reply.code(404).send({ error: "Couldnt find this game" })
+            }
 
             return reply.code(200).send(gameState);
         }
@@ -188,8 +185,9 @@ export class PongController extends MatchController {
     public async getUserGames(request: FastifyRequest, reply: FastifyReply) {
         const userId = request.user?.id;
 
-        if (!userId)
+        if (!userId) {
             return reply.code(400).send({ error: "Invalid user" })
+        }
 
         const games = await this._gameService.findGameByPlayerId(userId);
 
