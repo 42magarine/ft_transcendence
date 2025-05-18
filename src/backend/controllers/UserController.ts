@@ -588,12 +588,12 @@ export class UserController {
                 return reply.code(401).send({ error: 'Authentication required' });
             }
 
-            const payload = await verifyJWT(token);
+            //const payload = await verifyJWT(token);
 
             // Only admin or master users can view all users
-            if (!payload || (payload.role !== 'admin' && payload.role !== 'master')) {
-                return reply.code(403).send({ error: 'Insufficient permissions to view all users' });
-            }
+            // if (!payload || (payload.role !== 'admin' && payload.role !== 'master')) {
+            //     return reply.code(403).send({ error: 'Insufficient permissions to view all users' });
+            // }
 
             const users = await this.userService.findAll();
             reply.code(200).send(users);
