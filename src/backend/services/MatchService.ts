@@ -2,7 +2,7 @@ import { AppDataSource } from "../DataSource.js";
 import { MatchModel } from "../models/MatchModel.js";
 import { UserService } from "./UserService.js";
 
-export abstract class MatchService {
+export class MatchService {
     protected matchRepo = AppDataSource.getRepository(MatchModel);
     public userService: UserService;
 
@@ -13,11 +13,11 @@ export abstract class MatchService {
     async getMatchById(id: number) {
         return await this.matchRepo.findOne({
             where: { id },
-            relations: ['player1', 'player2', 'winner']
+            relations: ['player1', 'player2', 'winner', 'lobbyParticipants']
         })
     }
 
-    async updateScore(matchId: number, player1Score: number, player2Score: number) {
+    async updateScore(matchId: number, player1Score: number, player2Score: number, winnerId?: number) {
         const match = await this.getMatchById(matchId);
 
         if (!match) {
@@ -26,6 +26,17 @@ export abstract class MatchService {
 
         match.player1Score = player1Score;
         match.player2Score = player2Score;
+
+        if (winnerId) {
+            const winner = await this.userService.findId(winnerId)
+            if (!winner) {
+                throw new Error("Couldn't find winner in users");
+            }
+            match.winner = winner;
+            match.winnerId = winnerId;
+            match.status = 'completed'
+            match.endedAt = new Date();
+        }
 
         return await this.saveMatch(match);
     }
@@ -105,4 +116,65 @@ export abstract class MatchService {
 
         return this.getMatchResult(match, userId);
     }
+
+    async addLobbyParticipant(gameId: number, userId: number) {
+        try {
+            const game = await this.getMatchById(gameId);
+            const user = await this.userService.findId(userId);
+
+            if (!game || !user) {
+                throw new Error("Couldn't find correct game/user");
+            }
+
+            if (!game.lobbyParticipants) {
+                game.lobbyParticipants = [];
+            }
+
+            const existingParticipant = game.lobbyParticipants.find(p => p.id === userId);
+            if (!existingParticipant) {
+                game.lobbyParticipants.push(user);
+            }
+
+            if (game.lobbyParticipants.length === 2 && !game.player2?.id && game.player1?.id !== userId) {
+                game.player2 = user;
+            }
+
+            return await this.saveMatch(game);
+        }
+        catch (error) {
+            console.error("Couldn't add user to lobby", error);
+            throw new Error("Failed to add user");
+        }
+    }
+
+    async closeLobby(gameId: number) {
+        const game = await this.getMatchById(gameId);
+        if (!game) {
+            throw new Error("fk all the checks man");
+        }
+
+        game.isLobbyOpen = false;
+        return await this.saveMatch(game);
+    }
+
+    async getOpenLobbies() {
+        return await this.matchRepo.find({
+            where: {
+                isLobbyOpen: true,
+                status: 'pending'
+            },
+            relations: ['player1', 'player2','lobbyParticipants']
+        })
+    }
+
+    async getUserActiveGames(userId: number) {
+        return await this.matchRepo.createQueryBuilder("game")
+            .leftJoinAndSelect("game.player1", "player1")
+            .leftJoinAndSelect("game.player2", "player2")
+            .leftJoinAndSelect("game.lobbyParticipants", "participants")
+            .where("(player1.id = :userId OR player2.id = :userId)", { userId })
+            .andWhere("gameStatus IN (:...statuses)", { statuses: ['pending', 'ongoing', 'paused'] })
+            .getMany()
+    }
+
 }
