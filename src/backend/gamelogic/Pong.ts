@@ -4,7 +4,7 @@ import { Player } from "../gamelogic/components/Player.js";
 import { IGameState, IPaddleDirection } from "../../interfaces/interfaces.js";
 import { ServerMessage } from "../../interfaces/interfaces.js";
 import { GAME_WIDTH, GAME_HEIGHT, STEPS, SCORE_LIMIT } from "../../types/constants.js";
-import { GameService } from "../services/GameService.js";
+import { MatchService } from "../services/MatchService.js";
 
 export class PongGame {
     private _width: number;
@@ -22,9 +22,9 @@ export class PongGame {
     private _gameId: number | null = null;
     private _player1: Player | null = null;
     private _player2: Player | null = null;
-    private _gameService?: GameService;
+    private _gameService?: MatchService;
 
-    constructor(gameService?: GameService) {
+    constructor(gameService?: MatchService) {
         this._width = GAME_WIDTH;
         this._height = GAME_HEIGHT;
         this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
@@ -82,7 +82,7 @@ export class PongGame {
     private async createGameRecord() {
         if (this._gameService && this._player1?.userId && this._player2?.userId) {
             try {
-                const game = await this._gameService.createGame(
+                const game = await this._gameService.createMatch(
                     this._player1.userId,
                     this._player2.userId
                 );
@@ -98,7 +98,7 @@ export class PongGame {
             try {
                 const WinnerId = this._score1 > this._score2 ? this._player1?.userId : this._player2?.userId;
 
-                await this._gameService.updateGameScore(
+                await this._gameService.updateScore(
                     this._gameId,
                     this._score1,
                     this._score2,
