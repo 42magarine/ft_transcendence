@@ -12,7 +12,7 @@ import Home from './views/Home.js';
 import Demo from './views/Demo.js';
 import Pong from './views/Pong.js';
 import Lobby from './views/Lobby.js';
-import Tournament  from './views/Tournament.js';
+import Tournament from './views/Tournament.js';
 import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';
@@ -37,34 +37,34 @@ globalTemplateEngine.registerComponent('Button', Button);
  * Dynamically render the footer into <footer id="footer-root">
  */
 async function renderFooter() {
-    const footer = new Footer();
-    const footerHtml = await footer.renderWithProps({
-        year: '2025',
-        links: [
-            { text: 'Privacy', href: '/privacy' },
-            { text: 'Terms', href: '/terms' },
-            { text: 'Imprint', href: '/imprint' }
-        ]
-    });
-    document.getElementById('footer-root')!.innerHTML = footerHtml;
+	const footer = new Footer();
+	const footerHtml = await footer.renderWithProps({
+		year: '2025',
+		links: [
+			{ text: 'Privacy', href: '/privacy' },
+			{ text: 'Terms', href: '/terms' },
+			{ text: 'Imprint', href: '/imprint' }
+		]
+	});
+	document.getElementById('footer-root')!.innerHTML = footerHtml;
 }
 
 /**
  * Dynamically render the header into <header id="header-root">
  */
 async function renderHeader() {
-    const header = new Header(new URLSearchParams(window.location.search));
-    const headerHtml = await header.getHtml();
-    document.getElementById('header-root')!.innerHTML = headerHtml;
+	const header = new Header(new URLSearchParams(window.location.search));
+	const headerHtml = await header.getHtml();
+	document.getElementById('header-root')!.innerHTML = headerHtml;
 }
 
 /**
  * Initial render and background setup on first load
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    await renderHeader();
-    await renderFooter();
-    await router.render();
+	await renderHeader();
+	await renderFooter();
+	await router.render();
 });
 
 const routes = [
@@ -205,9 +205,3 @@ const routes = [
 const router = new Router(routes);
 
 (window as any).router = router;
-
-// https://localhost:3000/lobbylist
-// https://localhost:3000/lobbyList
-
-// https://localhost:3000/lobbylist
-// https://localhost:3000/lobbyList
