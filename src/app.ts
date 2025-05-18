@@ -1,7 +1,6 @@
 // Import core modules and Fastify plugins
 import Fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
-import fastifyCors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
