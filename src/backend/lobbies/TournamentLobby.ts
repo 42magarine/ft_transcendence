@@ -1,13 +1,15 @@
 // import { match } from "assert";
-// import { LobbyInfo, ServerMessage } from "../../types/interfaces.js";
+// import { LobbyInfo, ServerMessage } from "../../interfaces/interfaces.js";
 // import { Player } from "../gamelogic/components/Player.js";
 // import { TournamentService } from "../services/TournamentService.js";
 // import { GameLobby } from "./GameLobby.js";
 // import { MatchLobby } from "./MatchLobby.js";
 // import { randomUUID } from "crypto";
 // import { GameService } from "../services/GameService.js";
+// import { PongGame } from "../gamelogic/Pong.js";
 
 // export class TournamentLobby extends MatchLobby {
+//     private _pongGame: PongGame;
 //     private _tournamentService: TournamentService;
 //     private _gameService: GameService;
 //     private _tournamentId: number | null = null;
@@ -26,6 +28,7 @@
 //         id: string,
 //         broadcast: (lobbyId: string, data: ServerMessage) => void,
 //         tournamentService: TournamentService,
+//         pongGame: PongGame,
 //         gameService: GameService,
 //         options?: {
 //             name?: string,
@@ -39,6 +42,7 @@
 //             maxPlayers: options?.maxPlayers || 4,
 //             lobbyType: 'tournament'
 //         });
+//         this._pongGame = pongGame;
 //         this._tournamentService = tournamentService;
 //         this._gameService = gameService;
 //     }
