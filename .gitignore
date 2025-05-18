@@ -139,4 +139,4 @@ src/dist
 src/node_modules
 src/db.sqlite
 src/package-lock.json
-client_secret_*.json
+client_secret_google.json
