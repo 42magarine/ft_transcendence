@@ -44,14 +44,14 @@ export default class Header extends AbstractView {
 
 		let languageDropDown = `<div class="dropdown">
 				<div class="dropdown-head">
-					<img class="flag" src="https://localhost:3000/dist/assets/flags/en_EN.svg" />
+					<img class="flag active" data-lang="en_EN" src="https://${window.location.host}/dist/assets/flags/en_EN.svg" />
 				</div>
 				<div class="dropdown-body">
 					<div class="dropdown-item">
-						<img class="flag" src="https://localhost:3000/dist/assets/flags/de_DE.svg" />
+						<img class="flag passive" data-lang="de_DE" src="https://${window.location.host}/dist/assets/flags/de_DE.svg" />
 					</div>
 					<div class="dropdown-item">
-						<img class="flag" src="https://localhost:3000/dist/assets/flags/it_IT.svg" />
+						<img class="flag passive" data-lang="it_IT" src="https://${window.location.host}/dist/assets/flags/it_IT.svg" />
 					</div>
 				</div>
 			</div>
@@ -91,8 +91,12 @@ export default class Header extends AbstractView {
 				</h1>
 				<div class="header-nav">
 					${buttonGroupHtml}
-					${languageDropDown}
-					${userDropDown}
+					<div class="flex items-center">
+						${languageDropDown}
+					</div>
+					<div class="flex items-center ml-2">
+						${userDropDown}
+					</div>
 				</div>
 			</header>
 		  `);

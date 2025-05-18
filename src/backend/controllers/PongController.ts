@@ -142,18 +142,18 @@ export class PongController extends MatchController {
 
 		const lobbyInfos: LobbyInfo[] = [];
 
-		for (const match of matchModels) {
-			const alreadyExists = this._lobbies.has(match.id.toString());
-			if (!alreadyExists) {
-				lobbyInfos.push({
-					id: match.id,
-					name: match.lobbyName,
-					creatorId: null,
-					maxPlayers: match.maxPlayers,
-					currentPlayers: match.
-				})
-			}
-		}
+		// for (const match of matchModels) {
+		// 	const alreadyExists = this._lobbies.has(match.id.toString());
+		// 	if (!alreadyExists) {
+		// 		lobbyInfos.push({
+		// 			id: match.id,
+		// 			name: match.lobbyName,
+		// 			creatorId: null,
+		// 			maxPlayers: match.maxPlayers,
+		// 			currentPlayers: match.
+		// 		})
+		// 	}
+		// }
 	}
 
 	protected createLobby(lobbyId: string): GameLobby {

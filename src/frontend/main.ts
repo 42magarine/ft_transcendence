@@ -1,5 +1,6 @@
 // services
 import './services/UserManagementService.js';
+import './services/LanguageService.js';
 
 // utils
 import '../utils/table.js';

@@ -44,5 +44,10 @@ header .dropdown-img svg{
 }
 
 img.flag {
-	width: 30px;
+	cursor: pointer;
+	width: 40px;
+	transition: 0.2s;
+}
+img.flag {
+	scale: (1.1);
 }

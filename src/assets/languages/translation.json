@@ -1,0 +1,58 @@
+[
+	{
+		"Login": {
+			"en_EN": "Login",
+			"de_DE": "Anmeldung",
+			"it_IT": "Accesso"
+		}
+	},
+	{
+		"Username": {
+			"en_EN": "Username",
+			"de_DE": "Benutzername",
+			"it_IT": "Nome utente"
+		}
+	},
+	{
+		"Password": {
+			"en_EN": "Password",
+			"de_DE": "Passwort",
+			"it_IT": "La password"
+		}
+	},
+	{
+		"sign up": {
+			"en_EN": "sign up",
+			"de_DE": "registrieren",
+			"it_IT": "registro"
+		}
+	},
+	{
+		"Sign up": {
+			"en_EN": "Sign up",
+			"de_DE": "Registrieren",
+			"it_IT": "Registro"
+		}
+	},
+	{
+		"May want to": {
+			"en_EN": "May want to",
+			"de_DE": "Vielleicht wollen Sie sich",
+			"it_IT": "Forse vorreste"
+		}
+	},
+	{
+		"Did you forget your Password?": {
+			"en_EN": "Did you forget your Password?",
+			"de_DE": "Haben Sie Ihr Passwort vergessen?",
+			"it_IT": "Avete dimenticato la password?"
+		}
+	},
+	{
+		"Reset Password": {
+			"en_EN": "Reset Password",
+			"de_DE": "Passwort erneuern",
+			"it_IT": "Reimpostare la password"
+		}
+	}
+]
