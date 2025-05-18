@@ -139,4 +139,4 @@ src/dist
 src/node_modules
 src/db.sqlite
 src/package-lock.json
-client_secret_671485849622-fgg1js34vhtv9tsrifg717hti161gvum.apps.googleusercontent.com.json
+client_secret_*.json
