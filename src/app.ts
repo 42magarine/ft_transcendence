@@ -20,8 +20,6 @@ import checkEnvVars from "./utils/checkEnvVars.js";
 // Import route modules
 import gameRoutes from "./routes/game.js";
 import userRoutes from "./routes/user.js";
-import pongWebsocketRoutes from "./routes/game.js";
-import { Console } from "node:console";
 
 // Setup path variables
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
@@ -99,9 +97,6 @@ fastify.register(fastifyCookie, {
 // Register API routes under /api/*
 fastify.register(userRoutes, { prefix: "/api" });
 fastify.register(gameRoutes, { prefix: "/api" });
-
-// Register WebSocket routes
-fastify.register(pongWebsocketRoutes);
 
 // 404 Handler
 fastify.setNotFoundHandler(async (request, reply) => {
@@ -210,9 +205,9 @@ const start = async (): Promise<void> => {
             console.log(`Created avatars directory: ${AVATARS_DIR}`);
         }
 
+        const baseUrl = process.env.BASE_URL;
         await fastify.listen({ port: 3000, host: "0.0.0.0" });
-        // console.log('Server running on http://0.0.0.0:3000');
-        console.log('HTTPS Server running at https://0.0.0.0:3000');
+        console.log(`HTTPS Server running at ${baseUrl}`);
     }
     catch (error) {
         fastify.log.error(error);

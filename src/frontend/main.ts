@@ -205,9 +205,3 @@ const routes = [
 const router = new Router(routes);
 
 (window as any).router = router;
-
-// https://localhost:3000/lobbylist
-// https://localhost:3000/lobbyList
-
-// https://localhost:3000/lobbylist
-// https://localhost:3000/lobbyList
