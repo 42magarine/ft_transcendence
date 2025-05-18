@@ -58,15 +58,6 @@ export default class Signup extends AbstractView {
             `
         });
 
-        if (!document.querySelector('#google-login-script')) {
-            const script = document.createElement('script');
-            script.src = 'https://accounts.google.com/gsi/client';
-            script.async = true;
-            script.defer = true;
-            script.id = 'google-login-script';
-            document.head.appendChild(script);
-        }
-
         return this.render(`
 			<div class="flex justify-center items-center min-h-[80vh] px-4">
 				<div class="w-full max-w-xl space-y-8">

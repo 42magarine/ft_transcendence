@@ -1005,18 +1005,28 @@ export class UserManagementService {
             });
         });
     }
+
+    private static initializeGoogleScript() {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.id = 'google-login-script';
+        document.head.appendChild(script);
+    }
+
     // Initialize all event listeners when the content is loaded
     static initialize(): void {
         document.addEventListener('RouterContentLoaded', () => {
             this.setupEventListeners();
             this.twoFactorNumberActions();
+            this.initializeGoogleScript();
         });
     }
 }
 
 // Call the initialize method to setup all the listeners
 UserManagementService.initialize();
-
 
 (window as any).handleGoogleLogin = async function (response: any) {
     try {
