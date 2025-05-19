@@ -25,5 +25,33 @@ fi
 
 echo "[Setup] Done."
 
+
+
+# Check if NGROK_AUTHTOKEN is set in environment
+if [ -z "$NGROK_AUTHTOKEN" ]; then
+    echo "[ERROR] NGROK_AUTHTOKEN is not set. Please add it to your .env file."
+    exit 1
+fi
+
+# Configure ngrok with the authtoken
+ngrok config add-authtoken $NGROK_AUTHTOKEN
+
+# Start ngrok for HTTPS tunnel
+echo "[Setup] Starting ngrok tunnel for HTTPS..."
+ngrok http https://localhost:3000 --log=stdout > /var/log/ngrok.log &
+
+# Wait for ngrok to start and display the URL
+sleep 5
+echo "[Setup] ngrok tunnel information:"
+NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o '"public_url":"[^"]*' | grep -o 'http[^"]*')
+if [ -n "$NGROK_URL" ]; then
+    echo "Your application is available at: $NGROK_URL"
+    echo "You can access the ngrok interface at: http://localhost:4040"
+else
+    echo "[ERROR] Could not retrieve ngrok URL. Check the logs with 'docker logs ft_transcendence'"
+fi
+
+
+
 # Keep container running
 exec tail -f /dev/null

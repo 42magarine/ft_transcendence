@@ -190,8 +190,8 @@ class LobbyService {
 // 		};
 // 		this.safeSend(msg);
 // 	}
-  
-  
+
+
 
     private socket: any;
     private userService: UserService;
@@ -204,8 +204,10 @@ class LobbyService {
     }
 
     public initSocket() {
-        this.socket = new WebSocket(`const host = window.location.host; // IP Adresse im 42 Netzwerk
-`);
+        // this.socket = new WebSocket(`const host = window.location.host`);
+        // this.socket = new WebSocket("wss://localhost:3000/game/wss");
+        this.socket = new WebSocket("wss://localhost:3000/api/game/wss");
+
         this.fuckYouWebsocket(this.socket).then(() => {
             console.log('Connected to WebSocket server');
         });
