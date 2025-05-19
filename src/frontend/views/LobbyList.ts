@@ -27,176 +27,51 @@ export default class Lobby extends AbstractView {
 			className: 'btn btn-primary'
 		});
 
-		// ✅ DEBUG: Test button for manually simulating lobby invite reception
-		const testInviteButton = `
-			<div class="text-right mb-3">
-				<button id="testInviteBtn" class="btn btn-secondary btn-sm">Add Test Invited Lobby</button>
-			</div>
-		`;
-
+		let lobbies = await lobbyService.getLobbyList()
+		console.warn(lobbies)
 		const card = new Card();
-		const placeholderCard = await card.renderCard({
+		const lobbyCard = await card.renderCard({
 			title: 'Lobby List',
-			extra: `<div>Loading lobbies...</div>`,
+			extra: `${createLobbyButton}
+					<table class="list" data-height="400px">
+						<thead>
+							<tr>
+								<th>Lobby Name</th>
+								<th>ID</th>
+								<th>Creator ID</th>
+								<th>Players</th>
+								<th>Status</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<for each="lobbies" as="lobby">
+								<tr>
+									<td>Invited Lobby {{lobby.name}}</td>
+									<td>{{lobby.id}}</td>
+									<td>{{lobby.creatorId}}</td>
+									<td>{{lobby.currentPlayers}} / {{lobby.maxPlayers}}</td>
+									<td>{{lobby.isStarted ? 'Started' : 'Waiting'}</td>
+									<td class="text-right">
+				                        <a class="btn btn-accent accept-invite-btn" data-lobby="{{lobby.id}}" data-user="{{lobby.creatorId}}" href="/lobby/{{lobby.id}}">Accept Invite</a>
+				                        <a router class="btn btn-primary" href="/lobby/{{lobby.id}}">Join Lobby</a>
+									</td>
+								</tr>
+							</for>
+						</tbody>
+					</table>`,
+			data: { lobbies }
 		});
 
 		// Register callback to listen for lobby updates via WebSocket or polling
 		lobbyService.registerLobbyListListener(() => {
 			this.lobbyData = lobbyService.getLobbyList();
-			this.updateLobbyList(); // Refresh the lobby UI
 		});
-
-		// Handle simulated or real invite event
-		document.addEventListener('LobbyInviteReceived', (e: any) => {
-			const { lobbyId, userId } = e.detail;
-
-			this.invitedLobby = {
-				id: lobbyId,
-				name: lobbyId,
-				creatorId: userId,
-				currentPlayers: 1,
-				maxPlayers: 2,
-				isStarted: false,
-				isPublic: true,
-				hasPassword: false,
-				createdAt: new Date(),
-				lobbyType: 'game'
-			};
-
-			this.updateLobbyList();
-		});
-
-		// TODO: Replace `safeSend({ type: 'getLobbyList' })` with actual persistent WebSocket listener if not already done
-		lobbyService.safeSend({ type: 'getLobbyList' });
 
 		return this.render(`
 			<div class="container">
-				${titleSection}
-				${testInviteButton}
-				${createLobbyButton}
-				<div class="card-container">
-					${placeholderCard}
-				</div>
-			</div>
-		`);
-	}
-
-	async mount(): Promise<void> {
-		setTimeout(() => {
-			// ✅ Simulate an invite (test only)
-			document.getElementById('testInviteBtn')?.addEventListener('click', () => {
-				const randomId = `test-lobby-${Math.floor(Math.random() * 10000)}`;
-				const randomUserId = Math.floor(Math.random() * 1000);
-
-				// TODO: In production, remove this block or gate it behind dev flag
-				document.dispatchEvent(new CustomEvent('LobbyInviteReceived', {
-					detail: {
-						lobbyId: randomId,
-						userId: randomUserId
-					}
-				}));
-			});
-
-			// 👤 User clicks "Accept Invite" on a specific lobby row
-			// TODO: Ensure this binding still works after lobby list is updated (may need delegation or re-bind)
-			document.querySelectorAll('.accept-invite-btn')?.forEach(btn => {
-				btn.addEventListener('click', (e) => {
-					e.preventDefault();
-					const el = e.currentTarget as HTMLAnchorElement;
-					const lobbyId = el.getAttribute('data-lobby');
-					const userId = el.getAttribute('data-user');
-
-					if (lobbyId && userId) {
-						// TODO: Backend must emit a `LobbyPlayerJoined` event so lobby view can switch from invite list to player view
-						lobbyService.acceptInvite(userId, lobbyId);
-					}
-				});
-			});
-		}, 0);
-	}
-
-	private async updateLobbyList() {
-		const container = document.querySelector('.card-container');
-		if (!container) return;
-
-		const lobbiesToShow = [...this.lobbyData];
-		if (this.invitedLobby) {
-			// Put invited lobby at the top
-			lobbiesToShow.unshift(this.invitedLobby);
-		}
-
-		const card = new Card();
-		const updatedCardHtml = await card.renderCard({
-			title: 'Lobby List',
-			extra: this.buildLobbyTable(lobbiesToShow),
-			data: { lobbies: lobbiesToShow }
-		});
-
-		// Replace current list with updated HTML
-		container.innerHTML = updatedCardHtml;
-	}
-
-	// Build lobby list table with join or invite button
-	private buildLobbyTable(lobbies: LobbyInfo[]): string {
-		return `
-			<table class="list" data-height="400px">
-				<thead>
-					<tr>
-						<th>Lobby Name</th>
-						<th>ID</th>
-						<th>Creator ID</th>
-						<th>Players</th>
-						<th>Status</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody>
-					${lobbies.map(lobby => {
-						const isInvite = this.invitedLobby?.id === lobby.id;
-						return `
-							<tr class="${isInvite ? 'invited-lobby-row' : ''}">
-								<td>${isInvite ? `Invited Lobby (${lobby.name})` : lobby.name}</td>
-								<td>${lobby.id}</td>
-								<td>${lobby.creatorId}</td>
-								<td>${lobby.currentPlayers} / ${lobby.maxPlayers}</td>
-								<td>${lobby.isStarted ? 'Started' : 'Waiting'}</td>
-								<td class="text-right">
-                                    ${
-                                        isInvite
-                                            ? `<a class="btn btn-accent accept-invite-btn" data-lobby="${lobby.id}" data-user="${lobby.creatorId}" href="/lobby/${lobby.id}">Accept Invite</a>`
-                                            : `<a router class="btn btn-primary" href="/lobby/${lobby.id}">Join Lobby</a>`
-                                    }
-                                </td>
-							</tr>
-						`;
-					}).join('')}
-				</tbody>
-			</table>
-		`;
+			${lobbyCard}
+			</div>`
+		);
 	}
 }
-
-// ✅ TODO: Server-side endpoint used for lobby details
-// // GET /api/lobbies/:id
-// app.get('/api/lobbies/:id', async (req, res) => {
-// 	const lobby = await LobbyModel.findOne({ where: { id: req.params.id }, relations: ['participants'] });
-// 	if (!lobby) return res.status(404).send('Lobby not found');
-// 	return res.json({
-// 		id: lobby.id,
-// 		name: lobby.name,
-// 		creatorId: lobby.creatorId,
-// 		currentPlayers: lobby.participants.length,
-// 		maxPlayers: lobby.maxPlayers,
-// 		isStarted: lobby.isStarted,
-// 		isPublic: lobby.isPublic,
-// 		hasPassword: lobby.hasPassword,
-// 		createdAt: lobby.createdAt,
-// 		lobbyType: lobby.lobbyType
-// 	});
-// });
-
-// ✅ TODOs Summary:
-// - [ ] Backend: ensure /api/lobbies/:id returns participant usernames too
-// - [ ] Backend: emit `LobbyPlayerJoined` event on successful invite accept
-// - [ ] Frontend: rebind `.accept-invite-btn` after DOM updates (or switch to delegated handler)
-// - [ ] Remove test invite block for production or guard it by environment flag

@@ -63,4 +63,18 @@ main .container{
   * {
 	scrollbar-width: thin;
 	scrollbar-color: white transparent;
+}
+.g_id_signin {
+	opacity: 0;
+	animation: fadeIn 1s ease-in-out forwards;
+	animation-delay: 1s;
+  }
+
+  @keyframes fadeIn {
+	from {
+	  opacity: 0;
+	}
+	to {
+	  opacity: 1;
+	}
   }

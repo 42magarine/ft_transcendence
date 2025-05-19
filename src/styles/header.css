@@ -36,10 +36,18 @@ header .dropdown:hover .dropdown-body {
 }
 
 
-header .dropdown-img *{
+header .dropdown-img img{
+    @apply text-white h-10 w-10 mx-auto bg-white rounded-full;
+}
+header .dropdown-img svg{
     @apply text-white h-10 w-10 mx-auto bg-white rounded-full;
 }
 
 img.flag {
-	width: 30px;
+	cursor: pointer;
+	width: 40px;
+	transition: 0.2s;
+}
+img.flag {
+	scale: (1.1);
 }
