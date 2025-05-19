@@ -25,6 +25,7 @@ export async function verifyJWT(token: string): Promise<JWTPayload> {
 }
 
 export const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
+    console.log("penis")
     try {
         const token = request.cookies.accessToken;
         if (!token) {

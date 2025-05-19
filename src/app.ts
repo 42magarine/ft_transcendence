@@ -95,8 +95,8 @@ fastify.register(fastifyCookie, {
 
 // Register API routes under /api/*
 fastify.register(userRoutes, { prefix: "/api" });
-fastify.register(gameRoutes, { prefix: "/api" });
-
+fastify.register(gameRoutes, { prefix: "/api" }); // <-- needs fixing on routing
+fastify.register(gameRoutes);
 // 404 Handler
 fastify.setNotFoundHandler(async (request, reply) => {
 	// If the URL starts with /api, return a JSON error response

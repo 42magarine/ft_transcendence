@@ -5,6 +5,7 @@ import Router from '../../utils/Router.js';
 class LobbyService {
 
     private socket: any;
+    private socketReady: Promise<void> = Promise.resolve();
     private userService: UserService;
     private currentUser: any = null;
     private lobbyData: LobbyInfo[] = [];
@@ -18,8 +19,10 @@ class LobbyService {
 //         this.socket = new WebSocket(`const host = window.location.host; // IP Adresse im 42 Netzwerk
 // `);
         this.socket = new WebSocket("wss://localhost:3000/game/wss")
-        this.webSocketWrapper(this.socket).then(() => {
+        this.socketReady = this.webSocketWrapper(this.socket).then(() => {
             console.log('Connected to WebSocket server');
+        }).catch((err) => {
+            console.error('WebSocket connection error:', err);
         });
 
         this.socket.addEventListener('message', (event: MessageEvent<string>) => {
@@ -70,25 +73,25 @@ class LobbyService {
             }
 
             // if (data.type === 'assignPlayer') {
-            // }
+                // }
 
-            // if (data.type === 'lobbyInfo') {
-            // }
+                // if (data.type === 'lobbyInfo') {
+                    // }
 
-            // if (data.type === 'playerDisconnected') {
-            // }
-        });
-    }
+                    // if (data.type === 'playerDisconnected') {
+                        // }
+                    });
+                }
 
-    public registerLobbyListListener(callback: () => void) {
-        this.onLobbyListUpdated.push(callback);
-    }
+                public registerLobbyListListener(callback: () => void) {
+                    this.onLobbyListUpdated.push(callback);
+                }
 
-    private webSocketWrapper(socket: WebSocket): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (socket.readyState === WebSocket.OPEN) {
-                resolve();
-            } else {
+                private webSocketWrapper(socket: WebSocket): Promise<void> {
+                    return new Promise((resolve, reject) => {
+                        if (socket.readyState === WebSocket.OPEN) {
+                            resolve();
+                        } else {
                 socket.addEventListener('open', () => resolve(), { once: true });
                 socket.addEventListener('error', () =>
                     reject(new Error('Websocket is shit fuck you websocket')), { once: true });
@@ -96,12 +99,11 @@ class LobbyService {
         });
     }
 
-    public safeSend(msg: ClientMessage) {
-        if (this.socket.readyState === WebSocket.OPEN) {
-            this.socket.send(JSON.stringify(msg));
-        } else {
-            console.warn('Tried to send message but socket not open:', msg);
-        }
+    public initialize(): void {
+        document.addEventListener('RouterContentLoaded', () => {
+            this.initSocket();
+            this.setupEventListeners();
+        });
     }
 
     public setupEventListeners() {
@@ -116,8 +118,17 @@ class LobbyService {
         }
     }
 
+    public safeSend(msg: ClientMessage) {
+        console.log('[safeSend] Socket state:', this.socket?.readyState);
+        if (this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(JSON.stringify(msg));
+        } else {
+            console.warn('Tried to send message but socket not open:', msg);
+        }
+    }
     public async createLobby() {
         this.currentUser = await this.userService.getCurrentUser();
+        await this.socketReady;
         if (!this.currentUser) return;
 
         const msg: ClientMessage = {
@@ -129,6 +140,7 @@ class LobbyService {
 
     public async joinGame(lobbyId: string) {
         // Logic to join a game
+        await this.socketReady;
         const msg = {
             type: 'joinLobby',
             lobbyId,
@@ -140,12 +152,6 @@ class LobbyService {
         return this.lobbyData || [];
     }
 
-    public initialize(): void {
-        document.addEventListener('RouterContentLoaded', () => {
-            this.initSocket();
-            this.setupEventListeners();
-        });
-    }
 
     public startGame(lobbyId: string) {
         const msg: ClientMessage = {

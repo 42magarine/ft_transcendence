@@ -3,6 +3,8 @@ import { authenticate, verifyJWT } from "../backend/middleware/security.js";
 import { MatchController } from "../backend/controllers/MatchController.js";
 import { UserService } from "../backend/services/UserService.js";
 import { MatchLobby } from "../backend/lobbies/MatchLobby.js";
+import user from "./user.js";
+import { Connection } from "typeorm/browser";
 
 export default async function (fastify: FastifyInstance) {
     const userService = new UserService();
@@ -11,6 +13,7 @@ export default async function (fastify: FastifyInstance) {
 
     // Websocket route handler
     fastify.get('/game/wss', { websocket: true }, (connection, request) => {
+        console.log("fastify wss")
         const userId = request.user?.id;
         matchController.handleConnection(connection, userId);
     });
