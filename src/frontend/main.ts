@@ -12,6 +12,7 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 import Home from './views/Home.js';
 import Demo from './views/Demo.js';
 import Pong from './views/Pong.js';
+import PongLocal from './views/PongLocal.js';
 import Lobby from './views/Lobby.js';
 import Tournament from './views/Tournament.js';
 import Profile from './views/Profile.js';
@@ -89,6 +90,15 @@ const routes = [
 		path: '/pong/:id',
 		role: 'user',
 		view: Pong,
+		metadata: {
+			title: 'Transcendence - Pong',
+			description: 'Welcome to Pong'
+		}
+	},
+    {
+		path: '/ponglocal',
+		role: 'user',
+		view: PongLocal,
 		metadata: {
 			title: 'Transcendence - Pong',
 			description: 'Welcome to Pong'

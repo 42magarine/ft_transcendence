@@ -2,7 +2,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import Title from '../components/Title.js';
 import Button from '../components/Button.js';
 import Card from '../components/Card.js';
-import lobbyService from '../services/LobbyService.js';
+import GameService from '../services/GameService.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 import Router from '../../utils/Router.js';
 import UserService from '../services/UserService.js'
