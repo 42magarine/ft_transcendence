@@ -1,10 +1,8 @@
-// import { ClientMessage } from "../../types/interfaces.js";
+// import { ClientMessage } from "../../interfaces/interfaces.js";
 // import { WebSocket } from "ws";
 // import { Player } from "../gamelogic/components/Player.js";
-// import { TournamentLobby } from "../lobbies/TournamentLobby.js";
 // import { GameService } from "../services/GameService.js";
 // import { MessageHandlers } from "../services/MessageHandlers.js";
-// import { TournamentService } from "../services/TournamentService.js";
 // import { UserService } from "../services/UserService.js";
 // import { MatchController } from "./MatchController.js";
 
@@ -40,7 +38,7 @@
 //         }
 //     }
 
-//     protected createLobby(lobbyid:string) : TournamentLobby {
+//     public createLobby(lobbyid:string) : TournamentLobby {
 //         return new TournamentLobby(
 //             lobbyid,
 //             this.broadcast.bind(this),

@@ -1,7 +1,6 @@
 // Import core modules and Fastify plugins
 import Fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
-import fastifyCors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
@@ -189,30 +188,30 @@ async function ensureMasterUserExists(): Promise<void> {
 
 // Start the server
 const start = async (): Promise<void> => {
-	try {
-		await initDataSource();
-		// Ensure master user exists after database is initialized
-		await ensureMasterUserExists();
+    try {
+        await initDataSource();
+        // Ensure master user exists after database is initialized
+        await ensureMasterUserExists();
 
-		// Stelle sicher, dass der permanente Upload-Ordner existiert
-		if (!fs.existsSync(UPLOADS_DIR)) {
-			fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-			console.log(`Created uploads directory: ${UPLOADS_DIR}`);
-		}
+        // Stelle sicher, dass der permanente Upload-Ordner existiert
+        if (!fs.existsSync(UPLOADS_DIR)) {
+            fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+            console.log(`Created uploads directory: ${UPLOADS_DIR}`);
+        }
 
-		if (!fs.existsSync(AVATARS_DIR)) {
-			fs.mkdirSync(AVATARS_DIR, { recursive: true });
-			console.log(`Created avatars directory: ${AVATARS_DIR}`);
-		}
+        if (!fs.existsSync(AVATARS_DIR)) {
+            fs.mkdirSync(AVATARS_DIR, { recursive: true });
+            console.log(`Created avatars directory: ${AVATARS_DIR}`);
+        }
 
-		await fastify.listen({ port: 3000, host: "0.0.0.0" });
-		// console.log('Server running on http://0.0.0.0:3000');
-		console.log('HTTPS Server running at https://0.0.0.0:3000');
-	}
-	catch (error) {
-		fastify.log.error(error);
-		process.exit(1);
-	}
+        const baseUrl = process.env.BASE_URL;
+        await fastify.listen({ port: 3000, host: "0.0.0.0" });
+        console.log(`HTTPS Server running at ${baseUrl}`);
+    }
+    catch (error) {
+        fastify.log.error(error);
+        process.exit(1);
+    }
 };
 
 start();

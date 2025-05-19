@@ -1,22 +1,17 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { PongController } from "../backend/controllers/PongController.js";
-import fastifyStatic from "@fastify/static";
 import { authenticate, verifyJWT } from "../backend/middleware/security.js";
+import { MatchController } from "../backend/controllers/MatchController.js";
+import { UserService } from "../backend/services/UserService.js";
+import { MatchLobby } from "../backend/lobbies/MatchLobby.js";
 
 export default async function (fastify: FastifyInstance) {
-	const pongController = new PongController();
+    const userService = new UserService();
+    const _lobbies = new Map<string, MatchLobby>;
+    const matchController = new MatchController(userService, _lobbies);
 
-	// Websocket route handler
-	fastify.get('/game/wss', { websocket: true }, (connection, request) => {
-		const userId = request.user?.id;
-		pongController.handleConnection(connection, userId);
-	});
-
-	//get your game history <-- maybe move to user instead
-	fastify.get('/game/history', {
-		onRequest: authenticate,
-	},
-		async (request, reply) => {
-			return pongController.getUserGames(request, reply)
-		})
+    // Websocket route handler
+    fastify.get('/game/wss', { websocket: true }, (connection, request) => {
+        const userId = request.user?.id;
+        matchController.handleConnection(connection, userId);
+    });
 }

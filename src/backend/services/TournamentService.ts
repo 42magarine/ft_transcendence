@@ -1,6 +1,5 @@
 // import { AppDataSource } from "../DataSource.js";
-// import { TournamentMatchModel, TournamentModel } from "../models/TournamentModel.js";
-// import { UserModel } from "../models/UserModel.js";
+// import { TournamentMatchModel, TournamentModel, UserModel } from "../models/MatchModel.js";
 // import { GameService } from "./GameService.js";
 // import { MatchService } from "./MatchService.js";
 // import { UserService } from "./UserService.js";
