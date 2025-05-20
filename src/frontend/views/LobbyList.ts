@@ -26,7 +26,7 @@ export default class Lobby extends AbstractView {
 			className: 'btn btn-primary'
 		});
 
-		let lobbies = await gameService.getLobbyList()
+		let lobbies = await gameService.lobbyList.getLobbies()
 		const card = new Card();
 		const lobbyCard = await card.renderCard({
 			title: 'Lobby List',
@@ -62,9 +62,9 @@ export default class Lobby extends AbstractView {
 		});
 
 		// Register callback to listen for lobby updates via WebSocket or polling
-		gameService.registerLobbyListListener(() => {
-			this.lobbyData = gameService.getLobbyList();
-		});
+        gameService.lobbyList.onUpdate(() => {
+            this.lobbyData = gameService.lobbyList.getLobbies();
+        });
 
 		return this.render(`
 			<div class="container">

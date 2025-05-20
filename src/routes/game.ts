@@ -13,7 +13,6 @@ export default async function (fastify: FastifyInstance) {
 
     // Websocket route handler
     fastify.get('/game/wss', { websocket: true }, (connection, request) => {
-        console.log("fastify wss")
         const userId = request.user?.id;
         matchController.handleConnection(connection, userId);
     });
