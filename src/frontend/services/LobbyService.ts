@@ -204,9 +204,9 @@ class LobbyService {
     }
 
     public initSocket() {
-        // this.socket = new WebSocket(`const host = window.location.host`);
-        // this.socket = new WebSocket("wss://localhost:3000/game/wss");
-        this.socket = new WebSocket("wss://localhost:3000/api/game/wss");
+        const wsHost = window.location.host;
+        this.socket = new WebSocket(`wss://${wsHost}/api/game/wss`);
+        // this.socket = new WebSocket("wss://sunny-snail-gentle.ngrok-free.app/api/game/wss");
 
         this.fuckYouWebsocket(this.socket).then(() => {
             console.log('Connected to WebSocket server');

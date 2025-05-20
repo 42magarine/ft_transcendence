@@ -1,6 +1,6 @@
-all: env up shell
+all: up logs
 
-up: env
+up:
 	docker-compose up --build --detach
 
 start stop:
@@ -14,16 +14,7 @@ shell:
 	docker-compose exec ft_transcendence bash
 
 logs:
-	docker compose logs
-
-env:
-	@IP=$$(ipconfig getifaddr en0); \
-	if [ -n "$$IP" ]; then \
-		sed -i '' "s|^BASE_URL=.*|BASE_URL=https://$$IP:3000|" .env; \
-		echo "BASE_URL set to https://$$IP:3000"; \
-	else \
-		echo "Could not determine IP address from en0" && exit 1; \
-	fi
+	docker compose logs -f
 
 clean:
 	docker compose down

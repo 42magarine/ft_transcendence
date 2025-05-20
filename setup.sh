@@ -1,57 +1,31 @@
 #!/bin/bash
 
-# Generate self-signed cert for local HTTPS
-if [ ! -f /etc/ssl/private/key.pem ] || [ ! -f /etc/ssl/private/cert.pem ]; then
-    echo "[Setup] Generating new self-signed certificate..."
-    openssl req -newkey rsa:2048 -x509 -noenc \
-        -keyout /etc/ssl/private/key.pem \
-        -out /etc/ssl/private/cert.pem \
-        -subj "/C=DE/ST=Baden-Württemberg/L=Heilbronn/O=42 Heilbronn/OU=ft_transcendence/CN=localhost"
-else
-    echo "[Setup] Certificate already exists."
+# Check if NGROK_AUTHTOKEN and NGROK_URL are set in environment
+if [ -z "$NGROK_AUTHTOKEN" ] || [ -z "$NGROK_URL" ]; then
+  echo "[ERROR] NGROK_AUTHTOKEN and NGROK_URL must be set in .env file."
+  exit 1
 fi
 
 # Install dependencies if missing
 if [ ! -d /app/node_modules ]; then
-    echo "[Setup] Installing dependencies..."
-    npm install
-fi
-
-# Build project if missing
-if [ ! -d /app/dist ]; then
-    echo "[Setup] Building project..."
-    npm run build
-fi
-
-echo "[Setup] Done."
-
-
-
-# Check if NGROK_AUTHTOKEN is set in environment
-if [ -z "$NGROK_AUTHTOKEN" ]; then
-    echo "[ERROR] NGROK_AUTHTOKEN is not set. Please add it to your .env file."
-    exit 1
+  echo "[Setup] Installing dependencies..."
+  npm install
+else
+  echo "[Setup] Dependencies already installed."
 fi
 
 # Configure ngrok with the authtoken
+echo "[Setup] Configuring ngrok..."
 ngrok config add-authtoken $NGROK_AUTHTOKEN
 
-# Start ngrok for HTTPS tunnel
-echo "[Setup] Starting ngrok tunnel for HTTPS..."
-ngrok http https://localhost:3000 --log=stdout > /var/log/ngrok.log &
+# Start ngrok in background to create a tunnel to port 3000
+echo "[Setup] Starting ngrok tunnel..."
+ngrok http http://localhost:3000 --domain=$NGROK_URL > /var/log/ngrok.log 2>&1 &
 
-# Wait for ngrok to start and display the URL
-sleep 5
-echo "[Setup] ngrok tunnel information:"
-NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o '"public_url":"[^"]*' | grep -o 'http[^"]*')
-if [ -n "$NGROK_URL" ]; then
-    echo "Your application is available at: $NGROK_URL"
-    echo "You can access the ngrok interface at: http://localhost:4040"
-else
-    echo "[ERROR] Could not retrieve ngrok URL. Check the logs with 'docker logs ft_transcendence'"
-fi
+# Wait for ngrok to start
+sleep 3
+echo "[Setup] Your application is available at: https://$NGROK_URL"
 
-
-
-# Keep container running
-exec tail -f /dev/null
+# Start the application in development mode
+echo "[Setup] Starting application with npm run dev..."
+exec npm run dev

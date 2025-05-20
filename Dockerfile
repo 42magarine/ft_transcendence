@@ -3,12 +3,13 @@ FROM debian:bookworm
 # Install curl and openssll
 RUN apt-get update && apt-get install -y \
     curl \
-    openssl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js v22
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get install -y nodejs
+RUN curl https://deb.nodesource.com/setup_22.x -O && \
+    bash setup_22.x && \
+    apt-get install -y nodejs && \
+    rm setup_22.x
 
 # Install ngrok (no account needed for basic usage)
 RUN curl https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -O && \
@@ -22,7 +23,7 @@ COPY --chmod=755 ./setup.sh /usr/local/bin
 WORKDIR /app
 
 # Expose port
-EXPOSE 3000 4040
+EXPOSE 3000
 
 # Set the entrypoint
 ENTRYPOINT ["setup.sh"]

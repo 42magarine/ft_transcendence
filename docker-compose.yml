@@ -5,7 +5,6 @@ services:
     image: ft_transcendence
     ports:
       - "3000:3000"
-      - "4040:4040"
     volumes:
       - ./src:/app
     env_file:
