@@ -10,9 +10,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { UserModel } from "./backend/models/MatchModel.js";
-import { AppDataSource } from "./backend/DataSource.js";
 import { hashPW } from "./backend/middleware/security.js";
-import { initDataSource } from "./backend/DataSource.js";
+import { AppDataSource, initDataSource } from "./backend/DataSource.js";
 import checkEnvVars from "./utils/checkEnvVars.js";
 
 // Import route modules
@@ -23,10 +22,8 @@ import userRoutes from "./routes/user.js";
 const __filename: string = fileURLToPath(import.meta.url);      // /app/dist/app.js
 const __dirname: string = path.dirname(__filename);             // /app/dist
 const __rootdir: string = path.resolve(__dirname, "..");        // /app
-
-// Neuer permanenter Uploads-Ordner außerhalb von dist
-const UPLOADS_DIR = path.join(__rootdir, "uploads");
-const AVATARS_DIR = path.join(UPLOADS_DIR, "avatars");
+const __uploaddir = path.join(__rootdir, "uploads");            // /app/uploads
+const __avatarsdir = path.join(__uploaddir, "avatars");         // /app/uploads/avatars
 
 dotenv.config();
 checkEnvVars();
@@ -70,7 +67,7 @@ fastify.register(fastifyStatic, {
 
 // Serve uploaded avatars from the permanent uploads directory
 fastify.register(fastifyStatic, {
-    root: AVATARS_DIR,
+    root: __avatarsdir,
     prefix: "/uploads/avatars",
     decorateReply: false
 });
@@ -123,40 +120,23 @@ fastify.setNotFoundHandler(async (request, reply) => {
     return reply.type("text/html").send(fs.createReadStream(indexPath));
 });
 
-async function ensureMasterUserExists(): Promise<void> {
-    // Get master user credentials from environment variables
+async function createMasterUser(): Promise<void> {
     const masterEmail = process.env.MASTER_USER_EMAIL;
     const masterPassword = process.env.MASTER_USER_PASSWORD;
 
-    // Validate environment variables
     if (!masterEmail || !masterPassword) {
         console.error('MASTER_USER_EMAIL or MASTER_USER_PASSWORD not set in environment');
         return;
     }
 
-    // Get user repository
     const userRepo = AppDataSource.getRepository(UserModel);
-
-    // Check if master user already exists
-    const existingMaster = await userRepo.findOne({
-        where: { email: masterEmail }
-    });
-
-    // If master user already exists, make sure it's verified
+    const existingMaster = await userRepo.findOne({ where: { email: masterEmail } });
     if (existingMaster) {
         console.log('Master user already exists');
-
-        // Ensure master user is verified if that field exists and isn't already true
-        if (existingMaster.hasOwnProperty('emailVerified') && !existingMaster.emailVerified) {
-            existingMaster.emailVerified = true;
-            await userRepo.save(existingMaster);
-            console.log('Master user email verification status updated to verified');
-        }
         return;
     }
 
     try {
-        // Hash the master password
         const hashedPassword = await hashPW(masterPassword);
 
         // Create new master user with email verified status
@@ -166,7 +146,7 @@ async function ensureMasterUserExists(): Promise<void> {
             password: hashedPassword,
             displayname: 'MASTER',
             role: 'master',
-            emailVerified: true // Set the master user as verified by default
+            emailVerified: true
         });
 
         // Save master user to database
@@ -178,27 +158,21 @@ async function ensureMasterUserExists(): Promise<void> {
     }
 }
 
+function createDirectories(): void {
+    if (!fs.existsSync(__avatarsdir)) {
+        fs.mkdirSync(__avatarsdir, { recursive: true });
+    }
+}
+
 // Start the server
 const start = async (): Promise<void> => {
     try {
         await initDataSource();
-        // Ensure master user exists after database is initialized
-        await ensureMasterUserExists();
+        await createMasterUser();
+        createDirectories();
 
-        // Stelle sicher, dass der permanente Upload-Ordner existiert
-        if (!fs.existsSync(UPLOADS_DIR)) {
-            fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-            console.log(`Created uploads directory: ${UPLOADS_DIR}`);
-        }
-
-        if (!fs.existsSync(AVATARS_DIR)) {
-            fs.mkdirSync(AVATARS_DIR, { recursive: true });
-            console.log(`Created avatars directory: ${AVATARS_DIR}`);
-        }
-
-        const baseUrl = process.env.BASE_URL;
         await fastify.listen({ port: 3000, host: "0.0.0.0" });
-        console.log(`HTTPS Server running at ${baseUrl}`);
+        console.log(`Server running at https://${process.env.NGROK_URL}`);
     }
     catch (error) {
         fastify.log.error(error);

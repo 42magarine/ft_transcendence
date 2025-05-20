@@ -6,13 +6,9 @@ if [ -z "$NGROK_AUTHTOKEN" ] || [ -z "$NGROK_URL" ]; then
   exit 1
 fi
 
-# Install dependencies if missing
-if [ ! -d /app/node_modules ]; then
-  echo "[Setup] Installing dependencies..."
-  npm install
-else
-  echo "[Setup] Dependencies already installed."
-fi
+# Install dependencies
+echo "[Setup] Installing dependencies..."
+npm install
 
 # Configure ngrok with the authtoken
 echo "[Setup] Configuring ngrok..."
