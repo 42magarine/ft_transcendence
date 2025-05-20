@@ -83,8 +83,8 @@ fastify.register(fastifyCookie, {
 });
 
 // Register API routes under /api/*
-fastify.register(userRoutes, { prefix: "/api" });
-fastify.register(gameRoutes, { prefix: "/api" });
+fastify.register(userRoutes);
+fastify.register(gameRoutes);
 
 // 404 Handler
 fastify.setNotFoundHandler(async (request, reply) => {

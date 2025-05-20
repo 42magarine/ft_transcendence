@@ -10,7 +10,7 @@ export default async function (fastify: FastifyInstance) {
     const matchController = new MatchController(userService, _lobbies);
 
     // Websocket route handler
-    fastify.get('/game/wss', { websocket: true }, (connection, request) => {
+    fastify.get('/api/game/wss', { websocket: true }, (connection, request) => {
         const userId = request.user?.id;
         matchController.handleConnection(connection, userId);
     });
