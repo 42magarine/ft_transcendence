@@ -1,21 +1,19 @@
-import { AppDataSource } from "../DataSource.js";
-import { UserModel } from "../models/MatchModel.js";
-import { JWTPayload, RegisterCredentials, UserCredentials, AuthTokens } from "../../interfaces/authInterfaces.js";
-import { generateJWT, hashPW, verifyPW } from "../middleware/security.js";
 import jwt from "jsonwebtoken";
-import { deleteAvatar } from "../services/FileService.js";
-import { EmailService } from "../services/EmailService.js";
-
 import QRCode from 'qrcode';
 import speakeasy from 'speakeasy';
 import { OAuth2Client } from 'google-auth-library';
 
-const googleClient = new OAuth2Client();
+import { AppDataSource } from "../DataSource.js";
+import { UserModel } from "../models/MatchModel.js";
+import { JWTPayload, RegisterCredentials, UserCredentials, AuthTokens } from "../../interfaces/authInterfaces.js";
+import { generateJWT, hashPW, verifyPW } from "../middleware/security.js";
+import { deleteAvatar } from "../services/FileService.js";
+import { EmailService } from "../services/EmailService.js";
 
 export class UserService {
-    // get user table from db
     private userRepo = AppDataSource.getRepository(UserModel);
     private emailService = new EmailService();
+    private googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
     // Checks if user exists, throw error if yes, otherwise create user in db
     async createUser(userData: RegisterCredentials & { password: string, avatar?: string }, requestingUserRole?: string) {
@@ -338,9 +336,6 @@ export class UserService {
     }
 
     async login(credentials: UserCredentials) {
-        console.log("login: login " + credentials.username)
-        console.log("login: login " + credentials.password)
-
         const user = await this.findUnameAcc(credentials.username);
         if (!user) {
             console.log("user: null ")
@@ -349,6 +344,7 @@ export class UserService {
             console.log("user: login " + user.username)
             console.log("user: login " + user.email)
         }
+
         if (!user || !await verifyPW(credentials.password, user.password)) {
             throw new Error('Invalid login data');
         }
@@ -372,34 +368,32 @@ export class UserService {
         return this.generateTokens(user);
     }
 
-    async loginWithGoogle(idToken: string): Promise<{ accessToken: string }> {
-        console.log('[UserService] Verifying Google token...');
+    async loginWithGoogle(token: string): Promise<{ accessToken: string }> {
+        // Verify the Google ID token
         let payload;
         try {
-            const ticket = await googleClient.verifyIdToken({
-                idToken,
-                audience: '671485849622-fgg1js34vhtv9tsrifg717hti161gvum.apps.googleusercontent.com', // deine Client ID
+            const ticket = await this.googleClient.verifyIdToken({
+                idToken: token,
+                audience: process.env.GOOGLE_CLIENT_ID,
             });
             payload = ticket.getPayload();
-            console.log('[UserService] Payload received:', payload);
         }
         catch (error) {
-            console.error('[UserService] Token verification failed:', error);
             throw new Error('Invalid Google token');
         }
 
+        // Validate payload structure
         if (!payload || !payload.email) {
-            throw new Error('Invalid token payload');
+            throw new Error('Invalid Google token payload');
         }
 
-        // Benutzer in DB suchen oder neu anlegen
+        // Try to find user in the database
         let user = await this.findByEmail(payload.email);
         if (!user) {
-            console.log('[UserService] User not found, creating new user...');
-
-            const username = payload.name || payload.email;
+            // Create a new user if not found
+            const username = payload.name ?? payload.email;
             const displayname = username;
-            const avatar = payload.picture;
+            const avatar = payload.picture ?? '';
             const password = "null";  // todo
 
             user = await this.createUser({
@@ -411,12 +405,8 @@ export class UserService {
                 avatar
             });
         }
-        else {
-            console.log('[UserService] User found in database');
-        }
 
-        // JWT erzeugen
-        console.log('[UserService] Creating access token...');
+        // Generate and return JWT tokens
         return this.generateTokens(user);
     }
 

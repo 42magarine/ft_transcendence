@@ -46,6 +46,10 @@ export interface TwoFactorResponse {
     secret: string;
 }
 
+export interface GoogleLoginBody {
+    token: string;
+}
+
 // Available roles as enum for type safety
 export enum UserRole {
     USER = 'user',

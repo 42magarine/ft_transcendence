@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { UserService } from "../services/UserService.js";
-import { RegisterCredentials, UserCredentials } from "../../interfaces/authInterfaces.js";
+import { RegisterCredentials, UserCredentials, GoogleLoginBody } from "../../interfaces/authInterfaces.js";
 import { verifyJWT } from "../middleware/security.js";
 import { UserModel } from "../models/MatchModel.js";
 import { saveAvatar, deleteAvatar } from "../services/FileService.js";
@@ -46,15 +46,10 @@ export class UserController {
         }
     }
 
-    async loginWithGoogle(request: FastifyRequest<{ Body: { token: string } }>, reply: FastifyReply) {
-        console.log('[GoogleLogin] Received Google login request');
-        const { token } = request.body;
-
+    async loginWithGoogle(request: FastifyRequest<{ Body: GoogleLoginBody }>, reply: FastifyReply) {
         try {
-            console.log('[GoogleLogin] Verifying ID token...');
-            const authResult = await this.userService.loginWithGoogle(token);
+            const authResult = await this.userService.loginWithGoogle(request.body.token);
 
-            console.log('[GoogleLogin] Token verified, setting cookie...');
             reply.setCookie('accessToken', authResult.accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
@@ -62,12 +57,9 @@ export class UserController {
                 path: '/',
                 maxAge: 15 * 60 * 1000
             });
-
-            console.log('[GoogleLogin] Login successful');
             return reply.code(200).send({ message: 'Login successful' });
         }
         catch (error) {
-            console.error('[GoogleLogin] Login failed:', error);
             const message = error instanceof Error ? error.message : 'Google login failed';
             return reply.code(400).send({ error: message });
         }

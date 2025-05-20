@@ -186,8 +186,6 @@ export class UserManagementService {
     }
 
     static async loginWithGoogle(idToken: string) {
-        console.log("loginWithGoogle");
-
         const response = await fetch('/api/users/auth/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
