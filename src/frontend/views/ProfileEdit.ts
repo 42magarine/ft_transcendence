@@ -6,41 +6,41 @@ import { generateProfileImage } from '../../utils/Avatar.js';
 import { UserManagementService } from '../services/UserManagementService.js';
 
 export default class ProfileEdit extends AbstractView {
-	private userId: string;
+    private userId: string;
 
-	constructor(params: URLSearchParams) {
-		super();
-		this.userId = params.get('id') || 'unknown';
-	}
+    constructor(params: URLSearchParams) {
+        super();
+        this.userId = params.get('id') || 'unknown';
+    }
 
-	async getHtml(): Promise<string> {
-		let userData = null;
+    async getHtml(): Promise<string> {
+        let userData = null;
 
-		try {
-			const userResponse = await fetch(`/api/users/${this.userId}`);
-			if (userResponse.ok) {
-				userData = await userResponse.json();
-				console.log('User data loaded:', userData);
-			} else {
-				console.error('Failed to fetch user data from API');
-			}
-		} catch (error) {
-			console.error('API request error:', error);
-		}
+        try {
+            const userResponse = await fetch(`/api/users/${this.userId}`);
+            if (userResponse.ok) {
+                userData = await userResponse.json();
+                console.log('User data loaded:', userData);
+            } else {
+                console.error('Failed to fetch user data from API');
+            }
+        } catch (error) {
+            console.error('API request error:', error);
+        }
 
-		const title = new Title({
-			title: userData ? `Edit Profile: ${userData.displayname}` : 'Edit Profile',
-		});
-		const titleSection = await title.getHtml();
+        const title = new Title({
+            title: userData ? `Edit Profile: ${userData.displayname}` : 'Edit Profile',
+        });
+        const titleSection = await title.getHtml();
 
-		const card = new Card();
-		let profileImageSvg = '';
-		let cardBody = '';
+        const card = new Card();
+        let profileImageSvg = '';
+        let cardBody = '';
 
-		if (userData) {
-			profileImageSvg = generateProfileImage(userData, 200, 200);
+        if (userData) {
+            profileImageSvg = generateProfileImage(userData, 200, 200);
 
-			cardBody = `
+            cardBody = `
 				<div class="profile-header">
 					<div class="profile-avatar-container">${profileImageSvg}</div>
 				</div>
@@ -71,45 +71,45 @@ export default class ProfileEdit extends AbstractView {
                     </div>
 				</div>
 			`;
-		} else {
-			cardBody = `<div class="alert alert-warning">User not found or error loading user data.</div>`;
-		}
+        } else {
+            cardBody = `<div class="alert alert-warning">User not found or error loading user data.</div>`;
+        }
 
-		const cardHtml = await card.renderCard({
-			title: 'User Profile',
-			body: `<form id="edit-profile-form">${cardBody}
+        const cardHtml = await card.renderCard({
+            title: 'User Profile',
+            body: `<form id="edit-profile-form">${cardBody}
 				<div class="text-center mt-6">
 					<button type="submit" class="btn btn-success">Update Profile</button>
 				</div>
 			</form>`
-		});
+        });
 
-		const button = new Button();
-		const buttonGroup = await button.renderGroup({
-			layout: 'stack',
-			align: 'center',
-			buttons: [
-				{
-					id: 'back-to-list',
-					text: 'Back to User List',
-					href: '/user-mangement',
-					className: 'btn btn-primary'
-				}
-			]
-		});
+        const button = new Button();
+        const buttonGroup = await button.renderGroup({
+            layout: 'stack',
+            align: 'center',
+            buttons: [
+                {
+                    id: 'back-to-list',
+                    text: 'Back to User List',
+                    href: '/user-mangement',
+                    className: 'btn btn-primary'
+                }
+            ]
+        });
 
-		return this.render(`
+        return this.render(`
 			<div class="container">
 				${titleSection}
 				${cardHtml}
 				${buttonGroup}
 			</div>
 		`);
-	}
+    }
 
-	async mount(): Promise<void> {
-		const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
-		if (form) {
+    async mount(): Promise<void> {
+        const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
+        if (form) {
             // Toggle confirmPassword visibility based on password input
             const passwordInput = form.querySelector('input[name="password"]') as HTMLInputElement;
             const confirmRow = document.getElementById('confirm-password-row');
@@ -126,42 +126,42 @@ export default class ProfileEdit extends AbstractView {
                 });
             }
 
-			form.addEventListener('submit', async (e) => {
-				e.preventDefault();
-				const formData = new FormData(form);
-				const payload = Object.fromEntries(formData.entries());
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const payload = Object.fromEntries(formData.entries());
 
-				const password = payload.password as string;
-				const confirmPassword = payload.confirmPassword as string;
+                const password = payload.password as string;
+                const confirmPassword = payload.confirmPassword as string;
 
-				if (password) {
-					if (password !== confirmPassword) {
-						alert("Passwords do not match.");
-						return;
-					}
-					// Include both in payload
-					payload.password = password;
-					payload.confirmPassword = confirmPassword;
-				} else {
-					// Remove both if empty
-					delete payload.password;
-					delete payload.confirmPassword;
-				}
+                if (password) {
+                    if (password !== confirmPassword) {
+                        alert("Passwords do not match.");
+                        return;
+                    }
+                    // Include both in payload
+                    payload.password = password;
+                    payload.confirmPassword = confirmPassword;
+                } else {
+                    // Remove both if empty
+                    delete payload.password;
+                    delete payload.confirmPassword;
+                }
                 console.log(payload);
-				try {
-					const success = await UserManagementService.updateProfile(this.userId, payload);
-					if (success) {
-						alert('Profile updated successfully.');
-					} else {
-						alert('Failed to update profile.');
-					}
-				} catch (err) {
-					console.error('Update failed:', err);
-					alert('An error occurred while updating.');
-				}
-			});
-		} else {
-			console.warn("Edit profile form not found");
-		}
-	}
+                try {
+                    const success = await UserManagementService.updateProfile(this.userId, payload);
+                    if (success) {
+                        alert('Profile updated successfully.');
+                    } else {
+                        alert('Failed to update profile.');
+                    }
+                } catch (err) {
+                    console.error('Update failed:', err);
+                    alert('An error occurred while updating.');
+                }
+            });
+        } else {
+            console.warn("Edit profile form not found");
+        }
+    }
 }

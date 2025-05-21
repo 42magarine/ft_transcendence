@@ -1029,14 +1029,14 @@ export class UserManagementService {
                 },
                 body: JSON.stringify(payload)
             });
-    
+
             return response.ok;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error updating profile:', error);
             throw error;
         }
     }
-    
 }
 
 // Call the initialize method to setup all the listeners
