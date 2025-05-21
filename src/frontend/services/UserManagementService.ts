@@ -1012,6 +1012,24 @@ export class UserManagementService {
             this.twoFactorNumberActions();
         });
     }
+
+    static async updateProfile(userId: string, payload: Record<string, any>): Promise<boolean> {
+        try {
+            const response = await fetch(`/api/user/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+    
+            return response.ok;
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            throw error;
+        }
+    }
+    
 }
 
 // Call the initialize method to setup all the listeners
