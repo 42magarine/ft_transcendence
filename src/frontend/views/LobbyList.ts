@@ -28,7 +28,7 @@ export default class Lobby extends AbstractView {
 
 		let lobbies = await gameService.lobbyList.getLobbies()
 		const card = new Card();
-		const lobbyCard = await card.renderCard({
+		const lobbyListCard = await card.renderCard({
 			title: 'Lobby List',
 			extra: `${createLobbyButton}
 					<table class="list" data-height="400px">
@@ -68,7 +68,7 @@ export default class Lobby extends AbstractView {
 
 		return this.render(`
 			<div class="container">
-			${lobbyCard}
+			${lobbyListCard}
 			</div>`
 		);
 	}

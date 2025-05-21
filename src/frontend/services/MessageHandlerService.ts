@@ -34,11 +34,12 @@ export default class MessageHandlerService {
         this.safeSend(msg);
     }
 
-    public async joinGame(lobbyId: string) {
+    public async joinGame(lobbyId: string, userId: number) {
         await this.socketReady;
         const msg: ClientMessage = {
             type: 'joinLobby',
             lobbyId,
+            userId
         };
         this.safeSend(msg);
     }
