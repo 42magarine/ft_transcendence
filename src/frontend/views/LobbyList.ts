@@ -1,7 +1,7 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Title from '../components/Title.js';
-import lobbyService from '../services/LobbyService.js'; // singleton instance
+import lobbyService from '../services/LobbyService.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
 import Button from '../components/Button.js';
 import { randomInt } from 'crypto';
@@ -27,7 +27,7 @@ export default class Lobby extends AbstractView {
 			className: 'btn btn-primary'
 		});
 
-		// ✅ TEST BUTTON TO TRIGGER A SIMULATED INVITE
+		// ✅ DEBUG: Test button for manually simulating lobby invite reception
 		const testInviteButton = `
 			<div class="text-right mb-3">
 				<button id="testInviteBtn" class="btn btn-secondary btn-sm">Add Test Invited Lobby</button>
@@ -40,11 +40,13 @@ export default class Lobby extends AbstractView {
 			extra: `<div>Loading lobbies...</div>`,
 		});
 
+		// Register callback to listen for lobby updates via WebSocket or polling
 		lobbyService.registerLobbyListListener(() => {
 			this.lobbyData = lobbyService.getLobbyList();
-			this.updateLobbyList();
+			this.updateLobbyList(); // Refresh the lobby UI
 		});
 
+		// Handle simulated or real invite event
 		document.addEventListener('LobbyInviteReceived', (e: any) => {
 			const { lobbyId, userId } = e.detail;
 
@@ -64,6 +66,7 @@ export default class Lobby extends AbstractView {
 			this.updateLobbyList();
 		});
 
+		// TODO: Replace `safeSend({ type: 'getLobbyList' })` with actual persistent WebSocket listener if not already done
 		lobbyService.safeSend({ type: 'getLobbyList' });
 
 		return this.render(`
@@ -80,33 +83,36 @@ export default class Lobby extends AbstractView {
 
 	async mount(): Promise<void> {
 		setTimeout(() => {
-			// ✅ LISTENER FOR TEST INVITE BUTTON
-            document.getElementById('testInviteBtn')?.addEventListener('click', () => {
-                const randomId = `test-lobby-${Math.floor(Math.random() * 10000)}`;
-                const randomUserId = Math.floor(Math.random() * 1000);
+			// ✅ Simulate an invite (test only)
+			document.getElementById('testInviteBtn')?.addEventListener('click', () => {
+				const randomId = `test-lobby-${Math.floor(Math.random() * 10000)}`;
+				const randomUserId = Math.floor(Math.random() * 1000);
 
-                document.dispatchEvent(new CustomEvent('LobbyInviteReceived', {
-                    detail: {
-                        lobbyId: randomId,
-                        userId: randomUserId
-                    }
-                }));
-            });
-            document.querySelectorAll('.accept-invite-btn')?.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const el = e.currentTarget as HTMLAnchorElement;
-                    const lobbyId = el.getAttribute('data-lobby');
-                    const userId = el.getAttribute('data-user');
+				// TODO: In production, remove this block or gate it behind dev flag
+				document.dispatchEvent(new CustomEvent('LobbyInviteReceived', {
+					detail: {
+						lobbyId: randomId,
+						userId: randomUserId
+					}
+				}));
+			});
 
-                    if (lobbyId && userId) {
-                        lobbyService.acceptInvite(userId, lobbyId);
-                    }
-                });
-            });
-		},
+			// 👤 User clicks "Accept Invite" on a specific lobby row
+			// TODO: Ensure this binding still works after lobby list is updated (may need delegation or re-bind)
+			document.querySelectorAll('.accept-invite-btn')?.forEach(btn => {
+				btn.addEventListener('click', (e) => {
+					e.preventDefault();
+					const el = e.currentTarget as HTMLAnchorElement;
+					const lobbyId = el.getAttribute('data-lobby');
+					const userId = el.getAttribute('data-user');
 
-        0);
+					if (lobbyId && userId) {
+						// TODO: Backend must emit a `LobbyPlayerJoined` event so lobby view can switch from invite list to player view
+						lobbyService.acceptInvite(userId, lobbyId);
+					}
+				});
+			});
+		}, 0);
 	}
 
 	private async updateLobbyList() {
@@ -115,6 +121,7 @@ export default class Lobby extends AbstractView {
 
 		const lobbiesToShow = [...this.lobbyData];
 		if (this.invitedLobby) {
+			// Put invited lobby at the top
 			lobbiesToShow.unshift(this.invitedLobby);
 		}
 
@@ -125,9 +132,11 @@ export default class Lobby extends AbstractView {
 			data: { lobbies: lobbiesToShow }
 		});
 
+		// Replace current list with updated HTML
 		container.innerHTML = updatedCardHtml;
 	}
 
+	// Build lobby list table with join or invite button
 	private buildLobbyTable(lobbies: LobbyInfo[]): string {
 		return `
 			<table class="list" data-height="400px">
@@ -166,3 +175,28 @@ export default class Lobby extends AbstractView {
 		`;
 	}
 }
+
+// ✅ TODO: Server-side endpoint used for lobby details
+// // GET /api/lobbies/:id
+// app.get('/api/lobbies/:id', async (req, res) => {
+// 	const lobby = await LobbyModel.findOne({ where: { id: req.params.id }, relations: ['participants'] });
+// 	if (!lobby) return res.status(404).send('Lobby not found');
+// 	return res.json({
+// 		id: lobby.id,
+// 		name: lobby.name,
+// 		creatorId: lobby.creatorId,
+// 		currentPlayers: lobby.participants.length,
+// 		maxPlayers: lobby.maxPlayers,
+// 		isStarted: lobby.isStarted,
+// 		isPublic: lobby.isPublic,
+// 		hasPassword: lobby.hasPassword,
+// 		createdAt: lobby.createdAt,
+// 		lobbyType: lobby.lobbyType
+// 	});
+// });
+
+// ✅ TODOs Summary:
+// - [ ] Backend: ensure /api/lobbies/:id returns participant usernames too
+// - [ ] Backend: emit `LobbyPlayerJoined` event on successful invite accept
+// - [ ] Frontend: rebind `.accept-invite-btn` after DOM updates (or switch to delegated handler)
+// - [ ] Remove test invite block for production or guard it by environment flag

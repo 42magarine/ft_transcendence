@@ -108,4 +108,22 @@ export class GameModel extends MatchModel {
 
     @Column({ nullable: true })
     gameAdminId?: number;
+
+    @Column({ default: 2 })
+    maxPlayers!: number;
+
+    @Column({ default: '' })
+    lobbyName!: string;
+
+    @Column({ default: false })
+    hasPassword!: boolean;
+
+    @Column({ nullable: true })
+    passwordHash?: string;
+
+    @Column('simple-json', { nullable: true })
+    readyStatusMap?: Record<number, boolean>;
+
+    @Column("simple-array", { nullable: true })
+    invitedUserIds?: number[];
 }
