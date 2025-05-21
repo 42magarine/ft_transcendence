@@ -237,7 +237,7 @@ export default class Router {
      */
     private static async getCurrentUser(): Promise<User | null> {
         try {
-            const response = await fetch('/api/auth/me');
+            const response = await fetch('/api/users/me');
             if (response.status === 401) {
                 return null;
             }

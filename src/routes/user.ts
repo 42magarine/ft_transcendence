@@ -7,16 +7,18 @@ export default async function (fastify: FastifyInstance) {
     const userController = new UserController(userService);
 
     // Authentication routes
-    fastify.get('/api/auth/me', userController.getCurrentUser.bind(userController));
+    fastify.get('/api/users/me', userController.getCurrentUser.bind(userController));
+    fastify.post('/api/users/register', userController.register.bind(userController));
     fastify.post('/api/users/login', userController.login.bind(userController));
-    fastify.post('/api/users/auth/google', userController.loginWithGoogle.bind(userController));
-    fastify.post('/api/auth/logout', userController.logout.bind(userController));
+    fastify.post('/api/users/logout', userController.logout.bind(userController));
+    fastify.post('/api/users/google', userController.loginWithGoogle.bind(userController));
 
     // User management routes
     fastify.get('/api/users/', userController.getAll.bind(userController));
     fastify.get('/api/users/:id', userController.getById.bind(userController));
-    fastify.get('/api/users/delete/:id', userController.deleteById.bind(userController));
-    fastify.post('/api/users/register', userController.register.bind(userController));
+    fastify.put('/api/users/:id', userController.updateUser.bind(userController));
+    // fastify.get('/api/users/delete/:id', userController.deleteById.bind(userController));
+    fastify.delete('/api/users/:id', userController.deleteById.bind(userController));
 
     // Email verification routes
     fastify.get('/api/verify-email/:token', userController.verifyEmail.bind(userController));

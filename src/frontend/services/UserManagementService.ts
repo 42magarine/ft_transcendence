@@ -186,7 +186,7 @@ export class UserManagementService {
     }
 
     static async loginWithGoogle(idToken: string) {
-        const response = await fetch('/api/users/auth/google', {
+        const response = await fetch('/api/users/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: idToken }),
@@ -299,7 +299,7 @@ export class UserManagementService {
 
     static async getCurrentUser(): Promise<User | null> {
         try {
-            const response = await fetch('/api/auth/me');
+            const response = await fetch('/api/users/me');
             if (response.status === 401) {
                 return null;
             }
@@ -313,7 +313,7 @@ export class UserManagementService {
 
     static async logout(): Promise<void> {
         try {
-            const response = await fetch('/api/auth/logout', {
+            const response = await fetch('/api/users/logout', {
                 method: 'POST',
             });
             if (!response.ok) {
@@ -329,11 +329,8 @@ export class UserManagementService {
 
     static async deleteUser(userId: number): Promise<boolean> {
         try {
-            const response = await fetch(`/api/users/delete/${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'DELETE',
             });
 
             if (!response.ok) {
@@ -343,7 +340,8 @@ export class UserManagementService {
 
             Router.update();
             return true;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Failed to delete user:', error);
             throw error;
         }

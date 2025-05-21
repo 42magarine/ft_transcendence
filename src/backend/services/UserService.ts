@@ -229,45 +229,39 @@ export class UserService {
         return await this.userRepo.update(currentUser, user);
     }
 
-    //Decide which one to use, removeUser and deletebyId are similar.
-    async deleteById(id: number, requestingUserRole?: string): Promise<boolean> {
+    async deleteById(userId: number, requestingUserRole?: string, isOwnAccount = false): Promise<boolean> {
         try {
-            const user = await this.userRepo.findOne({ where: { id } });
-
+            const user = await this.userRepo.findOne({ where: { id: userId } });
             if (!user) {
                 return false;
             }
 
-            // Never allow deletion of master users
             if (user.role === 'master') {
-                console.log(`Prevented deletion of master user with ID: ${id}`);
                 return false;
             }
 
-            // Only admin or master can delete admin users
-            if (user.role === 'admin' && (!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
-                console.log(`Prevented deletion of admin user with ID: ${id}`);
+            if (user.role === 'admin' && requestingUserRole !== 'admin' && requestingUserRole !== 'master') {
                 return false;
             }
 
-            // Delete user's avatar if it exists
+            if (!isOwnAccount && requestingUserRole !== 'admin' && requestingUserRole !== 'master') {
+                return false;
+            }
+
             if (user.avatar) {
                 try {
-                    console.log(`Deleting avatar for user ${id}: ${user.avatar}`);
                     await deleteAvatar(user.avatar);
-                } catch (error) {
-                    console.error(`Error deleting avatar for user ${id}:`, error);
-                    // Continue with user deletion even if avatar deletion fails
+                }
+                catch (error) {
+                    console.error(`Error deleting avatar for user ${userId}:`, error);
                 }
             }
-
-            const result = await this.userRepo.delete(id);
-
-            return result.affected !== null && result.affected !== undefined && result.affected > 0;
+            const result = await this.userRepo.delete(userId);
+            return result.affected ? result.affected > 0 : false;
         }
         catch (error) {
             console.error('Error deleting user:', error);
-            throw new Error('Failed to delete user');
+            throw new Error(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 

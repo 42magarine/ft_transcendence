@@ -515,26 +515,21 @@ export class UserController {
     async deleteById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
             const { id } = request.params;
-
             if (!id) {
                 return reply.code(400).send({ error: 'User ID is required' });
             }
 
             const userId = parseInt(id, 10);
-
             if (isNaN(userId)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
 
-            // Check user permissions
             const token = request.cookies.accessToken;
-
             if (!token) {
                 return reply.code(401).send({ error: 'Authentication required' });
             }
 
             const payload = await verifyJWT(token);
-
             if (!payload) {
                 return reply.code(401).send({ error: 'Invalid authentication token' });
             }
@@ -562,11 +557,8 @@ export class UserController {
             reply.code(200).send({ message: 'User deleted successfully' });
         }
         catch (error) {
-            console.error('Error deleting user by ID:', error);
             const message = error instanceof Error ? error.message : 'Could not delete user';
-            reply.code(500).send({
-                error: message
-            });
+            return reply.code(500).send({ error: message });
         }
     }
 
