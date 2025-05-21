@@ -116,6 +116,8 @@ export class MatchController {
             case "getLobbyList":
                 this.handleGetLobbyList(connection);
                 break;
+            case "getLobbyById":
+                this.handleGetLobbyById(connection, data.lobbyId!)
             default:
                 throw Error("WTF DUDE!!!");
         }
@@ -445,6 +447,52 @@ export class MatchController {
         }
     }
 
+    private async handleGetLobbyById(connection: WebSocket, lobbyId: string)
+    {
+        const lobby = await this._matchService.getMatchLobbyById(lobbyId);
+        
+        if(!lobby)
+        {
+            this.sendMessage(connection, {
+                type: "error",
+                message: "No Lobby like this lol"
+            })
+            return null;
+        }
+
+        const activeLobby = Array.from(this._lobbies.values()).find(l => l.getGameId() === lobby.id)
+
+        if (activeLobby)
+        {
+            this.sendMessage(connection, {
+                type: 'lobbyInfo',
+                lobby: activeLobby.getLobbyInfo()
+            })
+            return activeLobby.getLobbyInfo()
+        }
+
+        const lobbyInfo = {
+            id: lobby.id.toString(),
+            lobbyId: lobby.lobbyId,
+            name: lobby.lobbyName || `Lobby ${lobby.id}`,
+            creatorId: lobby.player1.id,
+            maxPlayers: lobby.maxPlayers || 2,
+            currentPlayers: lobby.lobbyParticipants?.length || 1,
+            isPublic: !lobby.hasPassword,
+            hasPassword: lobby.hasPassword || false,
+            createdAt: lobby.createdAt,
+            lobbyType: 'game' as const,
+            isStarted: false
+        }
+
+        this.sendMessage(connection, {
+            type: "lobbyInfo",
+            lobby: lobbyInfo
+        });
+
+        return lobbyInfo;
+    }
+
     private async handleGetLobbyList(connection: WebSocket) {
         const openLobbies = await this._matchService.getOpenLobbies();
 
@@ -460,6 +508,7 @@ export class MatchController {
 
             return {
                 id: Lobby.id.toString(),
+                lobbyId: Lobby.lobbyId,
                 name: Lobby.lobbyName || `Lobby ${Lobby.id}`,
                 creatorId: Lobby.player1.id,
                 maxPlayers: Lobby.maxPlayers || 2,

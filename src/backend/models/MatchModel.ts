@@ -62,6 +62,9 @@ export class MatchModel {
     @PrimaryGeneratedColumn()
     id!: number
 
+    @Column()
+    lobbyId!: string
+
     @ManyToOne(() => UserModel, (user) => user.matchAsPlayer1)
     @JoinColumn({ name: 'player1Id' })
     player1!: typeof UserModel.prototype;
