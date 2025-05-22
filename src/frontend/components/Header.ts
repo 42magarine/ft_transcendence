@@ -83,7 +83,6 @@ export default class Header extends AbstractView {
 			`
         }
 
-        //{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-danger btn-sm' }
         return super.render(`
 			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">
@@ -103,8 +102,3 @@ export default class Header extends AbstractView {
 
     }
 }
-
-// <h1 class="text-2xl font-bold whitespace-nowrap">
-// 	<a router href="/" class="hover:underline">Transcendence</a>
-// </h1>
-// ${buttonGroupHtml}

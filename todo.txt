@@ -1,0 +1,19 @@
+1. frontend/service/ UserManagementService.ts + UserService
+    - wo ist der Unterschied?
+    - Funktionen sind dopplt (get one / get all)
+
+2. Edit Profile:
+    - entferne "Role"
+    - wir brauchen Schalter (siehe Register -> 2FA Schalter) für
+         a) E-Mail verifiziert true/false
+         b) 2FA enabled true/false
+         c) Google signin true/false
+    erstmal nur die Buttons, damit man sieht wie das Benuzerkonto eingerichtet ist.
+    Ob wir noch nachträgliche änderungen vornehmen lassen entscheiden wir später.
+    - alerts entfernen
+    - nach klick auf Updaten Profile sollte man wieder auf seine profile page weitergeleitet werden, bzw. MASTER auf user-management
+
+3. Refresh JWT hat noch keine geschrieben!?
+
+4. app.ts stürzt manchmal vor " await fastify.listen({ port: 3000, host: "0.0.0.0" });" ab!
+    bei euch auch?

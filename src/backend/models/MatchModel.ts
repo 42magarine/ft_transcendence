@@ -49,11 +49,17 @@ export class UserModel {
     @Column({ nullable: true })
     verificationToken?: string;
 
-    @OneToMany("MatchModel", (match: any) => match.player1)
-    matchAsPlayer1!: any[];
+    // @OneToMany("MatchModel", (match: any) => match.player1)
+    // matchAsPlayer1!: any[];
 
-    @OneToMany("MatchModel", (match: any) => match.player2)
-    matchAsPlayer2!: any[];
+    // @OneToMany("MatchModel", (match: any) => match.player2)
+    // matchAsPlayer2!: any[];
+
+    @OneToMany(() => MatchModel, (match) => match.player1)
+    matchAsPlayer1!: MatchModel[];
+
+    @OneToMany(() => MatchModel, (match) => match.player2)
+    matchAsPlayer2!: MatchModel[];
 }
 
 @Entity()

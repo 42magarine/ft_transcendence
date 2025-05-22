@@ -171,11 +171,15 @@ const start = async (): Promise<void> => {
         await createMasterUser();
         createDirectories();
 
+        console.log("app.ts - before listen")
         await fastify.listen({ port: 3000, host: "0.0.0.0" });
+        console.log("app.ts - after listen");
+
         console.log(`Server running at https://${process.env.NGROK_URL}`);
         console.log('Server running at http://localhost:3000');
     }
     catch (error) {
+        console.log("app.ts - catch(error) in start()")
         fastify.log.error(error);
         process.exit(1);
     }

@@ -192,7 +192,6 @@ export class UserService {
     async updateUser(user: UserModel, requestingUserRole?: string) {
         // Get the current user data to check if we're trying to modify a master
         const currentUser = await this.userRepo.findOneBy({ id: user.id });
-
         if (!currentUser) {
             throw new Error('User not found');
         }
@@ -225,8 +224,11 @@ export class UserService {
             (!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
             throw new Error('Unzureichende Berechtigungen, um Admin-Berechtigungen zu vergeben');
         }
+        console.log("UserService.ts - before DB call");
+        console.log(currentUser);
+        console.log(user);
 
-        return await this.userRepo.update(currentUser, user);
+        return await this.userRepo.update(currentUser.id, user);
     }
 
     async deleteById(userId: number, requestingUserRole?: string, isOwnAccount = false): Promise<boolean> {

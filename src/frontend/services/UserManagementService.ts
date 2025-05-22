@@ -1022,7 +1022,7 @@ export class UserManagementService {
 
     static async updateProfile(userId: string, payload: Record<string, any>): Promise<boolean> {
         try {
-            const response = await fetch(`/api/user/${userId}`, {
+            const response = await fetch(`/api/users/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'

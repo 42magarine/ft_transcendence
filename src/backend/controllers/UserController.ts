@@ -499,7 +499,9 @@ export class UserController {
             const updatedUser = { ...currentUser, ...updates };
 
             // Update user with role verification
+            console.log("UserController.ts - before DB call")
             const result = await this.userService.updateUser(updatedUser, payload.role);
+            console.log("UserController.ts - after DB call")
 
             reply.code(200).send({ message: 'User updated successfully', user: result });
         }

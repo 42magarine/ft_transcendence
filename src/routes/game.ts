@@ -1,5 +1,4 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { authenticate, verifyJWT } from "../backend/middleware/security.js";
 import { MatchController } from "../backend/controllers/MatchController.js";
 import { UserService } from "../backend/services/UserService.js";
 import { MatchLobby } from "../backend/lobbies/MatchLobby.js";

@@ -17,7 +17,6 @@ export default async function (fastify: FastifyInstance) {
     fastify.get('/api/users/', userController.getAll.bind(userController));
     fastify.get('/api/users/:id', userController.getById.bind(userController));
     fastify.put('/api/users/:id', userController.updateUser.bind(userController));
-    // fastify.get('/api/users/delete/:id', userController.deleteById.bind(userController));
     fastify.delete('/api/users/:id', userController.deleteById.bind(userController));
 
     // Email verification routes
