@@ -448,13 +448,12 @@ export class MatchController {
     private async handleGetLobbyList(connection: WebSocket) {
         const openLobbies = await this._matchService.getOpenLobbies();
 
-        const dbLobbies = openLobbies.map( Lobby => {
+        const dbLobbies = openLobbies.map(Lobby => {
             const activeLobby = Array.from(this._lobbies.values()).find(l =>
                 l.getGameId() === Lobby.id
             );
 
-            if (activeLobby)
-            {
+            if (activeLobby) {
                 return activeLobby.getLobbyInfo();
             }
 
@@ -473,8 +472,7 @@ export class MatchController {
         })
 
         const allLobbies = [...dbLobbies]
-        for (const [id, lobby] of this._lobbies.entries())
-        {
+        for (const [id, lobby] of this._lobbies.entries()) {
             allLobbies.push(lobby.getLobbyInfo());
         }
 

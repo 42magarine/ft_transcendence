@@ -173,6 +173,7 @@ const start = async (): Promise<void> => {
 
         await fastify.listen({ port: 3000, host: "0.0.0.0" });
         console.log(`Server running at https://${process.env.NGROK_URL}`);
+        console.log('Server running at http://localhost:3000');
     }
     catch (error) {
         fastify.log.error(error);

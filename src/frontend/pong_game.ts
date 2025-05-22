@@ -13,7 +13,8 @@ window.addEventListener("unload", () => {
     safeSend(msg);
 });
 
-const socket: WebSocket = new WebSocket(`wss://${window.location.host}/game/wss`);
+const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const socket: WebSocket = new WebSocket(`${wsProtocol}//${window.location.host}/game/wss`);
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;

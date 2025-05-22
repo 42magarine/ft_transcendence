@@ -3,24 +3,24 @@ import Title from '../components/Title.js';
 import Button from '../components/Button.js';
 
 export default class Tournament extends AbstractView {
-	constructor(params: URLSearchParams) {
-		super();
-		this.params = params;
-	}
+    constructor(params: URLSearchParams) {
+        super();
+        this.params = params;
+    }
 
-	async getHtml(): Promise<string> {
-		const title = new Title({ title: 'Tournament Bracket' });
-		const titleSection = await title.getHtml();
+    async getHtml(): Promise<string> {
+        const title = new Title({ title: 'Tournament Bracket' });
+        const titleSection = await title.getHtml();
 
-		const button = new Button();
-		const backButton = await button.renderButton({
-			id: 'returnLobbyBtn',
-			text: 'Return to Lobby',
-			className: 'btn btn-secondary',
-			href: '/lobby',
-		});
+        const button = new Button();
+        const backButton = await button.renderButton({
+            id: 'returnLobbyBtn',
+            text: 'Return to Lobby',
+            className: 'btn btn-secondary',
+            href: '/lobby',
+        });
 
-		return this.render(`
+        return this.render(`
 			<div class="container">
 				${titleSection}
 				${backButton}
@@ -41,5 +41,5 @@ export default class Tournament extends AbstractView {
 				</div>
 			</div>
 		`);
-	}
+    }
 }

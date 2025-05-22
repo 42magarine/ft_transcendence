@@ -7,32 +7,32 @@ import Button from '../components/Button.js';
 import { randomInt } from 'crypto';
 
 export default class Lobby extends AbstractView {
-	private lobbyData: LobbyInfo[] = [];
-	private invitedLobby: LobbyInfo | null = null;
+    private lobbyData: LobbyInfo[] = [];
+    private invitedLobby: LobbyInfo | null = null;
 
-	constructor(params: URLSearchParams) {
-		super();
-		this.params = params;
-	}
+    constructor(params: URLSearchParams) {
+        super();
+        this.params = params;
+    }
 
-	async getHtml(): Promise<string> {
-		const title = new Title({ title: 'Available Lobbies' });
-		const titleSection = await title.getHtml();
+    async getHtml(): Promise<string> {
+        const title = new Title({ title: 'Available Lobbies' });
+        const titleSection = await title.getHtml();
 
-		const button = new Button();
-		const createLobbyButton = await button.renderButton({
-			id: 'createLobbyBtn',
-			text: 'Create Lobby',
-			type: 'submit',
-			className: 'btn btn-primary'
-		});
+        const button = new Button();
+        const createLobbyButton = await button.renderButton({
+            id: 'createLobbyBtn',
+            text: 'Create Lobby',
+            type: 'submit',
+            className: 'btn btn-primary'
+        });
 
-		let lobbies = await lobbyService.getLobbyList()
-		console.warn(lobbies)
-		const card = new Card();
-		const lobbyCard = await card.renderCard({
-			title: 'Lobby List',
-			extra: `${createLobbyButton}
+        let lobbies = await lobbyService.getLobbyList()
+        console.warn(lobbies)
+        const card = new Card();
+        const lobbyCard = await card.renderCard({
+            title: 'Lobby List',
+            extra: `${createLobbyButton}
 					<table class="list" data-height="400px">
 						<thead>
 							<tr>
@@ -60,18 +60,18 @@ export default class Lobby extends AbstractView {
 							</for>
 						</tbody>
 					</table>`,
-			data: { lobbies }
-		});
+            data: { lobbies }
+        });
 
-		// Register callback to listen for lobby updates via WebSocket or polling
-		lobbyService.registerLobbyListListener(() => {
-			this.lobbyData = lobbyService.getLobbyList();
-		});
+        // Register callback to listen for lobby updates via WebSocket or polling
+        lobbyService.registerLobbyListListener(() => {
+            this.lobbyData = lobbyService.getLobbyList();
+        });
 
-		return this.render(`
+        return this.render(`
 			<div class="container">
 			${lobbyCard}
 			</div>`
-		);
-	}
+        );
+    }
 }
