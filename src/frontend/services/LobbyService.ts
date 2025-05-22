@@ -4,14 +4,9 @@ import Router from '../../utils/Router.js';
 
 class LobbyService {
     private socket: any;
-    private userService: UserService;
     private currentUser: any = null;
     private lobbyData: LobbyInfo[] = [];
     private onLobbyListUpdated: (() => void)[] = [];
-
-    constructor() {
-        this.userService = new UserService();
-    }
 
     public initSocket() {
         const wsHost = window.location.host;
@@ -37,12 +32,6 @@ class LobbyService {
                 this.onLobbyListUpdated.forEach(cb => cb());
             }
 
-            // if (data.type === 'assignPlayer') {
-            // }
-
-            // if (data.type === 'lobbyInfo') {
-            // }
-
             if (data.type === 'playerJoined') {
                 const lobbyId = data.lobbyId;
                 if (window.location.pathname === `/lobby/${lobbyId}`) {
@@ -53,9 +42,6 @@ class LobbyService {
                     document.dispatchEvent(liveUpdateEvent);
                 }
             }
-
-            // if (data.type === 'playerDisconnected') {
-            // }
 
             if (data.type === 'gameStarted') {
                 const lobbyId = data.lobbyId;
@@ -113,8 +99,10 @@ class LobbyService {
     }
 
     public async createLobby() {
-        this.currentUser = await this.userService.getCurrentUser();
-        if (!this.currentUser) return;
+        this.currentUser = await UserService.getCurrentUser();
+        if (!this.currentUser) {
+            return;
+        }
 
         const msg: ClientMessage = {
             type: 'createLobby',

@@ -17,7 +17,6 @@ type PlayerStatus = 'ready' | 'waiting' | 'unavailable';
 
 export default class Lobby extends AbstractView {
     private currentUser: UserList | null = null;
-    private userService = new UserService();
     private lobbyInfo: any = null;
     private lobbyId: string;
 
@@ -33,7 +32,7 @@ export default class Lobby extends AbstractView {
     async getHtml(): Promise<string> {
 
         const card = new Card();
-        this.currentUser = await this.userService.getCurrentUser();
+        this.currentUser = await UserService.getCurrentUser();
         this.currentPlayer.username = this.currentUser?.username || 'You';
 
         // Fetch lobby data from backend to identify participants

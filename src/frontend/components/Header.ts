@@ -1,6 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
-import { UserManagementService } from '../services/UserManagementService.js';
+import UserService from '../services/UserService.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 
 export default class Header extends AbstractView {
@@ -11,7 +11,7 @@ export default class Header extends AbstractView {
     async getHtml(): Promise<string> {
         const noMenu = ['/login', '/signup', '/two-factor'];
 
-        const currentUser = await UserManagementService.getCurrentUser();
+        const currentUser = await UserService.getCurrentUser();
         let buttonSet = [
             { id: 'login-btn', text: 'Login', href: '/login', className: 'btn btn-sm' },
             { id: 'signup-btn', text: 'Signup', href: '/signup', className: 'btn btn-sm' }

@@ -1,21 +1,9 @@
 import { generateTextVisualization } from "../../utils/Avatar.js"
 import Router from '../../utils/Router.js';
 import { User, ApiErrorResponse, LoginCredentials, AuthResponse, PasswordResetRequest, PasswordResetConfirm, QRResponse } from "../../interfaces/userInterfaces.js";
+import UserService from "./UserService.js";
 
 export class UserManagementService {
-    static async fetchAllUsers(): Promise<User[]> {
-        try {
-            const response = await fetch('/api/users/');
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
-            }
-            return await response.json() as User[];
-        } catch (error) {
-            console.error('Failed to fetch users:', error);
-            return [];
-        }
-    }
-
     static async registerUser(userData: User, avatarFile?: File): Promise<string> {
         console.log("Registering user with data:", userData);
         try {
@@ -297,20 +285,6 @@ export class UserManagementService {
         }
     }
 
-    static async getCurrentUser(): Promise<User | null> {
-        try {
-            const response = await fetch('/api/users/me');
-            if (response.status === 401) {
-                return null;
-            }
-
-            return await response.json() as User;
-        } catch (error) {
-            console.error('Failed to fetch current user:', error);
-            return null;
-        }
-    }
-
     static async logout(): Promise<void> {
         try {
             const response = await fetch('/api/users/logout', {
@@ -323,26 +297,6 @@ export class UserManagementService {
             window.location.href = '/';
         } catch (error) {
             console.error('Logout error:', error);
-            throw error;
-        }
-    }
-
-    static async deleteUser(userId: number): Promise<boolean> {
-        try {
-            const response = await fetch(`/api/users/${userId}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json() as ApiErrorResponse;
-                throw new Error(errorData.error || 'Failed to delete user');
-            }
-
-            Router.update();
-            return true;
-        }
-        catch (error) {
-            console.error('Failed to delete user:', error);
             throw error;
         }
     }
@@ -446,8 +400,10 @@ export class UserManagementService {
 
                 if (confirm('Are you sure you want to delete this user?')) {
                     try {
-                        await UserManagementService.deleteUser(parseInt(userId, 10));
-                    } catch (error) {
+                        await UserService.deleteUser(parseInt(userId, 10));
+                        Router.update();
+                    }
+                    catch (error) {
                         console.error('Failed to delete user:', error);
                         alert(error instanceof Error ? error.message : 'Failed to delete user');
                     }
@@ -1018,24 +974,6 @@ export class UserManagementService {
             this.twoFactorNumberActions();
             this.initializeGoogleScript();
         });
-    }
-
-    static async updateProfile(userId: string, payload: Record<string, any>): Promise<boolean> {
-        try {
-            const response = await fetch(`/api/users/${userId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            return response.ok;
-        }
-        catch (error) {
-            console.error('Error updating profile:', error);
-            throw error;
-        }
     }
 }
 

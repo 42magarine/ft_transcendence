@@ -82,7 +82,7 @@ fastify.register(fastifyCookie, {
     }
 });
 
-// Register API routes under /api/*
+// Register API routes
 fastify.register(userRoutes);
 fastify.register(gameRoutes);
 

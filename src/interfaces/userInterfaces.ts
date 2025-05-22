@@ -28,7 +28,7 @@ export interface UserList {
 }
 
 export interface ApiErrorResponse {
-    error?: string;
+    error: string;
 }
 
 export interface LoginCredentials {

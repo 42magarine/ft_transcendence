@@ -2,14 +2,7 @@ import { Route } from "./types.js";
 import AbstractView from "./AbstractView.js";
 import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';
-
-// Define a User interface for type safety
-interface User {
-    id: string;
-    username: string;
-    role: string; // Using string type to allow any role value
-    // Add other user properties as needed
-}
+import UserService from '../frontend/services/UserService.js';
 
 export default class Router {
     private routes: Route[] = [];
@@ -21,8 +14,6 @@ export default class Router {
     constructor(routes: Route[]) {
         this.routes = routes;
         this.initEventListeners();
-
-
 
         if (!Router.instance) {
             Router.instance = this;
@@ -232,26 +223,9 @@ export default class Router {
         return hasAccess;
     }
 
-    /**
-     * Get current user from API
-     */
-    private static async getCurrentUser(): Promise<User | null> {
-        try {
-            const response = await fetch('/api/users/me');
-            if (response.status === 401) {
-                return null;
-            }
-
-            return await response.json() as User;
-        } catch (error) {
-            console.error('Failed to fetch current user:', error);
-            return null;
-        }
-    }
-
     public async render(): Promise<void> {
         // Get current user for role checking
-        const currentUser = await Router.getCurrentUser();
+        const currentUser = await UserService.getCurrentUser();
 
         // Map routes to potential matches with params
         const potentialMatches = this.routes.map(route => {
@@ -296,7 +270,8 @@ export default class Router {
                 const routeUserId = match.params.id;
                 if (!currentUser) {
                     return this.redirect('/login', { replace: true });
-                } else if (currentUser.role == "user" && routeUserId && String(currentUser.id) !== String(routeUserId)) {
+                }
+                else if (currentUser.role == "user" && routeUserId && String(currentUser.id) !== String(routeUserId)) {
                     return this.redirect('/', { replace: true });
                 }
             }
@@ -304,7 +279,7 @@ export default class Router {
             else if (!currentUser) {
                 return this.redirect('/login', { replace: true });
             }
-            else if (!this.hasRoleAccess(match.route.role, currentUser.role)) {
+            else if (currentUser.role && !this.hasRoleAccess(match.route.role, currentUser.role)) {
                 return this.redirect('/', { replace: true });
             }
         }

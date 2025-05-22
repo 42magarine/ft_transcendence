@@ -1,4 +1,4 @@
-import { UserManagementService } from '../services/UserManagementService.js';
+import UserService from '../services/UserService.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class Home extends AbstractView {
@@ -7,7 +7,7 @@ export default class Home extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        const currentUser = await UserManagementService.getCurrentUser();
+        const currentUser = await UserService.getCurrentUser();
         const welcome = currentUser ? "Hello " + currentUser.id + currentUser.displayname + ", this is Transcendence!" : "Welcome to Trancendence!";
         return this.render(`
 			<section>

@@ -15,5 +15,5 @@
 
 3. Refresh JWT hat noch keine geschrieben!?
 
-4. app.ts stürzt manchmal vor " await fastify.listen({ port: 3000, host: "0.0.0.0" });" ab!
+4. app.ts stürzt manchmal vor "await fastify.listen({ port: 3000, host: "0.0.0.0" });" ab!
     bei euch auch?

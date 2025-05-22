@@ -3,7 +3,7 @@ import Card from '../components/Card.js';
 import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
-import { UserManagementService } from '../services/UserManagementService.js';
+import UserService from '../services/UserService.js';
 
 export default class ProfileEdit extends AbstractView {
     private userId: string;
@@ -142,25 +142,30 @@ export default class ProfileEdit extends AbstractView {
                     // Include both in payload
                     payload.password = password;
                     payload.confirmPassword = confirmPassword;
-                } else {
+                }
+                else {
                     // Remove both if empty
                     delete payload.password;
                     delete payload.confirmPassword;
                 }
                 console.log(payload);
+
                 try {
-                    const success = await UserManagementService.updateProfile(this.userId, payload);
+                    const success = await UserService.updateUser(this.userId, payload);
                     if (success) {
                         alert('Profile updated successfully.');
-                    } else {
+                    }
+                    else {
                         alert('Failed to update profile.');
                     }
-                } catch (err) {
-                    console.error('Update failed:', err);
+                }
+                catch (error) {
+                    console.error('Update failed:', error);
                     alert('An error occurred while updating.');
                 }
             });
-        } else {
+        }
+        else {
             console.warn("Edit profile form not found");
         }
     }
