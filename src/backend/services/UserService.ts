@@ -6,7 +6,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { AppDataSource } from "../DataSource.js";
 import { UserModel } from "../models/MatchModel.js";
 import { JWTPayload, RegisterCredentials, UserCredentials, AuthTokens } from "../../interfaces/authInterfaces.js";
-import { generateJWT, hashPW, verifyPW } from "../middleware/security.js";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken, hashPW, verifyPW } from "../middleware/security.js";
 import { deleteAvatar } from "../services/FileService.js";
 import { EmailService } from "../services/EmailService.js";
 
@@ -181,10 +181,11 @@ export class UserService {
     }
 
     // find User by Id
-    async findId(id: number): Promise<UserModel> {
+    async findUserById(id: number): Promise<UserModel> {
         const user = await this.userRepo.findOneBy({ id })
-        if (user == null)
-            throw new Error("fuck you");
+        if (user == null) {
+            throw new Error('User not found');
+        }
         return user;
     }
 
@@ -224,9 +225,6 @@ export class UserService {
             (!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
             throw new Error('Unzureichende Berechtigungen, um Admin-Berechtigungen zu vergeben');
         }
-        console.log("UserService.ts - before DB call");
-        console.log(currentUser);
-        console.log(user);
 
         return await this.userRepo.update(currentUser.id, user);
     }
@@ -267,7 +265,6 @@ export class UserService {
         }
     }
 
-    // create a primary jwt token to hand back to user for authentications
     private generateTokens(user: UserModel): AuthTokens {
         const payload: JWTPayload = {
             userID: user.id.toString(),
@@ -275,25 +272,30 @@ export class UserService {
             role: user.role
         };
 
-        const accessToken = generateJWT(payload);
+        const accessToken = generateAccessToken(payload);
+        const refreshToken = generateRefreshToken(user.id.toString());
 
-        return {
-            accessToken,
-        };
+        return { accessToken, refreshToken };
     }
 
-    // refresh token generator for later
-    private generateRefreshToken(userId: number): string {
-        const secret = process.env.REFRESH_TOKEN_SECRET;
+    public async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+        try {
+            const { userId } = verifyRefreshToken(refreshToken);
+            const user = await this.findUserById(parseInt(userId));
+            if (!user) {
+                throw new Error('User not found');
+            }
 
-        if (!secret) {
-            throw new Error("REFRESH_TOKEN_SECRET not set");
+            const payload: JWTPayload = {
+                userID: user.id.toString(),
+                email: user.email,
+                role: user.role
+            };
+            return { accessToken: generateAccessToken(payload) };
         }
-        return jwt.sign(
-            { userId },
-            secret,
-            { expiresIn: '7d' }
-        );
+        catch (error) {
+            throw new Error('Invalid refresh token');
+        }
     }
 
     // for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
@@ -333,22 +335,14 @@ export class UserService {
 
     async login(credentials: UserCredentials) {
         const user = await this.findUnameAcc(credentials.username);
-        if (!user) {
-            console.log("user: null ")
-        }
-        else {
-            console.log("user: login " + user.username)
-            console.log("user: login " + user.email)
-        }
-
         if (!user || !await verifyPW(credentials.password, user.password)) {
             throw new Error('Invalid login data');
         }
 
         // Check if email is verified
-        if (!user.emailVerified) {
-            throw new Error('Email not verified. Please check your email for verification link.');
-        }
+        // if (!user.emailVerified) {
+        //     throw new Error('Email not verified. Please check your email for verification link.');
+        // }
 
         // Check if 2FA is enabled for this user
         if (user.twoFAEnabled && user.twoFASecret) {
@@ -402,14 +396,13 @@ export class UserService {
             });
         }
 
-        // Generate and return JWT tokens
+        // Generate and return JWTs
         return this.generateTokens(user);
     }
 
     // Add new method to verify 2FA code
     async verifyTwoFactorCode(userId: number, code: string): Promise<AuthTokens> {
-        const user = await this.userRepo.findOneBy({ id: userId });
-
+        const user = await this.findUserById(userId);
         if (!user) {
             throw new Error('User not found');
         }
@@ -445,7 +438,6 @@ export class UserService {
                 return { qr: otpauthUrlData, secret: otpauthUrlBase };
             }
         }
-
         return null;
     }
 }

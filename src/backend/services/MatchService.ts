@@ -28,7 +28,7 @@ export class MatchService {
         match.player2Score = player2Score;
 
         if (winnerId) {
-            const winner = await this.userService.findId(winnerId)
+            const winner = await this.userService.findUserById(winnerId)
             if (!winner) {
                 throw new Error("Couldn't find winner in users");
             }
@@ -70,7 +70,7 @@ export class MatchService {
             throw new Error("Did not know this match blabla adwdoajwdioajwdo");
         }
 
-        const winner = await this.userService.findId(winnerId);
+        const winner = await this.userService.findUserById(winnerId);
         if (!winner) {
             throw new Error("couldnt find winner");
         }
@@ -82,7 +82,7 @@ export class MatchService {
     }
 
     protected async getUsernameById(userId: number) {
-        const user = await this.userService.findId(userId);
+        const user = await this.userService.findUserById(userId);
         return user?.username;
     }
 
@@ -94,8 +94,8 @@ export class MatchService {
     }
 
     async createMatch(player1Id: number, player2Id: number) {
-        const player1 = await this.userService.findId(player1Id);
-        const player2 = await this.userService.findId(player2Id);
+        const player1 = await this.userService.findUserById(player1Id);
+        const player2 = await this.userService.findUserById(player2Id);
 
         const match = new MatchModel();
         match.player1 = player1!;
@@ -117,7 +117,7 @@ export class MatchService {
     async addLobbyParticipant(gameId: number, userId: number) {
         try {
             const game = await this.getMatchById(gameId);
-            const user = await this.userService.findId(userId);
+            const user = await this.userService.findUserById(userId);
 
             if (!game || !user) {
                 throw new Error("Couldn't find correct game/user");

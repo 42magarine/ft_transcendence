@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { UserService } from "../services/UserService.js";
-import { RegisterCredentials, UserCredentials, GoogleLoginBody } from "../../interfaces/authInterfaces.js";
-import { verifyJWT } from "../middleware/security.js";
+import { RegisterCredentials, UserCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/authInterfaces.js";
 import { UserModel } from "../models/MatchModel.js";
 import { saveAvatar, deleteAvatar } from "../services/FileService.js";
 
@@ -27,22 +26,34 @@ export class UserController {
                 });
             }
 
-            // Use type assertion to tell TypeScript that at this point, result is AuthTokens
-            const authTokens = result as { accessToken: string };
-
             // Normal login flow (no 2FA)
+            const authTokens = result as AuthTokens;
+
+            reply.setCookie('refreshToken', authTokens.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 Tage
+            });
+
+            // Access Token ebenfalls als Cookie (optional) ODER im Response Body
             reply.setCookie('accessToken', authTokens.accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 path: '/',
-                maxAge: 15 * 60 * 1000
+                maxAge: 60 * 60 * 1000 // 1 Stunde
             });
-            return reply.code(200).send({ message: 'Login successful' });
+
+            return reply.code(200).send({
+                message: 'Login successful',
+                accessToken: authTokens.accessToken
+            });
         }
         catch (error) {
             const message = error instanceof Error ? error.message : 'Invalid login credentials';
-            reply.code(400).send({ error: message });
+            return reply.code(400).send({ error: message });
         }
     }
 
@@ -78,9 +89,6 @@ export class UserController {
             if (!userId || !code) {
                 return reply.code(400).send({ error: 'User ID and verification code are required' });
             }
-
-            // Use code directly since we know it's a string due to request type definition
-            // No need for the toString() conversion that was causing errors
 
             // Verify the 2FA code
             const result = await this.userService.verifyTwoFactorCode(userId, code);
@@ -239,8 +247,6 @@ export class UserController {
 
     async register(request: FastifyRequest, reply: FastifyReply) {
         try {
-            console.log("Register endpoint called");
-
             // Handle multipart form data
             if (request.isMultipart()) {
                 console.log("Processing multipart request");
@@ -297,19 +303,6 @@ export class UserController {
                 }
 
                 let requestingUserRole: string | undefined;
-                const token = request.cookies.accessToken;
-
-                if (token) {
-                    try {
-                        const payload = await verifyJWT(token);
-                        if (payload && payload.role) {
-                            requestingUserRole = payload.role;
-                        }
-                    }
-                    catch (error) {
-                        // Continue without permissions
-                    }
-                }
 
                 if (userData.role === 'master') {
                     return reply.code(403).send({ error: 'Master user can only be created through environment variables' });
@@ -338,19 +331,6 @@ export class UserController {
                 };
 
                 let requestingUserRole: string | undefined;
-                const token = request.cookies.accessToken;
-
-                if (token) {
-                    try {
-                        const payload = await verifyJWT(token);
-                        if (payload && payload.role) {
-                            requestingUserRole = payload.role;
-                        }
-                    }
-                    catch (error) {
-                        // Continue without permissions
-                    }
-                }
 
                 if (userData && userData.role === 'master') {
                     return reply.code(403).send({ error: 'Master user can only be created through environment variables' });
@@ -367,7 +347,6 @@ export class UserController {
             }
         }
         catch (error) {
-            console.error('Registration error:', error);
             const message = error instanceof Error ? error.message : 'Registration failed';
 
             if (message.includes('exists')) {
@@ -398,21 +377,8 @@ export class UserController {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
 
-            // Check user permissions
-            const token = request.cookies.accessToken;
-
-            if (!token) {
-                return reply.code(401).send({ error: 'Authentication required' });
-            }
-
-            const payload = await verifyJWT(token);
-
-            if (!payload) {
-                return reply.code(401).send({ error: 'Invalid authentication token' });
-            }
-
             // Get current user
-            const currentUser = await this.userService.findId(userId);
+            const currentUser = await this.userService.findUserById(userId);
 
             if (!currentUser) {
                 return reply.code(404).send({ error: 'User not found' });
@@ -447,7 +413,7 @@ export class UserController {
 
                             // Role changes require admin/master permissions
                             if (part.value && part.value !== currentUser.role) {
-                                if (payload.role !== 'admin' && payload.role !== 'master') {
+                                if (currentUser.role !== 'admin' && currentUser.role !== 'master') {
                                     return reply.code(403).send({ error: 'Insufficient permissions to change user role' });
                                 }
                             }
@@ -481,15 +447,15 @@ export class UserController {
             // Check permissions for updates
             // Users can update their own non-role fields
             // Role changes require admin or master permissions
-            if (parseInt(payload.userID, 10) !== userId &&
-                payload.role !== 'admin' &&
-                payload.role !== 'master') {
+            if (currentUser.id !== userId &&
+                currentUser.role !== 'admin' &&
+                currentUser.role !== 'master') {
                 return reply.code(403).send({ error: 'Insufficient permissions to update this user' });
             }
 
             // If trying to change role, check permissions
             if (updates.role && updates.role !== currentUser.role) {
-                if (payload.role !== 'admin' && payload.role !== 'master') {
+                if (currentUser.role !== 'admin' && currentUser.role !== 'master') {
                     return reply.code(403).send({ error: 'Insufficient permissions to change user role' });
                 }
             }
@@ -500,7 +466,7 @@ export class UserController {
 
             // Update user with role verification
             console.log("UserController.ts - before DB call")
-            const result = await this.userService.updateUser(updatedUser, payload.role);
+            const result = await this.userService.updateUser(updatedUser, currentUser.role);
             console.log("UserController.ts - after DB call")
 
             reply.code(200).send({ message: 'User updated successfully', user: result });
@@ -526,31 +492,24 @@ export class UserController {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
 
-            const token = request.cookies.accessToken;
-            if (!token) {
-                return reply.code(401).send({ error: 'Authentication required' });
-            }
-
-            const payload = await verifyJWT(token);
-            if (!payload) {
-                return reply.code(401).send({ error: 'Invalid authentication token' });
-            }
+            // Get current user
+            const currentUser = await this.userService.findUserById(userId);
 
             // Check if attempting to delete a master user
-            const targetUser = await this.userService.findId(userId);
+            const targetUser = await this.userService.findUserById(userId);
             if (targetUser?.role === 'master') {
                 return reply.code(403).send({ error: 'Master user cannot be deleted' });
             }
 
             // Users can delete their own account, or admins/masters can delete other accounts
             // based on role hierarchy
-            if (parseInt(payload.userID, 10) !== userId &&
-                payload.role !== 'admin' &&
-                payload.role !== 'master') {
+            if (currentUser.id !== userId &&
+                currentUser.role !== 'admin' &&
+                currentUser.role !== 'master') {
                 return reply.code(403).send({ error: 'Insufficient permissions to delete this user' });
             }
 
-            const deleted = await this.userService.deleteById(userId, payload.role);
+            const deleted = await this.userService.deleteById(userId, currentUser.role);
 
             if (!deleted) {
                 return reply.code(404).send({ error: 'User not found or cannot be deleted' });
@@ -567,15 +526,6 @@ export class UserController {
     // Other methods remain unchanged...
     async getAll(request: FastifyRequest, reply: FastifyReply) {
         try {
-            // Check user permissions
-            const token = request.cookies.accessToken;
-
-            if (!token) {
-                return reply.code(401).send({ error: 'Authentication required' });
-            }
-
-            //const payload = await verifyJWT(token);
-
             // Only admin or master users can view all users
             // if (!payload || (payload.role !== 'admin' && payload.role !== 'master')) {
             //     return reply.code(403).send({ error: 'Insufficient permissions to view all users' });
@@ -605,19 +555,18 @@ export class UserController {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
 
-            // Check user permissions
-            const token = request.cookies.accessToken;
-            const payload = token ? await verifyJWT(token) : null;
+            // Get current user
+            const currentUser = await this.userService.findUserById(userId);
 
             // Users can view their own profile or admins/masters can view any profile
-            if (!payload ||
-                (parseInt(payload.userID, 10) !== userId &&
-                    payload.role !== 'admin' &&
-                    payload.role !== 'master')) {
+            if (!currentUser ||
+                (currentUser.id !== userId &&
+                    currentUser.role !== 'admin' &&
+                    currentUser.role !== 'master')) {
                 return reply.code(403).send({ error: 'Insufficient permissions' });
             }
 
-            const user = await this.userService.findId(userId);
+            const user = await this.userService.findUserById(userId);
 
             if (!user) {
                 return reply.code(404).send({ error: 'User not found' });
@@ -628,49 +577,68 @@ export class UserController {
         catch (error) {
             console.error('Error fetching user by ID:', error);
             const message = error instanceof Error ? error.message : 'Could not fetch user';
-            reply.code(500).send({
-                error: message
-            });
+            reply.code(500).send({ error: message });
         }
     }
 
     async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
         try {
-            // Get the token from cookies
-            const token = request.cookies.accessToken;
-
-            if (!token) {
-                return reply.code(200).send(null);
-            }
-
-            // Verify the token
-            const payload = await verifyJWT(token);
-
-            if (!payload || !payload.userID) {
-                return reply.code(401).send({ error: 'Invalid token' });
+            const userId = request.user?.id;
+            if (!userId) {
+                return reply.code(401).send({ error: 'User not authenticated' });
             }
 
             // Get the user from the database
-            const user = await this.userService.findId(parseInt(payload.userID, 10));
-
+            const user = await this.userService.findUserById(userId);
             if (!user) {
                 return reply.code(404).send({ error: 'User not found' });
             }
 
             // Return user data without sensitive information
             const { password, resetPasswordToken, resetPasswordExpires, verificationToken, ...userData } = user;
+
             return reply.code(200).send(userData);
         }
         catch (error) {
             console.error('Error getting current user:', error);
-            const message = error instanceof Error ? error.message : 'Authentication failed';
-            return reply.code(401).send({ error: message });
+            return reply.code(500).send({ error: 'Internal server error' });
+        }
+    }
+
+    async refreshToken(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const refreshToken = request.cookies.refreshToken;
+            if (!refreshToken) {
+                return reply.code(401).send({ error: 'Refresh token required' });
+            }
+
+            const result = await this.userService.refreshToken(refreshToken);
+
+            reply.setCookie('accessToken', result.accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/',
+                maxAge: 60 * 60 * 1000  // 1h
+            });
+
+            return reply.code(200).send(result);
+        }
+        catch (error) {
+            const message = error instanceof Error ? error.message : 'Refreshing Token failed';
+            return reply.code(403).send({ error: message });
         }
     }
 
     async logout(request: FastifyRequest, reply: FastifyReply) {
-        // Clear the access token cookie
         reply.clearCookie('accessToken', {
+            path: '/',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
+        reply.clearCookie('refreshToken', {
             path: '/',
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',

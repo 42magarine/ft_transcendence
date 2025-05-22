@@ -4,7 +4,6 @@ import { Player } from "../gamelogic/components/Player.js";
 import { MessageHandlers } from "../services/MessageHandlers.js";
 import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
-import { FastifyReply, FastifyRequest } from "fastify";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
 
@@ -49,8 +48,6 @@ export class MatchController {
         this._clients.set(connection, null);
 
         connection.on("message", (message: string | Buffer): void => {
-            // console.log(connection);
-            // console.log(message);
             this.handleMessage(message, connection);
         });
 
@@ -159,7 +156,7 @@ export class MatchController {
     private async NotifyUserOfInvite(toUserId: number, fromUserId: number, inviteId: string) {
         for (const [conn, player] of this._clients.entries()) {
             if (player?.userId === toUserId) {
-                const fromUser = await this._userService.findId(fromUserId);
+                const fromUser = await this._userService.findUserById(fromUserId);
                 this.sendMessage(conn, {
                     type: "inviteReceived",
                     inviteId,
@@ -238,7 +235,7 @@ export class MatchController {
     private async NotifyUserOfDeclinedInvite(userId: number, declinedBy: number) {
         for (const [conn, player] of this._clients.entries()) {
             if (player?.userId === userId) {
-                const decliningUser = await this._userService.findId(declinedBy);
+                const decliningUser = await this._userService.findUserById(declinedBy);
                 this.sendMessage(conn, {
                     type: "inviteDeclined",
                     byUserId: declinedBy,
@@ -319,7 +316,6 @@ export class MatchController {
         }
 
         const player = lobby.addPlayer(connection, userId)
-
         if (player) {
             this._clients.set(connection, player)
         }
@@ -358,7 +354,7 @@ export class MatchController {
                 type: "error",
                 message: "not in a lobby"
             })
-            return
+            return;
         }
 
         const lobby = this._lobbies.get(player.lobbyId) as MatchLobby
@@ -413,7 +409,6 @@ export class MatchController {
             })
             return;
         }
-
         lobby.startGame();
     }
 
@@ -432,12 +427,15 @@ export class MatchController {
     }
 
     private handleResumeGame(connection: WebSocket, player: Player) {
-        if (!player || !player.lobbyId) { return; }
+        if (!player || !player.lobbyId) {
+            return;
+        }
 
         const lobby = this._lobbies.get(player.lobbyId) as MatchLobby
         if (lobby && lobby.getCreatorId() === player.userId) {
             lobby.resumeGame();
-        } else {
+        }
+        else {
             this.sendMessage(connection, {
                 type: "error",
                 message: "Only lobby creator can resume game"

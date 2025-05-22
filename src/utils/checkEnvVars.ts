@@ -1,5 +1,5 @@
 export default function checkEnvVars() {
-    const requiredVars: string[] = ['JWT_SECRET', 'COOKIE_SECRET', 'REFRESH_TOKEN_SECRET'];
+    const requiredVars: string[] = ['ACCESS_TOKEN_SECRET', 'COOKIE_SECRET', 'REFRESH_TOKEN_SECRET'];
     const missingVars: string[] = requiredVars.filter(varName => {
         !process.env[varName];
     });

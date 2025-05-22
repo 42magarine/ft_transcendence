@@ -23,13 +23,11 @@ export interface JWTPayload {
     userID: string;
     email: string;
     role: string;
-    iat?: number;
-    exp?: number;
 }
 
 export interface AuthTokens {
     accessToken: string;
-    refreshToken?: string; // Optional for now
+    refreshToken: string;
     requireTwoFactor?: boolean;
     userId?: number;
     username?: string;
