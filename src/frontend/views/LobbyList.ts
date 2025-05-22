@@ -175,28 +175,3 @@ export default class Lobby extends AbstractView {
 		`;
 	}
 }
-
-// ✅ TODO: Server-side endpoint used for lobby details
-// // GET /api/lobbies/:id
-// app.get('/api/lobbies/:id', async (req, res) => {
-// 	const lobby = await LobbyModel.findOne({ where: { id: req.params.id }, relations: ['participants'] });
-// 	if (!lobby) return res.status(404).send('Lobby not found');
-// 	return res.json({
-// 		id: lobby.id,
-// 		name: lobby.name,
-// 		creatorId: lobby.creatorId,
-// 		currentPlayers: lobby.participants.length,
-// 		maxPlayers: lobby.maxPlayers,
-// 		isStarted: lobby.isStarted,
-// 		isPublic: lobby.isPublic,
-// 		hasPassword: lobby.hasPassword,
-// 		createdAt: lobby.createdAt,
-// 		lobbyType: lobby.lobbyType
-// 	});
-// });
-
-// ✅ TODOs Summary:
-// - [ ] Backend: ensure /api/lobbies/:id returns participant usernames too
-// - [ ] Backend: emit `LobbyPlayerJoined` event on successful invite accept
-// - [ ] Frontend: rebind `.accept-invite-btn` after DOM updates (or switch to delegated handler)
-// - [ ] Remove test invite block for production or guard it by environment flag

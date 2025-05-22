@@ -1029,7 +1029,6 @@ export class UserManagementService {
             throw error;
         }
     }
-    
 }
 
 // Call the initialize method to setup all the listeners
