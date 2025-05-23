@@ -39,18 +39,35 @@ export default class Lobby extends AbstractView
 		this.lobbyId = params.get('id') || '';
 	}
 
+	private updateSimNotice(): void {
+		const simNoticeDiv = document.querySelector('.sim-notice') as HTMLDivElement;
+		if (simNoticeDiv) {
+			simNoticeDiv.textContent = `Simulating: ${this.currentPlayer.isCreator ? 'Created Lobby' : 'Joined Lobby'}`;
+		}
+	}
+
 	private updateDebugCard(): void
 	{
 		const debugDiv = document.getElementById('debug-info');
-		if (!debugDiv)
-				return;
+		if (!debugDiv) return;
+
+		// Determine the labels based on isCreator flags
+		const player1Label = this.currentPlayer.isCreator ? 'Creator' : 'Joiner';
+		const player2Label = this.opponentPlayer.isCreator ? 'Creator' : 'Joiner';
 
 		debugDiv.innerHTML = `
-			<div class="w-1/2"><h3>Player 1</h3><pre>${JSON.stringify(this.currentPlayer, null, 2)}</pre></div>
-			<div class="w-1/2"><h3>Player 2</h3><pre>${JSON.stringify(this.opponentPlayer, null, 2)}</pre></div>
+			<div class="w-1/2">
+				<h3>Player 1 (${player1Label})</h3>
+				<pre>${JSON.stringify(this.currentPlayer, null, 2)}</pre>
+			</div>
+			<div class="w-1/2">
+				<h3>Player 2 (${player2Label})</h3>
+				<pre>${JSON.stringify(this.opponentPlayer, null, 2)}</pre>
+			</div>
 		`;
 		console.log('[UI] Debug card updated');
 	}
+
 
 	async getHtml(): Promise<string> {
 		// BACKEND: must provide current user (id, username, email, etc.)
@@ -203,13 +220,20 @@ export default class Lobby extends AbstractView
 		const debugCard = await new Card().renderCard({
 			title: 'Debug Info',
 			extra: `<div id="debug-info" class="flex gap-4">
-				<div class="w-1/2"><h3>Player 1</h3><pre>${JSON.stringify(this.currentPlayer, null, 2)}</pre></div>
-				<div class="w-1/2"><h3>Player 2</h3><pre>${JSON.stringify(this.opponentPlayer, null, 2)}</pre></div>
+				<div class="w-1/2">
+					<h3>Player 1 (${this.currentPlayer.isCreator ? 'Creator' : 'Joiner'})</h3>
+					<pre>${JSON.stringify(this.currentPlayer, null, 2)}</pre>
+				</div>
+				<div class="w-1/2">
+					<h3>Player 2 (${this.opponentPlayer.isCreator ? 'Creator' : 'Joiner'})</h3>
+					<pre>${JSON.stringify(this.opponentPlayer, null, 2)}</pre>
+				</div>
 			</div>`
 		});
 
+
 		// debug to show, if we are in creator or joiner view
-		const simNotice = `<div class="text-sm text-yellow-500 font-mono mb-2">
+		const simNotice = `<div class="sim-notice text-sm text-yellow-500 font-mono mb-2">
 			Simulating: ${this.currentPlayer.isCreator ? 'Created Lobby' : 'Joined Lobby'}
 		</div>`;
 
@@ -249,7 +273,8 @@ export default class Lobby extends AbstractView
 				this.opponentPlayer = {
 					...e.detail,
 					hasClickedStart: false,
-					isJoined: true
+					isJoined: true,
+					isCreator: false,
 				};
 				console.log('[State] Opponent joined:', this.opponentPlayer);
 				this.updateDebugCard();
@@ -371,6 +396,7 @@ export default class Lobby extends AbstractView
 			{
 				button.addEventListener('click', (e) =>
 				{
+					this.currentPlayer.isCreator = true;
 					const btn = e.currentTarget as HTMLButtonElement;
 					const userId = btn.getAttribute('data-user');
 					const username = btn.closest('tr')?.querySelector('td')?.textContent?.trim() || 'Guest';
@@ -389,6 +415,7 @@ export default class Lobby extends AbstractView
 						...matchedUser,
 						hasClickedStart: false,
 						isJoined: false,
+						isCreator: false
 					};
 
 					console.log('[State] lastInvitedUser set to:', this.lastInvitedUser);
@@ -461,40 +488,51 @@ export default class Lobby extends AbstractView
 			});
 
 			//  Switch between simulated creator and simulated joiner
-			document.getElementById('ToggleSim')?.addEventListener('click', async () =>
+			// 🔁 Switch between simulated creator and simulated joiner
+			document.getElementById('ToggleSim')?.addEventListener('click', () =>
 			{
 				console.log('[Click] Toggle Simulation Mode');
 
-				// Swap creator status
-				const wasCreator = this.currentPlayer.isCreator;
+				// Swap the entire currentPlayer and opponentPlayer objects
+				const temp = { ...this.currentPlayer };
+				this.currentPlayer = { ...this.opponentPlayer };
+				this.opponentPlayer = { ...temp };
 
-				// Reset player roles
-				if (wasCreator)
-				{
-					this.currentPlayer.hasClickedStart = false;
-					this.currentPlayer.isJoined = true;
-					this.currentPlayer.isCreator = true
+				// Invert creator flags
+				this.currentPlayer.isCreator = !this.currentPlayer.isCreator;
+				this.opponentPlayer.isCreator = !this.opponentPlayer.isCreator;
 
-					this.opponentPlayer.hasClickedStart = false;
-					this.opponentPlayer.isJoined = true;
-					this.opponentPlayer.isCreator = false;
-				}
-				else
-				{
-					this.currentPlayer.hasClickedStart = false;
-					this.currentPlayer.isJoined = true;
-					this.currentPlayer.isCreator = false;
+				// Reset ready and joined flags for clarity (optional, but recommended)
+				this.currentPlayer.hasClickedStart = false;
+				this.opponentPlayer.hasClickedStart = false;
+				this.currentPlayer.isJoined = true;
+				this.opponentPlayer.isJoined = true;
 
-						this.opponentPlayer.hasClickedStart = false;
-						this.opponentPlayer.isJoined = true;
-						this.opponentPlayer.isCreator = true;
-				}
+				this.updateSimNotice();
+				console.log('[ToggleSim] Swapped players and updated VS view');
 
-				console.log('[ToggleSim] Switched roles:', {
-					currentPlayer: this.currentPlayer,
-					opponentPlayer: this.opponentPlayer
-				});
+				console.log('→ Current Player:', this.currentPlayer);
+				console.log('→ Opponent Player:', this.opponentPlayer);
+
 				this.updateDebugCard();
+
+				// Update VS view buttons
+				const player1Btn = document.getElementById('player1') as HTMLButtonElement;
+				const player2Btn = document.getElementById('player2') as HTMLButtonElement;
+
+				if (player1Btn && player2Btn) {
+					// Update Player 1 button
+					player1Btn.textContent = this.currentPlayer.username;
+					player1Btn.className = this.currentPlayer.hasClickedStart
+						? 'btn btn-secondary'
+						: 'btn btn-warning';
+
+					// Update Player 2 button
+					player2Btn.textContent = this.opponentPlayer.username;
+					player2Btn.className = this.opponentPlayer.hasClickedStart
+						? 'btn btn-secondary'
+						: 'btn btn-warning';
+				}
 			});
 		}, 0);
 	}
