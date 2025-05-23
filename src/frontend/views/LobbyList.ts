@@ -1,14 +1,13 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Title from '../components/Title.js';
-import lobbyService from '../services/LobbyService.js';
+import gameService from '../services/GameService.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
 import Button from '../components/Button.js';
 import { randomInt } from 'crypto';
 
 export default class Lobby extends AbstractView {
     private lobbyData: LobbyInfo[] = [];
-    private invitedLobby: LobbyInfo | null = null;
 
     constructor(params: URLSearchParams) {
         super();
@@ -27,10 +26,9 @@ export default class Lobby extends AbstractView {
             className: 'btn btn-primary'
         });
 
-        let lobbies = await lobbyService.getLobbyList()
-        console.warn(lobbies)
+        let lobbies = await gameService.lobbyList.getLobbies()
         const card = new Card();
-        const lobbyCard = await card.renderCard({
+        const lobbyListCard = await card.renderCard({
             title: 'Lobby List',
             extra: `${createLobbyButton}
 					<table class="list" data-height="400px">
@@ -64,13 +62,13 @@ export default class Lobby extends AbstractView {
         });
 
         // Register callback to listen for lobby updates via WebSocket or polling
-        lobbyService.registerLobbyListListener(() => {
-            this.lobbyData = lobbyService.getLobbyList();
+        gameService.lobbyList.onUpdate(() => {
+            this.lobbyData = gameService.lobbyList.getLobbies();
         });
 
         return this.render(`
 			<div class="container">
-			${lobbyCard}
+			${lobbyListCard}
 			</div>`
         );
     }

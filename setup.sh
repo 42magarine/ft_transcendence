@@ -24,4 +24,5 @@ echo "[Setup] Your application is available at: https://$NGROK_URL"
 
 # Start the application in development mode
 echo "[Setup] Starting application with npm run dev..."
-exec npm run dev
+# exec npm run dev
+exec tail -f

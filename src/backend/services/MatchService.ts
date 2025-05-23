@@ -17,6 +17,14 @@ export class MatchService {
         })
     }
 
+    async getMatchLobbyById(lobbyId: string)
+    {
+        return await this.matchRepo.findOne({
+            where: {lobbyId},
+            relations: ['player1', 'player2', 'winner', 'lobbyParticipants']
+        })
+    }
+
     async updateScore(matchId: number, player1Score: number, player2Score: number, winnerId?: number) {
         const match = await this.getMatchById(matchId);
 

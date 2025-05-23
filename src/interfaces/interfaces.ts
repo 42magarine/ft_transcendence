@@ -27,7 +27,7 @@ export interface IGameState {
 export interface LobbyInfo {
     id: string;
     name: string;
-    creatorId: number
+    creatorId: number | undefined;
     maxPlayers: number;
     currentPlayers: number;
     isPublic: boolean;
@@ -117,4 +117,28 @@ export interface ServerMessage {
 export interface GameStateMessage extends ServerMessage {
     type: "gameState";
     gameState: IGameState;
+}
+
+export interface User
+{
+	id?: number;
+	username: string;
+	email: string;
+	displayname?: string;
+	role?: string;
+	hasClickedStart?: boolean;
+	isJoined?: boolean;
+	isCreator?: boolean;
+}
+
+
+export interface LobbyParticipant extends User {
+    isReady: boolean; // Essential for the UI
+    // isCreator can be derived by comparing id with lobbyData.creatorId
+}
+
+// This is what LobbyService should ideally provide for currentLobbyData
+// when Lobby.ts needs to render the view.
+export interface LobbyDataWithParticipants extends LobbyInfo { // LobbyInfo is your existing interface
+    participants: LobbyParticipant[]; // THE CRUCIAL ADDITION
 }

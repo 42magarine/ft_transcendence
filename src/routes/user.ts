@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { UserController } from "../backend/controllers/UserController.js";
 import { UserService } from "../backend/services/UserService.js";
-import { authenticateToken } from "../backend/middleware/security.js";
+import { authenticate } from "../backend/middleware/security.js";
 
 export default async function (fastify: FastifyInstance) {
     const userService = new UserService();
@@ -30,7 +30,7 @@ export default async function (fastify: FastifyInstance) {
     fastify.route({
         method: 'POST',
         url: '/api/users/logout',
-        preHandler: authenticateToken,
+        preHandler: authenticate,
         handler: userController.logout.bind(userController)
     });
 
@@ -38,35 +38,35 @@ export default async function (fastify: FastifyInstance) {
     fastify.route({
         method: 'GET',
         url: '/api/users/me',
-        preHandler: authenticateToken,
+        preHandler: authenticate,
         handler: userController.getCurrentUser.bind(userController)
     });
 
     fastify.route({
         method: 'GET',
         url: '/api/users/',
-        preHandler: authenticateToken,
+        preHandler: authenticate,
         handler: userController.getAllUser.bind(userController)
     });
 
     fastify.route<{ Params: { id: string } }>({
         method: 'GET',
         url: '/api/users/:id',
-        preHandler: authenticateToken,
+        preHandler: authenticate,
         handler: userController.getUserById.bind(userController)
     });
 
     fastify.route<{ Params: { id: string } }>({
         method: 'PUT',
         url: '/api/users/:id',
-        preHandler: authenticateToken,
+        preHandler: authenticate,
         handler: userController.updateUserById.bind(userController)
     });
 
     fastify.route<{ Params: { id: string } }>({
         method: 'DELETE',
         url: '/api/users/:id',
-        preHandler: authenticateToken,
+        preHandler: authenticate,
         handler: userController.deleteUserById.bind(userController)
     });
 }

@@ -41,21 +41,21 @@ export default class Header extends AbstractView {
                 buttons: buttonSet
             });
         }
-
-        const httpProtocol = window.location.protocol;
+        let baseUrl = window.location.protocol + "//" + window.location.host;
         let languageDropDown = `<div class="dropdown">
-            <div class="dropdown-head">
-                <img class="flag active" data-lang="en_EN" src="${httpProtocol}//${window.location.host}/dist/assets/flags/en_EN.svg" />
-            </div>
-            <div class="dropdown-body">
-                <div class="dropdown-item">
-                    <img class="flag passive" data-lang="de_DE" src="${httpProtocol}//${window.location.host}/dist/assets/flags/de_DE.svg" />
-                </div>
-                <div class="dropdown-item">
-                    <img class="flag passive" data-lang="it_IT" src="${httpProtocol}//${window.location.host}/dist/assets/flags/it_IT.svg" />
-                </div>
-            </div>
-        </div>`
+				<div class="dropdown-head">
+					<img class="flag active" data-lang="en_EN" src="${baseUrl}/dist/assets/flags/en_EN.svg" />
+				</div>
+				<div class="dropdown-body">
+					<div class="dropdown-item">
+						<img class="flag passive" data-lang="de_DE" src="${baseUrl}/dist/assets/flags/de_DE.svg" />
+					</div>
+					<div class="dropdown-item">
+						<img class="flag passive" data-lang="it_IT" src="${baseUrl}/dist/assets/flags/it_IT.svg" />
+					</div>
+				</div>
+			</div>
+			`
 
         let userDropDown = ""
         if (currentUser) {
@@ -83,6 +83,7 @@ export default class Header extends AbstractView {
 			`
         }
 
+        //{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-danger btn-sm' }
         return super.render(`
 			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">

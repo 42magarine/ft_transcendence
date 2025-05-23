@@ -12,6 +12,7 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 import Home from './views/Home.js';
 import Demo from './views/Demo.js';
 import Pong from './views/Pong.js';
+import PongLocal from './views/PongLocal.js';
 import Lobby from './views/Lobby.js';
 import Tournament from './views/Tournament.js';
 import Profile from './views/Profile.js';

@@ -44,8 +44,11 @@ export async function verifyPW(password: string, hash: string): Promise<boolean>
     return bcrypt.compare(password, hash);
 }
 
-export async function authenticateToken(request: FastifyRequest, reply: FastifyReply) {
-    console.log("hello authenticateToken");
+export async function verifyJWT(token: string): Promise<JWTPayload> {
+    return jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+}
+
+export const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const token = request.cookies.accessToken;
         if (!token) {
