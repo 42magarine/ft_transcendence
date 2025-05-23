@@ -62,7 +62,7 @@ export class MatchModel {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @Column()
+    @Column({ nullable: true })
     lobbyId!: string
 
     @ManyToOne(() => UserModel, (user) => user.matchAsPlayer1)

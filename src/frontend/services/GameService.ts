@@ -1,6 +1,7 @@
 import UserService from './UserService.js';
 import MessageHandlerService from './MessageHandlerService.js';
 import LobbyListService from './LobbyListService.js';
+import LobbyService from './LobbyService.js';
 import { ServerMessage } from '../../interfaces/interfaces.js';
 
 class GameService {
@@ -9,6 +10,7 @@ class GameService {
 	private userService: UserService;
 	private messageHandler!: MessageHandlerService;
 	private lobbyListService = new LobbyListService();
+	private lobbyService = new LobbyService();
 
 	constructor() {
 		this.userService = new UserService();
@@ -23,9 +25,12 @@ class GameService {
 				this.messageHandler = new MessageHandlerService(this.socket, this.socketReady, this.userService);
 
 				this.lobbyListService.init(this.socket, this.messageHandler);
+				// Pass userService to LobbyService's init method
+				this.lobbyService.init(this.socket, this.messageHandler, this.userService);
 			})
 			.catch((err) => {
 				console.error('WebSocket connection error:', err);
+				throw err;
 			});
 	}
 
@@ -35,8 +40,10 @@ class GameService {
 				resolve();
 			} else {
 				socket.addEventListener('open', () => resolve(), { once: true });
-				socket.addEventListener('error', () =>
-					reject(new Error('WebSocket connection failed')), { once: true });
+				socket.addEventListener('error', (event) => {
+                    console.error('WebSocket error event:', event);
+					reject(new Error('WebSocket connection failed'));
+                }, { once: true });
 			}
 		});
 	}
@@ -44,7 +51,13 @@ class GameService {
 	public initialize(): void {
 		document.addEventListener('RouterContentLoaded', () => {
 			this.initSocket();
-			this.lobbyListService.setupEventListeners();
+
+			this.socketReady.then(() => {
+				this.lobbyListService.setupEventListeners();
+				this.lobbyService.setupEventListeners();
+			}).catch(err => {
+				console.error("Failed to setup service event listeners due to WebSocket readiness issue:", err);
+			});
 		});
 	}
 
@@ -54,6 +67,14 @@ class GameService {
 
 	public get lobbyList() {
 		return this.lobbyListService;
+	}
+
+	public get lobby() {
+		return this.lobbyService;
+	}
+
+	public get user() {
+		return this.userService;
 	}
 }
 
