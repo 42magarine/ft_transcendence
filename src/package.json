@@ -4,21 +4,16 @@
     "main": "app.js",
     "type": "module",
     "scripts": {
-        "build": "npm run build:ts && npm run build:css && npm run copy:assets",
+        "create:dirs": "mkdir -p dist/frontend dist/assets/styles",
+        "build:css": "postcss ./styles/_index.css -o dist/assets/styles/main.css",
+        "copy:assets": "cp -Rf assets/* dist/assets/ && cp -Rf frontend/* dist/frontend/",
+
         "build:ts": "tsc",
-        "build:css": "mkdir -p ./dist/assets/styles && postcss ./styles/_index.css -o dist/assets/styles/main.css",
-        "copy:assets": "mkdir -p dist/assets && cp -R assets/* dist/assets/ && mkdir -p dist/frontend && cp -R frontend/* dist/frontend/",
-
         "watch:ts": "tsc --watch",
-        "watch:css": "set NODE_OPTIONS=--max-old-space-size=2048 && postcss ./styles/_index.css -o ./dist/assets/styles/main.css --watch",
-        "watch:assets": "nodemon --watch assets --watch frontend --ext html,css,js,png,jpg,svg,ico --exec \"npm run copy:assets\"",
+        "watch:server": "nodemon --watch dist --ext js ./dist/app.js",
 
-        "server": "node ./dist/app.js",
-        "dev:server": "nodemon --watch dist --ext js ./dist/app.js",
-        "dev": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:css\" \"npm run watch:assets\" \"npm run dev:server\"",
-        "mott": "npm run build:css && npm run copy:assets && concurrently \"npm run watch:ts\" \"npm run dev:server\"",
-
-        "refresh": "rm -rf uploads db.sqlite node_modules dist package-lock.json && npm install && npm run dev"
+        "build": "npm run create:dirs && npm run build:css && npm run copy:assets && npm run build:ts",
+        "dev": "npm run build && concurrently \"npm run watch:ts\" \"npm run watch:server\""
     },
     "dependencies": {
         "@fastify/cookie": "^11.0.2",

@@ -11,5 +11,6 @@ export default function checkEnvVars() {
     }
     else {
         console.log("All required environment variables are loaded.");
+        // console.log('Current ENV:', process.env);
     }
 }

@@ -38,7 +38,6 @@ export interface TwoFactorVerificationRequest {
     code: string;
 }
 
-// Define 2FA response
 export interface TwoFactorResponse {
     qr: string;
     secret: string;

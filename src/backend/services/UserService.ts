@@ -229,9 +229,10 @@ export class UserService {
         return await this.userRepo.update(currentUser.id, user);
     }
 
-    async deleteById(userId: number, requestingUserRole?: string, isOwnAccount = false): Promise<boolean> {
+    async deleteById(userId: number, requestingUserRole: string, isOwnAccount: boolean): Promise<boolean> {
         try {
             const user = await this.userRepo.findOne({ where: { id: userId } });
+
             if (!user) {
                 return false;
             }
@@ -240,11 +241,7 @@ export class UserService {
                 return false;
             }
 
-            if (user.role === 'admin' && requestingUserRole !== 'admin' && requestingUserRole !== 'master') {
-                return false;
-            }
-
-            if (!isOwnAccount && requestingUserRole !== 'admin' && requestingUserRole !== 'master') {
+            if (!isOwnAccount && requestingUserRole !== 'master') {
                 return false;
             }
 
@@ -256,12 +253,12 @@ export class UserService {
                     console.error(`Error deleting avatar for user ${userId}:`, error);
                 }
             }
+
             const result = await this.userRepo.delete(userId);
             return result.affected ? result.affected > 0 : false;
         }
         catch (error) {
-            console.error('Error deleting user:', error);
-            throw new Error(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error('Failed to delete user');
         }
     }
 

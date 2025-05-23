@@ -1,4 +1,4 @@
-1. frontend/service/ UserManagementService.ts + UserService
+1. frontend/service/ UserManagementService.ts + UserService -> hab ich aufgeräumt
     - wo ist der Unterschied?
     - Funktionen sind dopplt (get one / get all)
 
@@ -13,7 +13,10 @@
     - alerts entfernen
     - nach klick auf Updaten Profile sollte man wieder auf seine profile page weitergeleitet werden, bzw. MASTER auf user-management
 
-3. Refresh JWT hat noch keine geschrieben!?
+3. Refresh JWT hat noch keine geschrieben!? -> hab ich angefangen
 
-4. app.ts stürzt manchmal vor "await fastify.listen({ port: 3000, host: "0.0.0.0" });" ab!
-    bei euch auch?
+5. Es gibt noch keinen Button mit dem der User seinen Account löschen kann.
+
+7. Token refresh request automatisch aus dem frontend? route: api/users/refresh
+
+8. Alles alert entfernen und durch sichtbare Meldungen ersetzen.

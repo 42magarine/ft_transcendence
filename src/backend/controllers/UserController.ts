@@ -482,34 +482,23 @@ export class UserController {
 
     async deleteById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
-            const { id } = request.params;
-            if (!id) {
-                return reply.code(400).send({ error: 'User ID is required' });
-            }
+            const deleteUserId = parseInt(request.params.id, 10);
 
-            const userId = parseInt(id, 10);
-            if (isNaN(userId)) {
+            if (isNaN(deleteUserId)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
 
-            // Get current user
-            const currentUser = await this.userService.findUserById(userId);
+            const currentUserId = request.user!.id;
+            const currentUserRole = request.user!.role;
 
-            // Check if attempting to delete a master user
-            const targetUser = await this.userService.findUserById(userId);
-            if (targetUser?.role === 'master') {
-                return reply.code(403).send({ error: 'Master user cannot be deleted' });
-            }
+            const isOwnAccount = currentUserId === deleteUserId;
+            const canDelete = isOwnAccount || currentUserRole === 'master';
 
-            // Users can delete their own account, or admins/masters can delete other accounts
-            // based on role hierarchy
-            if (currentUser.id !== userId &&
-                currentUser.role !== 'admin' &&
-                currentUser.role !== 'master') {
+            if (!canDelete) {
                 return reply.code(403).send({ error: 'Insufficient permissions to delete this user' });
             }
 
-            const deleted = await this.userService.deleteById(userId, currentUser.role);
+            const deleted = await this.userService.deleteById(deleteUserId, currentUserRole, isOwnAccount);
 
             if (!deleted) {
                 return reply.code(404).send({ error: 'User not found or cannot be deleted' });
@@ -518,8 +507,7 @@ export class UserController {
             reply.code(200).send({ message: 'User deleted successfully' });
         }
         catch (error) {
-            const message = error instanceof Error ? error.message : 'Could not delete user';
-            return reply.code(500).send({ error: message });
+            return reply.code(500).send({ error: 'Could not delete user' });
         }
     }
 
