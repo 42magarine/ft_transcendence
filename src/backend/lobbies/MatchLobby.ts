@@ -130,7 +130,10 @@ export class MatchLobby {
                     this._dbGame = game;
                 }
                 else if (this._dbGame) {
-                    this._dbGame.player2 = await this._matchService.userService.findUserById(player2.userId)
+                    const player2User = await this._matchService.userService.findUserById(player2.userId);
+                    if (player2User) {
+                        this._dbGame.player2 = player2User;
+                    }
                     this._dbGame.status = 'ongoing'
                     this._dbGame.startedAt = new Date()
                     await this._matchService.saveMatch(this._dbGame)
