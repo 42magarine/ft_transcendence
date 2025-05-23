@@ -46,27 +46,27 @@ export default async function (fastify: FastifyInstance) {
         method: 'GET',
         url: '/api/users/',
         preHandler: authenticateToken,
-        handler: userController.getAll.bind(userController)
+        handler: userController.getAllUser.bind(userController)
     });
 
     fastify.route<{ Params: { id: string } }>({
         method: 'GET',
         url: '/api/users/:id',
         preHandler: authenticateToken,
-        handler: userController.getById.bind(userController)
+        handler: userController.getUserById.bind(userController)
     });
 
     fastify.route<{ Params: { id: string } }>({
         method: 'PUT',
         url: '/api/users/:id',
         preHandler: authenticateToken,
-        handler: userController.updateUser.bind(userController)
+        handler: userController.updateUserById.bind(userController)
     });
 
     fastify.route<{ Params: { id: string } }>({
         method: 'DELETE',
         url: '/api/users/:id',
         preHandler: authenticateToken,
-        handler: userController.deleteById.bind(userController)
+        handler: userController.deleteUserById.bind(userController)
     });
 }

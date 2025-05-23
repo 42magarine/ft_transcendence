@@ -45,6 +45,7 @@ export async function verifyPW(password: string, hash: string): Promise<boolean>
 }
 
 export async function authenticateToken(request: FastifyRequest, reply: FastifyReply) {
+    console.log("hello authenticateToken");
     try {
         const token = request.cookies.accessToken;
         if (!token) {

@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import QRCode from 'qrcode';
 import speakeasy from 'speakeasy';
 import { OAuth2Client } from 'google-auth-library';
@@ -14,6 +13,26 @@ export class UserService {
     private userRepo = AppDataSource.getRepository(UserModel);
     private emailService = new EmailService();
     private googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+    async findAllUsers(): Promise<UserModel[]> {
+        const users = await this.userRepo.find();
+        return users;
+    }
+
+    async findUserByUsername(username: string): Promise<UserModel | null> {
+        const user = await this.userRepo.findOneBy({ username });
+        return user;
+    }
+
+    async findUserByEmail(email: string): Promise<UserModel | null> {
+        const user = await this.userRepo.findOneBy({ email });
+        return user;
+    }
+
+    async findUserById(id: number): Promise<UserModel | null> {
+        const user = await this.userRepo.findOneBy({ id });
+        return user;
+    }
 
     // Checks if user exists, throw error if yes, otherwise create user in db
     async createUser(userData: RegisterCredentials & { password: string, avatar?: string }, requestingUserRole?: string) {
@@ -160,35 +179,6 @@ export class UserService {
         return true;
     }
 
-    // find User by email (maybe when trying to reset password to send confirmation mail of reset link or smthin)
-    async findUnameAcc(username: string) {
-        return await this.userRepo.findOne({
-            where: { username },
-            select: ['id', 'username', 'email', 'password', 'role', 'avatar', 'emailVerified', 'twoFAEnabled', 'twoFASecret']
-        });
-    }
-
-    // Find user by email
-    async findByEmail(email: string) {
-        return await this.userRepo.findOne({
-            where: { email }
-        });
-    }
-
-    // find all Users
-    async findAll() {
-        return await this.userRepo.find();
-    }
-
-    // find User by Id
-    async findUserById(id: number): Promise<UserModel> {
-        const user = await this.userRepo.findOneBy({ id })
-        if (user == null) {
-            throw new Error('User not found');
-        }
-        return user;
-    }
-
     // updates User with new Info
     async updateUser(user: UserModel, requestingUserRole?: string) {
         // Get the current user data to check if we're trying to modify a master
@@ -331,7 +321,7 @@ export class UserService {
     }
 
     async login(credentials: UserCredentials) {
-        const user = await this.findUnameAcc(credentials.username);
+        const user = await this.findUserByUsername(credentials.username);
         if (!user || !await verifyPW(credentials.password, user.password)) {
             throw new Error('Invalid login data');
         }
@@ -375,7 +365,7 @@ export class UserService {
         }
 
         // Try to find user in the database
-        let user = await this.findByEmail(payload.email);
+        let user = await this.findUserByEmail(payload.email);
         if (!user) {
             // Create a new user if not found
             const username = payload.name ?? payload.email;

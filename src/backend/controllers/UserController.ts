@@ -1,14 +1,102 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { UserService } from "../services/UserService.js";
-import { RegisterCredentials, UserCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/authInterfaces.js";
-import { UserModel } from "../models/MatchModel.js";
 import { saveAvatar, deleteAvatar } from "../services/FileService.js";
+import { UserModel } from "../models/MatchModel.js";
+import { RegisterCredentials, UserCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/authInterfaces.js";
 
 export class UserController {
-    private userService: UserService;
+    constructor(private userService: UserService) { }
 
-    constructor(userService: UserService) {
-        this.userService = userService;
+    async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const currentUserId = request.user!.id;
+
+            const user = await this.userService.findUserById(currentUserId);
+
+            if (!user) {
+                return reply.code(404).send({ error: 'User not found' });
+            }
+
+            // Return user data without sensitive information
+            const { password, resetPasswordToken, resetPasswordExpires, verificationToken, ...userData } = user;
+
+            return reply.code(200).send(userData);
+        }
+        catch (error) {
+            reply.code(500).send({ error: 'Could not fetch current user' });
+        }
+    }
+
+    async getAllUser(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const users = await this.userService.findAllUsers();
+            reply.code(200).send(users);
+        }
+        catch (error) {
+            reply.code(500).send({ error: 'Could not fetch all users' });
+        }
+    }
+
+    async getUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+        try {
+            const userId = parseInt(request.params.id, 10);
+
+            if (isNaN(userId)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+            }
+
+            const currentUserId = request.user!.id;
+            const currentUserRole = request.user!.role;
+
+            const isOwnAccount = currentUserId === userId;
+            const canRead = isOwnAccount || currentUserRole === 'master';
+
+            if (!canRead) {
+                return reply.code(403).send({ error: 'Insufficient permissions to read this user' });
+            }
+
+            const user = await this.userService.findUserById(userId);
+
+            if (!user) {
+                return reply.code(404).send({ error: 'User not found' });
+            }
+
+            reply.code(200).send(user);
+        }
+        catch (error) {
+            reply.code(500).send({ error: 'Could not fetch user' });
+        }
+    }
+
+    async deleteUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+        try {
+            const deleteUserId = parseInt(request.params.id, 10);
+
+            if (isNaN(deleteUserId)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+            }
+
+            const currentUserId = request.user!.id;
+            const currentUserRole = request.user!.role;
+
+            const isOwnAccount = currentUserId === deleteUserId;
+            const canDelete = isOwnAccount || currentUserRole === 'master';
+
+            if (!canDelete) {
+                return reply.code(403).send({ error: 'Insufficient permissions to delete this user' });
+            }
+
+            const deleted = await this.userService.deleteById(deleteUserId, currentUserRole, isOwnAccount);
+
+            if (!deleted) {
+                return reply.code(404).send({ error: 'User not found or cannot be deleted' });
+            }
+
+            reply.code(200).send({ message: 'User deleted successfully' });
+        }
+        catch (error) {
+            return reply.code(500).send({ error: 'Could not delete user' });
+        }
     }
 
     // Modified login method to handle 2FA
@@ -219,7 +307,7 @@ export class UserController {
             }
 
             // Find user by email
-            const user = await this.userService.findByEmail(email);
+            const user = await this.userService.findUserByEmail(email);
 
             if (!user) {
                 // Don't reveal if email exists or not
@@ -361,7 +449,7 @@ export class UserController {
         }
     }
 
-    async updateUser(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+    async updateUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
             const { id } = request.params;
             let updates: Partial<UserModel> = {};
@@ -477,119 +565,6 @@ export class UserController {
             reply.code(500).send({
                 error: message
             });
-        }
-    }
-
-    async deleteById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
-        try {
-            const deleteUserId = parseInt(request.params.id, 10);
-
-            if (isNaN(deleteUserId)) {
-                return reply.code(400).send({ error: 'Invalid user ID format' });
-            }
-
-            const currentUserId = request.user!.id;
-            const currentUserRole = request.user!.role;
-
-            const isOwnAccount = currentUserId === deleteUserId;
-            const canDelete = isOwnAccount || currentUserRole === 'master';
-
-            if (!canDelete) {
-                return reply.code(403).send({ error: 'Insufficient permissions to delete this user' });
-            }
-
-            const deleted = await this.userService.deleteById(deleteUserId, currentUserRole, isOwnAccount);
-
-            if (!deleted) {
-                return reply.code(404).send({ error: 'User not found or cannot be deleted' });
-            }
-
-            reply.code(200).send({ message: 'User deleted successfully' });
-        }
-        catch (error) {
-            return reply.code(500).send({ error: 'Could not delete user' });
-        }
-    }
-
-    // Other methods remain unchanged...
-    async getAll(request: FastifyRequest, reply: FastifyReply) {
-        try {
-            // Only admin or master users can view all users
-            // if (!payload || (payload.role !== 'admin' && payload.role !== 'master')) {
-            //     return reply.code(403).send({ error: 'Insufficient permissions to view all users' });
-            // }
-
-            const users = await this.userService.findAll();
-            reply.code(200).send(users);
-        }
-        catch (error) {
-            console.error('Error fetching users:', error);
-            const message = error instanceof Error ? error.message : 'Could not fetch users';
-            reply.code(500).send({ error: message });
-        }
-    }
-
-    async getById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
-        try {
-            const { id } = request.params;
-
-            if (!id) {
-                return reply.code(400).send({ error: 'User ID is required' });
-            }
-
-            const userId = parseInt(id, 10);
-
-            if (isNaN(userId)) {
-                return reply.code(400).send({ error: 'Invalid user ID format' });
-            }
-
-            // Get current user
-            const currentUser = await this.userService.findUserById(userId);
-
-            // Users can view their own profile or admins/masters can view any profile
-            if (!currentUser ||
-                (currentUser.id !== userId &&
-                    currentUser.role !== 'admin' &&
-                    currentUser.role !== 'master')) {
-                return reply.code(403).send({ error: 'Insufficient permissions' });
-            }
-
-            const user = await this.userService.findUserById(userId);
-
-            if (!user) {
-                return reply.code(404).send({ error: 'User not found' });
-            }
-
-            reply.code(200).send(user);
-        }
-        catch (error) {
-            console.error('Error fetching user by ID:', error);
-            const message = error instanceof Error ? error.message : 'Could not fetch user';
-            reply.code(500).send({ error: message });
-        }
-    }
-
-    async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
-        try {
-            const userId = request.user?.id;
-            if (!userId) {
-                return reply.code(401).send({ error: 'User not authenticated' });
-            }
-
-            // Get the user from the database
-            const user = await this.userService.findUserById(userId);
-            if (!user) {
-                return reply.code(404).send({ error: 'User not found' });
-            }
-
-            // Return user data without sensitive information
-            const { password, resetPasswordToken, resetPasswordExpires, verificationToken, ...userData } = user;
-
-            return reply.code(200).send(userData);
-        }
-        catch (error) {
-            console.error('Error getting current user:', error);
-            return reply.code(500).send({ error: 'Internal server error' });
         }
     }
 
