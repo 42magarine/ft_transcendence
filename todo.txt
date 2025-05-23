@@ -25,4 +25,4 @@
 
 10. warum wird bei aufrufen der seite /api/users/me 4x aufgerufen?
 
-
+11. Signup view will schon userdaten abfragen.... WTF!!!!!!

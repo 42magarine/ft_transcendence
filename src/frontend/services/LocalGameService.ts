@@ -1,3 +1,10 @@
+declare global {
+    interface Window {
+        ft_socket?: WebSocket;
+        socketReady?: Promise<void>;
+    }
+}
+
 import { ClientMessage, ServerMessage, IGameState } from "../../interfaces/interfaces.js";
 import { IPaddleDirection } from "../../interfaces/interfaces.js";
 
@@ -133,8 +140,12 @@ class LocalGameService {
     }
 
     private safeSend(msg: ClientMessage): void {
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            this.socket.send(JSON.stringify(msg));
+        if (window.ft_socket) {
+            if (window.ft_socket.readyState === WebSocket.OPEN) {
+                window.ft_socket.send(JSON.stringify(msg));
+            } else {
+                console.warn("Tried to send a message but WebSocket is not open:", msg);
+            }
         } else {
             console.warn("Tried to send a message but WebSocket is not open:", msg);
         }
@@ -197,8 +208,10 @@ class LocalGameService {
             this.inputLoop = null;
         }
 
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            this.socket.close();
+        if (window.ft_socket) {
+            if (window.ft_socket.readyState === WebSocket.OPEN) {
+                window.ft_socket.close();
+            }
         }
 
         this.initialized = false;
@@ -215,7 +228,7 @@ class LocalGameService {
     }
 
     public isConnected(): boolean {
-        return this.socket && this.socket.readyState === WebSocket.OPEN;
+        return !!(window.ft_socket && window.ft_socket.readyState === WebSocket.OPEN);
     }
 }
 

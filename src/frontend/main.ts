@@ -121,7 +121,6 @@ function webSocketWrapper(socket: WebSocket): Promise<void> {
     });
 }
 
-// Verwendung im Event Listener:
 document.addEventListener('RouterContentLoaded', async () => {
     console.log("check socket", (document as any).ft_socket || window.ft_socket);
     const currentUser = await UserService.getCurrentUser();

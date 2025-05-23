@@ -1,3 +1,10 @@
+declare global {
+    interface Window {
+        ft_socket?: WebSocket;
+        socketReady?: Promise<void>;
+    }
+}
+
 import UserService from './UserService.js';
 import MessageHandlerService from './MessageHandlerService.js';
 import LobbyListService from './LobbyListService.js';
@@ -18,7 +25,9 @@ class GameService {
 
     public initialize(): void {
         document.addEventListener('RouterContentLoaded', () => {
-            this.socketReady.then(() => {
+            console.log("router load")
+            window.socketReady?.then(() => {
+                console.log("this socketReady")
                 this.lobbyListService.setupEventListeners();
                 this.lobbyService.setupEventListeners();
             }).catch(err => {
