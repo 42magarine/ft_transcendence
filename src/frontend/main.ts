@@ -15,6 +15,7 @@ import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
 import { TemplateEngine } from '../utils/TemplateEngine.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
+import UserService from './services/UserService.js';
 
 // views
 import Home from './views/Home.js';
@@ -91,7 +92,6 @@ function initSocket(): void {
 
     window.socketReady = webSocketWrapper(socket)
         .then(() => {
-            console.log('Connected to WebSocket server');
             messageHandler = new (MessageHandlerService as any)(socket, window.socketReady, userService);
 
             if (lobbyListService) {
@@ -124,14 +124,26 @@ function webSocketWrapper(socket: WebSocket): Promise<void> {
 // Verwendung im Event Listener:
 document.addEventListener('RouterContentLoaded', async () => {
     console.log("check socket", (document as any).ft_socket || window.ft_socket);
+    const currentUser = await UserService.getCurrentUser();
+    if (!currentUser) {
+        console.log("no user - close socket")
 
+        if (window.ft_socket) {
+            if (window.ft_socket.readyState === WebSocket.OPEN ||
+                window.ft_socket.readyState === WebSocket.CONNECTING) {
+                window.ft_socket.close(1000, 'User logged out');
+            }
+            window.ft_socket = undefined;
+            window.socketReady = undefined;
+        }
+
+        return;
+    }
     if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-        console.log("No socket found or socket not ready - initializing...");
         console.warn("initSocket");
         initSocket();
         try {
             await window.socketReady;
-            console.log("INIT socket!!!!!");
         } catch (error) {
             console.error("Failed to initialize socket:", error);
         }

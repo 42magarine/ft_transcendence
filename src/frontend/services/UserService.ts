@@ -37,25 +37,7 @@ export default class UserService {
             return null;
         }
     }
-    // static async getCurrentUser(): Promise<User | null> {
-    //     try {
-    //         const response = await fetch('/api/users/me');
-    //         if (response.status === 401) {
-    //             return null;
-    //         }
 
-    //         if (!response.ok) {
-    //             const errorData = await response.json() as ApiErrorResponse;
-    //             throw new Error(errorData.error || 'Failed to fetch current user');
-    //         }
-
-    //         const data = await response.json();
-    //         return data === null ? null : data as User;
-    //     }
-    //     catch (error) {
-    //         return null;
-    //     }
-    // }
     static async getAllUsers(): Promise<User[]> {
         try {
             const response = await fetch('/api/users');
