@@ -24,7 +24,6 @@ export default class Profile extends AbstractView {
             const userResponse = await fetch(`/api/users/${this.userId}`);
             if (userResponse.ok) {
                 userData = await userResponse.json();
-                console.log('User data loaded:', userData);
             } else {
                 console.error('Failed to fetch user data from API');
             }

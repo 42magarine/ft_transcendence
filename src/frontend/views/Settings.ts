@@ -24,7 +24,7 @@ export default class Settings extends AbstractView {
                 {
                     id: 'save-settings',
                     text: '💾 Save Settings',
-                    onClick: `console.log('Settings saved')`,
+                    onClick: ``,
                 }
             ]
         });

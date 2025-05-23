@@ -8,8 +8,13 @@ export class UserController {
     constructor(private userService: UserService) { }
 
     async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
+
         try {
-            const currentUserId = request.user!.id;
+            if (!request.user) {
+                return reply.code(200).send(null);
+            }
+
+            const currentUserId = request.user.id;
 
             const user = await this.userService.findUserById(currentUserId);
 
@@ -17,13 +22,11 @@ export class UserController {
                 return reply.code(404).send({ error: 'User not found' });
             }
 
-            // Return user data without sensitive information
             const { password, resetPasswordToken, resetPasswordExpires, verificationToken, ...userData } = user;
-
             return reply.code(200).send(userData);
         }
         catch (error) {
-            reply.code(500).send({ error: 'Could not fetch current user' });
+            return reply.code(500).send({ error: 'Internal server error' });
         }
     }
 
@@ -337,7 +340,6 @@ export class UserController {
         try {
             // Handle multipart form data
             if (request.isMultipart()) {
-                console.log("Processing multipart request");
 
                 const userData: RegisterCredentials & {
                     avatar?: string,
@@ -361,21 +363,17 @@ export class UserController {
                 const parts = request.parts();
 
                 for await (const part of parts) {
-                    console.log(`Processing part: ${part.type}, fieldname: ${part.fieldname}`);
 
                     if (part.type === 'file' && part.fieldname === 'avatar') {
                         try {
-                            console.log("Saving avatar file");
                             const result = await saveAvatar(part);
                             avatarData = result.publicPath;
-                            console.log(`Avatar saved: ${avatarData}`);
                         } catch (error) {
                             console.error("Error saving avatar:", error);
                             return reply.code(400).send({ error: 'Failed to save avatar file' });
                         }
                     }
                     else if (part.type === 'field') {
-                        console.log(`Field ${part.fieldname}: ${part.value}`);
                         (userData as any)[part.fieldname] = part.value;
                     }
                 }

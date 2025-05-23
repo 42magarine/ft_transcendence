@@ -13,8 +13,6 @@ export default class EmailVerification extends AbstractView {
         const pathParts = window.location.pathname.split('/');
         const token = pathParts.length > 2 ? pathParts[pathParts.length - 1] : null;
 
-        console.log("Token from path:", token);
-
         if (!token) {
             // No token provided, show instructions for verification
             const infoCard = await card.renderCard({

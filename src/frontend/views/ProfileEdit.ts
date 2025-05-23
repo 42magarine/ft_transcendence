@@ -20,7 +20,6 @@ export default class ProfileEdit extends AbstractView {
             const userResponse = await fetch(`/api/users/${this.userId}`);
             if (userResponse.ok) {
                 userData = await userResponse.json();
-                console.log('User data loaded:', userData);
             } else {
                 console.error('Failed to fetch user data from API');
             }
@@ -148,7 +147,6 @@ export default class ProfileEdit extends AbstractView {
                     delete payload.password;
                     delete payload.confirmPassword;
                 }
-                console.log(payload);
 
                 try {
                     const success = await UserService.updateUser(this.userId, payload);

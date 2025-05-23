@@ -125,18 +125,8 @@ function webSocketWrapper(socket: WebSocket): Promise<void> {
 document.addEventListener('RouterContentLoaded', async () => {
     console.log("check socket", (document as any).ft_socket || window.ft_socket);
 
-    if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-        console.log("No socket found or socket not ready - initializing...");
-        console.warn("initSocket");
-        initSocket();
-        try {
-            await window.socketReady;
-            console.log("INIT socket!!!!!");
-        } catch (error) {
-            console.error("Failed to initialize socket:", error);
-        }
-    } else {
-        console.log("Socket is already ready!");
+    if (window.ft_socket?.readyState === WebSocket.OPEN) {
+        console.log("Socket is ready!");
     }
 });
 

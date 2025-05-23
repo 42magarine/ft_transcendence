@@ -132,7 +132,6 @@ async function createMasterUser(): Promise<void> {
     const userRepo = AppDataSource.getRepository(UserModel);
     const existingMaster = await userRepo.findOne({ where: { email: masterEmail } });
     if (existingMaster) {
-        console.log('Master user already exists');
         return;
     }
 
@@ -151,7 +150,6 @@ async function createMasterUser(): Promise<void> {
 
         // Save master user to database
         await userRepo.save(masterUser);
-        console.log('Master user created successfully with verified email');
     }
     catch (error) {
         console.error('Failed to create master user:', error);
@@ -171,9 +169,7 @@ const start = async (): Promise<void> => {
         await createMasterUser();
         createDirectories();
 
-        console.log("app.ts - before listen")
         await fastify.listen({ port: 3000, host: "0.0.0.0" });
-        console.log("app.ts - after listen");
 
         console.log(`Server running at https://${process.env.NGROK_URL}`);
         console.log('Server running at http://localhost:3000');

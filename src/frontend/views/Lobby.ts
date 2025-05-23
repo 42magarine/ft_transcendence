@@ -58,12 +58,10 @@ export default class Lobby extends AbstractView {
             Router.redirect('/login');
             return;
         }
-        console.log('[Lobby.ts Init] Current user:', this.currentUser);
         try {
             const res = await fetch(`/api/lobbies/${this.lobbyId}`);
             if (res.ok) {
                 const initialLobbyData = await res.json();
-                console.log('[Lobby.ts Init] HTTP Lobby info:', initialLobbyData);
                 if (initialLobbyData.participants) {
                     this.processLobbyDataUpdate({ ...initialLobbyData, id: this.lobbyId });
                 }
@@ -85,7 +83,6 @@ export default class Lobby extends AbstractView {
                 if (res.ok) {
                     this.usersForInviteList = (await res.json() as User[])
                         .filter(u => u.id !== this.currentUser?.id);
-                    console.log('[Lobby.ts Init] User list for invites fetched:', this.usersForInviteList);
                 }
             } catch (err) {
                 console.error('Lobby.ts: Failed to fetch user list for invites:', err);
@@ -349,12 +346,10 @@ export default class Lobby extends AbstractView {
 
 
     private handleLobbyDetailsUpdated = (event: CustomEvent) => {
-        console.log('[Lobby.ts] Event: LOBBY_DETAILS_UPDATED_EVENT:', event.detail);
         const lobbyData = event.detail.lobbyData as LobbyDataWithParticipants | null;
         if (lobbyData && lobbyData.id === this.lobbyId) {
             this.processLobbyDataUpdate(lobbyData);
         } else if (!lobbyData && event.detail.lobbyId === this.lobbyId) {
-            console.log(`[Lobby.ts] Lobby ${this.lobbyId} data removed or became null.`)
         }
     }
 

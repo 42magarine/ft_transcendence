@@ -24,8 +24,6 @@ export default class PasswordReset extends AbstractView {
             token = pathParts.length > 2 ? pathParts[pathParts.length - 1] : null;
         }
 
-        console.log("Token:", token);
-
         // If we have a token, show the reset form, otherwise show the request form
         if (token) {
             // First verify the token is valid

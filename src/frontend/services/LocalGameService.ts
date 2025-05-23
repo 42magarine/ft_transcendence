@@ -23,53 +23,10 @@ class LocalGameService {
         }
 
         document.addEventListener('RouterContentLoaded', () => {
-            this.initSocket();
             this.initCanvas();
             this.setupEventListeners();
             this.setupKeyboardListeners();
             this.initialized = true;
-        });
-    }
-
-    public initSocket(): void {
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        this.socket = new WebSocket(`${wsProtocol}//${window.location.host}/api/game/wss`);
-        this.socketReady = this.webSocketWrapper(this.socket).then(() => {
-            console.log('Connected to WebSocket server for local game');
-        }).catch((err) => {
-            console.error('WebSocket connection error:', err);
-        });
-
-        this.socket.addEventListener('message', (event: MessageEvent<string>) => {
-            const data: ServerMessage = JSON.parse(event.data);
-
-            if (data.type === "assignPlayer") {
-                this.playerId = data.id;
-                this.state = data.state!;
-                this.draw();
-            }
-
-            if (data.type === "startGame" ||
-                data.type === "update" ||
-                data.type === "gameUpdate" ||
-                data.type === "pauseGame" ||
-                data.type === "resumeGame" ||
-                data.type === "resetGame") {
-                this.state = data.state!;
-                this.draw();
-            }
-        });
-    }
-
-    private webSocketWrapper(socket: WebSocket): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (socket.readyState === WebSocket.OPEN) {
-                resolve();
-            } else {
-                socket.addEventListener('open', () => resolve(), { once: true });
-                socket.addEventListener('error', () =>
-                    reject(new Error('WebSocket connection failed')), { once: true });
-            }
         });
     }
 

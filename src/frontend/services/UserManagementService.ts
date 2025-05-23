@@ -158,13 +158,12 @@ export class UserManagementService {
                 sessionStorage.setItem('pendingUsername', result.username || '');
 
                 // Redirect to 2FA page
-                window.location.href = '/two-factor';
+                Router.redirect('/two-factor');
                 return result;
             }
 
             // Normal login flow
-            Router.update();
-            window.location.href = '/';
+            Router.redirect('/');
 
             return result;
         } catch (error) {
@@ -188,8 +187,7 @@ export class UserManagementService {
         const result = await response.json() as AuthResponse;
 
         // Normal login flow
-        Router.update();
-        window.location.href = '/';
+        Router.redirect('/');
 
         return result;
     }
@@ -220,7 +218,7 @@ export class UserManagementService {
             Router.update();
 
             // Redirect to home page
-            window.location.href = '/';
+            Router.redirect('/');
 
             return result;
         } catch (error) {
@@ -294,7 +292,7 @@ export class UserManagementService {
                 throw new Error(`Error: ${response.status}`);
             }
 
-            window.location.href = '/';
+            Router.redirect('/');
         } catch (error) {
             console.error('Logout error:', error);
             throw error;
@@ -494,7 +492,7 @@ export class UserManagementService {
 
             if (!userId || !username) {
                 // No pending 2FA verification, redirect back to login
-                window.location.href = '/login';
+                Router.redirect('/login');
                 return;
             }
 
@@ -712,7 +710,7 @@ export class UserManagementService {
                     alert('Registration successful! Please check your email to verify your account.');
 
                     // Redirect to login page
-                    window.location.href = '/login';
+                    Router.redirect('/login');
 
                 } catch (error) {
                     console.error('Failed to register user:', error);
@@ -790,7 +788,7 @@ export class UserManagementService {
                     resetForm.reset();
 
                     // Redirect to login page
-                    window.location.href = '/login';
+                    Router.redirect('/login');
                 } catch (error) {
                     console.error('Failed to reset password:', error);
                     alert(error instanceof Error ? error.message : 'Failed to reset password');
@@ -834,7 +832,7 @@ export class UserManagementService {
                     await UserManagementService.logout();
 
                     // Redirect to login page
-                    window.location.href = '/login';
+                    Router.redirect('/login');
                 } catch (error) {
                     console.error('Failed to logout:', error);
                     alert(error instanceof Error ? error.message : 'Logout failed');
@@ -865,7 +863,7 @@ export class UserManagementService {
 
             if (success) {
                 // Verification successful
-                window.location.href = '/login?verified=true';
+                Router.redirect('/login?verified=true');
             }
         } catch (error) {
             console.error('Error verifying email:', error);

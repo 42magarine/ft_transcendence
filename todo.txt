@@ -24,3 +24,5 @@
 9. getUserById getAllUser -> welche Daten sollen zurück geschickt werden? sollen die Daten gefilter werden wie in der getCurrentUser? Soll unterschieden werden ob Master oder User die Daten anfordert? Sollen die Rückgabewerte gefilter werden oder bei der Datenbank-Abfrage mit 'select' gearbeitet werden?
 
 10. warum wird bei aufrufen der seite /api/users/me 4x aufgerufen?
+
+

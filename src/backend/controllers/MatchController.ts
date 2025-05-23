@@ -44,7 +44,6 @@ export class MatchController {
     }
 
     public handleConnection = (connection: WebSocket, userId?: number): void => {
-        console.log("A new client connected!");
         this._clients.set(connection, null);
 
         connection.on("message", (message: string | Buffer): void => {
@@ -66,12 +65,10 @@ export class MatchController {
         let data: ClientMessage;
         try {
             data = JSON.parse(message.toString()) as ClientMessage;
-            console.log(data);
         } catch (error: unknown) {
             console.error("Invalid message format", error)
             return;
         }
-        console.log(data);
         const player = this._clients.get(connection);
 
         switch (data.type) {
@@ -445,12 +442,10 @@ export class MatchController {
         }
     }
 
-    private async handleGetLobbyById(connection: WebSocket, lobbyId: string)
-    {
+    private async handleGetLobbyById(connection: WebSocket, lobbyId: string) {
         const lobby = await this._matchService.getMatchLobbyById(lobbyId);
-        
-        if(!lobby)
-        {
+
+        if (!lobby) {
             this.sendMessage(connection, {
                 type: "error",
                 message: "No Lobby like this lol"
@@ -460,8 +455,7 @@ export class MatchController {
 
         const activeLobby = Array.from(this._lobbies.values()).find(l => l.getGameId() === lobby.id)
 
-        if (activeLobby)
-        {
+        if (activeLobby) {
             this.sendMessage(connection, {
                 type: 'lobbyInfo',
                 lobby: activeLobby.getLobbyInfo()

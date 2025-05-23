@@ -1,6 +1,7 @@
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
+import Router from '../../utils/Router.js';
 
 export default class TwoFactorLogin extends AbstractView {
     constructor() {
@@ -14,7 +15,7 @@ export default class TwoFactorLogin extends AbstractView {
 
         if (!userId || !username) {
             // Redirect to login if no pending verification
-            window.location.href = '/login';
+            Router.redirect('/login');
             return '';
         }
 

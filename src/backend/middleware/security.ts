@@ -51,8 +51,9 @@ export async function verifyJWT(token: string): Promise<JWTPayload> {
 export const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const token = request.cookies.accessToken;
+
         if (!token) {
-            return reply.code(401).send({ error: 'Access token required' });
+            return reply.code(200).send(null);
         }
 
         const payload = verifyAccessToken(token);
