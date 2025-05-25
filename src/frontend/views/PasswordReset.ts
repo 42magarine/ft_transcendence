@@ -1,7 +1,6 @@
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
-import { UserManagementService } from '../services/UserManagementService.js';
 
 export default class PasswordReset extends AbstractView {
     constructor(params: URLSearchParams) {
@@ -28,7 +27,7 @@ export default class PasswordReset extends AbstractView {
         if (token) {
             // First verify the token is valid
             try {
-                await UserManagementService.verifyPasswordResetToken(token);
+                await window.userManagementService.verifyPasswordResetToken(token);
 
                 const resetCard = await card.renderCard({
                     title: 'Reset Your Password',

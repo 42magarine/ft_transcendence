@@ -1,9 +1,3 @@
-declare global {
-    interface Window {
-        ft_socket?: WebSocket;
-        socketReady?: Promise<void>;
-    }
-}
 
 import { ClientMessage, ServerMessage, IGameState } from "../../interfaces/interfaces.js";
 import { IPaddleDirection } from "../../interfaces/interfaces.js";

@@ -2,11 +2,15 @@ declare global {
     interface Window {
         ft_socket?: WebSocket;
         socketReady?: Promise<void>;
+        messageHandler?: MessageHandlerService;
+        lobbyListService?: LobbyListService;
+        lobbyService?: LobbyService;
+        userService: UserService;
+        userManagementService: UserMangementService;
     }
 }
 
 // services
-import './services/UserManagementService.js';
 import './services/LanguageService.js';
 
 // utils
@@ -15,13 +19,12 @@ import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
 import { TemplateEngine } from '../utils/TemplateEngine.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
+import UserMangementService from './services/UserManagementService.js';
 import UserService from './services/UserService.js';
 
 // views
 import Home from './views/Home.js';
-import Demo from './views/Demo.js';
 import Pong from './views/Pong.js';
-import PongLocal from './views/PongLocal.js';
 import Lobby from './views/Lobby.js';
 import Tournament from './views/Tournament.js';
 import Profile from './views/Profile.js';
@@ -39,6 +42,8 @@ import Footer from './components/Footer.js';
 import Header from './components/Header.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
 import LobbyList from './views/LobbyList.js';
+import LobbyListService from './services/LobbyListService.js';
+import LobbyService from './services/LobbyService.js';
 
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
@@ -75,11 +80,8 @@ async function renderHeader(): Promise<void> {
     }
 }
 
-// Variablen für Services (falls sie später verwendet werden)
-let messageHandler: any;
-let lobbyListService: any;
-let lobbyService: any;
-let userService: any;
+window.userService = new UserService();
+window.userManagementService = new UserMangementService();
 
 /**
  * Initial render and background setup on first load
@@ -92,13 +94,15 @@ function initSocket(): void {
 
     window.socketReady = webSocketWrapper(socket)
         .then(() => {
-            messageHandler = new (MessageHandlerService as any)(socket, window.socketReady, userService);
+            window.lobbyListService = new LobbyListService();
+            window.lobbyService = new LobbyService();
+            window.messageHandler = new (MessageHandlerService as any)(socket, window.socketReady, window.userService);
 
-            if (lobbyListService) {
-                lobbyListService.init(socket, messageHandler);
+            if (window.lobbyListService) {
+                window.lobbyListService.init();
             }
-            if (lobbyService) {
-                lobbyService.init(socket, messageHandler, userService);
+            if (window.lobbyService && window.messageHandler) {
+                window.lobbyService.init(socket, window.messageHandler, window.userService);
             }
         })
         .catch((err) => {
@@ -164,14 +168,6 @@ const routes = [
     {
         path: '/',
         view: Home,
-        metadata: {
-            title: 'Transcendence',
-            description: 'Welcome to Transcendence - the ultimate gaming experience'
-        }
-    },
-    {
-        path: '/demo',
-        view: Demo,
         metadata: {
             title: 'Transcendence',
             description: 'Welcome to Transcendence - the ultimate gaming experience'
@@ -298,3 +294,14 @@ const routes = [
 const router = new Router(routes);
 
 (window as any).router = router;
+
+
+(window as any).handleGoogleLogin = async function (response: any) {
+    try {
+        await window.userManagementService.loginWithGoogle(response.credential);
+    }
+    catch (error) {
+        console.error('Google login failed:', error);
+        throw error;
+    }
+};

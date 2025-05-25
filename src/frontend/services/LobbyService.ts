@@ -14,7 +14,6 @@ export default class LobbyService {
     private lobbyData: LobbyInfo[] = [];
     private currentLobbyData?: LobbyInfo;
 
-    private updateCallbacks: (() => void)[] = [];
     private messageHandler!: MessageHandlerService;
     private userService!: UserService;
 
@@ -44,7 +43,6 @@ export default class LobbyService {
                         this.currentLobbyData = undefined;
                     }
                     this.dispatchCustomEvent(LOBBY_DETAILS_UPDATED_EVENT, { lobbyData: this.currentLobbyData });
-                    this.updateCallbacks.forEach(cb => cb());
                     break;
 
                 case 'lobbyDetailsUpdated':
@@ -58,7 +56,6 @@ export default class LobbyService {
                             this.lobbyData.push(data.lobby);
                         }
                         this.dispatchCustomEvent(LOBBY_DETAILS_UPDATED_EVENT, { lobbyData: this.currentLobbyData });
-                        this.updateCallbacks.forEach(cb => cb());
                     }
                     break;
                 case 'playerJoined':
@@ -170,10 +167,6 @@ export default class LobbyService {
                 }
             }
         });
-    }
-
-    public onUpdate(callback: () => void) {
-        this.updateCallbacks.push(callback);
     }
 
     public getLobbies(): LobbyInfo[] {
