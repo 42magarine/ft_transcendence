@@ -86,7 +86,7 @@ export class PongGame {
                     this._player1.userId,
                     this._player2.userId
                 );
-                this._gameId = game.id;
+                this._gameId = game.matchModelId;
             } catch (error) {
                 console.error("Failed to create game record:", error)
             }

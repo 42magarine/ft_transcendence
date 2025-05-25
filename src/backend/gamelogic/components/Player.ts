@@ -1,8 +1,8 @@
 import { WebSocket } from "ws";
 
 export class Player {
-    public _id: number;
-    public _userId: number | null;
+    public _playerNumber: number;
+    public _userId: number;
     public _score: number = 0;
     public _playing: boolean = false;
     public _connection: WebSocket;
@@ -10,9 +10,9 @@ export class Player {
     public _isReady: boolean = false;
     public _joinedAt: Date;
 
-    constructor(connection: WebSocket, id: number, userId: number | null = null) {
+    constructor(connection: WebSocket, playerNumber: number, userId: number) {
         this._connection = connection;
-        this._id = id;
+        this._playerNumber = playerNumber;
         this._userId = userId;
         this._joinedAt = new Date();
     }
@@ -24,11 +24,11 @@ export class Player {
     }
 
     public get id(): number {
-        return this._id;
+        return this._playerNumber;
     }
 
-    public get userId(): number | null {
-        return this._userId;
+    public get userId(): number {
+        return this._userId!;
     }
 
     public get score(): number {

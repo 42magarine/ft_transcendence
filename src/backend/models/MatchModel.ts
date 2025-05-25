@@ -66,18 +66,18 @@ export class UserModel {
 @TableInheritance({ column: { type: "varchar", name: "type" } })
 export class MatchModel {
     @PrimaryGeneratedColumn()
-    id!: number
+    matchModelId!: number
 
     @Column({ nullable: true })
     lobbyId!: string
 
     @ManyToOne(() => UserModel, (user) => user.matchAsPlayer1)
     @JoinColumn({ name: 'player1Id' })
-    player1!: typeof UserModel.prototype;
+    player1!: UserModel;
 
-    @ManyToOne(() => UserModel, (user) => user.matchAsPlayer2)
-    @JoinColumn({ name: 'player2Id' })
-    player2!: typeof UserModel.prototype;
+    @ManyToOne(() => UserModel, (user) => user.matchAsPlayer2, { nullable: true})
+    @JoinColumn({ name: 'player2Id'})
+    player2?: UserModel | null;
 
     @Column({ default: 0 })
     player1Score!: number;
