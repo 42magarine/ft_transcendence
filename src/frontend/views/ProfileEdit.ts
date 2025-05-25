@@ -57,9 +57,16 @@ export default class ProfileEdit extends AbstractView {
 						<label class="label">Email:</label>
 						<span class="value">${userData.email}</span>
 					</div>
-					<div class="detail-row">
-						<label class="label">Role:</label>
-						<span class="value">${userData.role}</span>
+                    <div class="detail-row">
+                        <label class="label">Email Verified:</label>
+                        <select class="input" name="emailVerified">
+                            <option value="true" ${userData.emailVerified ? 'selected' : ''}>Yes</option>
+                            <option value="false" ${!userData.emailVerified ? 'selected' : ''}>No</option>
+                        </select>
+                    </div>
+                                        <div class="detail-row">
+						<label class="label">2FA:</label>
+						<span class="value">${userData.twoFAEnabled}</span>
 					</div>
 					<div class="detail-row">
 						<label class="label">New Password:</label>
@@ -80,6 +87,7 @@ export default class ProfileEdit extends AbstractView {
             body: `<form id="edit-profile-form">${cardBody}
 				<div class="text-center mt-6">
 					<button type="submit" class="btn btn-success">Update Profile</button>
+					<button id="delete-user-btn" type="button" class="btn btn-danger">Delete Profile</button>
 				</div>
 			</form>`
         });
@@ -129,14 +137,14 @@ export default class ProfileEdit extends AbstractView {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(form);
-                const payload = Object.fromEntries(formData.entries());
+                const payload: any = Object.fromEntries(formData.entries());
 
                 const password = payload.password as string;
                 const confirmPassword = payload.confirmPassword as string;
-
+                payload.emailVerified = (formData.get('emailVerified') === 'true');
                 if (password) {
                     if (password !== confirmPassword) {
-                        alert("Passwords do not match.");
+                        //alert"Passwords do not match.");
                         return;
                     }
                     // Include both in payload
@@ -153,17 +161,47 @@ export default class ProfileEdit extends AbstractView {
                 try {
                     const success = await UserService.updateUser(this.userId, payload);
                     if (success) {
-                        alert('Profile updated successfully.');
+                        //alert'Profile updated successfully.');
+                        window.location.href = `/users/${this.userId}`;
                     }
                     else {
-                        alert('Failed to update profile.');
+                        //alert'Failed to update profile.');
                     }
                 }
                 catch (error) {
                     console.error('Update failed:', error);
-                    alert('An error occurred while updating.');
+                    //alert'An error occurred while updating.');
                 }
             });
+
+            const deleteButton = document.getElementById('delete-user-btn');
+            if (deleteButton)
+            {
+                deleteButton.addEventListener('click', async () =>
+                {
+                    const confirmed = confirm('Are you sure you want to delete this user? This action cannot be undone.');
+                    if (!confirmed)
+                        return;
+
+                    try
+                    {
+                        const success = await UserService.deleteUser(Number(this.userId));
+                        if (success)
+                        {
+                            alert('User deleted successfully.');
+                            window.location.href = '/user-mangement';
+                        }
+                        else
+                        {
+                        }
+                    }
+                    catch (error)
+                    {
+                        console.error('Delete failed:', error);
+                    }
+                });
+            }
+
         }
         else {
             console.warn("Edit profile form not found");
