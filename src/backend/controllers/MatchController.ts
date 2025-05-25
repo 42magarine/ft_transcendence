@@ -6,10 +6,11 @@ import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
+import { MatchModel } from "../models/MatchModel.js";
 
 export class MatchController {
     protected _lobbies: Map<string, MatchLobby>;
-    protected _clients: Map<WebSocket, Player | null>; //
+    protected _clients: Map<WebSocket, Player | null>; //is EMPTY on startup
     protected _handlers: MessageHandlers;
     protected _userService: UserService;
     protected _invites: Map<string, { from: number, to: number, lobbyId: string, expires: Date }>
@@ -19,15 +20,18 @@ export class MatchController {
         this._userService = userService;
         this._lobbies = lobbies;
         this._matchService = new MatchService(userService);
-        this._clients = new Map<WebSocket, Player | null>();
+        this._clients = new Map<WebSocket, Player | null>(); // player will be null on creation
         this._handlers = new MessageHandlers(this.broadcast.bind(this));
         this._invites = new Map<string, { from: number, to: number, lobbyId: string, expires: Date }>();
+        //should Invites be in matchcontroller or userController?
 
         setInterval(() => {
             this.cleanUpInvites();
         }, 60000);
+        this.initMatchController();
     }
 
+    // automated function that cleans up invites every minute(set in setInterval)
     private async cleanUpInvites() {
         const now = new Date();
 
@@ -43,9 +47,27 @@ export class MatchController {
         }
     }
 
+    //should get all open lobbies out of DB on startup and then save them into the lobby MAP
+    private async initMatchController()
+    {
+        if (this._lobbies.size === 0)
+        {
+            const openLobbiesInDB = await this._matchService.getOpenLobbies()
+
+            for (const MatchModelLobby of openLobbiesInDB)
+            {
+                const lobbyFromBackend = new MatchLobby(MatchModelLobby.lobbyId, this.broadcast.bind(this), this._matchService)
+                this._lobbies.set(MatchModelLobby.lobbyId, lobbyFromBackend);
+            }
+        }
+    }
+
+    //connection handle function for message case / close case.
+    // returns message "connected to game server" to client!
     public handleConnection = (connection: WebSocket, userId?: number): void => {
         this._clients.set(connection, null);
 
+        //"message" is the event, message is what we send to handleMessage!
         connection.on("message", (message: string | Buffer): void => {
             this.handleMessage(message, connection);
         });
@@ -61,6 +83,9 @@ export class MatchController {
         });
     };
 
+
+    //actual handle connection message function
+    //that triggers on: "message" case in handleConnection function!
     protected handleMessage(message: string | Buffer, connection: WebSocket): void {
         let data: ClientMessage;
         try {
@@ -69,14 +94,17 @@ export class MatchController {
             console.error("Invalid message format", error)
             return;
         }
+
+        //Player will be null on startup
+        //-> when creating / joining lobby on subsequent calls should be able to get a player to the corresponding lobby!
         const player = this._clients.get(connection);
 
         switch (data.type) {
             case "joinLobby":
-                this.handleJoinLobby(connection, (data as joinLobbyMessage).userId, (data as joinLobbyMessage).lobbyId)
+                this.handleJoinLobby(connection, (data as joinLobbyMessage).userId!, (data as joinLobbyMessage).lobbyId)
                 break;
             case "createLobby":
-                this.handleCreateLobby(connection, (data as createLobbyMessage).userId)
+                this.handleCreateLobby(connection, (data as createLobbyMessage).userId!)
                 break;
             case "leaveLobby":
                 this.handleLeaveLobby(connection)
@@ -86,15 +114,15 @@ export class MatchController {
                     this._handlers.handleGameAction(player, (data as GameActionMessage))
                 }
                 break;
-            case "invite":
-                this.handleInvite(connection, data.userId, data.targetUserId)
-                break;
-            case "acceptInvite":
-                this.handleAcceptInvite(connection, data.userId, data.inviteId)
-                break;
-            case "declineInvite":
-                this.handleDeclineInvite(connection, data.userId, data.inviteId)
-                break;
+            // case "invite":
+            //     this.handleInvite(connection, data.userId, data.targetUserId)
+            //     break;
+            // case "acceptInvite":
+            //     this.handleAcceptInvite(connection, data.userId, data.inviteId)
+            //     break;
+            // case "declineInvite":
+            //     this.handleDeclineInvite(connection, data.userId, data.inviteId)
+                // break;
             case "ready":
                 this.handlePlayerReady(connection, player!, (data as ReadyMessage).ready)
                 break;
@@ -114,134 +142,6 @@ export class MatchController {
                 this.handleGetLobbyById(connection, data.lobbyId!)
             default:
                 throw Error("WTF DUDE!!!");
-        }
-    }
-
-    private handleInvite(connection: WebSocket, fromUserId?: number, toUserId?: number) {
-        if (!fromUserId || !toUserId) {
-            this.sendMessage(connection, {
-                type: "error",
-                message: "Not user to send from/to"
-            })
-            return;
-        }
-
-        const lobbyId = randomUUID();
-        const lobby = this.createLobby(lobbyId);
-        this._lobbies.set(lobbyId, lobby);
-
-        const inviteId = randomUUID();
-
-        const expires = new Date();
-        expires.setMinutes(expires.getMinutes() + 5)
-
-        this._invites.set(inviteId, {
-            from: fromUserId,
-            to: toUserId,
-            lobbyId,
-            expires
-        })
-
-        this.sendMessage(connection, {
-            type: "inviteSent",
-            inviteId,
-            toUserId,
-            lobbyId
-        })
-
-        this.NotifyUserOfInvite(toUserId, fromUserId, inviteId)
-    }
-
-    private async NotifyUserOfInvite(toUserId: number, fromUserId: number, inviteId: string) {
-        for (const [conn, player] of this._clients.entries()) {
-            if (player?.userId === toUserId) {
-                const fromUser = await this._userService.findUserById(fromUserId);
-                this.sendMessage(conn, {
-                    type: "inviteReceived",
-                    inviteId,
-                    fromUserId,
-                    fromUsername: fromUser?.username || "unknown user"
-                })
-                return;
-            }
-        }
-    }
-
-    private handleAcceptInvite(connection: WebSocket, userId?: number, inviteId?: string) {
-        if (!userId || !inviteId) {
-            this.sendMessage(connection, {
-                type: "error",
-                message: "user or invite not found"
-            })
-            return;
-        }
-
-        const invite = this._invites.get(inviteId)
-        if (!invite || invite.to !== userId) {
-            this.sendMessage(connection, {
-                type: "error",
-                message: "invite not found in list or not for user"
-            })
-            return;
-        }
-
-        const lobby = this._lobbies.get(invite.lobbyId)
-        if (!lobby) {
-            this.sendMessage(connection, {
-                type: "error",
-                message: "lobby not found"
-            })
-            return;
-        }
-
-        const player = lobby.addPlayer(connection, userId);
-        if (player) {
-            this._clients.set(connection, player);
-        }
-
-        this.sendMessage(connection, {
-            type: "joinedLobby",
-            lobbyId: invite.lobbyId,
-            playerId: player?.id
-        })
-
-        this._invites.delete(inviteId);
-    }
-
-    private handleDeclineInvite(connection: WebSocket, userId?: number, inviteId?: string) {
-        if (!userId || !inviteId) {
-            return
-        }
-        const invite = this._invites.get(inviteId);
-        if (!invite || invite.to !== userId)
-            return
-
-        this._invites.delete(inviteId)
-
-        this.NotifyUserOfDeclinedInvite(invite.from, userId);
-
-        const lobby = this._lobbies.get(invite.lobbyId)
-        if (lobby && lobby.isEmpty()) {
-            this._lobbies.delete(invite.lobbyId)
-        }
-
-        this.sendMessage(connection, {
-            type: "inviteDeclined",
-            inviteId
-        })
-    }
-
-    private async NotifyUserOfDeclinedInvite(userId: number, declinedBy: number) {
-        for (const [conn, player] of this._clients.entries()) {
-            if (player?.userId === userId) {
-                const decliningUser = await this._userService.findUserById(declinedBy);
-                this.sendMessage(conn, {
-                    type: "inviteDeclined",
-                    byUserId: declinedBy,
-                    declinedByUser: decliningUser?.username
-                })
-                return;
-            }
         }
     }
 
@@ -268,6 +168,7 @@ export class MatchController {
         this._clients.delete(connection);
     }
 
+    //receives lobbyId and distributes a servermessage to all connected users in that lobby!!!!
     protected broadcast(lobbyId: string, data: ServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
             if (player?.lobbyId === lobbyId && connection.readyState === WebSocket.OPEN) {
@@ -276,26 +177,31 @@ export class MatchController {
         }
     }
 
-    protected handleCreateLobby(connection: WebSocket, userId?: number) {
+    //creates a lobbyId and a lobby object with that lobbyid
+    // -> that includes the game,
+    // -> the lobby and
+    // -> loads a player into that lobby playerlist!
+    // -> sends back message to client "lobbyCreated" with lobbyId and player.Id which should also be user.Id!!!
+    protected handleCreateLobby(connection: WebSocket, userId: number) {
         const lobbyId = randomUUID();
-        const lobby = this.createLobby(lobbyId);
+        const lobby = this.createLobby(lobbyId, userId);
 
         this._lobbies.set(lobbyId, lobby);
 
         const player = lobby.addPlayer(connection, userId);
 
         if (player) {
-            this._clients.set(connection, player);
-            //what does this frontend want to do with this message?
+            this._clients.set(connection, player); // set into clients map for future use!
+            // send ANOTHER message to frontend with lobbyCreated!!
             this.sendMessage(connection, {
                 type: "lobbyCreated",
                 lobbyId: lobbyId,
-                playerId: player.id
+                playerNumber: player._playerNumber
             })
         }
     }
 
-    protected handleJoinLobby(connection: WebSocket, userId?: number, lobbyId?: string) {
+    protected handleJoinLobby(connection: WebSocket, userId: number, lobbyId?: string) {
         if (!lobbyId) {
             this.sendMessage(connection, {
                 type: "error",
@@ -322,7 +228,7 @@ export class MatchController {
         this.sendMessage(connection, {
             type: "joinedLobby",
             lobbyId: lobbyId,
-            playerId: player?.id
+            playerNumber: player!._playerNumber
         })
     }
 
@@ -347,6 +253,74 @@ export class MatchController {
         })
     }
 
+
+    private async handleGetLobbyById(connection: WebSocket, lobbyId: string) {
+        const lobby = this._lobbies.get(lobbyId);
+
+        if (!lobby) {
+            this.sendMessage(connection, {
+                type: "error",
+                message: "No Lobby like this lol"
+            })
+            return null;
+        }
+
+        this.sendMessage(connection, {
+            type: 'lobbyInfo',
+            lobby: lobby.getLobbyInfo()
+        })
+    }
+
+    private async handleGetLobbyList(connection: WebSocket) {
+        const openMatchModels = await this._matchService.getOpenLobbies();
+
+        const openLobbies = openMatchModels.map(Lobby => {
+            const activeLobby = Array.from(this._lobbies.values()).find(l =>
+                l.getGameId() === Lobby.matchModelId
+            );
+
+            if (activeLobby) {
+                return activeLobby.getLobbyInfo();
+            }
+
+            return {
+                id: Lobby.matchModelId.toString(),
+                lobbyId: Lobby.lobbyId,
+                name: Lobby.lobbyName || `Lobby ${Lobby.matchModelId}`,
+                creatorId: Lobby.player1.id,
+                maxPlayers: Lobby.maxPlayers || 2,
+                currentPlayers: Lobby.lobbyParticipants?.length || 1,
+                isPublic: !Lobby.hasPassword,
+                hasPassword: Lobby.hasPassword || false,
+                createdAt: Lobby.createdAt,
+                lobbyType: 'game' as const,
+                isStarted: false
+            }
+        })
+
+        const allLobbies = [...openLobbies]
+        for (const [id, lobby] of this._lobbies.entries()) {
+            allLobbies.push(lobby.getLobbyInfo());
+        }
+
+        this.sendMessage(connection, {
+            type: "lobbyList",
+            lobbies: allLobbies
+        })
+    }
+
+    //create ne lobby object with id, broadcast and matchservice!
+    protected createLobby(lobbyId: string, userId: number): MatchLobby {
+        this._matchService.createInitialMatchModelforLobby(lobbyId, userId)
+
+        return new MatchLobby(
+            lobbyId,
+            this.broadcast.bind(this),
+            this._matchService
+        )
+    }
+
+    /* GAME LOGIC FUNCTIONS FROM HERE */
     private handlePlayerReady(connection: WebSocket, player: Player, isReady: boolean) {
         if (!player || !player.lobbyId) {
             this.sendMessage(connection, {
@@ -441,93 +415,133 @@ export class MatchController {
             })
         }
     }
-
-    private async handleGetLobbyById(connection: WebSocket, lobbyId: string) {
-        const lobby = await this._matchService.getMatchLobbyById(lobbyId);
-
-        if (!lobby) {
-            this.sendMessage(connection, {
-                type: "error",
-                message: "No Lobby like this lol"
-            })
-            return null;
-        }
-
-        const activeLobby = Array.from(this._lobbies.values()).find(l => l.getGameId() === lobby.id)
-
-        if (activeLobby) {
-            this.sendMessage(connection, {
-                type: 'lobbyInfo',
-                lobby: activeLobby.getLobbyInfo()
-            })
-            return activeLobby.getLobbyInfo()
-        }
-
-        const lobbyInfo = {
-            id: lobby.id.toString(),
-            lobbyId: lobby.lobbyId,
-            name: lobby.lobbyName || `Lobby ${lobby.id}`,
-            creatorId: lobby.player1.id,
-            maxPlayers: lobby.maxPlayers || 2,
-            currentPlayers: lobby.lobbyParticipants?.length || 1,
-            isPublic: !lobby.hasPassword,
-            hasPassword: lobby.hasPassword || false,
-            createdAt: lobby.createdAt,
-            lobbyType: 'game' as const,
-            isStarted: false
-        }
-
-        this.sendMessage(connection, {
-            type: "lobbyInfo",
-            lobby: lobbyInfo
-        });
-
-        return lobbyInfo;
-    }
-
-    private async handleGetLobbyList(connection: WebSocket) {
-        const openLobbies = await this._matchService.getOpenLobbies();
-
-        const dbLobbies = openLobbies.map(Lobby => {
-            const activeLobby = Array.from(this._lobbies.values()).find(l =>
-                l.getGameId() === Lobby.id
-            );
-
-            if (activeLobby) {
-                return activeLobby.getLobbyInfo();
-            }
-
-            return {
-                id: Lobby.id.toString(),
-                lobbyId: Lobby.lobbyId,
-                name: Lobby.lobbyName || `Lobby ${Lobby.id}`,
-                creatorId: Lobby.player1.id,
-                maxPlayers: Lobby.maxPlayers || 2,
-                currentPlayers: Lobby.lobbyParticipants?.length || 1,
-                isPublic: !Lobby.hasPassword,
-                hasPassword: Lobby.hasPassword || false,
-                createdAt: Lobby.createdAt,
-                lobbyType: 'game' as const,
-                isStarted: false
-            }
-        })
-
-        const allLobbies = [...dbLobbies]
-        for (const [id, lobby] of this._lobbies.entries()) {
-            allLobbies.push(lobby.getLobbyInfo());
-        }
-
-        this.sendMessage(connection, {
-            type: "lobbyList",
-            lobbies: allLobbies
-        })
-    }
-
-    protected createLobby(lobbyId: string): MatchLobby {
-        return new MatchLobby(
-            lobbyId,
-            this.broadcast.bind(this),
-            this._matchService
-        )
-    }
 }
+
+
+// private handleInvite(connection: WebSocket, fromUserId?: number, toUserId?: number) {
+    //     if (!fromUserId || !toUserId) {
+        //         this.sendMessage(connection, {
+            //             type: "error",
+            //             message: "Not user to send from/to"
+            //         })
+            //         return;
+            //     }
+
+            //     const lobbyId = randomUUID();
+            //     const lobby = this.createLobby(lobbyId);
+            //     this._lobbies.set(lobbyId, lobby);
+
+            //     const inviteId = randomUUID();
+
+    //     const expires = new Date();
+    //     expires.setMinutes(expires.getMinutes() + 5)
+
+    //     this._invites.set(inviteId, {
+    //         from: fromUserId,
+    //         to: toUserId,
+    //         lobbyId,
+    //         expires
+    //     })
+
+    //     this.sendMessage(connection, {
+    //         type: "inviteSent",
+    //         inviteId,
+    //         toUserId,
+    //         lobbyId
+    //     })
+
+    //     this.NotifyUserOfInvite(toUserId, fromUserId, inviteId)
+    // }
+
+    // private async NotifyUserOfInvite(toUserId: number, fromUserId: number, inviteId: string) {
+    //     for (const [conn, player] of this._clients.entries()) {
+    //         if (player?.userId === toUserId) {
+    //             const fromUser = await this._userService.findUserById(fromUserId);
+    //             this.sendMessage(conn, {
+    //                 type: "inviteReceived",
+    //                 inviteId,
+    //                 fromUserId,
+    //                 fromUsername: fromUser?.username || "unknown user"
+    //             })
+    //             return;
+    //         }
+    //     }
+    // }
+
+    // private handleAcceptInvite(connection: WebSocket, userId?: number, inviteId?: string) {
+    //     if (!userId || !inviteId) {
+    //         this.sendMessage(connection, {
+    //             type: "error",
+    //             message: "user or invite not found"
+    //         })
+    //         return;
+    //     }
+
+    //     const invite = this._invites.get(inviteId)
+    //     if (!invite || invite.to !== userId) {
+    //         this.sendMessage(connection, {
+    //             type: "error",
+    //             message: "invite not found in list or not for user"
+    //         })
+    //         return;
+    //     }
+
+    //     const lobby = this._lobbies.get(invite.lobbyId)
+    //     if (!lobby) {
+    //         this.sendMessage(connection, {
+    //             type: "error",
+    //             message: "lobby not found"
+    //         })
+    //         return;
+    //     }
+
+    //     const player = lobby.addPlayer(connection, userId);
+    //     if (player) {
+    //         this._clients.set(connection, player);
+    //     }
+
+    //     this.sendMessage(connection, {
+    //         type: "joinedLobby",
+    //         lobbyId: invite.lobbyId,
+    //         playerNumber: player?.id
+    //     })
+
+    //     this._invites.delete(inviteId);
+    // }
+
+    // private handleDeclineInvite(connection: WebSocket, userId?: number, inviteId?: string) {
+    //     if (!userId || !inviteId) {
+    //         return
+    //     }
+    //     const invite = this._invites.get(inviteId);
+    //     if (!invite || invite.to !== userId)
+    //         return
+
+    //     this._invites.delete(inviteId)
+
+    //     this.NotifyUserOfDeclinedInvite(invite.from, userId);
+
+    //     const lobby = this._lobbies.get(invite.lobbyId)
+    //     if (lobby && lobby.isEmpty()) {
+    //         this._lobbies.delete(invite.lobbyId)
+    //     }
+
+    //     this.sendMessage(connection, {
+    //         type: "inviteDeclined",
+    //         inviteId
+    //     })
+    // }
+
+    // private async NotifyUserOfDeclinedInvite(userId: number, declinedBy: number) {
+    //     for (const [conn, player] of this._clients.entries()) {
+    //         if (player?.userId === userId) {
+    //             const decliningUser = await this._userService.findUserById(declinedBy);
+    //             this.sendMessage(conn, {
+    //                 type: "inviteDeclined",
+    //                 byUserId: declinedBy,
+    //                 declinedByUser: decliningUser?.username
+    //             })
+    //             return;
+    //         }
+    //     }
+    // }
