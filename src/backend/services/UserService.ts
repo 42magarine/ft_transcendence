@@ -179,44 +179,40 @@ export class UserService {
         return true;
     }
 
-    // updates User with new Info
-    async updateUser(user: UserModel, requestingUserRole?: string) {
-        // Get the current user data to check if we're trying to modify a master
-        const currentUser = await this.userRepo.findOneBy({ id: user.id });
-        if (!currentUser) {
-            throw new Error('User not found');
-        }
-
-        // Check if avatar has changed, delete old avatar if needed
-        if (user.avatar !== currentUser.avatar && currentUser.avatar) {
-            try {
-                console.log(`Deleting old avatar for user ${currentUser.id}: ${currentUser.avatar}`);
-                await deleteAvatar(currentUser.avatar);
+    async updateUser(user: UserModel, requestingUserRole: string, isOwnAccount: boolean): Promise<any> {
+        try {
+            const currentUser = await this.userRepo.findOneBy({ id: user.id });
+            if (!currentUser) {
+                throw new Error('User not found');
             }
-            catch (error) {
-                console.error(`Error deleting old avatar for user ${currentUser.id}:`, error);
-                // Continue with update even if avatar deletion fails
+
+            // Check if avatar has changed, delete old avatar if needed
+            if (user.avatar !== currentUser.avatar && currentUser.avatar) {
+                try {
+                    console.log(`Deleting old avatar for user ${currentUser.id}: ${currentUser.avatar}`);
+                    await deleteAvatar(currentUser.avatar);
+                }
+                catch (error) {
+                    console.error(`Error deleting old avatar for user ${currentUser.id}:`, error);
+                    // Continue with update even if avatar deletion fails
+                }
             }
-        }
 
-        // Prevent changing master role
-        if (currentUser.role === 'master') {
-            // Keep original role, prevent any role changes to master
-            user.role = 'master';
-        }
+            // Master role cannot be changed
+            if (currentUser.role === 'master') {
+                user.role = 'master';
+            }
 
-        // Prevent setting role to master
-        if (user.role === 'master' && currentUser.role !== 'master') {
-            throw new Error('Master role cannot be assigned through updates');
-        }
+            // Check permissions: only master can update other users, users can only update themselves
+            if (!isOwnAccount && requestingUserRole !== 'master') {
+                throw new Error('Insufficient permissions to update this user');
+            }
 
-        // Check permissions for setting admin role
-        if (user.role === 'admin' && currentUser.role !== 'admin' &&
-            (!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
-            throw new Error('Unzureichende Berechtigungen, um Admin-Berechtigungen zu vergeben');
+            return await this.userRepo.update(currentUser.id, user);
         }
-
-        return await this.userRepo.update(currentUser.id, user);
+        catch (error) {
+            throw new Error('Failed to update user');
+        }
     }
 
     async deleteById(userId: number, requestingUserRole: string, isOwnAccount: boolean): Promise<boolean> {

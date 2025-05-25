@@ -8,16 +8,13 @@ export class UserController {
     constructor(private userService: UserService) { }
 
     async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
-
         try {
             if (!request.user) {
                 return reply.code(200).send(null);
             }
 
             const currentUserId = request.user.id;
-
             const user = await this.userService.findUserById(currentUserId);
-
             if (!user) {
                 return reply.code(404).send({ error: 'User not found' });
             }
@@ -43,7 +40,6 @@ export class UserController {
     async getUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
             const userId = parseInt(request.params.id, 10);
-
             if (isNaN(userId)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
@@ -71,10 +67,80 @@ export class UserController {
         }
     }
 
+    async updateUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+        try {
+            const userId = parseInt(request.params.id, 10);
+            if (isNaN(userId)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+            }
+
+            const currentUserId = request.user!.id;
+            const currentUserRole = request.user!.role;
+
+            const isOwnAccount = currentUserId === userId;
+            const canUpdate = isOwnAccount || currentUserRole === 'master';
+
+            if (!canUpdate) {
+                return reply.code(403).send({ error: 'Insufficient permissions to update this user' });
+            }
+
+            let updates: Partial<UserModel> = {};
+            let avatarData = null;
+
+            // Process different request types (multipart or JSON)
+            if (request.isMultipart()) {
+                // Handle multipart/form-data (file uploads)
+                const parts = request.parts();
+
+                for await (const part of parts) {
+                    if (part.type === 'file' && part.fieldname === 'avatar') {
+                        try {
+                            const result = await saveAvatar(part);
+                            avatarData = result.publicPath;
+                        }
+                        catch (error) {
+                            return reply.code(400).send({ error: 'Failed to save avatar file' });
+                        }
+                    }
+                    else if (part.type === 'field') {
+                        // Add field to updates
+                        (updates as any)[part.fieldname] = part.value;
+                    }
+                }
+
+                // Set the avatar path if a new avatar was uploaded
+                if (avatarData) {
+                    updates.avatar = avatarData;
+                }
+            }
+            else {
+                // Handle JSON request
+                updates = request.body as Partial<UserModel>;
+            }
+
+            // Create updated user object
+            const updatedUser = { id: userId, ...updates } as UserModel;
+
+            // Update user - service handles all permission checks
+            const result = await this.userService.updateUser(updatedUser, currentUserRole, isOwnAccount);
+            reply.code(200).send({ message: 'User updated successfully', user: result });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                if (error.message.includes('Insufficient permissions')) {
+                    return reply.code(403).send({ error: error.message });
+                }
+                if (error.message === 'User not found') {
+                    return reply.code(404).send({ error: error.message });
+                }
+            }
+            reply.code(500).send({ error: 'Could not update user' });
+        }
+    }
+
     async deleteUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
             const deleteUserId = parseInt(request.params.id, 10);
-
             if (isNaN(deleteUserId)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
@@ -444,125 +510,6 @@ export class UserController {
             else {
                 reply.code(400).send({ error: 'Registration failed' });
             }
-        }
-    }
-
-    async updateUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
-        try {
-            const { id } = request.params;
-            let updates: Partial<UserModel> = {};
-            let avatarData = null;
-
-            if (!id) {
-                return reply.code(400).send({ error: 'User ID is required' });
-            }
-
-            const userId = parseInt(id, 10);
-
-            if (isNaN(userId)) {
-                return reply.code(400).send({ error: 'Invalid user ID format' });
-            }
-
-            // Get current user
-            const currentUser = await this.userService.findUserById(userId);
-
-            if (!currentUser) {
-                return reply.code(404).send({ error: 'User not found' });
-            }
-
-            // Process different request types (multipart or JSON)
-            if (request.isMultipart()) {
-                // Handle multipart/form-data (file uploads)
-                const parts = request.parts();
-
-                for await (const part of parts) {
-                    if (part.type === 'file' && part.fieldname === 'avatar') {
-                        try {
-                            const result = await saveAvatar(part);
-                            avatarData = result.publicPath;
-                        }
-                        catch (error) {
-                            console.error("Error saving avatar:", error);
-                            return reply.code(400).send({ error: 'Failed to save avatar file' });
-                        }
-                    }
-                    else if (part.type === 'field') {
-                        if (part.fieldname === 'role') {
-                            // Special handling for role updates
-                            if (currentUser.role === 'master' && part.value !== 'master') {
-                                return reply.code(403).send({ error: 'Master role cannot be changed' });
-                            }
-
-                            if (part.value === 'master' && currentUser.role !== 'master') {
-                                return reply.code(403).send({ error: 'Master role cannot be assigned' });
-                            }
-
-                            // Role changes require admin/master permissions
-                            if (part.value && part.value !== currentUser.role) {
-                                if (currentUser.role !== 'admin' && currentUser.role !== 'master') {
-                                    return reply.code(403).send({ error: 'Insufficient permissions to change user role' });
-                                }
-                            }
-                        }
-
-                        // Add field to updates
-                        (updates as any)[part.fieldname] = part.value;
-                    }
-                }
-
-                // Set the avatar path if a new avatar was uploaded
-                if (avatarData) {
-                    updates.avatar = avatarData;
-                }
-            }
-            else {
-                // Handle JSON request
-                updates = request.body as Partial<UserModel>;
-
-                // Prevent role changes for master user
-                if (currentUser.role === 'master' && updates.role && updates.role !== 'master') {
-                    return reply.code(403).send({ error: 'Master role cannot be changed' });
-                }
-
-                // Prevent setting role to master
-                if (updates.role === 'master' && currentUser.role !== 'master') {
-                    return reply.code(403).send({ error: 'Master role cannot be assigned' });
-                }
-            }
-
-            // Check permissions for updates
-            // Users can update their own non-role fields
-            // Role changes require admin or master permissions
-            if (currentUser.id !== userId &&
-                currentUser.role !== 'admin' &&
-                currentUser.role !== 'master') {
-                return reply.code(403).send({ error: 'Insufficient permissions to update this user' });
-            }
-
-            // If trying to change role, check permissions
-            if (updates.role && updates.role !== currentUser.role) {
-                if (currentUser.role !== 'admin' && currentUser.role !== 'master') {
-                    return reply.code(403).send({ error: 'Insufficient permissions to change user role' });
-                }
-            }
-
-            // Use the actual currentUser which is already of the correct UserModel type
-            // and merge with updates
-            const updatedUser = { ...currentUser, ...updates };
-
-            // Update user with role verification
-            console.log("UserController.ts - before DB call")
-            const result = await this.userService.updateUser(updatedUser, currentUser.role);
-            console.log("UserController.ts - after DB call")
-
-            reply.code(200).send({ message: 'User updated successfully', user: result });
-        }
-        catch (error) {
-            console.error('Error updating user:', error);
-            const message = error instanceof Error ? error.message : 'Could not update user';
-            reply.code(500).send({
-                error: message
-            });
         }
     }
 
