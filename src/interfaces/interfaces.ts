@@ -104,7 +104,7 @@ export interface leaveLobby extends ClientMessage {
 export interface ServerMessage {
     type: string;
     message?: string;
-    playerId?: number;
+    playerNumber?: number;
     playerCount?: number;
     lobbyId?: string;
     userId?: number;

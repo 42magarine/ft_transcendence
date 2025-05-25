@@ -29,7 +29,12 @@ export class UserService {
         return user;
     }
 
-    async findUserById(id: number): Promise<UserModel | null> {
+    async findUserById(id: number | null): Promise<UserModel | null> {
+        if (id == null)
+        {
+            return null;
+        }
+
         const user = await this.userRepo.findOneBy({ id });
         return user;
     }
