@@ -14,6 +14,7 @@ export interface User {
     tf_five?: string;
     tf_six?: string;
     secret?: string;
+    twoFAEnabled?: string;
 }
 
 export interface UserList {
