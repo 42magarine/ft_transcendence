@@ -1,5 +1,12 @@
 [
 	{
+		"Transcendence": {
+			"en_EN": "Transcendence",
+			"de_DE": "Transzendenz",
+			"it_IT": "Trascendenza"
+		}
+	},
+	{
 		"Login": {
 			"en_EN": "Login",
 			"de_DE": "Anmeldung",

@@ -6,12 +6,11 @@ declare global {
         lobbyListService?: LobbyListService;
         lobbyService?: LobbyService;
         userService: UserService;
+        languageService: LanguageService;
         userManagementService: UserMangementService;
+        __: (key: string) => string;
     }
 }
-
-// services
-import './services/LanguageService.js';
 
 // utils
 import '../utils/table.js';
@@ -21,6 +20,7 @@ import { TemplateEngine } from '../utils/TemplateEngine.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
 import UserMangementService from './services/UserManagementService.js';
 import UserService from './services/UserService.js';
+import LanguageService from './services/LanguageService.js';
 
 // views
 import Home from './views/Home.js';
@@ -80,9 +80,9 @@ async function renderHeader(): Promise<void> {
     }
 }
 
+window.languageService = new LanguageService();
 window.userService = new UserService();
 window.userManagementService = new UserMangementService();
-
 /**
  * Initial render and background setup on first load
  */

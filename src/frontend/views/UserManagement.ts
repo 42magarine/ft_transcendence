@@ -82,7 +82,7 @@ export default class UserManagement extends AbstractView {
         // List Card
         const listCard = await card.renderCard({
             title: 'Users',
-            extra: `<table class="list" data-height="400px">
+            extra: `<table class="list" data-height="80px">
 				<thead>
 				<tr>
 					<th>Avatar</th>

@@ -13,20 +13,20 @@ export default class Header extends AbstractView {
 
         const currentUser = await UserService.getCurrentUser();
         let buttonSet = [
-            { id: 'login-btn', text: 'Login', href: '/login', className: 'btn btn-sm' },
-            { id: 'signup-btn', text: 'Signup', href: '/signup', className: 'btn btn-sm' }
+            { id: 'login-btn', text: 'Login', href: '/login', className: 'btn btn-sm __' },
+            { id: 'signup-btn', text: 'Sign up', href: '/signup', className: 'btn btn-sm __' }
         ];
         if (currentUser != null) {
             if (currentUser.role == 'admin' || currentUser.role == 'master') {
 
                 buttonSet = [
-                    { id: 'user-btn', text: 'User Management', href: '/user-mangement', className: "btn btn-sm" },
-                    { id: 'user-btn', text: 'Lobby List', href: '/lobbylist', className: "btn btn-sm" }
+                    { id: 'user-btn', text: 'User Management', href: '/user-mangement', className: "btn btn-sm __" },
+                    { id: 'user-btn', text: 'Lobby List', href: '/lobbylist', className: "btn btn-sm __" }
                 ]
             }
             else {
                 buttonSet = [
-                    { id: 'user-btn', text: 'Lobby List', href: '/lobbylist', className: "btn btn-sm" }
+                    { id: 'user-btn', text: 'Lobby List', href: '/lobbylist', className: "btn btn-sm __" }
                 ]
             }
         }
@@ -87,7 +87,7 @@ export default class Header extends AbstractView {
         return super.render(`
 			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">
-				  <a router href="/" class="hover:underline">Transcendence</a>
+				  <a router href="/" class="hover:underline __">Transcendence</a>
 				</h1>
 				<div class="header-nav">
 					${buttonGroupHtml}

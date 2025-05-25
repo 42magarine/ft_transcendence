@@ -1,6 +1,6 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
-import __ from "../services/LanguageService.js"
+import LanguageService from "../services/LanguageService.js"
 
 export default class Login extends AbstractView {
     constructor() {
@@ -9,18 +9,18 @@ export default class Login extends AbstractView {
 
     async getHtml(): Promise<string> {
         const card = new Card();
-        const mwt = __("May want to");
-        const su = __("sign up");
-        const dyfgp = __("Did you forget your Password?");
-        const rp = __("Reset Password");
+        const mwt = window.__("May want to");
+        const su = window.__("sign up");
+        const dyfgp = window.__("Did you forget your Password?");
+        const rp = window.__("Reset Password");
         const loginCard = await card.renderCard({
-            title: __('Login'),
+            title: window.__('Login'),
             formId: 'login-form',
             inputs: [
-                { name: 'username', type: 'text', placeholder: __('Username') },
-                { name: 'password', type: 'password', placeholder: __('Password') }
+                { name: 'username', type: 'text', placeholder: window.__('Username') },
+                { name: 'password', type: 'password', placeholder: window.__('Password') }
             ],
-            button: { text: __('Login'), type: 'submit', className: "btn btn-primary" },
+            button: { text: window.__('Login'), type: 'submit', className: "btn btn-primary" },
             extra: `
                 <p>${mwt} <a router href="/signup">${su}</a></p>
                 <p>${dyfgp} <a router href="/password-reset">${rp}</a></p>

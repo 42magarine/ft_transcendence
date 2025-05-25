@@ -1,235 +1,112 @@
-import { table } from "console";
-
 /**
- * Creates a scrollable tbody while preserving cell widths
+ * Creates a scrollable tbody while keeping it simple
  * @param tableId - The ID of the table element
  * @param maxHeight - Maximum height for the scrollable area (e.g., '300px')
  */
-function makeScrollableTbody(tableId: string, maxHeight: string): void {
-    // Strict type checking
-    if (typeof tableId !== 'string' || typeof maxHeight !== 'string') {
-        throw new TypeError('tableId and maxHeight must be strings');
-    }
-
-    // Get the table element
-    const table = document.getElementById(tableId) as HTMLTableElement;
-    if (!table) {
-        throw new Error(`Table with ID "${tableId}" not found`);
-    }
-
-    // Get the thead and tbody elements
-    const thead = table.querySelector('thead') as HTMLTableSectionElement;
-    const tbody = table.querySelector('tbody') as HTMLTableSectionElement;
-
-    if (!thead || !tbody) {
-        throw new Error(`Table must have both thead and tbody elements`);
-    }
-
-    // Apply styles to the table
-    table.style.tableLayout = 'fixed';
-    table.style.width = '100%';
-    table.style.borderCollapse = 'collapse';
-
-    // Make the tbody scrollable (vertical only)
-    tbody.style.display = 'block';
-    tbody.style.overflowY = 'auto';  // Only vertical scrolling
-    tbody.style.overflowX = 'hidden'; // Prevent horizontal scrolling
-    tbody.style.maxHeight = maxHeight;
-
-    // Make the thead stick to the top
-    thead.style.display = 'block';
-    thead.style.overflowX = 'hidden'; // Prevent horizontal scrolling
-
-    // First, get all cells in the first row of thead to measure and preserve their width
-    const headerRow = thead.rows[0];
-    if (!headerRow) {
-        throw new Error('Table has no header rows');
-    }
-
-    const headerCells = headerRow.cells;
-    const cellWidths: string[] = [];
-    const totalWidth = headerRow.offsetWidth;
-
-    // Calculate the percentage width of each column based on the header
-    for (let i = 0; i < headerCells.length; i++) {
-        // Store original width percentage to maintain proportions
-        const widthPercentage = (headerCells[i].offsetWidth / totalWidth) * 100;
-        cellWidths.push(`${widthPercentage}%`);
-    }
-
-    // Apply the calculated percentage widths to all cells
-    const applyWidthsToCells = (row: HTMLTableRowElement): void => {
-        const cells = row.cells;
-        for (let i = 0; i < cells.length && i < cellWidths.length; i++) {
-            cells[i].style.width = cellWidths[i];
-            cells[i].style.minWidth = cellWidths[i];
-            cells[i].style.maxWidth = cellWidths[i];
-        }
-    };
-
-    // Apply to header cells
-    for (let i = 0; i < thead.rows.length; i++) {
-        applyWidthsToCells(thead.rows[i]);
-    }
-
-    // Apply to body cells
-    for (let i = 0; i < tbody.rows.length; i++) {
-        applyWidthsToCells(tbody.rows[i]);
-    }
-
-    // Fix the width of the thead to match tbody (accounting for scrollbar)
-    const scrollbarWidth = tbody.offsetWidth - tbody.clientWidth;
-    thead.style.paddingRight = `${scrollbarWidth}px`;
-
-    // Set display on all rows to address potential layout issues
-    const allRows = table.querySelectorAll('tr');
-    allRows.forEach((row: HTMLTableRowElement) => {
-        row.style.display = 'table';
-        row.style.width = '100%';
-        row.style.tableLayout = 'fixed';
-    });
-}
-
 class ScrollableTable {
     private table: HTMLTableElement;
     private thead: HTMLTableSectionElement;
     private tbody: HTMLTableSectionElement;
-    private resizeObserver: ResizeObserver;
     private maxHeight: string;
-    private originalColumnWidths: string[] = [];
 
     constructor(table: HTMLTableElement, maxHeight: string) {
-        this.maxHeight = maxHeight;
-
-        if (!table) {
-            throw new Error(`Table element not found`);
-        }
         this.table = table;
+        this.maxHeight = maxHeight;
+        this.thead = table.querySelector('thead') as HTMLTableSectionElement;
+        this.tbody = table.querySelector('tbody') as HTMLTableSectionElement;
 
-        // Get the thead and tbody elements
-        const thead = this.table.querySelector('thead');
-        const tbody = this.table.querySelector('tbody');
-
-        if (!thead || !tbody) {
-            throw new Error(`Table must have both thead and tbody elements`);
-        }
-
-        this.thead = thead as HTMLTableSectionElement;
-        this.tbody = tbody as HTMLTableSectionElement;
-
-        // Store the original column widths before making any changes
-        this.storeOriginalColumnWidths();
-
-        // Initialize resize observer to handle dynamic content changes
-        this.resizeObserver = new ResizeObserver(() => this.adjustTable());
-        this.resizeObserver.observe(this.table);
-
-        // Set up initial styles
-        this.setupTableStyles();
-
-        // Apply initial sizes
-        this.adjustTable();
-
-        // Handle window resize
-        window.addEventListener('resize', () => this.adjustTable());
-    }
-
-    private storeOriginalColumnWidths(): void {
-        const headerRow = this.thead.rows[0];
-        if (!headerRow) return;
-
-        const headerCells = headerRow.cells;
-        const totalWidth = headerRow.offsetWidth;
-
-        // Store the original width percentages
-        for (let i = 0; i < headerCells.length; i++) {
-            // Get computed width or offsetWidth
-            const computedStyle = window.getComputedStyle(headerCells[i]);
-            const width = headerCells[i].offsetWidth;
-            const widthPercentage = (width / totalWidth) * 100;
-
-            // If the element has a specific width set in CSS, use that instead
-            if (computedStyle.width !== 'auto') {
-                this.originalColumnWidths.push(computedStyle.width);
-            } else {
-                // Otherwise use calculated percentage
-                this.originalColumnWidths.push(`${widthPercentage}%`);
-            }
+        if (this.tbody && this.thead) {
+            this.setupScrolling();
         }
     }
 
-    private setupTableStyles(): void {
-        // Table styles
-        this.table.style.tableLayout = 'fixed';
-        this.table.style.width = '100%';
-        this.table.style.borderCollapse = 'collapse';
+    private setupScrolling(): void {
+        // Set the table container to relative positioning if needed
+        const tableContainer = this.table.parentElement;
+        if (tableContainer && getComputedStyle(tableContainer).position === 'static') {
+            tableContainer.style.position = 'relative';
+        }
 
-        // Make the tbody scrollable (vertical only)
+        // Enable horizontal scrolling for the entire table
+        this.table.style.whiteSpace = 'nowrap';
+        this.table.style.tableLayout = 'auto';
+
+        // Make container scrollable horizontally
+        if (tableContainer) {
+            tableContainer.style.overflowX = 'auto';
+        }
+
+        // Make tbody scrollable vertically
         this.tbody.style.display = 'block';
-        this.tbody.style.overflowY = 'auto';    // Only vertical scrolling
-        this.tbody.style.overflowX = 'hidden';  // Prevent horizontal scrolling
         this.tbody.style.maxHeight = this.maxHeight;
+        this.tbody.style.overflowY = 'auto';
+        this.tbody.style.overflowX = 'hidden';
 
-        // Make the thead stick to the top
+        // Keep thead visible and non-scrollable
         this.thead.style.display = 'block';
-        this.thead.style.overflowX = 'hidden';  // Prevent horizontal scrolling
+
+        // Synchronize column widths between thead and tbody
+        this.synchronizeColumnWidths();
     }
 
-    private adjustTable(): void {
-        // Calculate scrollbar width
-        const scrollbarWidth = this.tbody.offsetWidth - this.tbody.clientWidth;
+    private synchronizeColumnWidths(): void {
+        // Get all header cells
+        const headerCells = this.thead.querySelectorAll('th');
+        const firstRow = this.tbody.querySelector('tr');
 
-        // Apply the original widths (maintaining proportions)
-        this.applyCellWidths(this.originalColumnWidths);
+        if (!firstRow) return;
 
-        // Fix the width of the thead to match tbody (accounting for scrollbar)
-        this.thead.style.paddingRight = `${scrollbarWidth}px`;
+        const bodyCells = firstRow.querySelectorAll('td');
 
-        // Set display properties on all rows
-        const allRows = this.table.querySelectorAll('tr');
-        allRows.forEach((row) => {
-            const tableRow = row as HTMLTableRowElement;
-            tableRow.style.display = 'table';
-            tableRow.style.width = '100%';
-            tableRow.style.tableLayout = 'fixed';
-        });
-    }
+        // Set fixed widths based on content
+        headerCells.forEach((th, index) => {
+            const td = bodyCells[index];
+            if (td) {
+                // Reset styles first
+                th.style.width = 'auto';
+                td.style.width = 'auto';
 
-    private applyCellWidths(cellWidths: string[]): void {
-        // Function to apply to rows
-        const applyToRow = (row: HTMLTableRowElement): void => {
-            const cells = row.cells;
-            for (let i = 0; i < cells.length && i < cellWidths.length; i++) {
-                cells[i].style.width = cellWidths[i];
-                cells[i].style.minWidth = cellWidths[i];
-                cells[i].style.maxWidth = cellWidths[i];
-                // Prevent content from expanding cells
-                cells[i].style.overflow = 'hidden';
-                cells[i].style.textOverflow = 'ellipsis';
-                cells[i].style.whiteSpace = 'nowrap';
+                // Get computed styles to include padding
+                const thStyle = getComputedStyle(th);
+                const tdStyle = getComputedStyle(td);
+
+                // Calculate content width (excluding padding and border)
+                const thPaddingLeft = parseFloat(thStyle.paddingLeft);
+                const thPaddingRight = parseFloat(thStyle.paddingRight);
+                const thBorderLeft = parseFloat(thStyle.borderLeftWidth);
+                const thBorderRight = parseFloat(thStyle.borderRightWidth);
+
+                const tdPaddingLeft = parseFloat(tdStyle.paddingLeft);
+                const tdPaddingRight = parseFloat(tdStyle.paddingRight);
+                const tdBorderLeft = parseFloat(tdStyle.borderLeftWidth);
+                const tdBorderRight = parseFloat(tdStyle.borderRightWidth);
+
+                // Get the full width including all spacing
+                const thFullWidth = th.getBoundingClientRect().width;
+                const tdFullWidth = td.getBoundingClientRect().width;
+
+                // Use the larger width and add a small buffer for safety
+                const finalWidth = Math.max(thFullWidth, tdFullWidth) + 1;
+                const width = `${finalWidth}px`;
+
+                // Apply the width to header and first row
+                th.style.width = width;
+                th.style.minWidth = width;
+                th.style.maxWidth = width;
+
+                td.style.width = width;
+                td.style.minWidth = width;
+                td.style.maxWidth = width;
+
+                // Apply to all cells in this column
+                this.tbody.querySelectorAll(`tr td:nth-child(${index + 1})`).forEach(cell => {
+                    const cellElement = cell as HTMLElement;
+                    cellElement.style.width = width;
+                    cellElement.style.minWidth = width;
+                    cellElement.style.maxWidth = width;
+                });
             }
-        };
-
-        // Apply to all rows
-        for (let i = 0; i < this.thead.rows.length; i++) {
-            applyToRow(this.thead.rows[i]);
-        }
-
-        for (let i = 0; i < this.tbody.rows.length; i++) {
-            applyToRow(this.tbody.rows[i]);
-        }
-    }
-
-    // Public method to update max height
-    public updateMaxHeight(newMaxHeight: string): void {
-        this.maxHeight = newMaxHeight;
-        this.tbody.style.maxHeight = this.maxHeight;
-    }
-
-    // Clean up method
-    public destroy(): void {
-        this.resizeObserver.disconnect();
-        window.removeEventListener('resize', () => this.adjustTable());
+        });
     }
 }
 

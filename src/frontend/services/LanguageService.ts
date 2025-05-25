@@ -1,26 +1,36 @@
 import Router from '../../utils/Router.js';
 
-export class LanguageService {
-    private static translations: Record<string, Record<string, string>> = {};
-    private static isInitialized: boolean = false;
+export default class LanguageService {
+    private translations: Record<string, Record<string, string>> = {};
 
-    static async loadTranslations() {
+    constructor() {
+        this.loadTranslations();
+        this.setupGlobalPolyfill();
+        const langSelectActionHandler = () => {
+            this.langSelectAction();
+        };
+        if (!window.languageService) {
+            document.addEventListener('RouterContentLoaded', langSelectActionHandler);
+        }
+    }
+
+    async loadTranslations() {
         try {
             const httpProtocol = window.location.protocol;
             const response = await fetch(`${httpProtocol}//${window.location.host}/dist/assets/languages/translation.json`);
-            LanguageService.translations = await response.json();
+            this.translations = await response.json();
         }
         catch (error) {
             console.error('Failed to load translations:', error);
         }
     }
 
-    static __(key: string): string {
-        const currentLanguage = LanguageService.getCurrentLanguage?.() || 'en_EN';
+    __(key: string): string {
+        const currentLanguage = this.getCurrentLanguage?.() || 'en_EN';
 
-        const keys = Object.keys(LanguageService.translations);
+        const keys = Object.keys(this.translations);
         for (const k of keys) {
-            const translationObjU = LanguageService.translations[k] as unknown;
+            const translationObjU = this.translations[k] as unknown;
             const translationObj = translationObjU as Record<string, Record<string, string>>;
 
             if (key in translationObj) {
@@ -29,15 +39,15 @@ export class LanguageService {
             }
         }
 
-        if (key in LanguageService.translations) {
-            const translation = LanguageService.translations[key][currentLanguage];
+        if (key in this.translations) {
+            const translation = this.translations[key][currentLanguage];
             return translation || key;
         }
 
         return key;
     }
 
-    static getCurrentLanguage(): string {
+    getCurrentLanguage(): string {
         const langCookie = document.cookie
             .split('; ')
             .find(row => row.startsWith('language='));
@@ -45,7 +55,30 @@ export class LanguageService {
         return langCookie ? langCookie.split('=')[1] : 'en';
     }
 
-    static setupLangSelect() {
+    translateTextElements() {
+        console.log("translateTextElements")
+        const elementsToTranslate = document.querySelectorAll('.__');
+
+        elementsToTranslate.forEach(element => {
+            // Speichere den ursprünglichen Text beim ersten Mal
+            if (!element.getAttribute('data-original-text')) {
+                const originalText = element.textContent?.trim();
+                if (originalText) {
+                    element.setAttribute('data-original-text', originalText);
+                }
+            }
+
+            // Verwende den ursprünglichen Text für die Übersetzung
+            const originalText = element.getAttribute('data-original-text');
+            console.log(originalText)
+            if (originalText) {
+                const translatedText = this.__(originalText);
+                element.textContent = translatedText;
+            }
+        });
+    }
+
+    langSelectAction() {
         const activeFlag = document.querySelector('.active[data-lang]') as HTMLImageElement;
         const passiveFlags = document.querySelectorAll('.passive[data-lang]');
         const flagSources: Record<string, string> = {};
@@ -86,7 +119,8 @@ export class LanguageService {
                         passiveFlagWithSavedLang.setAttribute('src', activeSrc);
                         passiveFlagWithSavedLang.setAttribute('data-lang', activeLang);
 
-                        LanguageService.loadTranslations().then(() => {
+                        this.loadTranslations().then(() => {
+                            this.translateTextElements();
                             document.dispatchEvent(new CustomEvent('LanguageChanged'));
                         });
                     }
@@ -119,7 +153,8 @@ export class LanguageService {
                         clickedFlag.setAttribute('src', oldActiveSrc);
                         clickedFlag.setAttribute('data-lang', oldActiveLang);
                     }
-                    LanguageService.loadTranslations().then(() => {
+                    window.languageService.loadTranslations().then(() => {
+                        window.languageService.translateTextElements(); // Automatische Übersetzung nach dem Sprachwechsel
                         Router.update()
                     });
                 }
@@ -129,24 +164,7 @@ export class LanguageService {
         return flagSources;
     }
 
-    static initialize() {
-        if (this.isInitialized) {
-            return;
-        }
-
-        this.isInitialized = true;
-        this.loadTranslations();
-
-        const routerContentLoadedHandler = () => {
-            LanguageService.setupLangSelect();
-            document.removeEventListener('RouterContentLoaded', routerContentLoadedHandler);
-        };
-
-        document.addEventListener('RouterContentLoaded', routerContentLoadedHandler);
+    private setupGlobalPolyfill() {
+        window.__ = (key: string) => this.__(key);
     }
 }
-
-const __ = LanguageService.__;
-export default __;
-
-LanguageService.initialize();
