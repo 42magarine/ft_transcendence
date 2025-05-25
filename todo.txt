@@ -1,7 +1,3 @@
-1. frontend/service/ UserManagementService.ts + UserService -> hab ich aufgeräumt
-    - wo ist der Unterschied?
-    - Funktionen sind dopplt (get one / get all)
-
 2. Edit Profile:
     - entferne "Role"
     - wir brauchen Schalter (siehe Register -> 2FA Schalter) für
@@ -12,8 +8,6 @@
     Ob wir noch nachträgliche änderungen vornehmen lassen entscheiden wir später.
     - alerts entfernen
     - nach klick auf Updaten Profile sollte man wieder auf seine profile page weitergeleitet werden, bzw. MASTER auf user-management
-
-3. Refresh JWT hat noch keine geschrieben!? -> hab ich angefangen
 
 5. Es gibt noch keinen Button mit dem der User seinen Account löschen kann.
 
@@ -26,3 +20,5 @@
 10. warum wird bei aufrufen der seite /api/users/me 4x aufgerufen?
 
 11. Signup view will schon userdaten abfragen.... WTF!!!!!!
+
+12. JWT refresh testen ob es funktioniert
