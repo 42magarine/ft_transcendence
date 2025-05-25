@@ -6,7 +6,6 @@ import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
-import { MatchModel } from "../models/MatchModel.js";
 
 export class MatchController {
     protected _lobbies: Map<string, MatchLobby>;
@@ -48,14 +47,11 @@ export class MatchController {
     }
 
     //should get all open lobbies out of DB on startup and then save them into the lobby MAP
-    private async initMatchController()
-    {
-        if (this._lobbies.size === 0)
-        {
+    private async initMatchController() {
+        if (this._lobbies.size === 0) {
             const openLobbiesInDB = await this._matchService.getOpenLobbies()
 
-            for (const MatchModelLobby of openLobbiesInDB)
-            {
+            for (const MatchModelLobby of openLobbiesInDB) {
                 const lobbyFromBackend = new MatchLobby(MatchModelLobby.lobbyId, this.broadcast.bind(this), this._matchService)
                 this._lobbies.set(MatchModelLobby.lobbyId, lobbyFromBackend);
             }
@@ -82,7 +78,6 @@ export class MatchController {
             userId: userId
         });
     };
-
 
     //actual handle connection message function
     //that triggers on: "message" case in handleConnection function!
@@ -122,7 +117,7 @@ export class MatchController {
             //     break;
             // case "declineInvite":
             //     this.handleDeclineInvite(connection, data.userId, data.inviteId)
-                // break;
+            // break;
             case "ready":
                 this.handlePlayerReady(connection, player!, (data as ReadyMessage).ready)
                 break;
@@ -252,7 +247,6 @@ export class MatchController {
             type: "leftLobby"
         })
     }
-
 
     private async handleGetLobbyById(connection: WebSocket, lobbyId: string) {
         const lobby = this._lobbies.get(lobbyId);
@@ -417,131 +411,130 @@ export class MatchController {
     }
 }
 
-
 // private handleInvite(connection: WebSocket, fromUserId?: number, toUserId?: number) {
-    //     if (!fromUserId || !toUserId) {
-        //         this.sendMessage(connection, {
-            //             type: "error",
-            //             message: "Not user to send from/to"
-            //         })
-            //         return;
-            //     }
+//     if (!fromUserId || !toUserId) {
+//         this.sendMessage(connection, {
+//             type: "error",
+//             message: "Not user to send from/to"
+//         })
+//         return;
+//     }
 
-            //     const lobbyId = randomUUID();
-            //     const lobby = this.createLobby(lobbyId);
-            //     this._lobbies.set(lobbyId, lobby);
+//     const lobbyId = randomUUID();
+//     const lobby = this.createLobby(lobbyId);
+//     this._lobbies.set(lobbyId, lobby);
 
-            //     const inviteId = randomUUID();
+//     const inviteId = randomUUID();
 
-    //     const expires = new Date();
-    //     expires.setMinutes(expires.getMinutes() + 5)
+//     const expires = new Date();
+//     expires.setMinutes(expires.getMinutes() + 5)
 
-    //     this._invites.set(inviteId, {
-    //         from: fromUserId,
-    //         to: toUserId,
-    //         lobbyId,
-    //         expires
-    //     })
+//     this._invites.set(inviteId, {
+//         from: fromUserId,
+//         to: toUserId,
+//         lobbyId,
+//         expires
+//     })
 
-    //     this.sendMessage(connection, {
-    //         type: "inviteSent",
-    //         inviteId,
-    //         toUserId,
-    //         lobbyId
-    //     })
+//     this.sendMessage(connection, {
+//         type: "inviteSent",
+//         inviteId,
+//         toUserId,
+//         lobbyId
+//     })
 
-    //     this.NotifyUserOfInvite(toUserId, fromUserId, inviteId)
-    // }
+//     this.NotifyUserOfInvite(toUserId, fromUserId, inviteId)
+// }
 
-    // private async NotifyUserOfInvite(toUserId: number, fromUserId: number, inviteId: string) {
-    //     for (const [conn, player] of this._clients.entries()) {
-    //         if (player?.userId === toUserId) {
-    //             const fromUser = await this._userService.findUserById(fromUserId);
-    //             this.sendMessage(conn, {
-    //                 type: "inviteReceived",
-    //                 inviteId,
-    //                 fromUserId,
-    //                 fromUsername: fromUser?.username || "unknown user"
-    //             })
-    //             return;
-    //         }
-    //     }
-    // }
+// private async NotifyUserOfInvite(toUserId: number, fromUserId: number, inviteId: string) {
+//     for (const [conn, player] of this._clients.entries()) {
+//         if (player?.userId === toUserId) {
+//             const fromUser = await this._userService.findUserById(fromUserId);
+//             this.sendMessage(conn, {
+//                 type: "inviteReceived",
+//                 inviteId,
+//                 fromUserId,
+//                 fromUsername: fromUser?.username || "unknown user"
+//             })
+//             return;
+//         }
+//     }
+// }
 
-    // private handleAcceptInvite(connection: WebSocket, userId?: number, inviteId?: string) {
-    //     if (!userId || !inviteId) {
-    //         this.sendMessage(connection, {
-    //             type: "error",
-    //             message: "user or invite not found"
-    //         })
-    //         return;
-    //     }
+// private handleAcceptInvite(connection: WebSocket, userId?: number, inviteId?: string) {
+//     if (!userId || !inviteId) {
+//         this.sendMessage(connection, {
+//             type: "error",
+//             message: "user or invite not found"
+//         })
+//         return;
+//     }
 
-    //     const invite = this._invites.get(inviteId)
-    //     if (!invite || invite.to !== userId) {
-    //         this.sendMessage(connection, {
-    //             type: "error",
-    //             message: "invite not found in list or not for user"
-    //         })
-    //         return;
-    //     }
+//     const invite = this._invites.get(inviteId)
+//     if (!invite || invite.to !== userId) {
+//         this.sendMessage(connection, {
+//             type: "error",
+//             message: "invite not found in list or not for user"
+//         })
+//         return;
+//     }
 
-    //     const lobby = this._lobbies.get(invite.lobbyId)
-    //     if (!lobby) {
-    //         this.sendMessage(connection, {
-    //             type: "error",
-    //             message: "lobby not found"
-    //         })
-    //         return;
-    //     }
+//     const lobby = this._lobbies.get(invite.lobbyId)
+//     if (!lobby) {
+//         this.sendMessage(connection, {
+//             type: "error",
+//             message: "lobby not found"
+//         })
+//         return;
+//     }
 
-    //     const player = lobby.addPlayer(connection, userId);
-    //     if (player) {
-    //         this._clients.set(connection, player);
-    //     }
+//     const player = lobby.addPlayer(connection, userId);
+//     if (player) {
+//         this._clients.set(connection, player);
+//     }
 
-    //     this.sendMessage(connection, {
-    //         type: "joinedLobby",
-    //         lobbyId: invite.lobbyId,
-    //         playerNumber: player?.id
-    //     })
+//     this.sendMessage(connection, {
+//         type: "joinedLobby",
+//         lobbyId: invite.lobbyId,
+//         playerNumber: player?.id
+//     })
 
-    //     this._invites.delete(inviteId);
-    // }
+//     this._invites.delete(inviteId);
+// }
 
-    // private handleDeclineInvite(connection: WebSocket, userId?: number, inviteId?: string) {
-    //     if (!userId || !inviteId) {
-    //         return
-    //     }
-    //     const invite = this._invites.get(inviteId);
-    //     if (!invite || invite.to !== userId)
-    //         return
+// private handleDeclineInvite(connection: WebSocket, userId?: number, inviteId?: string) {
+//     if (!userId || !inviteId) {
+//         return
+//     }
+//     const invite = this._invites.get(inviteId);
+//     if (!invite || invite.to !== userId)
+//         return
 
-    //     this._invites.delete(inviteId)
+//     this._invites.delete(inviteId)
 
-    //     this.NotifyUserOfDeclinedInvite(invite.from, userId);
+//     this.NotifyUserOfDeclinedInvite(invite.from, userId);
 
-    //     const lobby = this._lobbies.get(invite.lobbyId)
-    //     if (lobby && lobby.isEmpty()) {
-    //         this._lobbies.delete(invite.lobbyId)
-    //     }
+//     const lobby = this._lobbies.get(invite.lobbyId)
+//     if (lobby && lobby.isEmpty()) {
+//         this._lobbies.delete(invite.lobbyId)
+//     }
 
-    //     this.sendMessage(connection, {
-    //         type: "inviteDeclined",
-    //         inviteId
-    //     })
-    // }
+//     this.sendMessage(connection, {
+//         type: "inviteDeclined",
+//         inviteId
+//     })
+// }
 
-    // private async NotifyUserOfDeclinedInvite(userId: number, declinedBy: number) {
-    //     for (const [conn, player] of this._clients.entries()) {
-    //         if (player?.userId === userId) {
-    //             const decliningUser = await this._userService.findUserById(declinedBy);
-    //             this.sendMessage(conn, {
-    //                 type: "inviteDeclined",
-    //                 byUserId: declinedBy,
-    //                 declinedByUser: decliningUser?.username
-    //             })
-    //             return;
-    //         }
-    //     }
-    // }
+// private async NotifyUserOfDeclinedInvite(userId: number, declinedBy: number) {
+//     for (const [conn, player] of this._clients.entries()) {
+//         if (player?.userId === userId) {
+//             const decliningUser = await this._userService.findUserById(declinedBy);
+//             this.sendMessage(conn, {
+//                 type: "inviteDeclined",
+//                 byUserId: declinedBy,
+//                 declinedByUser: decliningUser?.username
+//             })
+//             return;
+//         }
+//     }
+// }

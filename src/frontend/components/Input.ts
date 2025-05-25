@@ -12,21 +12,18 @@ export default class Input extends AbstractView {
         placeholder = '',
         value = '',
         className = ''
-    }: InputProps): Promise<string>
-    {
+    }: InputProps): Promise<string> {
         const finalClass = className;
-    
-        if (type === 'display')
-            {
-                return this.render(`
+
+        if (type === 'display') {
+            return this.render(`
                     <div class="detail-row non-interactive-row">
                         <label class="label">${placeholder || name}:</label>
                         <span class="value" style="pointer-events: none; user-select: none;">${value || ''}</span>
                     </div>
                 `);
-            }
-            
-    
+        }
+
         // Default input field rendering
         return this.render(`
             <input
@@ -40,10 +37,8 @@ export default class Input extends AbstractView {
             />
         `);
     }
-    
 
     async getHtml(): Promise<string> {
-
         return this.render(`<input placeholder="Default Input" />`);
     }
 }

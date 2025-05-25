@@ -5,37 +5,29 @@ import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
 import { UserList } from '../../interfaces/userInterfaces.js';
 
-export default class UserManagement extends AbstractView
-{
-    constructor()
-    {
+export default class UserManagement extends AbstractView {
+    constructor() {
         super();
     }
 
-    async getHtml(): Promise<string>
-    {
+    async getHtml(): Promise<string> {
         // Fetch users from API
         let users = [];
-        try
-        {
+        try {
             const response = await fetch('/api/users/');
-            if (response.ok)
-            {
+            if (response.ok) {
                 users = await response.json();
             }
-            else
-            {
+            else {
                 console.error('Failed to fetch users from API');
             }
         }
-        catch (error)
-        {
+        catch (error) {
             console.error('API request error:', error);
         }
 
         // Add avatar to each user
-        users.forEach((user: UserList) =>
-        {
+        users.forEach((user: UserList) => {
             user.listAvatar = generateProfileImage(user, 20, 20);
         });
 

@@ -47,7 +47,8 @@ export default class PasswordReset extends AbstractView {
                         </div>
                     </div>
                 `);
-            } catch (error) {
+            }
+            catch (error) {
                 // Invalid or expired token
                 const errorCard = await card.renderCard({
                     title: 'Invalid or Expired Link',
@@ -66,7 +67,8 @@ export default class PasswordReset extends AbstractView {
                     </div>
                 `);
             }
-        } else {
+        }
+        else {
             // Show the request password reset form
             const requestCard = await card.renderCard({
                 title: 'Password Reset',

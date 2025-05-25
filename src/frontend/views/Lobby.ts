@@ -4,11 +4,7 @@ import Title from '../components/Title.js';
 import Button from '../components/Button.js';
 import Card from '../components/Card.js';
 import Router from '../../utils/Router.js';
-import {
-    LobbyInfo as LobbyInfoFromServer,
-    User
-} from '../../interfaces/interfaces.js';
-
+import { LobbyInfo as LobbyInfoFromServer, User } from '../../interfaces/interfaces.js';
 import { LobbyParticipant, LobbyDataWithParticipants } from '../../interfaces/interfaces.js';
 
 interface PlayerDisplayState extends Partial<LobbyParticipant> {
@@ -20,7 +16,6 @@ export default class Lobby extends AbstractView {
     private currentUser: User | null = null;
     private lobbyId: string;
     private usersForInviteList: User[] = [];
-
 
     private currentLobbyFullData: LobbyDataWithParticipants | null = null;
     private currentPlayerDisplay: PlayerDisplayState = { username: 'You', isJoined: false, isReady: false };
@@ -35,7 +30,6 @@ export default class Lobby extends AbstractView {
         }
         this.setTitle(`Lobby ${this.lobbyId}`);
     }
-
 
     private updatePlayerButtonsUI() {
         const player1Btn = document.getElementById('player1') as HTMLButtonElement;
@@ -66,7 +60,6 @@ export default class Lobby extends AbstractView {
         const { participants } = this.currentLobbyFullData;
         const numParticipants = participants?.length || 0;
         const maxPlayers = this.currentLobbyFullData.maxPlayers || 2;
-
 
         const canStartCondition = numParticipants === maxPlayers;
 
@@ -106,7 +99,6 @@ export default class Lobby extends AbstractView {
             matchupViewElement?.classList.remove('hidden');
         }
     }
-
 
     private updateSimNotice(): void {
         const simNoticeDiv = document.querySelector('.sim-notice') as HTMLDivElement;

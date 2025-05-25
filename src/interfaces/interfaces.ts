@@ -119,18 +119,16 @@ export interface GameStateMessage extends ServerMessage {
     gameState: IGameState;
 }
 
-export interface User
-{
-	id?: number;
-	username: string;
-	email: string;
-	displayname?: string;
-	role?: string;
-	hasClickedStart?: boolean;
-	isJoined?: boolean;
-	isCreator?: boolean;
+export interface User {
+    id?: number;
+    username: string;
+    email: string;
+    displayname?: string;
+    role?: string;
+    hasClickedStart?: boolean;
+    isJoined?: boolean;
+    isCreator?: boolean;
 }
-
 
 export interface LobbyParticipant extends User {
     isReady: boolean; // Essential for the UI

@@ -173,28 +173,20 @@ export default class ProfileEdit extends AbstractView {
             });
 
             const deleteButton = document.getElementById('delete-user-btn');
-            if (deleteButton)
-            {
-                deleteButton.addEventListener('click', async () =>
-                {
+            if (deleteButton) {
+                deleteButton.addEventListener('click', async () => {
                     const confirmed = confirm('Are you sure you want to delete this user? This action cannot be undone.');
                     if (!confirmed)
                         return;
 
-                    try
-                    {
+                    try {
                         const success = await UserService.deleteUser(Number(this.userId));
-                        if (success)
-                        {
+                        if (success) {
                             alert('User deleted successfully.');
                             window.location.href = '/user-mangement';
                         }
-                        else
-                        {
-                        }
                     }
-                    catch (error)
-                    {
+                    catch (error) {
                         console.error('Delete failed:', error);
                     }
                 });

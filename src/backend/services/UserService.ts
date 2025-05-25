@@ -30,8 +30,7 @@ export class UserService {
     }
 
     async findUserById(id: number | null): Promise<UserModel | null> {
-        if (id == null)
-        {
+        if (id == null) {
             return null;
         }
 

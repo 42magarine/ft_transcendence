@@ -3,7 +3,6 @@ import Card from '../components/Card.js';
 import Title from '../components/Title.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
 import Button from '../components/Button.js';
-import { randomInt } from 'crypto';
 
 export default class Lobby extends AbstractView {
     private lobbyData: LobbyInfo[] = [];

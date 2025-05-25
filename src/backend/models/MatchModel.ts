@@ -49,12 +49,6 @@ export class UserModel {
     @Column({ nullable: true })
     verificationToken?: string;
 
-    // @OneToMany("MatchModel", (match: any) => match.player1)
-    // matchAsPlayer1!: any[];
-
-    // @OneToMany("MatchModel", (match: any) => match.player2)
-    // matchAsPlayer2!: any[];
-
     @OneToMany(() => MatchModel, (match) => match.player1)
     matchAsPlayer1!: MatchModel[];
 
@@ -75,8 +69,8 @@ export class MatchModel {
     @JoinColumn({ name: 'player1Id' })
     player1!: UserModel;
 
-    @ManyToOne(() => UserModel, (user) => user.matchAsPlayer2, { nullable: true})
-    @JoinColumn({ name: 'player2Id'})
+    @ManyToOne(() => UserModel, (user) => user.matchAsPlayer2, { nullable: true })
+    @JoinColumn({ name: 'player2Id' })
     player2?: UserModel | null;
 
     @Column({ default: 0 })
@@ -165,8 +159,6 @@ export class MatchModel {
 //     invitedUserIds?: number[];
 // }
 
-
-
 // @ChildEntity("tournaments")
 // export class TournamentModel extends MatchModel {
 //   @Column({ default: 8 })
@@ -183,7 +175,6 @@ export class MatchModel {
 //   @Column({ default: 'registration' })
 //   tournamentPhase!: 'registration' | 'in_progress' | 'completed';
 // }
-
 
 // @Entity('tournament_matches')
 // export class TournamentMatchModel {

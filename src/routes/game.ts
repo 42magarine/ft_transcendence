@@ -2,8 +2,6 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { MatchController } from "../backend/controllers/MatchController.js";
 import { UserService } from "../backend/services/UserService.js";
 import { MatchLobby } from "../backend/lobbies/MatchLobby.js";
-import user from "./user.js";
-import { Connection } from "typeorm/browser";
 
 export default async function (fastify: FastifyInstance) {
     const userService = new UserService();

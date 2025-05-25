@@ -66,13 +66,9 @@ export class MatchLobby {
 
     //update lobby participants more for tournament
     private async updateLobbyParticipants() {
-
-        if (this._dbGame && this._gameId)
-        {
-            for (const player of this._players.values())
-            {
-                if (player.userId)
-                {
+        if (this._dbGame && this._gameId) {
+            for (const player of this._players.values()) {
+                if (player.userId) {
                     await this._matchService!.addLobbyParticipant(this._gameId, player.userId)
                 }
             }
@@ -90,76 +86,75 @@ export class MatchLobby {
     // at this point player 1 is already represented in the matchModel but not yet in the map of the LobbyObject
     public addPlayer(
         connection: WebSocket,
-        userId: number)
-        {
-            //at this point is allways 0 and 2 so should work!
-            if (this._players.size >= this._maxPlayers || this._gameStarted) {
-                return null;
-            }
-
-            const playerNum = this._players.size + 1;
-            const player = new Player(connection, playerNum, userId!);
-
-            //set into player map of lobby object and set to an internal player number
-            this._players.set(playerNum, player);
-
-            if (playerNum === 1 && userId) {
-                this._creatorId = userId;
-            }
-
-            this.onPlayerAdded(player);
-
-            //broadcast a message to all users in lobby with info:
-            // playerNumber, playerCount of lobby, and playerInfo -> only relevant for 2nd player and onwards
-            this._broadcast(this.lobbyId, {
-                type: "playerJoined",
-                playerCount: this._players.size,
-                playerInfo: {
-                    playerNumber: playerNum,
-                    userId: player.userId,
-                    isReady: player._isReady
-                }
-            })
-
-            const playerList = this.getPlayerList();
-
-            //send another message to frontend with lobbyInfo
-            connection.send(JSON.stringify({
-                type: "lobbyInfo",
-                id: this.lobbyId,
-                name: this._lobbyName,
-                players: playerList,
-                creatorId: this._creatorId,
-                maxPlayers: this._maxPlayers,
-                lobbyType: this._lobbyType
-            }))
-
-            return player;
+        userId: number) {
+        //at this point is allways 0 and 2 so should work!
+        if (this._players.size >= this._maxPlayers || this._gameStarted) {
+            return null;
         }
 
-        public removePlayer(player: Player): void {
-            this._players.delete(player.id);
-            this._readyPlayers.delete(player.id);
-            this.onPlayerRemoved(player);
+        const playerNum = this._players.size + 1;
+        const player = new Player(connection, playerNum, userId!);
 
-            console.log(`Player ${player.id} disconnected`);
+        //set into player map of lobby object and set to an internal player number
+        this._players.set(playerNum, player);
 
-            this._broadcast(this.lobbyId, {
-                type: "playerDisconnected",
-                id: player.id,
-                playerCount: this._players.size
-            });
+        if (playerNum === 1 && userId) {
+            this._creatorId = userId;
+        }
 
-            if (this._creatorId === player.userId && this._players.size > 0) {
-                const nextPlayer = this._players.values().next().value;
+        this.onPlayerAdded(player);
 
-                if (nextPlayer && nextPlayer.userId) {
-                    this._creatorId = nextPlayer.userId;
-                    this._broadcast(this.lobbyId, {
-                        type: "newCreator",
-                        creatorId: this._creatorId,
-                        creatorPlayerId: nextPlayer.id
-                    })
+        //broadcast a message to all users in lobby with info:
+        // playerNumber, playerCount of lobby, and playerInfo -> only relevant for 2nd player and onwards
+        this._broadcast(this.lobbyId, {
+            type: "playerJoined",
+            playerCount: this._players.size,
+            playerInfo: {
+                playerNumber: playerNum,
+                userId: player.userId,
+                isReady: player._isReady
+            }
+        })
+
+        const playerList = this.getPlayerList();
+
+        //send another message to frontend with lobbyInfo
+        connection.send(JSON.stringify({
+            type: "lobbyInfo",
+            id: this.lobbyId,
+            name: this._lobbyName,
+            players: playerList,
+            creatorId: this._creatorId,
+            maxPlayers: this._maxPlayers,
+            lobbyType: this._lobbyType
+        }))
+
+        return player;
+    }
+
+    public removePlayer(player: Player): void {
+        this._players.delete(player.id);
+        this._readyPlayers.delete(player.id);
+        this.onPlayerRemoved(player);
+
+        console.log(`Player ${player.id} disconnected`);
+
+        this._broadcast(this.lobbyId, {
+            type: "playerDisconnected",
+            id: player.id,
+            playerCount: this._players.size
+        });
+
+        if (this._creatorId === player.userId && this._players.size > 0) {
+            const nextPlayer = this._players.values().next().value;
+
+            if (nextPlayer && nextPlayer.userId) {
+                this._creatorId = nextPlayer.userId;
+                this._broadcast(this.lobbyId, {
+                    type: "newCreator",
+                    creatorId: this._creatorId,
+                    creatorPlayerId: nextPlayer.id
+                })
             }
         }
     }

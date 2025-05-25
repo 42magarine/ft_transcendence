@@ -20,10 +20,9 @@ export class MatchService {
     }
 
     //get MatchModel by lobbyId
-    async getMatchLobbyById(lobbyId: string)
-    {
+    async getMatchLobbyById(lobbyId: string) {
         return await this.matchRepo.findOne({
-            where: {lobbyId},
+            where: { lobbyId },
             relations: ['player1', 'player2', 'winner', 'lobbyParticipants']
         })
     }
@@ -93,8 +92,7 @@ export class MatchService {
         return match.winnerId === userId ? "Won" : "Lost";
     }
 
-    async createInitialMatchModelforLobby(lobbyId: string, userId: number)
-    {
+    async createInitialMatchModelforLobby(lobbyId: string, userId: number) {
         const player1 = await this.userService.findUserById(userId)
         if (player1 == null)
             throw Error("?? User doesnt exist in DB")
