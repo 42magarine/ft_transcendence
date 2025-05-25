@@ -121,15 +121,11 @@ export class UserController {
             // Create updated user object
             const updatedUser = { id: userId, ...updates } as UserModel;
 
-            // Update user - service handles all permission checks
-            const result = await this.userService.updateUser(updatedUser, currentUserRole, isOwnAccount);
+            const result = await this.userService.updateUser(updatedUser);
             reply.code(200).send({ message: 'User updated successfully', user: result });
         }
         catch (error) {
             if (error instanceof Error) {
-                if (error.message.includes('Insufficient permissions')) {
-                    return reply.code(403).send({ error: error.message });
-                }
                 if (error.message === 'User not found') {
                     return reply.code(404).send({ error: error.message });
                 }
@@ -150,13 +146,11 @@ export class UserController {
 
             const isOwnAccount = currentUserId === deleteUserId;
             const canDelete = isOwnAccount || currentUserRole === 'master';
-
             if (!canDelete) {
                 return reply.code(403).send({ error: 'Insufficient permissions to delete this user' });
             }
 
-            const deleted = await this.userService.deleteById(deleteUserId, currentUserRole, isOwnAccount);
-
+            const deleted = await this.userService.deleteUser(deleteUserId);
             if (!deleted) {
                 return reply.code(404).send({ error: 'User not found or cannot be deleted' });
             }

@@ -22,3 +22,5 @@
 11. Signup view will schon userdaten abfragen.... WTF!!!!!!
 
 12. JWT refresh testen ob es funktioniert
+
+13. login mit email-adresse nicht mit username

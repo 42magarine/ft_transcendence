@@ -34,62 +34,111 @@ export class UserService {
         return user;
     }
 
-    // Checks if user exists, throw error if yes, otherwise create user in db
-    async createUser(userData: RegisterCredentials & { password: string, avatar?: string }, requestingUserRole?: string) {
-        const existingUser = await this.userRepo.findOne({
-            where: [
-                { username: userData.username },
-                { email: userData.email },
-                { username: userData.username }
-            ]
-        });
-
-        if (existingUser) {
-            throw new Error('User already exists');
-        }
-
-        // Set default role to 'user' if not provided
-        if (!userData.role) {
-            userData.role = 'user';
-        }
-
-        // Prevent creation of master user through this method
-        if (userData.role === 'master') {
-            throw new Error('Master user can only be created through environment variables');
-        }
-
-        // Check permissions for creating privileged roles
-        if (userData.role === 'admin' &&
-            (!requestingUserRole || (requestingUserRole !== 'admin' && requestingUserRole !== 'master'))) {
-            throw new Error('Unzureichende Berechtigungen zum Erstellen von Admin-Benutzern');
-        }
-
-        // Generate verification token for email verification
-        const verificationToken = this.emailService.generateToken();
-
-        // Create user with verification token and emailVerified=false
-        const user = this.userRepo.create({
-            ...userData,
-            emailVerified: false,
-            verificationToken: verificationToken
-        });
-
-        const savedUser = await this.userRepo.save(user);
-
-        // Send verification email
+    async createUser(userData: RegisterCredentials & { password: string, avatar?: string }): Promise<UserModel> {
         try {
-            await this.emailService.sendVerificationEmail(
-                userData.email,
-                verificationToken,
-                userData.username
-            );
+            // Check if user already exists by email
+            const existingUser = await this.findUserByEmail(userData.email);
+            if (existingUser) {
+                throw new Error('Email already exists');
+            }
+
+            // Always set role to 'user'
+            userData.role = 'user';
+
+            // Generate verification token for email verification
+            const verificationToken = this.emailService.generateToken();
+
+            // Create user with verification token and emailVerified=false
+            const user = this.userRepo.create({
+                ...userData,
+                emailVerified: false,
+                verificationToken: verificationToken
+            });
+
+            const savedUser = await this.userRepo.save(user);
+
+            // Send verification email
+            try {
+                await this.emailService.sendVerificationEmail(
+                    userData.email,
+                    verificationToken,
+                    userData.username
+                );
+            }
+            catch (error) {
+                console.error('Failed to send verification email:', error);
+                // Continue with user creation even if email fails
+            }
+
+            return savedUser;
         }
         catch (error) {
-            console.error('Failed to send verification email:', error);
-            // Continue with user creation even if email fails
+            throw new Error('Failed to create user');
         }
+    }
 
-        return savedUser;
+    async updateUser(user: UserModel): Promise<UserModel> {
+        try {
+            const currentUser = await this.findUserById(user.id);
+            if (!currentUser) {
+                throw new Error('User not found');
+            }
+
+            // Check if avatar has changed, delete old avatar if needed
+            if (user.avatar !== currentUser.avatar && currentUser.avatar) {
+                try {
+                    await deleteAvatar(currentUser.avatar);
+                }
+                catch (error) {
+                    console.error('Avatar delete failed:', error);
+                    // Continue with update even if avatar deletion fails
+                }
+            }
+
+            // Master role cannot be changed
+            if (currentUser.role === 'master') {
+                user.role = 'master';
+            }
+
+            await this.userRepo.update(currentUser.id, user);
+            const updatedUser = await this.findUserById(currentUser.id);
+            if (!updatedUser) {
+                throw new Error('Updated user not found');
+            }
+
+            return updatedUser;
+        }
+        catch (error) {
+            throw new Error('Failed to update user');
+        }
+    }
+
+    async deleteUser(userId: number): Promise<boolean> {
+        try {
+            const user = await this.findUserById(userId);
+            if (!user) {
+                return false;
+            }
+
+            if (user.role === 'master') {
+                return false;
+            }
+
+            if (user.avatar) {
+                try {
+                    await deleteAvatar(user.avatar);
+                }
+                catch (error) {
+                    console.error(`Error deleting avatar for user ${userId}:`, error);
+                }
+            }
+
+            const result = await this.userRepo.delete(userId);
+            return result.affected ? result.affected > 0 : false;
+        }
+        catch (error) {
+            throw new Error('Failed to delete user');
+        }
     }
 
     // Verify user email with token
@@ -179,75 +228,6 @@ export class UserService {
         return true;
     }
 
-    async updateUser(user: UserModel, requestingUserRole: string, isOwnAccount: boolean): Promise<any> {
-        try {
-            const currentUser = await this.userRepo.findOneBy({ id: user.id });
-            if (!currentUser) {
-                throw new Error('User not found');
-            }
-
-            // Check if avatar has changed, delete old avatar if needed
-            if (user.avatar !== currentUser.avatar && currentUser.avatar) {
-                try {
-                    console.log(`Deleting old avatar for user ${currentUser.id}: ${currentUser.avatar}`);
-                    await deleteAvatar(currentUser.avatar);
-                }
-                catch (error) {
-                    console.error(`Error deleting old avatar for user ${currentUser.id}:`, error);
-                    // Continue with update even if avatar deletion fails
-                }
-            }
-
-            // Master role cannot be changed
-            if (currentUser.role === 'master') {
-                user.role = 'master';
-            }
-
-            // Check permissions: only master can update other users, users can only update themselves
-            if (!isOwnAccount && requestingUserRole !== 'master') {
-                throw new Error('Insufficient permissions to update this user');
-            }
-
-            return await this.userRepo.update(currentUser.id, user);
-        }
-        catch (error) {
-            throw new Error('Failed to update user');
-        }
-    }
-
-    async deleteById(userId: number, requestingUserRole: string, isOwnAccount: boolean): Promise<boolean> {
-        try {
-            const user = await this.userRepo.findOne({ where: { id: userId } });
-
-            if (!user) {
-                return false;
-            }
-
-            if (user.role === 'master') {
-                return false;
-            }
-
-            if (!isOwnAccount && requestingUserRole !== 'master') {
-                return false;
-            }
-
-            if (user.avatar) {
-                try {
-                    await deleteAvatar(user.avatar);
-                }
-                catch (error) {
-                    console.error(`Error deleting avatar for user ${userId}:`, error);
-                }
-            }
-
-            const result = await this.userRepo.delete(userId);
-            return result.affected ? result.affected > 0 : false;
-        }
-        catch (error) {
-            throw new Error('Failed to delete user');
-        }
-    }
-
     private generateTokens(user: UserModel): AuthTokens {
         const payload: JWTPayload = {
             userID: user.id.toString(),
@@ -312,7 +292,7 @@ export class UserService {
             }
         }
 
-        const user = await this.createUser(userData, requestingUserRole);
+        const user = await this.createUser(userData);
         return this.generateTokens(user);
     }
 
