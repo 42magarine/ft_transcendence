@@ -10,7 +10,6 @@ export default class UserManagementService {
     }
 
     async registerUser(userData: User, avatarFile?: File): Promise<string> {
-        console.log("Registering user with data:", userData);
         try {
             // Check if 2FA is enabled but code verification is needed
             if (userData.secret &&
@@ -54,8 +53,6 @@ export default class UserManagementService {
 
             // Check if we have an avatar file
             if (avatarFile && avatarFile.size > 0) {
-                console.log("Uploading avatar file:", avatarFile.name);
-
                 // Create FormData object for multipart/form-data submission
                 const formData = new FormData();
 
@@ -97,9 +94,6 @@ export default class UserManagementService {
 
                 // Add the file with fieldname 'avatar'
                 formData.append('avatar', avatarFile);
-
-                console.log("Sending FormData with avatar");
-
                 // Send multipart form request
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
@@ -114,9 +108,6 @@ export default class UserManagementService {
                 Router.update();
                 return await response.text();
             } else {
-                // Regular JSON request without file
-                console.log("Sending JSON data without avatar");
-
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: {
@@ -700,11 +691,9 @@ export default class UserManagementService {
 
                     // Check if a file was actually selected
                     if (avatarFile && avatarFile.size > 0) {
-                        console.log("Avatar file selected:", avatarFile.name);
                         // Pass both userData and the file
                         result = await this.registerUser(userData, avatarFile);
                     } else {
-                        console.log("No avatar file selected");
                         // Just pass userData
                         result = await this.registerUser(userData);
                     }

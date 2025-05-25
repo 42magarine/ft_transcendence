@@ -4,8 +4,6 @@ import MessageHandlerService from './MessageHandlerService.js';
 import UserService from './UserService.js';
 
 export default class LobbyListService {
-    private lobbyData: LobbyInfo[] = [];
-
     constructor() {
     }
 
@@ -18,11 +16,8 @@ export default class LobbyListService {
 
             switch (data.type) {
                 case 'lobbyList':
-                    this.lobbyData = data.lobbies || [];
                     break;
                 case 'lobbyCreated':
-                    console.log("lobbyCreated")
-                    console.log(data.lobbyId)
                     if (data.lobbyId && window.messageHandler) {
                         //window.messageHandler.requestLobbyList();
                         // UserService.getCurrentUser().then((user) => {
@@ -46,21 +41,19 @@ export default class LobbyListService {
                     break;
             }
         });
-
         window.socketReady?.then(() => {
-            const createBtn = document.getElementById('createLobbyBtn') as HTMLElement | null;
-            if (createBtn) {
-                createBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (window.messageHandler) {
-                        window.messageHandler.createLobby();
-                    }
-                });
-            }
+            document.addEventListener('RouterContentLoaded', () => {
+                const createBtn = document.getElementById('createLobbyBtn') as HTMLElement | null;
+                if (createBtn) {
+                    createBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (window.messageHandler) {
+                            window.messageHandler.createLobby();
+                        }
+                        Router.update()
+                    });
+                }
+            });
         });
-    }
-
-    public getLobbies(): LobbyInfo[] {
-        return this.lobbyData;
     }
 }

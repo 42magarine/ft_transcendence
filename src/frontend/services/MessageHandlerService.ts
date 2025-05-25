@@ -1,8 +1,9 @@
-import { ClientMessage } from '../../interfaces/interfaces.js';
+import { ClientMessage, LobbyInfo } from '../../interfaces/interfaces.js';
 import UserService from './UserService.js';
 
 export default class MessageHandlerService {
     private currentUser: any = null;
+    private pendingRequests: Map<string, { resolve: Function, reject: Function, timeout: NodeJS.Timeout }> = new Map();
 
     constructor() {
     }
@@ -86,10 +87,21 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async requestLobbyList() {
+    public async requestLobbyList(): Promise<LobbyInfo[]> {
         const msg: ClientMessage = {
             type: 'getLobbyList',
         };
-        await this.safeSend(msg);
+
+        return new Promise<LobbyInfo[]>((resolve, reject) => {
+            const requestId = 'lobbyList';
+            const timeout = setTimeout(() => {
+                this.pendingRequests.delete(requestId);
+                reject(new Error('Lobby list request timed out'));
+            }, 5000);
+
+            this.pendingRequests.set(requestId, { resolve, reject, timeout });
+
+            this.safeSend(msg).catch(reject);
+        });
     }
 }

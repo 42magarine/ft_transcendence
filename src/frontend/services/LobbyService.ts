@@ -120,16 +120,13 @@ export default class LobbyService {
                 e.preventDefault();
                 const currentLobbyId = this.getCurrentLobbyIdFromUrl();
                 if (!currentLobbyId || !this.messageHandler || !this.userService) {
-                    console.warn("LobbyService: Cannot handle Start Game. Dependencies missing or not on lobby page.");
                     return;
                 }
 
                 const currentUser = await UserService.getCurrentUser();
                 if (!currentUser || !currentUser.id) {
-                    console.warn("LobbyService: Current user not found for marking ready.");
                     return;
                 }
-                console.log(`[LobbyService] User ${currentUser.id} clicked ready for lobby ${currentLobbyId}`);
                 this.messageHandler.markReady(currentUser.id.toString(), currentLobbyId);
             });
         }
@@ -141,7 +138,6 @@ export default class LobbyService {
                 e.preventDefault();
                 const currentLobbyId = this.getCurrentLobbyIdFromUrl();
                 if (currentLobbyId && this.messageHandler) {
-                    console.log(`[LobbyService] Leaving lobby ${currentLobbyId}`);
                     this.messageHandler.leaveLobby(currentLobbyId);
                 }
             });
@@ -155,7 +151,6 @@ export default class LobbyService {
                 const currentLobbyId = this.getCurrentLobbyIdFromUrl();
 
                 if (userIdToInvite && currentLobbyId && this.messageHandler) {
-                    console.log(`[LobbyService] Inviting user ${userIdToInvite} to lobby ${currentLobbyId}`);
                     this.messageHandler.sendInvite(userIdToInvite, currentLobbyId);
 
                     inviteButton.textContent = 'Pending...';

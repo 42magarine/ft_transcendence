@@ -137,11 +137,7 @@ class LocalGameService {
         if (window.ft_socket) {
             if (window.ft_socket.readyState === WebSocket.OPEN) {
                 window.ft_socket.send(JSON.stringify(msg));
-            } else {
-                console.warn("Tried to send a message but WebSocket is not open:", msg);
             }
-        } else {
-            console.warn("Tried to send a message but WebSocket is not open:", msg);
         }
     }
 
@@ -209,7 +205,6 @@ class LocalGameService {
         }
 
         this.initialized = false;
-        console.log("LocalGameService cleaned up");
     }
 
     // Getters for accessing current state (optional)

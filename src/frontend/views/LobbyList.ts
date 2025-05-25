@@ -3,10 +3,8 @@ import Card from '../components/Card.js';
 import Title from '../components/Title.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
 import Button from '../components/Button.js';
-import { randomInt } from 'crypto';
 
 export default class Lobby extends AbstractView {
-    private lobbyData: LobbyInfo[] = [];
 
     constructor(params: URLSearchParams) {
         super();
@@ -14,23 +12,26 @@ export default class Lobby extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
+        let lobbies: LobbyInfo[] = [];
         const title = new Title({ title: 'Available Lobbies' });
 
         const button = new Button();
         const createLobbyButton = await button.renderButton({
             id: 'createLobbyBtn',
-            text: 'Create Lobby',
-            type: 'submit',
+            text: window.__('Create Lobby'),
+            type: 'button',
             className: 'btn btn-primary'
         });
-
-        let lobbies: LobbyInfo[] = [];
-        console.log(lobbies)
-        if (window.lobbyListService) {
-            console.log("lobby get")
-            lobbies = await window.lobbyListService.getLobbies();
+        try {
+            const response = await window.messageHandler?.requestLobbyList();
+            if (response) {
+                console.log(response)
+                lobbies = response;
+            }
+        } catch (error) {
+            console.error('Failed to get lobby list:', error);
+            lobbies = [];
         }
-        console.log(lobbies)
         const card = new Card();
         const lobbyListCard = await card.renderCard({
             title: 'Lobby List',

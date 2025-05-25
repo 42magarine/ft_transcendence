@@ -1,5 +1,10 @@
 import Router from '../../utils/Router.js';
 
+// "Text" muss in assets/languages/translation.json existieren
+// npm run copy:assets
+// in router content = view files: window.__("Text")
+// out of router content = components header footer: < class="__" >Text</>
+
 export default class LanguageService {
     private translations: Record<string, Record<string, string>> = {};
 
@@ -56,11 +61,9 @@ export default class LanguageService {
     }
 
     translateTextElements() {
-        console.log("translateTextElements")
         const elementsToTranslate = document.querySelectorAll('.__');
 
         elementsToTranslate.forEach(element => {
-            // Speichere den ursprünglichen Text beim ersten Mal
             if (!element.getAttribute('data-original-text')) {
                 const originalText = element.textContent?.trim();
                 if (originalText) {
@@ -68,9 +71,7 @@ export default class LanguageService {
                 }
             }
 
-            // Verwende den ursprünglichen Text für die Übersetzung
             const originalText = element.getAttribute('data-original-text');
-            console.log(originalText)
             if (originalText) {
                 const translatedText = this.__(originalText);
                 element.textContent = translatedText;

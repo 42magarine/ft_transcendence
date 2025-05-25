@@ -163,8 +163,5 @@ export default class ProfileEdit extends AbstractView {
                 }
             });
         }
-        else {
-            console.warn("Edit profile form not found");
-        }
     }
 }
