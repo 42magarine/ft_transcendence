@@ -419,7 +419,7 @@ export class UserManagementService {
                 try {
                     const formData = new FormData(loginForm);
                     const credentials: LoginCredentials = {
-                        username: formData.get('username') as string,
+                        email: formData.get('email') as string,
                         password: formData.get('password') as string,
                     };
 

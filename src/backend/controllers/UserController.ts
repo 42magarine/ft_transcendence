@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { UserService } from "../services/UserService.js";
 import { saveAvatar, deleteAvatar } from "../services/FileService.js";
 import { UserModel } from "../models/MatchModel.js";
-import { RegisterCredentials, UserCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/authInterfaces.js";
+import { RegisterCredentials, LoginCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/userInterfaces.js";
 
 export class UserController {
     constructor(private userService: UserService) { }
@@ -163,7 +163,7 @@ export class UserController {
     }
 
     // Modified login method to handle 2FA
-    async login(request: FastifyRequest<{ Body: UserCredentials }>, reply: FastifyReply) {
+    async login(request: FastifyRequest<{ Body: LoginCredentials }>, reply: FastifyReply) {
         try {
             const result = await this.userService.login(request.body);
 
