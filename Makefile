@@ -1,4 +1,4 @@
-all: up logs
+all: up shell
 
 up:
 	docker-compose up --build --detach

@@ -40,8 +40,6 @@ export class PongGame {
         this._running = true;
         this._paused = false;
 
-        this.createGameRecord();
-
         this._intervalId = setInterval(() => {
             if (this._paused) return;
 
@@ -77,20 +75,6 @@ export class PongGame {
         this._score1 = 0;
         this._score2 = 0;
         this._gameIsOver = false;
-    }
-
-    private async createGameRecord() {
-        if (this._gameService && this._player1?.userId && this._player2?.userId) {
-            try {
-                const game = await this._gameService.createMatch(
-                    this._player1.userId,
-                    this._player2.userId
-                );
-                this._gameId = game.id;
-            } catch (error) {
-                console.error("Failed to create game record:", error)
-            }
-        }
     }
 
     private async updateGameRecord() {

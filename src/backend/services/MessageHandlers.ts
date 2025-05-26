@@ -17,7 +17,7 @@ export class MessageHandlers {
                     if (data.direction) {
                         this._broadcast(player.lobbyId, {
                             type: "paddleMove",
-                            playerId: player.id,
+                            playerNumber: player.id,
                             direction: data.direction
                         })
                     }
@@ -26,21 +26,21 @@ export class MessageHandlers {
                     player._isReady = data.ready;
                     this._broadcast(player.lobbyId, {
                         type: "playerReady",
-                        playerId: player.id,
+                        playerNumber: player.id,
                         ready: player._isReady
                     })
                     break;
                 case "pauseGame":
                     this._broadcast(player.lobbyId, {
                         type: "gamePaused",
-                        playerId: player.id,
+                        playerNumber: player.id,
                     });
                     break;
                 case "resumeGame":
                     if (player?.lobbyId) {
                         this._broadcast(player.lobbyId, {
                             type: "gameResumed",
-                            playerId: player.id,
+                            playerNumber: player.id,
                         });
                     }
                     break;

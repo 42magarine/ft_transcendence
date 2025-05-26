@@ -1,21 +1,10 @@
-declare global {
-    interface Window {
-        ft_socket?: WebSocket;
-        socketReady?: Promise<void>;
-    }
-}
-
 import { ClientMessage } from '../../interfaces/interfaces.js';
 import UserService from './UserService.js';
 
 export default class MessageHandlerService {
-    private socketReady: Promise<void>;
-    private userService: UserService;
     private currentUser: any = null;
 
-    constructor(socket: WebSocket, socketReady: Promise<void>, userService: UserService) {
-        this.socketReady = socketReady;
-        this.userService = userService;
+    constructor() {
     }
 
     private async safeSend(msg: ClientMessage) {
