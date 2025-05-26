@@ -24,12 +24,17 @@ export default class Lobby extends AbstractView {
         });
 
         let lobbies: LobbyInfo[] = [];
-        console.log(lobbies)
+        await window.socketReady;
         if (window.lobbyListService) {
-            console.log("lobby get")
-            lobbies = await window.lobbyListService.getLobbies();
+            try {
+                lobbies = await window.lobbyListService.fetchAndGetLobbies();
+            } catch (error) {
+                console.error("LobbyList View: Error fetching lobbies:", error);
+                lobbies = [];
+            }
+        } else {
+            console.warn("LobbyList View: lobbyListService not found. Cannot fetch lobbies.");
         }
-        console.log(lobbies)
         const card = new Card();
         const lobbyListCard = await card.renderCard({
             title: 'Lobby List',

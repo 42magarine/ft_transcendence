@@ -1,11 +1,9 @@
 import { ServerMessage, LobbyInfo } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
-import MessageHandlerService from './MessageHandlerService.js';
-import UserService from './UserService.js';
 
 export default class LobbyListService {
     private lobbyData: LobbyInfo[] = [];
-
+    private lobbyDataResolvers: ((lobbies: LobbyInfo[]) => void)[] = [];
     constructor() {
     }
 
@@ -19,21 +17,14 @@ export default class LobbyListService {
             switch (data.type) {
                 case 'lobbyList':
                     this.lobbyData = data.lobbies || [];
+                    this.resolveLobbyDataPromises(this.lobbyData);
                     break;
                 case 'lobbyCreated':
-                    console.log("lobbyCreated")
-                    console.log(data.lobbyId)
                     if (data.lobbyId && window.messageHandler) {
-                        //window.messageHandler.requestLobbyList();
-                        // UserService.getCurrentUser().then((user) => {
-                        //     if (typeof user?.id === 'number' && window.messageHandler) {
-                        //         window.messageHandler.joinGame(data.lobbyId!, user.id);
-                        //     } else {
-                        //         console.error('Could not fetch user ID to join lobby');
-                        //     }
-                        // });
-
+                        window.messageHandler.requestLobbyList();
                         Router.redirect(`/lobby/${data.lobbyId}`);
+                    } else {
+                        console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
                     }
                     break;
                 // case 'playerJoined':
@@ -50,17 +41,39 @@ export default class LobbyListService {
         window.socketReady?.then(() => {
             const createBtn = document.getElementById('createLobbyBtn') as HTMLElement | null;
             if (createBtn) {
-                createBtn.addEventListener('click', (e) => {
+                createBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
                     if (window.messageHandler) {
-                        window.messageHandler.createLobby();
+                        await window.messageHandler.createLobby();
                     }
                 });
             }
-        });
+        })
     }
 
-    public getLobbies(): LobbyInfo[] {
-        return this.lobbyData;
+    private resolveLobbyDataPromises(lobbies: LobbyInfo[]): void {
+        this.lobbyDataResolvers.forEach(resolve => resolve(lobbies));
+        this.lobbyDataResolvers = [];
     }
+
+    public async fetchAndGetLobbies(): Promise<LobbyInfo[]> {
+        if (!window.messageHandler) {
+            return Promise.resolve(this.lobbyData);
+        }
+        if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
+            return Promise.resolve(this.lobbyData);
+        }
+
+        const promise = new Promise<LobbyInfo[]>((resolve) => {
+            this.lobbyDataResolvers.push(resolve);
+        });
+
+        await window.messageHandler.requestLobbyList();
+
+        return promise;
+    }
+
+    // public getLobbies(): LobbyInfo[] {
+    //     return this.lobbyData;
+    // }
 }
