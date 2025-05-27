@@ -8,6 +8,7 @@ export default class MessageHandlerService {
     }
 
     private async safeSend(msg: ClientMessage) {
+        console.log("safeSend -> ", msg)
         if (!window.socketReady) {
             console.error('MessageHandlerService: window.socketReady promise does not exist.');
             throw new Error('Socket readiness promise not available. Cannot send message.');
@@ -41,6 +42,7 @@ export default class MessageHandlerService {
     }
 
     public async joinGame(lobbyId: string, userId: number) {
+        console.log("JOINNNN")
         const msg: ClientMessage = {
             type: 'joinLobby',
             lobbyId,

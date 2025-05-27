@@ -197,6 +197,7 @@ export class MatchController {
     }
 
     protected handleJoinLobby(connection: WebSocket, userId: number, lobbyId?: string) {
+        console.log("handleJoinLobby")
         if (!lobbyId) {
             this.sendMessage(connection, {
                 type: "error",
@@ -204,9 +205,12 @@ export class MatchController {
             })
             return;
         }
-
+        console.log("has lob id 1 ")
+        console.log(lobbyId)
+        console.log(this._lobbies)
         const lobby = this._lobbies.get(lobbyId)
 
+        console.log(lobby)
         if (!lobby) {
             this.sendMessage(connection, {
                 type: "error",
@@ -214,8 +218,11 @@ export class MatchController {
             })
             return;
         }
+        console.log("has lob id 2 ")
 
+        console.log("addPlayer")
         const player = lobby.addPlayer(connection, userId)
+        console.log(player)
         if (player) {
             this._clients.set(connection, player)
         }

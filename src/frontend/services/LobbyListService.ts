@@ -29,6 +29,14 @@ export default class LobbyListService {
                     console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
                 }
                 break;
+            case 'joinedLobby':
+                Router.update();
+                if (data.lobbyId && data.playerNumber) {
+                    Router.redirect(`/lobby/${data.lobbyId}`);
+                } else {
+                    console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
+                }
+                break;
             default:
                 break;
         }

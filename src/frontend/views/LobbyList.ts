@@ -53,7 +53,7 @@ export default class LobbyList extends AbstractView {
 									<td>{{lobby.currentPlayers}} / {{lobby.maxPlayers}}</td>
 									<td>{{lobby.isStarted ? 'Started' : 'Waiting'}</td>
 									<td class="text-right">
-				                        <a class="btn btn-accent accept-invite-btn" data-lobby="{{lobby.id}}" data-user="{{lobby.creatorId}}" href="/lobby/{{lobby.id}}">Join Lobby</a>
+				                        <a router class="btn btn-accent join-btn" data-lobby="{{lobby.lobbyId}}" data-user="{{lobby.creatorId}}">Join Lobby</a>
 									</td>
 								</tr>
 							</for>
