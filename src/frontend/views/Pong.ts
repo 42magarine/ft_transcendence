@@ -13,7 +13,6 @@ export default class Pong extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-
         const buttonGroup = await new Button().renderGroup({
             layout: 'group',
             align: 'center',

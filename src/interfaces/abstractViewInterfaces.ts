@@ -22,7 +22,7 @@ export interface ButtonGroupProps {
 
 export interface InputField {
     name: string;
-    type: string;
+    type?: 'text' | 'email' | 'password' | 'select' | 'hidden' | 'display' | 'file' | 'checkbox' | 'number';
     placeholder?: string;
     value?: string;
     options?: Array<{ value: string, label: string }>; // For select inputs

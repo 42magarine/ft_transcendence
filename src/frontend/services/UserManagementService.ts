@@ -38,7 +38,7 @@ export default class UserManagementService {
                         throw new Error(errorData.error || 'Two-factor code verification failed');
                     }
                 } catch (error) {
-                    alert('User registration successful, but two-factor authentication could not be enabled due to invalid code. You can enable it later in your account settings.');
+                    //alert'User registration successful, but two-factor authentication could not be enabled due to invalid code. You can enable it later in your account settings.');
 
                     // Remove 2FA data before proceeding with registration
                     userData.secret = undefined;
@@ -358,6 +358,7 @@ export default class UserManagementService {
                         email: formData.get('email') as string,
                         password: formData.get('password') as string,
                         role: formData.get('role') as string,
+                        twoFAEnabled: (formData.get('2FA') === 'on') ? 'true' : 'false'
                     };
 
                     const result = await this.registerUser(userData);
@@ -365,7 +366,7 @@ export default class UserManagementService {
 
                 } catch (error) {
                     console.error('Failed to register user:', error);
-                    alert(error instanceof Error ? error.message : 'Registration failed');
+                    //alerterror instanceof Error ? error.message : 'Registration failed');
                 }
             });
         }
@@ -388,7 +389,7 @@ export default class UserManagementService {
                 const userId = deleteButton.getAttribute('data-user');
                 if (!userId) {
                     console.error('No user ID provided for delete operation');
-                    alert('Unable to delete user: No ID provided');
+                    //alert'Unable to delete user: No ID provided');
                     return;
                 }
 
@@ -399,7 +400,7 @@ export default class UserManagementService {
                     }
                     catch (error) {
                         console.error('Failed to delete user:', error);
-                        alert(error instanceof Error ? error.message : 'Failed to delete user');
+                        //alerterror instanceof Error ? error.message : 'Failed to delete user');
                     }
                 }
             });
@@ -415,7 +416,7 @@ export default class UserManagementService {
                 try {
                     const formData = new FormData(loginForm);
                     const credentials: LoginCredentials = {
-                        username: formData.get('username') as string,
+                        email: formData.get('email') as string,
                         password: formData.get('password') as string,
                     };
 
@@ -427,7 +428,7 @@ export default class UserManagementService {
 
                 } catch (error) {
                     console.error('Failed to login:', error);
-                    alert(error instanceof Error ? error.message : 'Login failed');
+                    //alerterror instanceof Error ? error.message : 'Login failed');
 
                     // Add a link to request password reset or resend verification email
                     const errorMessage = document.createElement('div');
@@ -458,7 +459,7 @@ export default class UserManagementService {
                             const username = loginFormData.get('username') as string;
 
                             if (!username) {
-                                alert('Please enter your username to resend verification email');
+                                //alert'Please enter your username to resend verification email');
                                 return;
                             }
 
@@ -468,7 +469,7 @@ export default class UserManagementService {
                                 alert(result.message || 'Verification email sent if account exists');
                             } catch (error) {
                                 console.error('Failed to resend verification:', error);
-                                alert('Failed to resend verification email');
+                                //alert'Failed to resend verification email');
                             }
                         });
                     }
@@ -523,7 +524,7 @@ export default class UserManagementService {
 
                     // Validate code format
                     if (code.length !== 6 || !/^\d+$/.test(code)) {
-                        alert('Please enter a valid 6-digit code');
+                        //alert'Please enter a valid 6-digit code');
                         return;
                     }
 
@@ -533,7 +534,7 @@ export default class UserManagementService {
 
                 } catch (error) {
                     console.error('Two-factor verification failed:', error);
-                    alert(error instanceof Error ? error.message : 'Two-factor verification failed');
+                    //alerterror instanceof Error ? error.message : 'Two-factor verification failed');
                 }
             });
         }
@@ -611,14 +612,14 @@ export default class UserManagementService {
 
                         // Validate file type
                         if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
-                            alert('Please select a JPEG or PNG image file');
+                            //alert'Please select a JPEG or PNG image file');
                             this.value = '';
                             return;
                         }
 
                         // Validate file size (max 2MB)
                         if (file.size > 2 * 1024 * 1024) {
-                            alert('File size should not exceed 2MB');
+                            //alert'File size should not exceed 2MB');
                             this.value = '';
                             return;
                         }
@@ -665,7 +666,7 @@ export default class UserManagementService {
                     const repeatPassword = formData.get('repeat-password') as string;
 
                     if (password !== repeatPassword) {
-                        alert('Passwords do not match');
+                        //alert'Passwords do not match');
                         return;
                     }
 
@@ -701,14 +702,14 @@ export default class UserManagementService {
                     signupForm.reset();
 
                     // Show success message
-                    alert('Registration successful! Please check your email to verify your account.');
+                    //alert'Registration successful! Please check your email to verify your account.');
 
                     // Redirect to login page
                     Router.redirect('/login');
 
                 } catch (error) {
                     console.error('Failed to register user:', error);
-                    alert(error instanceof Error ? error.message : 'Registration failed');
+                    //alerterror instanceof Error ? error.message : 'Registration failed');
                 }
             });
         }
@@ -725,7 +726,7 @@ export default class UserManagementService {
                     const email = formData.get('email') as string;
 
                     if (!email) {
-                        alert('Please enter your email address');
+                        //alert'Please enter your email address');
                         return;
                     }
 
@@ -735,7 +736,7 @@ export default class UserManagementService {
                 } catch (error) {
                     console.error('Failed to request password reset:', error);
                     // For security reasons, we still give a generic message
-                    alert('If your email exists in our system, you will receive a password reset link.');
+                    //alert'If your email exists in our system, you will receive a password reset link.');
                 }
             });
         }
@@ -758,22 +759,22 @@ export default class UserManagementService {
                     const token = pathParts[pathParts.length - 1];
 
                     if (!token) {
-                        alert('Missing reset token');
+                        //alert'Missing reset token');
                         return;
                     }
 
                     if (!password || !confirmPassword) {
-                        alert('Please fill in all fields');
+                        //alert'Please fill in all fields');
                         return;
                     }
 
                     if (password !== confirmPassword) {
-                        alert('Passwords do not match');
+                        //alert'Passwords do not match');
                         return;
                     }
 
                     if (password.length < 8) {
-                        alert('Password must be at least 8 characters long');
+                        //alert'Password must be at least 8 characters long');
                         return;
                     }
 
@@ -785,7 +786,7 @@ export default class UserManagementService {
                     Router.redirect('/login');
                 } catch (error) {
                     console.error('Failed to reset password:', error);
-                    alert(error instanceof Error ? error.message : 'Failed to reset password');
+                    //alerterror instanceof Error ? error.message : 'Failed to reset password');
                 }
             });
         }
@@ -801,7 +802,7 @@ export default class UserManagementService {
                 const email = formData.get('email');
 
                 if (!email) {
-                    alert('Please enter your email address');
+                    //alert'Please enter your email address');
                     return;
                 }
 
@@ -810,7 +811,7 @@ export default class UserManagementService {
                     alert(response.message || 'If your account exists, a verification email has been sent.');
                 } catch (error) {
                     console.error('Error resending verification email:', error);
-                    alert('Failed to resend verification email. Please try again later.');
+                    //alert'Failed to resend verification email. Please try again later.');
                 }
             });
         }
@@ -829,7 +830,7 @@ export default class UserManagementService {
                     Router.redirect('/login');
                 } catch (error) {
                     console.error('Failed to logout:', error);
-                    alert(error instanceof Error ? error.message : 'Logout failed');
+                    //alerterror instanceof Error ? error.message : 'Logout failed');
                 }
             });
         }

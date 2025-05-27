@@ -4,7 +4,8 @@ import Title from '../components/Title.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
 import Button from '../components/Button.js';
 
-export default class Lobby extends AbstractView {
+export default class LobbyList extends AbstractView {
+    private lobbyData: LobbyInfo[] = [];
 
     constructor(params: URLSearchParams) {
         super();
@@ -18,19 +19,22 @@ export default class Lobby extends AbstractView {
         const button = new Button();
         const createLobbyButton = await button.renderButton({
             id: 'createLobbyBtn',
-            text: window.__('Create Lobby'),
+            text: 'Create Lobby',
             type: 'button',
             className: 'btn btn-primary'
         });
-        try {
-            const response = await window.messageHandler?.requestLobbyList();
-            if (response) {
-                console.log(response)
-                lobbies = response;
+
+        let lobbies: LobbyInfo[] = [];
+        await window.socketReady;
+        if (window.lobbyListService) {
+            try {
+                lobbies = await window.lobbyListService.getLobbies();
+            } catch (error) {
+                console.error("LobbyList View: Error fetching lobbies:", error);
+                lobbies = [];
             }
-        } catch (error) {
-            console.error('Failed to get lobby list:', error);
-            lobbies = [];
+        } else {
+            console.warn("LobbyList View: lobbyListService not found. Cannot fetch lobbies.");
         }
         const card = new Card();
         const lobbyListCard = await card.renderCard({

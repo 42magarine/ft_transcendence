@@ -6,7 +6,6 @@ import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
-import { MatchModel } from "../models/MatchModel.js";
 
 export class MatchController {
     protected _lobbies: Map<string, MatchLobby>;
@@ -79,7 +78,6 @@ export class MatchController {
             userId: userId
         });
     };
-
 
     //actual handle connection message function
     //that triggers on: "message" case in handleConnection function!
@@ -253,7 +251,6 @@ export class MatchController {
         })
     }
 
-
     private async handleGetLobbyById(connection: WebSocket, lobbyId: string) {
         const lobby = this._lobbies.get(lobbyId);
 
@@ -417,7 +414,6 @@ export class MatchController {
         }
     }
 }
-
 
 // private handleInvite(connection: WebSocket, fromUserId?: number, toUserId?: number) {
 //     if (!fromUserId || !toUserId) {

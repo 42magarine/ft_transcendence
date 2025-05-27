@@ -16,8 +16,8 @@ export default class Login extends AbstractView {
             title: window.__('Login'),
             formId: 'login-form',
             inputs: [
-                { name: 'username', type: 'text', placeholder: window.__('Username') },
-                { name: 'password', type: 'password', placeholder: window.__('Password') }
+                { name: 'email', type: 'text', placeholder: __('E-Mail') },
+                { name: 'password', type: 'password', placeholder: __('Password') }
             ],
             button: { text: window.__('Login'), type: 'submit', className: "btn btn-primary" },
             extra: `
