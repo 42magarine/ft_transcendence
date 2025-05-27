@@ -3,7 +3,7 @@ declare global {
         ft_socket?: WebSocket;
         socketReady?: Promise<void>;
         messageHandler?: MessageHandlerService;
-        lobbyListService?: LobbyListService;
+        lobbyListService: LobbyListService;
         lobbyService?: LobbyService;
         userService: UserService;
         userManagementService: UserMangementService;
@@ -144,7 +144,7 @@ document.addEventListener('RouterContentLoaded', async () => {
             window.ft_socket = undefined;
             window.socketReady = undefined;
             window.messageHandler = undefined;
-            window.lobbyListService = undefined;
+            // window.lobbyListService = undefined;
             window.lobbyService = undefined;
         }
         return;

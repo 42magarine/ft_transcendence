@@ -1,19 +1,25 @@
 import AbstractView from '../../utils/AbstractView.js';
+import Button from '../components/Button.js';
 import Card from '../components/Card.js';
 import Title from '../components/Title.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
-import Button from '../components/Button.js';
 
 export default class LobbyList extends AbstractView {
-    private lobbyData: LobbyInfo[] = [];
-
-    constructor(params: URLSearchParams) {
+    constructor() {
         super();
-        this.params = params;
     }
 
     async getHtml(): Promise<string> {
+        let lobbies: LobbyInfo[] = [];
+        try {
+            lobbies = await window.lobbyListService.getLobbies();
+        }
+        catch (error) {
+            console.error("LobbyList View: Error fetching lobbies:", error);
+        }
+
         const title = new Title({ title: 'Available Lobbies' });
+        const titleSection = await title.getHtml();
 
         const button = new Button();
         const createLobbyButton = await button.renderButton({
@@ -23,18 +29,6 @@ export default class LobbyList extends AbstractView {
             className: 'btn btn-primary'
         });
 
-        let lobbies: LobbyInfo[] = [];
-        await window.socketReady;
-        if (window.lobbyListService) {
-            try {
-                lobbies = await window.lobbyListService.getLobbies();
-            } catch (error) {
-                console.error("LobbyList View: Error fetching lobbies:", error);
-                lobbies = [];
-            }
-        } else {
-            console.warn("LobbyList View: lobbyListService not found. Cannot fetch lobbies.");
-        }
         const card = new Card();
         const lobbyListCard = await card.renderCard({
             title: 'Lobby List',
@@ -53,14 +47,13 @@ export default class LobbyList extends AbstractView {
 						<tbody>
 							<for each="lobbies" as="lobby">
 								<tr>
-									<td>Invited Lobby {{lobby.name}}</td>
-									<td>{{lobby.id}}</td>
+									<td>{{lobby.name}}</td>
+									<td>{{lobby.lobbyId}}</td>
 									<td>{{lobby.creatorId}}</td>
 									<td>{{lobby.currentPlayers}} / {{lobby.maxPlayers}}</td>
 									<td>{{lobby.isStarted ? 'Started' : 'Waiting'}</td>
 									<td class="text-right">
-				                        <a class="btn btn-accent accept-invite-btn" data-lobby="{{lobby.id}}" data-user="{{lobby.creatorId}}" href="/lobby/{{lobby.id}}">Accept Invite</a>
-				                        <a router class="btn btn-primary" href="/lobby/{{lobby.id}}">Join Lobby</a>
+				                        <a class="btn btn-accent accept-invite-btn" data-lobby="{{lobby.id}}" data-user="{{lobby.creatorId}}" href="/lobby/{{lobby.id}}">Join Lobby</a>
 									</td>
 								</tr>
 							</for>
@@ -70,9 +63,10 @@ export default class LobbyList extends AbstractView {
         });
 
         return this.render(`
-			<div class="container">
-			${lobbyListCard}
-			</div>`
+            <div class="container">
+                ${titleSection}
+                ${lobbyListCard}
+            </div>`
         );
     }
 }

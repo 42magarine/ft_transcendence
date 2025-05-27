@@ -1,9 +1,9 @@
-import Title from '../components/Title.js';
-import Card from '../components/Card.js';
-import Button from '../components/Button.js';
-import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
+import Button from '../components/Button.js';
+import Card from '../components/Card.js';
+import Title from '../components/Title.js';
 import { UserList } from '../../interfaces/userInterfaces.js';
+import { generateProfileImage } from '../../utils/Avatar.js';
 
 export default class UserManagement extends AbstractView {
     constructor() {

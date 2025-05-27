@@ -280,10 +280,10 @@ export class MatchController {
             return {
                 id: Lobby.matchModelId.toString(),
                 lobbyId: Lobby.lobbyId,
-                name: Lobby.lobbyName || `Lobby ${Lobby.matchModelId}`,
+                name: `Lobby ${Lobby.matchModelId}`,
                 creatorId: Lobby.player1.id,
-                maxPlayers: Lobby.maxPlayers || 2,
-                currentPlayers: Lobby.lobbyParticipants?.length || 1,
+                maxPlayers: Lobby.maxPlayers,
+                currentPlayers: Lobby.lobbyParticipants?.length,
                 isPublic: !Lobby.hasPassword,
                 hasPassword: Lobby.hasPassword || false,
                 createdAt: Lobby.createdAt,
@@ -292,15 +292,7 @@ export class MatchController {
             }
         })
 
-        const allLobbies = [...openLobbies]
-        for (const [id, lobby] of this._lobbies.entries()) {
-            allLobbies.push(lobby.getLobbyInfo());
-        }
-
-        this.sendMessage(connection, {
-            type: "lobbyList",
-            lobbies: allLobbies
-        })
+        this.sendMessage(connection, { type: "lobbyList", lobbies: openLobbies });
     }
 
     //create ne lobby object with id, broadcast and matchservice!
