@@ -60,6 +60,14 @@ export default class Profile extends AbstractView {
                     </div>
                     <div class="profile-details">
                         <div class="detail-row">
+                            <span class="label">Display Name:</span>
+                            <span class="value">${userData.displayname}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Username:</span>
+                            <span class="value">${userData.username}</span>
+                        </div>
+                        <div class="detail-row">
                             <span class="label">Email:</span>
                             <span class="value">${userData.email}</span>
                         </div>
@@ -67,11 +75,11 @@ export default class Profile extends AbstractView {
                             <span class="label">User ID:</span>
                             <span class="value">${userData.id}</span>
                         </div>
-                        <!-- Add more user details as needed -->
                     </div>
                 </div>`,
                 data: { user: userData }
             });
+            
         } else {
             profileCardHtml = await card.renderCard({
                 title: 'User Profile',

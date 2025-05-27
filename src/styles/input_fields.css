@@ -20,3 +20,22 @@
     color: rgba(255, 255, 255, 0.6);
   }
 }
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.label {
+  width: 160px;
+  font-weight: bold;
+  color: #ccc;
+  text-align: right;
+}
+
+.value,
+.input {
+  flex: 1;
+}

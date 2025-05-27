@@ -12,6 +12,7 @@
 @import './table.css';
 @import './input_fields.css';
 @import './profile.css';
+@import './modal.css';
 
 * {
 	user-select: none;
@@ -78,3 +79,16 @@ main .container{
 	  opacity: 1;
 	}
   }
+
+  .toggle-btn.active.bg-green-500 {
+	background-color: #22c55e; /* green-500 */
+	color: white;
+}
+.toggle-btn.active.bg-red-500 {
+	background-color: #ef4444; /* red-500 */
+	color: white;
+}
+.toggle-btn:not(.active) {
+	background-color: transparent;
+	color: rgba(255, 255, 255, 0.5);
+}

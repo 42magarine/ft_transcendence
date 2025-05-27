@@ -107,4 +107,13 @@ export interface ToggleProps {
     id: string;
     label: string;
     checked?: boolean;
+    readonly?: boolean;
+}
+
+export interface ToggleProps {
+	id: string;
+	name?: string; // ✅ Add this line
+	label: string;
+	checked?: boolean;
+    readonly?: boolean;
 }

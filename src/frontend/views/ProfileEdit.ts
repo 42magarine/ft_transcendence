@@ -1,200 +1,155 @@
 import Title from '../components/Title.js';
 import Card from '../components/Card.js';
 import Button from '../components/Button.js';
+import Modal from '../components/Modal.js';
 import AbstractView from '../../utils/AbstractView.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 import UserService from '../services/UserService.js';
+import Toggle from '../components/Toggle.js';
+import Input from '../components/Input.js';
 
 export default class ProfileEdit extends AbstractView {
-    private userId: string;
+	private userId: string;
 
-    constructor(params: URLSearchParams) {
-        super();
-        this.userId = params.get('id') || 'unknown';
-    }
+	constructor(params: URLSearchParams) {
+		super();
+		this.userId = params.get('id') || 'unknown';
+	}
 
-    async getHtml(): Promise<string> {
-        let userData = null;
+	async getHtml(): Promise<string> {
+		let userData = null;
 
-        try {
-            const userResponse = await fetch(`/api/users/${this.userId}`);
-            if (userResponse.ok) {
-                userData = await userResponse.json();
-            } else {
-                console.error('Failed to fetch user data from API');
-            }
-        } catch (error) {
-            console.error('API request error:', error);
-        }
+		try {
+			const userResponse = await fetch(`/api/users/${this.userId}`);
+			if (userResponse.ok) {
+				userData = await userResponse.json();
+			} else {
+				console.error('Failed to fetch user data from API');
+			}
+		} catch (error) {
+			console.error('API request error:', error);
+		}
 
-        const title = new Title({
-            title: userData ? `Edit Profile: ${userData.displayname}` : 'Edit Profile',
-        });
-        const titleSection = await title.getHtml();
+		const title = new Title({
+			title: userData ? `Edit Profile: ${userData.displayname}` : 'Edit Profile',
+		});
+		const titleSection = await title.getHtml();
 
-        const card = new Card();
-        let profileImageSvg = '';
-        let cardBody = '';
+		const toggle = new Toggle();
+		const input = new Input();
 
-        if (userData) {
-            profileImageSvg = generateProfileImage(userData, 200, 200);
+		const card = new Card();
+		let cardBody = '';
 
-            cardBody = `
+		if (userData) {
+			const profileImageSvg = generateProfileImage(userData, 200, 200);
+
+			cardBody = `
 				<div class="profile-header">
 					<div class="profile-avatar-container">${profileImageSvg}</div>
 				</div>
 				<div class="profile-details space-y-4">
-					<div class="detail-row">
-						<label class="label">Display Name:</label>
-						<input class="input" type="text" name="displayname" value="${userData.displayname}" />
-					</div>
-					<div class="detail-row">
-						<label class="label">Username:</label>
-						<input class="input" type="text" name="username" value="${userData.username}" />
-					</div>
-					<div class="detail-row">
-						<label class="label">Email:</label>
-						<span class="value">${userData.email}</span>
-					</div>
-                    <div class="detail-row">
-                        <label class="label">Email Verified:</label>
-                        <select class="input" name="emailVerified">
-                            <option value="true" ${userData.emailVerified ? 'selected' : ''}>Yes</option>
-                            <option value="false" ${!userData.emailVerified ? 'selected' : ''}>No</option>
-                        </select>
-                    </div>
-                                        <div class="detail-row">
-						<label class="label">2FA:</label>
-						<span class="value">${userData.twoFAEnabled}</span>
-					</div>
-					<div class="detail-row">
-						<label class="label">New Password:</label>
-						<input class="input" type="password" name="password" placeholder="Leave blank to keep current password" />
-					</div>
-                    <div class="detail-row" id="confirm-password-row" style="display: none;">
-                        <label class="label">Confirm Password:</label>
-                        <input class="input" type="password" name="confirmPassword" placeholder="Repeat new password" />
-                    </div>
+					${await input.renderInput({
+						name: 'displayname',
+						placeholder: 'Display Name',
+						value: userData.displayname
+					})}
+					${await input.renderInput({
+						name: 'username',
+						placeholder: 'Username',
+						value: userData.username
+					})}
+					${await input.renderInput({
+						type: 'display',
+						name: 'email',
+						placeholder: 'Email',
+						value: userData.email
+					})}
+					${await toggle.renderToggle({
+						id: 'emailVerified',
+						name: 'emailVerified',
+						label: 'Email Verified',
+						checked: userData.emailVerified
+					})}
+					${await toggle.renderToggle({
+						id: 'twoFAEnabled',
+						name: 'twoFAEnabled',
+						label: '2FA Enabled',
+						checked: userData.twoFAEnabled,
+						readonly: true
+					})}
+					${await toggle.renderToggle({
+						id: 'googleSignIn',
+						name: 'googleSignIn',
+						label: 'Google Sign-In',
+						checked: userData.googleSignIn ?? false,
+						readonly: true
+					})}
+					${await input.renderInput({
+						id: 'password',
+						name: 'password',
+						type: 'password',
+						placeholder: 'Password',
+						withConfirm: true
+					})}
 				</div>
 			`;
-        } else {
-            cardBody = `<div class="alert alert-warning">User not found or error loading user data.</div>`;
-        }
+		} else {
+			cardBody = `<div class="alert alert-warning">User not found or error loading user data.</div>`;
+		}
 
-        const cardHtml = await card.renderCard({
-            title: 'User Profile',
-            body: `<form id="edit-profile-form">${cardBody}
+		const cardHtml = await card.renderCard({
+			title: 'User Profile',
+			body: `<form id="edit-profile-form">${cardBody}
 				<div class="text-center mt-6">
 					<button type="submit" class="btn btn-success">Update Profile</button>
 					<button id="delete-user-btn" type="button" class="btn btn-danger">Delete Profile</button>
 				</div>
 			</form>`
-        });
+		});
 
-        const button = new Button();
-        const buttonGroup = await button.renderGroup({
-            layout: 'stack',
-            align: 'center',
-            buttons: [
-                {
-                    id: 'back-to-list',
-                    text: 'Back to User List',
-                    href: '/user-mangement',
-                    className: 'btn btn-primary'
-                }
-            ]
-        });
+		const button = new Button();
+		const buttonGroup = await button.renderGroup({
+			layout: 'stack',
+			align: 'center',
+			buttons: [
+				{
+					id: 'back-to-list',
+					text: 'Back to User List',
+					href: '/user-mangement',
+					className: 'btn btn-primary'
+				}
+			]
+		});
 
-        return this.render(`
+		const deleteModal = await new Modal().renderModal({
+			id: 'confirm-delete-modal',
+			title: 'Confirm Deletion',
+			content: `<p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>`,
+			footer: `
+				<div class="flex justify-end gap-4">
+					<button class="btn btn-secondary" onclick="document.getElementById('confirm-delete-modal').classList.add('hidden')">Cancel</button>
+					<button id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+				</div>
+			`,
+			animation: 'scale',
+			closableOnOutsideClick: true
+		});
+
+		return this.render(`
 			<div class="container">
 				${titleSection}
 				${cardHtml}
 				${buttonGroup}
+				${deleteModal}
 			</div>
 		`);
-    }
+	}
 
-    async mount(): Promise<void> {
-        const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
-        if (form) {
-            // Toggle confirmPassword visibility based on password input
-            const passwordInput = form.querySelector('input[name="password"]') as HTMLInputElement;
-            const confirmRow = document.getElementById('confirm-password-row');
-
-            if (passwordInput && confirmRow) {
-                passwordInput.addEventListener('input', () => {
-                    if (passwordInput.value.trim().length > 0) {
-                        confirmRow.style.display = 'block';
-                    } else {
-                        confirmRow.style.display = 'none';
-                        const confirmInput = confirmRow.querySelector('input[name="confirmPassword"]') as HTMLInputElement;
-                        if (confirmInput) confirmInput.value = ''; // clear the field
-                    }
-                });
-            }
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const payload: any = Object.fromEntries(formData.entries());
-
-                const password = payload.password as string;
-                const confirmPassword = payload.confirmPassword as string;
-                payload.emailVerified = (formData.get('emailVerified') === 'true');
-                if (password) {
-                    if (password !== confirmPassword) {
-                        //alert"Passwords do not match.");
-                        return;
-                    }
-                    // Include both in payload
-                    payload.password = password;
-                    payload.confirmPassword = confirmPassword;
-                }
-                else {
-                    // Remove both if empty
-                    delete payload.password;
-                    delete payload.confirmPassword;
-                }
-
-                try {
-                    const success = await UserService.updateUser(this.userId, payload);
-                    if (success) {
-                        //alert'Profile updated successfully.');
-                        window.location.href = `/users/${this.userId}`;
-                    }
-                    else {
-                        //alert'Failed to update profile.');
-                    }
-                }
-                catch (error) {
-                    console.error('Update failed:', error);
-                    //alert'An error occurred while updating.');
-                }
-            });
-
-            const deleteButton = document.getElementById('delete-user-btn');
-            if (deleteButton) {
-                deleteButton.addEventListener('click', async () => {
-                    const confirmed = confirm('Are you sure you want to delete this user? This action cannot be undone.');
-                    if (!confirmed)
-                        return;
-
-                    try {
-                        const success = await UserService.deleteUser(Number(this.userId));
-                        if (success) {
-                            alert('User deleted successfully.');
-                            window.location.href = '/user-mangement';
-                        }
-                    }
-                    catch (error) {
-                        console.error('Delete failed:', error);
-                    }
-                });
-            }
-
-        }
-        else {
-            console.warn("Edit profile form not found");
-        }
+	async mount(): Promise<void>
+    {
+        UserService.attachProfileFormHandlers('edit-profile-form', this.userId);
+        UserService.attachDeleteHandler('delete-user-btn', 'confirm-delete-modal', 'confirm-delete-btn', this.userId);
     }
 }
+
