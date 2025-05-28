@@ -31,3 +31,20 @@ thead {
 	background-color: #38bdf8;
 	color: white;
 }
+
+table.list {
+	table-layout: fixed;
+	width: 100%;
+}
+
+table.list th,
+table.list td {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 1px;
+}
+
+table.list td {
+	vertical-align: middle;
+}

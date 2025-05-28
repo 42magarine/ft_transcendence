@@ -6,7 +6,6 @@ import AbstractView from '../../utils/AbstractView.js';
 import { UserList } from '../../interfaces/userInterfaces.js';
 import Toggle from '../components/Toggle.js';
 import Modal from '../components/Modal.js';
-import UserService from '../services/UserService.js';
 import Input from '../components/Input.js';
 
 export default class UserManagement extends AbstractView {
@@ -30,9 +29,6 @@ export default class UserManagement extends AbstractView {
         users.forEach((user: UserList) => {
             user.listAvatar = generateProfileImage(user, 20, 20);
         });
-
-        const title = new Title({ title: 'User Management' });
-        const titleSection = await title.getHtml();
 
         const button = new Button();
         const readAllButtonGroup = await button.renderGroup({
@@ -70,46 +66,54 @@ export default class UserManagement extends AbstractView {
         });
 
         const card = new Card();
-        const listCard = await card.renderCard({
+
+        const listCard = await new Card().renderCard({
             title: 'Users',
-            extra: `<table class="list" data-height="400px">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>E-Mail</th>
-                        <th>E-Mail Verified</th>
-                        <th>2FA</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <for each="users" as="user">
-                        <tr>
-                            <td>{{user.id}}</td>
-                            <td>{{user.displayname}}</td>
-                            <td>{{user.username}}</td>
-                            <td>{{user.email}}</td>
-                            <td>{{user.emailVerified}}</td>
-                            <td>{{user.twoFAEnabled}}</td>
-                            <td class="text-right">
-                                <a router class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
-                                <a router class="btn" href="/users/edit/{{user.id}}"><i class="fa-solid fa-pen-to-square"></i></a>
-                                <button type="button" class="btn btn-danger delete-user" data-user="{{user.id}}"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    </for>
-                </tbody>
-            </table>`,
-            data: { users }
+            table: {
+                id: 'user-list',
+                height: '400px',
+                data: users,
+                columns: [
+                    { key: 'id', label: 'ID' },
+                    { key: 'displayname', label: 'Name' },
+                    { key: 'username', label: 'Username' },
+                    { key: 'email', label: 'E-Mail' },
+                    { key: 'emailVerified', label: 'E-Mail Verified' },
+                    { key: 'twoFAEnabled', label: '2FA' },
+                    {
+                        key: 'actions',
+                        label: '',
+                        isAction: true,
+                        buttons: (user) => [
+                            {
+                                id: `view-${user.id}`,
+                                href: `/users/${user.id}`,
+                                iconHtml: '<i class="fa-solid fa-eye"></i>'
+                            },
+                            {
+                                id: `edit-${user.id}`,
+                                href: `/users/edit/${user.id}`,
+                                iconHtml: '<i class="fa-solid fa-pen-to-square"></i>'
+                            },
+                            {
+                                id: `delete-${user.id}`,
+                                className: 'btn btn-danger delete-user',
+                                type: 'button',
+                                onClick: `handleDeleteUser(${user.id})`,
+                                status: 'unavailable',
+                                iconHtml: '<i class="fa-solid fa-trash"></i>'
+                            }
+                        ]
+                    }
+                ]
+            }
         });
+        
+        
 
         const input = new Input();
 
         const formBody = `
-        <div class="profile-header"></div>
-        <div class="profile-details space-y-4">
             ${await input.renderInput({
                 name: 'Displayname',
             })}
@@ -131,11 +135,13 @@ export default class UserManagement extends AbstractView {
                 type: 'password',
                 withConfirm: true
             })}
-        </div>
 
-            <div class="text-center mt-6">
-                <button type="submit" class="btn btn-success">Create User</button>
-            </div>
+           ${await button.renderButton({
+                id: 'create-user-btn',
+                text: 'Create User',
+                type: 'submit',
+                className: 'btn btn-success',
+            })}
         `;
         
     
@@ -148,20 +154,30 @@ export default class UserManagement extends AbstractView {
         const deleteModal = await new Modal().renderModal({
             id: 'confirm-delete-modal',
             title: 'Confirm Deletion',
-            content: `<p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>`,
-            footer: `
-                <div class="flex justify-end gap-4">
-                    <button class="btn btn-secondary" onclick="document.getElementById('confirm-delete-modal').classList.add('hidden')">Cancel</button>
-                    <button id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
-                </div>
+            content: `
+                <p>Are you sure you want to delete this user?<br>
+                <strong>This action cannot be undone.</strong></p>
             `,
+            footerButtons: [
+                {
+                    id: 'cancel-delete-btn',
+                    text: 'Cancel',
+                    className: 'btn btn-secondary',
+                    onClick: `document.getElementById('confirm-delete-modal').classList.add('hidden')`
+                },
+                {
+                    id: 'confirm-delete-btn',
+                    text: 'Yes, Delete',
+                    className: 'btn btn-danger',
+                    //onClick: document.getElementById('confirm-delete-modal').classList.add('hidden')
+                }                
+            ],
             animation: 'scale',
             closableOnOutsideClick: true
         });
 
         return this.render(`
             <div class="container">
-                ${titleSection}
                 ${createCard}
                 ${listCard}
                 ${deleteModal}

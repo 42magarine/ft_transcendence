@@ -38,41 +38,54 @@ export default class LobbyList extends AbstractView {
         const card = new Card();
         const lobbyListCard = await card.renderCard({
             title: 'Lobby List',
-            extra: `${createLobbyButton}
-					<table class="list" data-height="400px">
-						<thead>
-							<tr>
-								<th>Lobby Name</th>
-								<th>ID</th>
-								<th>Creator ID</th>
-								<th>Players</th>
-								<th>Status</th>
-								<th>Action</th>
-							</tr>
-						</thead>
-						<tbody>
-							<for each="lobbies" as="lobby">
-								<tr>
-									<td>Invited Lobby {{lobby.name}}</td>
-									<td>{{lobby.id}}</td>
-									<td>{{lobby.creatorId}}</td>
-									<td>{{lobby.currentPlayers}} / {{lobby.maxPlayers}}</td>
-									<td>{{lobby.isStarted ? 'Started' : 'Waiting'}</td>
-									<td class="text-right">
-				                        <a class="btn btn-accent accept-invite-btn" data-lobby="{{lobby.id}}" data-user="{{lobby.creatorId}}" href="/lobby/{{lobby.id}}">Accept Invite</a>
-				                        <a router class="btn btn-primary" href="/lobby/{{lobby.id}}">Join Lobby</a>
-									</td>
-								</tr>
-							</for>
-						</tbody>
-					</table>`,
-            data: { lobbies }
+            prefix: createLobbyButton,
+            table: {
+                id: 'lobby-list',
+                height: '400px',
+                data: lobbies,
+                columns: [
+                    { key: 'name', label: 'Lobby Name' },
+                    { key: 'id', label: 'ID' },
+                    { key: 'creatorId', label: 'Creator ID' },
+                    {
+                        key: 'players',
+                        label: 'Players',
+                        render: (lobby) => `${lobby.currentPlayers} / ${lobby.maxPlayers}`
+                    },
+                    {
+                        key: 'status',
+                        label: 'Status',
+                        render: (lobby: { isStarted: boolean }) => lobby.isStarted ? 'Started' : 'Waiting'
+                    },
+                    {
+                        key: 'actions',
+                        label: 'Action',
+                        isAction: true,
+                        buttons: (lobby) => [
+                            {
+                                id: `accept-${lobby.id}`,
+                                text: 'Accept Invite',
+                                className: 'btn btn-accent accept-invite-btn',
+                                href: `/lobby/${lobby.id}`,
+                                onClick: `handleAcceptInvite(${lobby.id}, ${lobby.creatorId})`
+                            },
+                            {
+                                id: `join-${lobby.id}`,
+                                text: 'Join Lobby',
+                                className: 'btn btn-primary',
+                                href: `/lobby/${lobby.id}`
+                            }
+                        ]
+                    }
+                ]
+            }
         });
+        
 
         return this.render(`
-			<div class="container">
-			${lobbyListCard}
-			</div>`
+            <div class="container">
+            ${lobbyListCard}
+            </div>`
         );
     }
 }

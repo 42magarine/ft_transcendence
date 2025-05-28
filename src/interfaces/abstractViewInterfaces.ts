@@ -2,12 +2,14 @@
 
 export interface ButtonProps {
     id: string;
-    text: string;
+    text?: string;
     className?: string;
     type?: 'submit' | 'button';
     onClick?: string;
     href?: string;
     status?: 'ready' | 'waiting' | 'unavailable';
+    iconHtml?: string;
+    align?: 'left' | 'center' | 'right';
 }
 
 export interface ButtonGroupProps {
@@ -51,6 +53,7 @@ export interface CardProps {
     preButton?: string;
     contentBlocks?: ContentBlock[];
     data?: Record<string, any>;
+    table?: TableProps;
 }
 
 export interface CardGroupProps {
@@ -116,4 +119,22 @@ export interface ToggleProps {
 	label: string;
 	checked?: boolean;
     readonly?: boolean;
+}
+
+//TABLE.TS
+
+export interface TableColumn {
+	key: string;
+	label: string;
+	isAction?: boolean;
+	buttons?: (row: any) => ButtonProps[];
+    render?: (row: any) => string;
+}
+
+export interface TableProps {
+	id?: string;
+	title?: string;
+	height?: string;
+	data: any[];
+	columns: TableColumn[];
 }
