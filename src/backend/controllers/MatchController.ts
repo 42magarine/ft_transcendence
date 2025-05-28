@@ -197,6 +197,7 @@ export class MatchController {
     }
 
     protected handleJoinLobby(connection: WebSocket, userId: number, lobbyId?: string) {
+        console.log("handleJoinLobby")
         if (!lobbyId) {
             this.sendMessage(connection, {
                 type: "error",
@@ -204,9 +205,12 @@ export class MatchController {
             })
             return;
         }
-
+        console.log("has lob id 1 ")
+        console.log(lobbyId)
+        console.log(this._lobbies)
         const lobby = this._lobbies.get(lobbyId)
 
+        console.log(lobby)
         if (!lobby) {
             this.sendMessage(connection, {
                 type: "error",
@@ -214,8 +218,11 @@ export class MatchController {
             })
             return;
         }
+        console.log("has lob id 2 ")
 
+        console.log("addPlayer")
         const player = lobby.addPlayer(connection, userId)
+        console.log(player)
         if (player) {
             this._clients.set(connection, player)
         }
@@ -280,10 +287,10 @@ export class MatchController {
             return {
                 id: Lobby.matchModelId.toString(),
                 lobbyId: Lobby.lobbyId,
-                name: Lobby.lobbyName || `Lobby ${Lobby.matchModelId}`,
+                name: `Lobby ${Lobby.matchModelId}`,
                 creatorId: Lobby.player1.id,
-                maxPlayers: Lobby.maxPlayers || 2,
-                currentPlayers: Lobby.lobbyParticipants?.length || 1,
+                maxPlayers: Lobby.maxPlayers,
+                currentPlayers: Lobby.lobbyParticipants?.length,
                 isPublic: !Lobby.hasPassword,
                 hasPassword: Lobby.hasPassword || false,
                 createdAt: Lobby.createdAt,
@@ -292,15 +299,7 @@ export class MatchController {
             }
         })
 
-        const allLobbies = [...openLobbies]
-        for (const [id, lobby] of this._lobbies.entries()) {
-            allLobbies.push(lobby.getLobbyInfo());
-        }
-
-        this.sendMessage(connection, {
-            type: "lobbyList",
-            lobbies: allLobbies
-        })
+        this.sendMessage(connection, { type: "lobbyList", lobbies: openLobbies });
     }
 
     //create ne lobby object with id, broadcast and matchservice!

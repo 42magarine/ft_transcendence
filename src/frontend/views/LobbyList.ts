@@ -1,19 +1,25 @@
 import AbstractView from '../../utils/AbstractView.js';
+import Button from '../components/Button.js';
 import Card from '../components/Card.js';
 import Title from '../components/Title.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
-import Button from '../components/Button.js';
 
 export default class LobbyList extends AbstractView {
-    private lobbyData: LobbyInfo[] = [];
-
-    constructor(params: URLSearchParams) {
+    constructor() {
         super();
-        this.params = params;
     }
 
     async getHtml(): Promise<string> {
+        let lobbies: LobbyInfo[] = [];
+        try {
+            lobbies = await window.lobbyListService.getLobbies();
+        }
+        catch (error) {
+            console.error("LobbyList View: Error fetching lobbies:", error);
+        }
+
         const title = new Title({ title: 'Available Lobbies' });
+        const titleSection = await title.getHtml();
 
         const button = new Button();
         const createLobbyButton = await button.renderButton({
@@ -23,18 +29,6 @@ export default class LobbyList extends AbstractView {
             className: 'btn btn-primary'
         });
 
-        let lobbies: LobbyInfo[] = [];
-        await window.socketReady;
-        if (window.lobbyListService) {
-            try {
-                lobbies = await window.lobbyListService.getLobbies();
-            } catch (error) {
-                console.error("LobbyList View: Error fetching lobbies:", error);
-                lobbies = [];
-            }
-        } else {
-            console.warn("LobbyList View: lobbyListService not found. Cannot fetch lobbies.");
-        }
         const card = new Card();
         const lobbyListCard = await card.renderCard({
             title: 'Lobby List',

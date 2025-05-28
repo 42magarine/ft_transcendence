@@ -27,7 +27,9 @@ export default class LobbyService {
     public init(socket: WebSocket, messageHandler: MessageHandlerService, userService: UserService): void {
         this.messageHandler = messageHandler;
         this.userService = userService;
-
+        document.addEventListener("RouterContentLoaded", () => {
+            this.setupEventListeners()
+        })
         socket.addEventListener('message', (event: MessageEvent<string>) => {
             const data: ServerMessage = JSON.parse(event.data);
             const currentLobbyId = this.getCurrentLobbyIdFromUrl();
@@ -147,23 +149,25 @@ export default class LobbyService {
             });
         }
 
+        console.log("dsfdsdsfdsfdsfdsfdsfdsf")
         document.addEventListener('click', async (e) => {
             const target = e.target as HTMLElement;
-            if (target.matches('.invite-btn')) {
-                const inviteButton = target as HTMLButtonElement;
-                const userIdToInvite = inviteButton.dataset.user;
-                const currentLobbyId = this.getCurrentLobbyIdFromUrl();
+            if (target.matches('.join-btn')) {
+                e.preventDefault();
+                if (window.messageHandler) {
+                    try {
+                        const user = target.getAttribute("data-user");
+                        const lobby = target.getAttribute("data-lobby");
 
-                if (userIdToInvite && currentLobbyId && this.messageHandler) {
-                    console.log(`[LobbyService] Inviting user ${userIdToInvite} to lobby ${currentLobbyId}`);
-                    this.messageHandler.sendInvite(userIdToInvite, currentLobbyId);
+                        if (user && lobby) {
+                            await window.messageHandler.joinGame(lobby, parseInt(user));
+                        }
 
-                    inviteButton.textContent = 'Pending...';
-                    inviteButton.classList.remove('btn-primary');
-                    inviteButton.classList.add('btn-warning');
-                    inviteButton.disabled = true;
-
-                    this.dispatchCustomEvent(LOBBY_INVITE_SENT_EVENT, { userId: userIdToInvite, lobbyId: currentLobbyId });
+                    } catch (error) {
+                        console.error("LobbyListService: Error calling createLobby:", error);
+                    }
+                } else {
+                    console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
                 }
             }
         });
