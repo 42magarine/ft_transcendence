@@ -1,23 +1,20 @@
 import { ServerMessage, LobbyInfo } from '../../interfaces/interfaces.js';
 import MessageHandlerService from './MessageHandlerService.js';
 import UserService from './UserService.js';
-import { LobbyDataWithParticipants } from '../../interfaces/interfaces.js';
-
-export const LOBBY_DETAILS_UPDATED_EVENT = 'lobbyDetailsUpdated';
-export const LOBBY_PLAYER_JOINED_EVENT = 'lobbyPlayerJoined';
-export const LOBBY_PLAYER_LEFT_EVENT = 'lobbyPlayerLeft';
-export const LOBBY_GAME_STARTED_EVENT = 'lobbyGameStarted';
-export const LOBBY_INVITE_SENT_EVENT = 'lobbyInviteSent';
-
+// import Router from '../../utils/Router.js'; // Only if needed for navigation from here
 
 export default class LobbyService {
-    private lobbyData: LobbyInfo[] = [];
     private currentLobbyData?: LobbyInfo;
+    private socket?: WebSocket;
 
     private messageHandler!: MessageHandlerService;
     private userService!: UserService;
+    private isInitialized: boolean = false;
 
-    constructor() { }
+    constructor() {
+        this.handleSocketMessage = this.handleSocketMessage.bind(this);
+        this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
+    }
 
     private getCurrentLobbyIdFromUrl(): string {
         const match = window.location.pathname.match(/\/lobby\/([^/]+)/);
@@ -25,165 +22,138 @@ export default class LobbyService {
     }
 
     public init(socket: WebSocket, messageHandler: MessageHandlerService, userService: UserService): void {
-        this.messageHandler = messageHandler;
-        this.userService = userService;
-        document.addEventListener("RouterContentLoaded", () => {
-            this.setupEventListeners()
-        })
-        socket.addEventListener('message', (event: MessageEvent<string>) => {
-            const data: ServerMessage = JSON.parse(event.data);
-            const currentLobbyId = this.getCurrentLobbyIdFromUrl();
-
-            let relevantToCurrentLobby = data.lobbyId === currentLobbyId;
-
-            switch (data.type) {
-                case 'lobbyList':
-                    this.lobbyData = data.lobbies || [];
-                    if (currentLobbyId) {
-                        this.currentLobbyData = this.lobbyData.find(lobby => lobby.id === currentLobbyId);
-                    } else {
-                        this.currentLobbyData = undefined;
-                    }
-                    this.dispatchCustomEvent(LOBBY_DETAILS_UPDATED_EVENT, { lobbyData: this.currentLobbyData });
-                    break;
-
-                case 'lobbyDetailsUpdated':
-                    if (data.lobby && data.lobby.id === currentLobbyId) {
-                        this.currentLobbyData = data.lobby as LobbyDataWithParticipants;
-
-                        const index = this.lobbyData.findIndex(l => l.id === data.lobby.id);
-                        if (index !== -1) {
-                            this.lobbyData[index] = data.lobby;
-                        } else {
-                            this.lobbyData.push(data.lobby);
-                        }
-                        this.dispatchCustomEvent(LOBBY_DETAILS_UPDATED_EVENT, { lobbyData: this.currentLobbyData });
-                    }
-                    break;
-                case 'playerJoined':
-                    if (relevantToCurrentLobby) {
-                        console.log('[LobbyService] Player joined:', data);
-                        this.dispatchCustomEvent(LOBBY_PLAYER_JOINED_EVENT, {
-                            lobbyId: data.lobbyId,
-                            userId: data.userId,
-                        });
-                    }
-                    break;
-
-                case 'playerLeft':
-                    if (relevantToCurrentLobby) {
-                        console.log('[LobbyService] Player left:', data);
-                        this.dispatchCustomEvent(LOBBY_PLAYER_LEFT_EVENT, { lobbyId: data.lobbyId, userId: data.userId });
-                    }
-                    break;
-
-                case 'playerReady':
-                    if (relevantToCurrentLobby) {
-                        console.log('[LobbyService] Player ready status changed:', data);
-                    }
-                    break;
-
-                case 'gameStarted':
-                    if (relevantToCurrentLobby) {
-                        this.dispatchCustomEvent(LOBBY_GAME_STARTED_EVENT, { lobbyId: data.lobbyId });
-                        window.history.pushState({}, '', `/pong/${data.lobbyId}`);
-                        document.dispatchEvent(new Event('popstate'));
-                    }
-                    break;
-
-                case 'inviteReceived':
-                    if (data.lobbyId && data.userId) {
-                        document.dispatchEvent(new CustomEvent('GlobalLobbyInviteReceived', {
-                            bubbles: true,
-                            detail: { lobbyId: data.lobbyId, userId: data.userId }
-                        }));
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-        });
-    }
-
-    private dispatchCustomEvent(name: string, detail: any) {
-        document.dispatchEvent(new CustomEvent(name, { bubbles: true, detail }));
-    }
-
-    public async setupEventListeners() {
-
-        const lobbyId = this.getCurrentLobbyIdFromUrl();
-        if (!lobbyId && window.location.pathname.includes("/lobby/")) {
+        if (this.isInitialized && this.socket === socket) {
+            this.setupUIEventListeners();
+            return;
         }
 
-        const startGameBtn = document.getElementById('startGameBtn') as HTMLButtonElement | null;
-        if (startGameBtn) {
-            startGameBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const currentLobbyId = this.getCurrentLobbyIdFromUrl();
-                if (!currentLobbyId || !this.messageHandler || !this.userService) {
-                    console.warn("LobbyService: Cannot handle Start Game. Dependencies missing or not on lobby page.");
-                    return;
-                }
+        this.socket = socket;
+        this.messageHandler = messageHandler;
+        this.userService = userService;
 
-                const currentUser = await UserService.getCurrentUser();
-                if (!currentUser || !currentUser.id) {
-                    console.warn("LobbyService: Current user not found for marking ready.");
-                    return;
+        this.socket.removeEventListener('message', this.handleSocketMessage);
+        this.socket.addEventListener('message', this.handleSocketMessage);
+        this.setupUIEventListeners();
+        this.isInitialized = true;
+    }
+
+    private handleSocketMessage(event: MessageEvent<string>): void {
+        const data: ServerMessage = JSON.parse(event.data);
+        const currentLobbyId = this.getCurrentLobbyIdFromUrl();
+
+        switch (data.type) {
+            case 'lobbyInfo':
+                if (data.lobby) {
+                    if (currentLobbyId && data.lobby.id === currentLobbyId) {
+                        this.currentLobbyData = {
+                            ...data.lobby,
+                            createdAt: new Date(data.lobby.createdAt)
+                        };
+                        // update UI here with new lobbyInfo
+                        console.log(`[LobbyService] Updated lobbyInfo for ${currentLobbyId}`, this.currentLobbyData);
+                    } else if (currentLobbyId) {
+                        console.warn(`[LobbyService] Received lobbyInfo for ${data.lobby.id}, but current lobby is ${currentLobbyId}. Ignoring.`);
+                    }
+                } else {
+                    console.error('[LobbyService] Received lobbyInfo message without lobby data.');
                 }
-                console.log(`[LobbyService] User ${currentUser.id} clicked ready for lobby ${currentLobbyId}`);
-                this.messageHandler.markReady(currentUser.id.toString(), currentLobbyId);
-            });
+                break;
+
+            case 'playerJoined':
+                if (currentLobbyId && data.lobbyId === currentLobbyId) {
+                    console.log(`[LobbyService] Player ${data.player?.userId} joined lobby ${data.lobbyId}`);
+                    // update participant list UI
+                }
+                break;
+
+            case 'playerLeft':
+                if (currentLobbyId && data.lobbyId === currentLobbyId) {
+                    console.log(`[LobbyService] Player ${data.userId} left lobby ${data.lobbyId}`);
+                    // update participant list UI
+                }
+                break;
+
+            case 'playerReady':
+                 if (currentLobbyId && data.lobbyId === currentLobbyId) {
+                    console.log(`[LobbyService] Player ${data.userId} is ready in lobby ${data.lobbyId}`);
+                    // update player status UI
+                }
+                break;
+
+            case 'gameStarted':
+                if (currentLobbyId && data.lobbyId === currentLobbyId) {
+                    console.log(`[LobbyService] Game started in lobby ${data.lobbyId}. Game ID: ${data.gameId}`);
+                    // Navigate to game page, e.g., Router.redirect(`/game/${data.gameId}`);
+                }
+                break;
+
+            default:
+                // console.log("[LobbyService] Received unhandled message type:", data.type);
+                break;
+        }
+    }
+
+    private setupUIEventListeners(): void {
+        document.body.removeEventListener('click', this.handleLobbyPageClick);
+        document.body.addEventListener('click', this.handleLobbyPageClick);
+    }
+
+    private async handleLobbyPageClick(e: MouseEvent): Promise<void> {
+        const currentLobbyId = this.getCurrentLobbyIdFromUrl();
+        if (!currentLobbyId && !window.location.pathname.startsWith("/lobby/")) {
+            return;
+        }
+
+        const target = e.target as HTMLElement;
+
+        // Start Game Button
+        const startGameBtn = target.closest('#startGameBtn');
+        if (startGameBtn) {
+            e.preventDefault();
+            if (!this.messageHandler || !this.userService) {
+                console.warn("LobbyService: Cannot handle Start Game. Dependencies missing.");
+                return;
+            }
+            const currentUser = await UserService.getCurrentUser();
+            if (!currentUser || !currentUser.id) {
+                console.warn("LobbyService: Current user not found for marking ready.");
+                return;
+            }
+            console.log(`[LobbyService] User ${currentUser.id} clicked ready for lobby ${currentLobbyId}`);
+            this.messageHandler.markReady(currentUser.id.toString(), currentLobbyId);
+            return;
         }
 
         // Leave Lobby Button
-        const leaveBtn = document.getElementById('leaveBtn') as HTMLButtonElement | null;
+        const leaveBtn = target.closest('#leaveBtn');
         if (leaveBtn) {
-            leaveBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const currentLobbyId = this.getCurrentLobbyIdFromUrl();
-                if (currentLobbyId && this.messageHandler) {
-                    console.log(`[LobbyService] Leaving lobby ${currentLobbyId}`);
-                    this.messageHandler.leaveLobby(currentLobbyId);
-                }
-            });
-        }
-
-        console.log("dsfdsdsfdsfdsfdsfdsfdsf")
-        document.addEventListener('click', async (e) => {
-            const target = e.target as HTMLElement;
-            if (target.matches('.join-btn')) {
-                e.preventDefault();
-                if (window.messageHandler) {
-                    try {
-                        const user = target.getAttribute("data-user");
-                        const lobby = target.getAttribute("data-lobby");
-
-                        if (user && lobby) {
-                            await window.messageHandler.joinGame(lobby, parseInt(user));
-                        }
-
-                    } catch (error) {
-                        console.error("LobbyListService: Error calling createLobby:", error);
-                    }
-                } else {
-                    console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
-                }
+            e.preventDefault();
+            if (currentLobbyId && this.messageHandler) {
+                console.log(`[LobbyService] Leaving lobby ${currentLobbyId}`);
+                this.messageHandler.leaveLobby(currentLobbyId);
+                // Router.redirect('/lobbies'); // Or wherever you want to go after leaving
             }
-        });
+            return;
+        }
     }
 
-    public getLobbies(): LobbyInfo[] {
-        return this.lobbyData;
-    }
 
-    public getCurrentLobby(): LobbyInfo | undefined {
+    //messagehandler??
+    public getCurrentLobbyData(): LobbyInfo | undefined {
         const lobbyId = this.getCurrentLobbyIdFromUrl();
         if (!lobbyId) return undefined;
         if (this.currentLobbyData && this.currentLobbyData.id === lobbyId) {
             return this.currentLobbyData;
         }
-        return this.lobbyData.find(lobby => lobby.id === lobbyId);
+        return undefined;
     }
 
+    public destroy(): void {
+        if (this.socket) {
+            this.socket.removeEventListener('message', this.handleSocketMessage);
+        }
+        document.body.removeEventListener('click', this.handleLobbyPageClick);
+        this.isInitialized = false;
+        this.currentLobbyData = undefined;
+    }
 }

@@ -85,9 +85,10 @@ export default class LobbyList extends AbstractView
                 ]
             }
         });
-        
+
         return this.render(`
             <div class="container">
+            ${createLobbyButton}
             ${lobbyListCard}
             </div>`
         );

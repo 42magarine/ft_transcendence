@@ -109,15 +109,6 @@ export class MatchController {
                     this._handlers.handleGameAction(player, (data as GameActionMessage))
                 }
                 break;
-            // case "invite":
-            //     this.handleInvite(connection, data.userId, data.targetUserId)
-            //     break;
-            // case "acceptInvite":
-            //     this.handleAcceptInvite(connection, data.userId, data.inviteId)
-            //     break;
-            // case "declineInvite":
-            //     this.handleDeclineInvite(connection, data.userId, data.inviteId)
-            // break;
             case "ready":
                 this.handlePlayerReady(connection, player!, (data as ReadyMessage).ready)
                 break;
