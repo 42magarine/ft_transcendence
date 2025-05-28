@@ -66,6 +66,15 @@ export class MatchService {
         return await this.matchRepo.remove(match);
     }
 
+    async deleteMatchByLobbyId(lobbyId: string)
+    {
+        const match = await this.getMatchLobbyById(lobbyId)
+        if (!match)
+        {
+            throw new Error("lobby not in MatchModels!!!")
+        }
+        return await this.matchRepo.remove(match);
+    }
     //table join search for finding a matchmodel by using the user/playerId (this should be the same btw!!!)
     async findMatchByPlayerId(playerId: number) {
         return await this.matchRepo.createQueryBuilder("match")

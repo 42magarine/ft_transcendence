@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { ClientMessage, createLobbyMessage, GameActionMessage, joinLobbyMessage, ReadyMessage, ServerMessage } from "../../interfaces/interfaces.js";
+import { ClientMessage, createLobbyMessage, GameActionMessage, joinLobbyMessage, leaveLobbyMessage, ReadyMessage, ServerMessage } from "../../interfaces/interfaces.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { MessageHandlers } from "../services/MessageHandlers.js";
 import { UserService } from "../services/UserService.js";
@@ -102,7 +102,7 @@ export class MatchController {
                 this.handleCreateLobby(connection, (data as createLobbyMessage).userId!)
                 break;
             case "leaveLobby":
-                this.handleLeaveLobby(connection)
+                this.handleLeaveLobby(connection, (data as leaveLobbyMessage).lobbyId!)
                 break;
             case "gameAction":
                 if (player) {
@@ -239,7 +239,7 @@ export class MatchController {
         })
     }
 
-    protected handleLeaveLobby(connection: WebSocket) {
+    protected async handleLeaveLobby(connection: WebSocket, lobbyId: string) {
         const player = this._clients.get(connection);
         //retrieve player from active clients
 
@@ -247,12 +247,14 @@ export class MatchController {
             const lobby = this._lobbies.get(player.lobbyId);
             //if player is in lobby (from active lobbies in memory!)
             if (lobby) //remove from lobby
+            {
                 lobby.removePlayer(player);
-
+            }
                 //if lobby now empty delete lobby from active lobbies -> also need to delete from DB now!!!!
-            if (lobby?.isEmpty()) {
+            if (lobby?.isEmpty()) 
+            {
                 this._lobbies.delete(player.lobbyId)
-
+                await this._matchService.deleteMatchByLobbyId(lobbyId);
                 //Write delete lobby from MatchModel Datatable in DB!!!!
             }
         }

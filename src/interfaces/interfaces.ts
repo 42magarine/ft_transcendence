@@ -31,14 +31,13 @@ export interface LobbyInfo {
     maxPlayers: number;
     currentPlayers: number;
     isPublic: boolean;
-    hasPassword: boolean;
     createdAt: Date;
     lobbyType: "game" | "tournament"
     isStarted: boolean;
 }
 
 export interface PlayerInfo {
-    id: number;
+    playerNumber: number;
     username: string;
     score: number;
 }
@@ -97,7 +96,7 @@ export interface createLobbyMessage extends ClientMessage {
     type: "createLobby";
 }
 
-export interface leaveLobby extends ClientMessage {
+export interface leaveLobbyMessage extends ClientMessage {
     type: "leaveLobby";
 }
 
