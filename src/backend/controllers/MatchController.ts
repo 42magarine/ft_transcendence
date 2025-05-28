@@ -177,6 +177,8 @@ export class MatchController {
     // -> the lobby and
     // -> loads a player into that lobby playerlist!
     // -> sends back message to client "lobbyCreated" with lobbyId and player.Id which should also be user.Id!!!
+
+    // maybe should also add maxPlayercount into this function OR we create handleCreateTournamentLobby (maybe better)
     protected handleCreateLobby(connection: WebSocket, userId: number) {
         const lobbyId = randomUUID();
         const lobby = this.createLobby(lobbyId, userId);
@@ -209,6 +211,7 @@ export class MatchController {
         console.log(lobbyId)
         console.log(this._lobbies)
         const lobby = this._lobbies.get(lobbyId)
+        //if not in memory (which it now should be -> write code to try retrieve from backend before calling !lobby condition!)
 
         console.log(lobby)
         if (!lobby) {
@@ -221,12 +224,14 @@ export class MatchController {
         console.log("has lob id 2 ")
 
         console.log("addPlayer")
+        // add player to lobbyId to load into lobby setting.
         const player = lobby.addPlayer(connection, userId)
         console.log(player)
-        if (player) {
+        if (player) { //use clients as repository of connections / players that are active
             this._clients.set(connection, player)
         }
 
+        //maybe do broadcast for this for other people to see as well(beauty feature ig)
         this.sendMessage(connection, {
             type: "joinedLobby",
             lobbyId: lobbyId,
@@ -236,25 +241,36 @@ export class MatchController {
 
     protected handleLeaveLobby(connection: WebSocket) {
         const player = this._clients.get(connection);
+        //retrieve player from active clients
 
         if (player && player.lobbyId) {
             const lobby = this._lobbies.get(player.lobbyId);
-
-            if (lobby)
+            //if player is in lobby (from active lobbies in memory!)
+            if (lobby) //remove from lobby
                 lobby.removePlayer(player);
 
+                //if lobby now empty delete lobby from active lobbies -> also need to delete from DB now!!!!
             if (lobby?.isEmpty()) {
                 this._lobbies.delete(player.lobbyId)
+
+                //Write delete lobby from MatchModel Datatable in DB!!!!
             }
         }
 
+        //?? what should this do lol
+        //hmmmmmm let me think about it
+        //set connection to null so association with player disappears
         this._clients.set(connection, null)
 
+        //then send message to frontend
         this.sendMessage(connection, {
             type: "leftLobby"
         })
+
+        //should close connection? -> no will be needed for other commands
     }
 
+    //pretty self explanatory -> get out of active lobbies -> maybe implement retrieval from MatchModels if not in active lobby map!!
     private async handleGetLobbyById(connection: WebSocket, lobbyId: string) {
         const lobby = this._lobbies.get(lobbyId);
 
@@ -272,7 +288,10 @@ export class MatchController {
         })
     }
 
+
+    //this retrieves from matchmodels for older lobbies / pending lobbies and stuff!
     private async handleGetLobbyList(connection: WebSocket) {
+        //getopenlobbies gets all matchmodels with state 'pending' and bool isOpen == true!!!
         const openMatchModels = await this._matchService.getOpenLobbies();
 
         const openLobbies = openMatchModels.map(Lobby => {
@@ -314,6 +333,7 @@ export class MatchController {
     }
 
     /* GAME LOGIC FUNCTIONS FROM HERE */
+    // FREDDY SCHWING DEIN ARSCH HIER DRAN UND CHECK DIE AB! <3
     private handlePlayerReady(connection: WebSocket, player: Player, isReady: boolean) {
         if (!player || !player.lobbyId) {
             this.sendMessage(connection, {

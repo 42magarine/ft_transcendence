@@ -114,7 +114,9 @@ export class MatchService {
         match.player2Score = 0
         match.readyStatusMap = []
 
-        return await this.saveMatch(match);
+        await this.saveMatch(match);
+
+        return;
     }
 
     //function that should return score values / playerInfo of specified Match!
