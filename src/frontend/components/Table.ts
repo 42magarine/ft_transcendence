@@ -40,7 +40,7 @@ export default class Table extends AbstractView
                         const truncated = value.length > 15 ? value.slice(0, 15) + '…' : value;
                         return `<td title="${value}">${truncated}</td>`;
                     }
-                    
+
 			}));
 
 			return `<tr>${cells.join('')}</tr>`;
@@ -60,7 +60,7 @@ export default class Table extends AbstractView
 					</table>
 				</div>
 			</div>
-		`);		
+		`);
 	}
 
 	async getHtml(): Promise<string>

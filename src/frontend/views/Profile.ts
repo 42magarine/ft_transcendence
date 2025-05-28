@@ -1,8 +1,8 @@
-import Title from '../components/Title.js';
 import Card from '../components/Card.js';
-import Button from '../components/Button.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
+import UserService from '../services/UserService.js';
+import type { ContentBlock } from '../../interfaces/abstractViewInterfaces.js';
 
 export default class Profile extends AbstractView
 {
@@ -11,128 +11,123 @@ export default class Profile extends AbstractView
     constructor(params: URLSearchParams)
     {
         super();
-        // Extract the id parameter from the route params
         this.userId = params.get('id') || 'unknown';
     }
 
     async getHtml(): Promise<string>
     {
+        const userIdNum = Number(this.userId);
+        const userData = isNaN(userIdNum) ? null : await UserService.getUserById(userIdNum);
+        const profileImageSvg = userData ? generateProfileImage(userData, 200, 200) : '';
 
-        // User data will be stored here
-        let userData = null;
-        let users = [];
+        let contentBlocks: ContentBlock[];
 
-        try
+        if (userData)
         {
-            // First, fetch the specific user using the userId from the route parameters
-            const userResponse = await fetch(`/api/users/${this.userId}`);
-            if (userResponse.ok)
-            {
-                userData = await userResponse.json();
-            }
-            else
-            {
-                console.error('Failed to fetch user data from API');
-            }
-        }
-        catch (error)
-        {
-            console.error('API request error:', error);
-        }
-
-        // Title section
-        const title = new Title(
-        {
-            title: userData ? `Profile: ${userData.displayname}` : 'User Profile',
-        });
-        const titleSection = await title.getHtml();
-
-        // User profile card
-        const card = new Card();
-
-        let profileCardHtml = '';
-        let profileImageSvg = '';
-
-        if (userData) {
-            // Generate the profile image SVG
-            profileImageSvg = generateProfileImage(userData, 200, 200);
-
-            profileCardHtml = await card.renderCard({
-                title: 'User Profile',
-                extra: `
-                <div class="profile-container">
-                    <div class="profile-header">
-                        <div class="profile-avatar-container">
-                            ${profileImageSvg}
-                        </div>
-                        <h2>${userData.displayname}</h2>
-                        <p class="username">@${userData.username}</p>
-                    </div>
-                    <div class="profile-details">
-                        <div class="detail-row">
-                            <span class="label">Display Name:</span>
-                            <span class="value">${userData.displayname}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">Username:</span>
-                            <span class="value">${userData.username}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">Email:</span>
-                            <span class="value">${userData.email}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">User ID:</span>
-                            <span class="value">${userData.id}</span>
-                        </div>
-                    </div>
-                </div>`,
-                data:
+            contentBlocks =
+            [
                 {
-                    user: userData
+                    type: 'html',
+                    props:
+                    {
+                        html: `
+                            <h1 class="text-2xl font-bold text-center mb-4">Profile: ${userData.displayname}</h1>
+                        `
+                    }
+                },
+                {
+                    type: 'html',
+                    props:
+                    {
+                        html: `
+                            <div class="flex flex-col items-center gap-2 mt-4">
+                                <div>${profileImageSvg}</div>
+                                <h2>${userData.displayname}</h2>
+                                <p class="text-muted">@${userData.username}</p>
+                            </div>
+                        `
+                    }
+                },
+                {
+                    type: 'stat',
+                    props:
+                    {
+                        label: 'Display Name',
+                        value: userData.displayname ?? ''
+                    }
+                },
+                {
+                    type: 'stat',
+                    props:
+                    {
+                        label: 'Username',
+                        value: userData.username ?? ''
+                    }
+                },
+                {
+                    type: 'stat',
+                    props:
+                    {
+                        label: 'Email',
+                        value: userData.email ?? ''
+                    }
+                },
+                {
+                    type: 'stat',
+                    props:
+                    {
+                        label: 'User ID',
+                        value: userData.id?.toString() ?? ''
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props:
+                    {
+                        layout: 'stack',
+                        align: 'center',
+                        buttons:
+                        [
+                            {
+                                id: 'edit-profile',
+                                text: 'Edit Profile',
+                                href: `/users/edit/${this.userId}`,
+                                className: 'btn btn-primary'
+                            },
+                            {
+                                id: 'back-to-list',
+                                text: 'Back to User List',
+                                href: '/user-mangement',
+                                className: 'btn btn-secondary'
+                            }
+                        ]
+                    }
                 }
-            });
-            
+            ];
         }
         else
         {
-            profileCardHtml = await card.renderCard(
-            {
-                title: 'User Profile',
-                extra: `<div class="alert alert-warning">User not found or error loading user data.</div>`
-            });
-        }
-
-        // Button for edit
-        const button = new Button();
-        const buttonGroup = await button.renderGroup(
-        {
-            layout: 'stack',
-            align: 'center',
-            buttons:
+            contentBlocks =
             [
                 {
-                    id: 'edit-profile',
-                    text: 'Edit Profile',
-                    href: '/users/edit/' + this.userId,
-                    className: 'btn btn-primary'
-                },
-                {
-                    id: 'back-to-list',
-                    text: 'Back to User List',
-                    href: '/user-mangement',
-                    className: 'btn btn-primary'
+                    type: 'html',
+                    props:{
+                        html: `
+                            <h1 class="text-2xl font-bold text-center mb-4">User Profile</h1>
+                            <div class="alert alert-warning text-center">
+                                User not found or error loading user data.
+                            </div>
+                        `
+                    }
                 }
-            ]
+            ];
+        }
+
+        const unifiedCard = await new Card().renderCard(
+        {
+            contentBlocks
         });
 
-        // Final output
-        return this.render(`
-            <div class="container">
-                ${titleSection}
-                ${profileCardHtml}
-                ${buttonGroup}
-            </div>
-        `);
+        return this.render(`${unifiedCard}`);
     }
 }

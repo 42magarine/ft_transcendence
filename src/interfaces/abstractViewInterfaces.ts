@@ -1,10 +1,15 @@
 //BUTTON.TS
 
-export interface ButtonProps {
+export interface ButtonProps
+{
     id?: string;
     text?: string;
     className?: string;
-    type?: 'submit' | 'button' | 'google-signin'| 'text-with-button';
+    type?:
+        'submit'
+        | 'button'
+        | 'google-signin'
+        | 'text-with-button';
     textBefore?: string;
     onClick?: string;
     href?: string;
@@ -13,7 +18,8 @@ export interface ButtonProps {
     align?: 'left' | 'center' | 'right';
 }
 
-export interface ButtonGroupProps {
+export interface ButtonGroupProps
+{
 	align?: 'center' | 'left' | 'right';
 	layout?: 'stack' | 'grid' | 'group';
 	className?: string;
@@ -25,9 +31,18 @@ export interface ButtonGroupProps {
 
 //CARD.TS
 
-export interface InputField {
+export interface InputField
+{
     name: string;
-    type?: 'text' | 'email' | 'password' | 'select' | 'hidden' | 'display' | 'file' | 'checkbox' | 'number';
+    type?:'text'
+        | 'email'
+        | 'password'
+        | 'select'
+        | 'hidden'
+        | 'display'
+        | 'file'
+        | 'checkbox'
+        | 'number';
     placeholder?: string;
     value?: string;
     options?: Array<{ value: string, label: string }>; // For select inputs
@@ -38,13 +53,15 @@ export interface InputField {
     withConfirm?: boolean;
 }
 
-export interface CardButton {
+export interface CardButton
+{
     text: string;
     type: string;
     className?: string;
 }
 
-export interface CardProps {
+export interface CardProps
+{
     title?: string;
     footer?: string;
     className?: string;
@@ -59,10 +76,20 @@ export interface CardProps {
     contentBlocks?: ContentBlock[];
     data?: Record<string, any>;
     table?: TableProps;
-    position?: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+    position?:
+            'center'
+            | 'top'
+            | 'bottom'
+            | 'left'
+            | 'right'
+            | 'top-left'
+            | 'top-right'
+            | 'bottom-left'
+            | 'bottom-right';
 }
 
-export interface CardGroupProps {
+export interface CardGroupProps
+{
     cards: CardProps[];
     layout?: 'stack' | 'grid' | 'flex';
     className?: string;
@@ -75,16 +102,18 @@ export type ContentBlock =
     | { type: 'stat'; props: { label: string; value: string } }
     | { type: 'toggle'; props: ToggleProps }
     | { type: 'toolbar'; props: { buttons: { text: string; onClick: string }[] } }
-    | { type: 'matchup'; props: { player1: string; player2: string } }
+    | { type: 'table'; props: TableProps }
+    | { type: 'matchup'; props: { player1: ContentBlock; player2: ContentBlock } }
     | { type: 'actions'; props: { buttons: string } }
     | { type: 'inputgroup'; props: { inputs: InputField[] } }
     | { type: 'buttongroup'; props: ButtonGroupProps & { toggles?: ToggleProps[] } }
+    | { type: 'button'; props: ButtonProps }
     | { type: 'html'; props: { html: string } };
-
 
 //INPUT.TS
 
-export interface InputProps {
+export interface InputProps
+{
 	id?: string;
 	name: string;
 	type?: string;
@@ -97,7 +126,8 @@ export interface InputProps {
 
 //LABEL.TS
 
-export interface LabelProps {
+export interface LabelProps
+{
     htmlFor: string;
     text: string;
     className?: string;
@@ -105,7 +135,8 @@ export interface LabelProps {
 
 //STATS.TS
 
-export interface StatProps {
+export interface StatProps
+{
     label: string;
     value: string | number;
     className?: string;
@@ -113,14 +144,16 @@ export interface StatProps {
 
 //TITLE.TS
 
-export interface TitleProps {
+export interface TitleProps
+{
     title: string;
     subtitle?: string;
 }
 
 //TOGGLE.TS
 
-export interface ToggleProps {
+export interface ToggleProps
+{
 	id: string;
 	name: string;
 	label: string;
@@ -131,7 +164,8 @@ export interface ToggleProps {
 
 //TABLE.TS
 
-export interface TableColumn {
+export interface TableColumn
+{
 	key: string;
 	label: string;
 	isAction?: boolean;
@@ -139,10 +173,13 @@ export interface TableColumn {
     render?: (row: any) => string;
 }
 
-export interface TableProps {
-	id?: string;
+export interface TableProps
+{
+	id: string;
 	title?: string;
 	height?: string;
-	data: any[];
-	columns: TableColumn[];
+	data: any[]; // array of rows
+	rowLayout: ((row: any) => ContentBlock[]);
+
 }
+

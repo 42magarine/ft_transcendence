@@ -11,9 +11,7 @@ export default class Login extends AbstractView
 
 	async getHtml(): Promise<string>
     {
-		const card = new Card();
-
-		const loginCard = await card.renderCard(
+		const loginCard = await new Card().renderCard(
         {
 			title: __('Login'),
 			formId: 'login-form',
@@ -79,7 +77,6 @@ export default class Login extends AbstractView
 				}
 			]
 		});
-
 		return this.render(`${loginCard}`);
 	}
 }

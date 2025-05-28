@@ -1,4 +1,5 @@
-export interface User {
+export interface User
+{
     id?: number;
     username: string;
     email: string;
@@ -16,9 +17,11 @@ export interface User {
     secret?: string;
     twoFAEnabled?: string;
     listAvatar?: string;
+    googleSignIn?: boolean;
 }
 
-export interface UserList {
+export interface UserList
+{
     listAvatar?: string;
     avatar?: string;
     id?: number;
@@ -29,16 +32,19 @@ export interface UserList {
     role?: string;
 }
 
-export interface ApiErrorResponse {
+export interface ApiErrorResponse
+{
     error: string;
 }
 
-export interface LoginCredentials {
+export interface LoginCredentials
+{
     email: string;
     password: string;
 }
 
-export interface AuthResponse {
+export interface AuthResponse
+{
     message?: string;
     error?: string;
     requireTwoFactor?: boolean;
@@ -46,22 +52,26 @@ export interface AuthResponse {
     username?: string;
 }
 
-export interface PasswordResetRequest {
+export interface PasswordResetRequest
+{
     email: string;
 }
 
-export interface PasswordResetConfirm {
+export interface PasswordResetConfirm
+{
     password: string;
     confirmPassword: string;
     token: string;
 }
 
-export interface QRResponse {
+export interface QRResponse
+{
     secret: string,
     qr: string
 }
 
-export interface RegisterCredentials {
+export interface RegisterCredentials
+{
     username: string;
     email: string;
     password: string;
@@ -77,13 +87,15 @@ export interface RegisterCredentials {
     tf_six?: string;
 }
 
-export interface JWTPayload {
+export interface JWTPayload
+{
     userID: string;
     email: string;
     role: string;
 }
 
-export interface AuthTokens {
+export interface AuthTokens
+{
     accessToken: string;
     refreshToken: string;
     requireTwoFactor?: boolean;
@@ -91,22 +103,26 @@ export interface AuthTokens {
     username?: string;
 }
 
-export interface TwoFactorVerificationRequest {
+export interface TwoFactorVerificationRequest
+{
     userId: number;
     code: string;
 }
 
-export interface TwoFactorResponse {
+export interface TwoFactorResponse
+{
     qr: string;
     secret: string;
 }
 
-export interface GoogleLoginBody {
+export interface GoogleLoginBody
+{
     token: string;
 }
 
 // Available roles as enum for type safety
-export enum UserRole {
+export enum UserRole
+{
     USER = 'user',
     ADMIN = 'admin',
     MASTER = 'master'
