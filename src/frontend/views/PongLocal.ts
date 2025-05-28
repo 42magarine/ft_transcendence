@@ -2,26 +2,44 @@ import Card from '../components/Card.js';
 import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 
-export default class PongLocal extends AbstractView {
-    constructor(params: URLSearchParams) {
+export default class PongLocal extends AbstractView
+{
+    constructor(params: URLSearchParams)
+    {
         super();
         this.params = params;
     }
 
-    async getHtml(): Promise<string> {
+    async getHtml(): Promise<string>
+    {
 
-        const buttonGroup = await new Button().renderGroup({
+        const buttonGroup = await new Button().renderGroup(
+        {
             layout: 'group',
             align: 'center',
-            buttons: [
-                { id: 'pauseGameButton', text: 'Pause', className: "btn btn-primary" },
-                { id: 'resumeGameButton', text: 'Resume', className: "btn btn-primary" },
-                { id: 'resetGameButton', text: 'Reset', className: "btn btn-primary" },
+            buttons:
+            [
+                {
+                    id: 'pauseGameButton',
+                    text: 'Pause', className:
+                    "btn btn-primary"
+                },
+                {
+                    id: 'resumeGameButton',
+                    text: 'Resume', className:
+                    "btn btn-primary"
+                },
+                {
+                    id: 'resetGameButton',
+                    text: 'Reset', className:
+                    "btn btn-primary"
+                },
             ]
         });
 
         const card = new Card(this.params);
-        const gameCard = await card.renderCard({
+        const gameCard = await card.renderCard(
+        {
             title: 'Pong Arena',
             body: `
 				<div class="flex flex-col gap-6 items-center justify-center">

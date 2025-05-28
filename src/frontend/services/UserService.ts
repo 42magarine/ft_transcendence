@@ -40,12 +40,13 @@ export default class UserService {
 
     static async getAllUsers(): Promise<User[]> {
         try {
-            const response = await fetch('/api/users');
-
+            const response = await fetch('/api/users/');
+    
             if (!response.ok) {
                 const errorData = await response.json() as ApiErrorResponse;
                 throw new Error(errorData.error || 'Failed to fetch all users');
             }
+    
             return await response.json() as User[];
         }
         catch (error) {
@@ -53,6 +54,7 @@ export default class UserService {
             return [];
         }
     }
+    
 
     static async getUserById(userId: number): Promise<User | null> {
         try {

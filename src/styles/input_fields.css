@@ -39,3 +39,15 @@
 .input {
   flex: 1;
 }
+
+/* Remove spinners in Chrome, Safari, Edge */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Remove spinners in Firefox */
+input[type=number] {
+	-moz-appearance: textfield;
+}

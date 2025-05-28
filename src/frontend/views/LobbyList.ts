@@ -4,25 +4,23 @@ import Card from '../components/Card.js';
 import Title from '../components/Title.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
 
-export default class LobbyList extends AbstractView {
-    constructor() {
+export default class LobbyList extends AbstractView
+{
+    constructor()
+    {
         super();
     }
 
-    async getHtml(): Promise<string> {
+    async getHtml(): Promise<string>
+    {
         let lobbies: LobbyInfo[] = [];
-        try {
-            lobbies = await window.lobbyListService.getLobbies();
-        }
-        catch (error) {
-            console.error("LobbyList View: Error fetching lobbies:", error);
-        }
+        lobbies = await window.lobbyListService.getLobbies();
 
         const title = new Title({ title: 'Available Lobbies' });
-        const titleSection = await title.getHtml();
 
         const button = new Button();
-        const createLobbyButton = await button.renderButton({
+        const createLobbyButton = await button.renderButton(
+        {
             id: 'createLobbyBtn',
             text: 'Create Lobby',
             type: 'button',
@@ -30,17 +28,29 @@ export default class LobbyList extends AbstractView {
         });
 
         const card = new Card();
-        const lobbyListCard = await card.renderCard({
+        const lobbyListCard = await card.renderCard(
+        {
             title: 'Lobby List',
             prefix: createLobbyButton,
             table: {
                 id: 'lobby-list',
                 height: '400px',
                 data: lobbies,
-                columns: [
-                    { key: 'name', label: 'Lobby Name' },
-                    { key: 'id', label: 'ID' },
-                    { key: 'creatorId', label: 'Creator ID' },
+                columns:
+                [
+                    {
+                        key: 'name',
+                        label: 'Lobby Name'
+                    },
+                    {
+                        key: 'id',
+                        label: 'ID'
+                    },
+                    {
+                        key:
+                        'creatorId',
+                        label: 'Creator ID'
+                    },
                     {
                         key: 'players',
                         label: 'Players',
@@ -55,7 +65,8 @@ export default class LobbyList extends AbstractView {
                         key: 'actions',
                         label: 'Action',
                         isAction: true,
-                        buttons: (lobby) => [
+                        buttons: (lobby) =>
+                        [
                             {
                                 id: `accept-${lobby.id}`,
                                 text: 'Accept Invite',
@@ -75,7 +86,6 @@ export default class LobbyList extends AbstractView {
             }
         });
         
-
         return this.render(`
             <div class="container">
             ${lobbyListCard}

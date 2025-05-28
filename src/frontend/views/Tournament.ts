@@ -2,18 +2,26 @@ import AbstractView from '../../utils/AbstractView.js';
 import Title from '../components/Title.js';
 import Button from '../components/Button.js';
 
-export default class Tournament extends AbstractView {
-    constructor(params: URLSearchParams) {
+export default class Tournament extends AbstractView
+{
+    constructor(params: URLSearchParams)
+	{
         super();
         this.params = params;
     }
 
-    async getHtml(): Promise<string> {
-        const title = new Title({ title: 'Tournament Bracket' });
+    async getHtml(): Promise<string>
+	{
+        const title = new Title(
+		{
+			title: 'Tournament Bracket'
+		}
+		);
         const titleSection = await title.getHtml();
 
         const button = new Button();
-        const backButton = await button.renderButton({
+        const backButton = await button.renderButton(
+		{
             id: 'returnLobbyBtn',
             text: 'Return to Lobby',
             className: 'btn btn-secondary',

@@ -15,13 +15,12 @@ export default class Input extends AbstractView
 		placeholder = '',
 		value = '',
 		className = '',
-		withConfirm = false
-	}: InputProps & { withConfirm?: boolean }): Promise<string>
-	{
+		withConfirm = false,
+		bare = false // ✅ New flag
+	}: InputProps & { withConfirm?: boolean; bare?: boolean }): Promise<string> {
 		const finalClass = className || 'input';
-
-		if (type === 'display')
-		{
+	
+		if (type === 'display') {
 			return this.render(`
 				<div class="detail-row">
 					<label class="label">${placeholder || name}:</label>
@@ -29,7 +28,7 @@ export default class Input extends AbstractView
 				</div>
 			`);
 		}
-
+	
 		const inputField = type === 'select'
 			? `<select name="${name}" id="${id}" class="${finalClass}">${value}</select>`
 			: `<input
@@ -40,10 +39,9 @@ export default class Input extends AbstractView
 					value="${value}"
 					class="${finalClass}"
 				/>`;
-
+	
 		let confirmInput = '';
-		if (withConfirm && type === 'password')
-		{
+		if (withConfirm && type === 'password') {
 			confirmInput = `
 				<div class="detail-row" id="${id}-confirm-row" style="display: none;">
 					<label class="label">Confirm Password:</label>
@@ -68,15 +66,46 @@ export default class Input extends AbstractView
 				</script>
 			`;
 		}
-        
+	
+		if (bare) {
+			// ✅ Just return the input directly without wrapper or label
+			return this.render(inputField + confirmInput);
+		}
+	
 		return this.render(`
 			<div class="detail-row">
-            <label class="label">${placeholder || name}:</label>
-            ${inputField}
+				<label class="label">${placeholder || name}:</label>
+				${inputField}
 			</div>
 			${confirmInput}
-            `);
-        }
+		`);
+	}
+	
+
+		async renderNumericGroup(count: number, baseId: string): Promise<string> {
+			const inputs: string[] = [];
+		
+			for (let i = 0; i < count; i++) {
+				const id = `${baseId}_${i + 1}`;
+				inputs.push(await this.renderInput({
+					id,
+					name: id,
+					type: 'number',
+					bare: true, // ✅ Only input, no label or wrapper
+					className: 'tf_numeric w-12 h-12 text-center text-xl border border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+				}));
+			}
+		
+			const halfway = Math.floor(count / 2);
+			return this.render(`
+				<div class="flex justify-center space-x-2">
+					${inputs.slice(0, halfway).join('\n')}
+					<div class="spacer w-4"></div>
+					${inputs.slice(halfway).join('\n')}
+				</div>
+			`);
+		}
+		
 
 
 	async getHtml(): Promise<string>

@@ -130,6 +130,12 @@ export interface User {
     isCreator?: boolean;
 }
 
+export interface PlayerDisplayState extends Partial<LobbyParticipant>
+{
+    isCreator?: boolean;
+    isJoined?: boolean;
+}
+
 export interface LobbyParticipant extends User {
     isReady: boolean; // Essential for the UI
     // isCreator can be derived by comparing id with lobbyData.creatorId

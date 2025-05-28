@@ -4,35 +4,45 @@ import Button from '../components/Button.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
 
-export default class Profile extends AbstractView {
+export default class Profile extends AbstractView
+{
     private userId: string;
 
-    constructor(params: URLSearchParams) {
+    constructor(params: URLSearchParams)
+    {
         super();
         // Extract the id parameter from the route params
         this.userId = params.get('id') || 'unknown';
     }
 
-    async getHtml(): Promise<string> {
+    async getHtml(): Promise<string>
+    {
 
         // User data will be stored here
         let userData = null;
         let users = [];
 
-        try {
+        try
+        {
             // First, fetch the specific user using the userId from the route parameters
             const userResponse = await fetch(`/api/users/${this.userId}`);
-            if (userResponse.ok) {
+            if (userResponse.ok)
+            {
                 userData = await userResponse.json();
-            } else {
+            }
+            else
+            {
                 console.error('Failed to fetch user data from API');
             }
-        } catch (error) {
+        }
+        catch (error)
+        {
             console.error('API request error:', error);
         }
 
         // Title section
-        const title = new Title({
+        const title = new Title(
+        {
             title: userData ? `Profile: ${userData.displayname}` : 'User Profile',
         });
         const titleSection = await title.getHtml();
@@ -77,11 +87,17 @@ export default class Profile extends AbstractView {
                         </div>
                     </div>
                 </div>`,
-                data: { user: userData }
+                data:
+                {
+                    user: userData
+                }
             });
             
-        } else {
-            profileCardHtml = await card.renderCard({
+        }
+        else
+        {
+            profileCardHtml = await card.renderCard(
+            {
                 title: 'User Profile',
                 extra: `<div class="alert alert-warning">User not found or error loading user data.</div>`
             });
@@ -89,10 +105,12 @@ export default class Profile extends AbstractView {
 
         // Button for edit
         const button = new Button();
-        const buttonGroup = await button.renderGroup({
+        const buttonGroup = await button.renderGroup(
+        {
             layout: 'stack',
             align: 'center',
-            buttons: [
+            buttons:
+            [
                 {
                     id: 'edit-profile',
                     text: 'Edit Profile',

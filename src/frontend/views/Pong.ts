@@ -3,29 +3,52 @@ import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
 
-export default class Pong extends AbstractView {
+export default class Pong extends AbstractView
+{
     private lobbyId: string;
 
-    constructor(params: URLSearchParams) {
+    constructor(params: URLSearchParams)
+    {
         super();
         this.params = params;
         this.lobbyId = params.get('id') || '';
     }
 
-    async getHtml(): Promise<string> {
-        const buttonGroup = await new Button().renderGroup({
+    async getHtml(): Promise<string>
+    {
+        const buttonGroup = await new Button().renderGroup(
+        {
             layout: 'group',
             align: 'center',
-            buttons: [
-                { id: 'pauseGameButton', text: 'Pause', className: "btn btn-primary" },
-                { id: 'resumeGameButton', text: 'Resume', className: "btn btn-primary" },
-                { id: 'resetGameButton', text: 'Reset', className: "btn btn-primary" },
-                { id: 'lobbyGameButton', text: 'Back to Lobby', className: "btn btn-primary", href: `/lobby/${this.lobbyId}` }
+            buttons:
+            [
+                {
+                    id: 'pauseGameButton',
+                    text: 'Pause',
+                    className: "btn btn-primary"
+                },
+                {
+                    id: 'resumeGameButton',
+                    text: 'Resume', className:
+                    "btn btn-primary"
+                },
+                {
+                    id: 'resetGameButton',
+                    text: 'Reset', 
+                className: "btn btn-primary"
+                },
+                {
+                    id: 'lobbyGameButton',
+                    text: 'Back to Lobby',
+                    className: "btn btn-primary",
+                    href: `/lobby/${this.lobbyId}` 
+                }
             ]
         });
 
         const card = new Card(this.params);
-        const gameCard = await card.renderCard({
+        const gameCard = await card.renderCard(
+        {
             title: 'Pong Arena',
             body: `
 				<div class="flex flex-col gap-6 items-center justify-center">
@@ -44,3 +67,4 @@ export default class Pong extends AbstractView {
         return html;
     }
 }
+

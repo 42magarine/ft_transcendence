@@ -8,29 +8,39 @@ import UserService from '../services/UserService.js';
 import Toggle from '../components/Toggle.js';
 import Input from '../components/Input.js';
 
-export default class ProfileEdit extends AbstractView {
+export default class ProfileEdit extends AbstractView
+{
 	private userId: string;
 
-	constructor(params: URLSearchParams) {
+	constructor(params: URLSearchParams)
+	{
 		super();
 		this.userId = params.get('id') || 'unknown';
 	}
 
-	async getHtml(): Promise<string> {
+	async getHtml(): Promise<string>
+	{
 		let userData = null;
 
-		try {
+		try
+		{
 			const userResponse = await fetch(`/api/users/${this.userId}`);
-			if (userResponse.ok) {
+			if (userResponse.ok)
+			{
 				userData = await userResponse.json();
-			} else {
+			}
+			else
+			{
 				console.error('Failed to fetch user data from API');
 			}
-		} catch (error) {
+		}
+		catch (error)
+		{
 			console.error('API request error:', error);
 		}
 
-		const title = new Title({
+		const title = new Title(
+		{
 			title: userData ? `Edit Profile: ${userData.displayname}` : 'Edit Profile',
 		});
 		const titleSection = await title.getHtml();
@@ -41,7 +51,8 @@ export default class ProfileEdit extends AbstractView {
 		const card = new Card();
 		let cardBody = '';
 
-		if (userData) {
+		if (userData)
+		{
 			const profileImageSvg = generateProfileImage(userData, 200, 200);
 
 			cardBody = `
@@ -49,43 +60,50 @@ export default class ProfileEdit extends AbstractView {
 					<div class="profile-avatar-container">${profileImageSvg}</div>
 				</div>
 				<div class="profile-details space-y-4">
-					${await input.renderInput({
+					${await input.renderInput(
+					{
 						name: 'displayname',
 						placeholder: 'Display Name',
 						value: userData.displayname
 					})}
-					${await input.renderInput({
+					${await input.renderInput(
+					{
 						name: 'username',
 						placeholder: 'Username',
 						value: userData.username
 					})}
-					${await input.renderInput({
+					${await input.renderInput(
+					{
 						type: 'display',
 						name: 'email',
 						placeholder: 'Email',
 						value: userData.email
 					})}
-					${await toggle.renderToggle({
+					${await toggle.renderToggle(
+					{
 						id: 'emailVerified',
 						name: 'emailVerified',
 						label: 'Email Verified',
 						checked: userData.emailVerified
 					})}
-					${await toggle.renderToggle({
+					${await toggle.renderToggle(
+					{
 						id: 'twoFAEnabled',
 						name: 'twoFAEnabled',
 						label: '2FA Enabled',
 						checked: userData.twoFAEnabled,
 						readonly: true
 					})}
-					${await toggle.renderToggle({
+					${await toggle.renderToggle(
+					{
 						id: 'googleSignIn',
 						name: 'googleSignIn',
 						label: 'Google Sign-In',
 						checked: userData.googleSignIn ?? false,
 						readonly: true
 					})}
-					${await input.renderInput({
+					${await input.renderInput(
+					{
 						id: 'password',
 						name: 'password',
 						type: 'password',
@@ -94,11 +112,14 @@ export default class ProfileEdit extends AbstractView {
 					})}
 				</div>
 			`;
-		} else {
+		}
+		else
+		{
 			cardBody = `<div class="alert alert-warning">User not found or error loading user data.</div>`;
 		}
 
-		const cardHtml = await card.renderCard({
+		const cardHtml = await card.renderCard(
+		{
 			title: 'User Profile',
 			body: `<form id="edit-profile-form">${cardBody}
 				<div class="text-center mt-6">
@@ -109,10 +130,12 @@ export default class ProfileEdit extends AbstractView {
 		});
 
 		const button = new Button();
-		const buttonGroup = await button.renderGroup({
+		const buttonGroup = await button.renderGroup(
+		{
 			layout: 'stack',
 			align: 'center',
-			buttons: [
+			buttons:
+			[
 				{
 					id: 'back-to-list',
 					text: 'Back to User List',
@@ -122,7 +145,8 @@ export default class ProfileEdit extends AbstractView {
 			]
 		});
 
-		const deleteModal = await new Modal().renderModal({
+		const deleteModal = await new Modal().renderModal(
+		{
 			id: 'confirm-delete-modal',
 			title: 'Confirm Deletion',
 			content: `<p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>`,

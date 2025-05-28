@@ -15,11 +15,12 @@ export interface User {
     tf_six?: string;
     secret?: string;
     twoFAEnabled?: string;
+    listAvatar?: string;
 }
 
 export interface UserList {
-    listAvatar: string;
-    avatar: string;
+    listAvatar?: string;
+    avatar?: string;
     id?: number;
     username: string;
     email: string;

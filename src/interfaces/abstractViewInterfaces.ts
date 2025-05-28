@@ -1,10 +1,11 @@
 //BUTTON.TS
 
 export interface ButtonProps {
-    id: string;
+    id?: string;
     text?: string;
     className?: string;
-    type?: 'submit' | 'button';
+    type?: 'submit' | 'button' | 'google-signin'| 'text-with-button';
+    textBefore?: string;
     onClick?: string;
     href?: string;
     status?: 'ready' | 'waiting' | 'unavailable';
@@ -13,11 +14,13 @@ export interface ButtonProps {
 }
 
 export interface ButtonGroupProps {
-    buttons: ButtonProps[];
-    align?: 'left' | 'center' | 'right';
-    layout?: 'group' | 'stack' | 'grid' | 'flex';
-    className?: String;
-    columns?: number;
+	align?: 'center' | 'left' | 'right';
+	layout?: 'stack' | 'grid' | 'group';
+	className?: string;
+	columns?: number;
+	buttons?: ButtonProps[];
+	toggles?: ToggleProps[];  // FIX: previously was `string[]`
+	inputs?: InputProps[];    // for inline name/email/password etc.
 }
 
 //CARD.TS
@@ -32,6 +35,7 @@ export interface InputField {
     max?: number;         // For number inputs
     step?: number;        // For number inputs
     className?: string;   // Added className for custom styling
+    withConfirm?: boolean;
 }
 
 export interface CardButton {
@@ -47,6 +51,7 @@ export interface CardProps {
     body?: string;
     inputs?: InputField[];
     button?: CardButton;
+    buttonGroup?: ButtonProps[];
     formId?: string;
     extra?: string;
     prefix?: string;
@@ -54,6 +59,7 @@ export interface CardProps {
     contentBlocks?: ContentBlock[];
     data?: Record<string, any>;
     table?: TableProps;
+    position?: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 }
 
 export interface CardGroupProps {
@@ -67,19 +73,27 @@ export type ContentBlock =
     | { type: 'input'; props: InputField }
     | { type: 'label'; props: { htmlFor: string; text: string } }
     | { type: 'stat'; props: { label: string; value: string } }
-    | { type: 'toggle'; props: { name: string; checked?: boolean; label?: string } }
-    | { type: 'toolbar'; props: { buttons: { text: string; onClick: string }[] } };
+    | { type: 'toggle'; props: ToggleProps }
+    | { type: 'toolbar'; props: { buttons: { text: string; onClick: string }[] } }
+    | { type: 'matchup'; props: { player1: string; player2: string } }
+    | { type: 'actions'; props: { buttons: string } }
+    | { type: 'inputgroup'; props: { inputs: InputField[] } }
+    | { type: 'buttongroup'; props: ButtonGroupProps & { toggles?: ToggleProps[] } }
+    | { type: 'html'; props: { html: string } };
+
 
 //INPUT.TS
 
 export interface InputProps {
-    id?: string;
-    name: string;
-    type?: string;
-    placeholder?: string;
-    value?: string;
-    className?: string; // optional override
+	id?: string;
+	name: string;
+	type?: string;
+	placeholder?: string;
+	value?: string;
+	className?: string;
+	withConfirm?: boolean;
 }
+
 
 //LABEL.TS
 
@@ -107,19 +121,13 @@ export interface TitleProps {
 //TOGGLE.TS
 
 export interface ToggleProps {
-    id: string;
-    label: string;
-    checked?: boolean;
-    readonly?: boolean;
+	id: string;
+	name: string;
+	label: string;
+	checked: boolean;
+	readonly?: boolean;
 }
 
-export interface ToggleProps {
-	id: string;
-	name?: string; // ✅ Add this line
-	label: string;
-	checked?: boolean;
-    readonly?: boolean;
-}
 
 //TABLE.TS
 

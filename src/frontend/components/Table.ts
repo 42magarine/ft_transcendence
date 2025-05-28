@@ -48,19 +48,19 @@ export default class Table extends AbstractView
 
 		return this.render(`
 			<div class="table-container">
-                <div style="overflow-x: auto;">
-                    ${title ? `<h2 class="text-xl font-semibold mb-2">${title}</h2>` : ''}
-                    <table id="${id}" class="list" data-height="${height}">
-                        <thead>
-                            <tr>${thead}</tr>
-                        </thead>
-                        <tbody>
-                            ${tbody.join('\n')}
-                        </tbody>
-                    </table>
-                </div>
+				<div style="overflow-x: auto; overflow-y: auto; max-height: ${height};">
+					${title ? `<h2 class="text-xl font-semibold mb-2">${title}</h2>` : ''}
+					<table id="${id}" class="list" data-height="${height}">
+						<thead class="sticky">
+							<tr>${thead}</tr>
+						</thead>
+						<tbody>
+							${tbody.join('\n')}
+						</tbody>
+					</table>
+				</div>
 			</div>
-		`);
+		`);		
 	}
 
 	async getHtml(): Promise<string>
