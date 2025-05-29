@@ -6,12 +6,12 @@ import UserService from '../services/UserService.js';
 
 export default class UserManagement extends AbstractView
 {
-	constructor()
-	{
-		super();
-	}
+    constructor()
+    {
+        super();
+    }
 
-	async getHtml(): Promise<string>
+    async getHtml(): Promise<string>
     {
         let users: UserList[] = await UserService.getAllUsers();
 
@@ -100,38 +100,77 @@ export default class UserManagement extends AbstractView
                     type: 'table',
                     props: {
                         id: 'user-list',
+                        title: 'User Overview',
+                        height: '300px',
                         data: users,
-                        rowLayout: () => []
-                        // rowLayout: (user) =>
-                        // [
-                        //     {
-                        //         type: 'html',
-                        //         props:
-                        //         {
-                        //             html: `
-                        //                 <div class="flex flex-wrap items-center justify-between gap-4 p-2">
-                        //                     <div class="flex gap-4 flex-wrap">
-                        //                         <span><strong>ID:</strong> ${user.id}</span>
-                        //                         <span><strong>Name:</strong> ${user.displayname}</span>
-                        //                         <span><strong>Username:</strong> ${user.username}</span>
-                        //                         <span><strong>Email:</strong> ${user.email}</span>
-                        //                         <span><strong>Verified:</strong> ${user.emailVerified ? 'Yes' : 'No'}</span>
-                        //                         <span><strong>2FA:</strong> ${user.twoFAEnabled ? 'Enabled' : 'Disabled'}</span>
-                        //                     </div>
-                        //                     <div class="flex gap-2 items-center">
-                        //                         <a href="/users/${user.id}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-eye"></i></a>
-                        //                         <a href="/users/edit/${user.id}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-pen-to-square"></i></a>
-                        //                         <button class="btn btn-sm btn-danger delete-user" onclick="handleDeleteUser(${user.id})">
-                        //                             <i class="fa-solid fa-trash"></i>
-                        //                         </button>
-                        //                     </div>
-                        //                 </div>
-                        //             `
-                        //         }
-                        //     }
-                // ]
+                        rowLayout: (user) => [
+                            {
+                                type: 'label',
+                                props: {
+                                    text: `ID: ${user.id}`,
+                                    htmlFor: `user-${user.id}-id`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: `Name: ${user.displayname}`,
+                                    htmlFor: `user-${user.id}-name`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: `Username: ${user.username}`,
+                                    htmlFor: `user-${user.id}-username`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: `Email: ${user.email}`,
+                                    htmlFor: `user-${user.id}-email`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: `Verified: ${user.emailVerified ? 'Yes' : 'No'}`,
+                                    htmlFor: `user-${user.id}-verified`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: `2FA: ${user.twoFAEnabled ? 'Enabled' : 'Disabled'}`,
+                                    htmlFor: `user-${user.id}-2fa`
+                                }
+                            },
+                            {
+                                type: 'buttongroup',
+                                props: {
+                                    buttons: [
+                                        {
+                                            text: '',
+                                            html: `<a href="/users/${user.id}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-eye"></i></a>`
+                                        },
+                                        {
+                                            text: '',
+                                            html: `<a href="/users/edit/${user.id}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-pen-to-square"></i></a>`
+                                        },
+                                        {
+                                            text: '',
+                                            html: `<button class="btn btn-sm btn-danger delete-user" onclick="handleDeleteUser(${user.id})">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                </button>`
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
                     }
                 }
+                
             ]
         });
 

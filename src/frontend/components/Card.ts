@@ -44,10 +44,10 @@ export default class Card extends AbstractView
             return await new Toolbar().renderBlock(block.props);
         }    
 
-        // case 'table': {
-        //     const Table = (await import('./Table.js')).default;
-        //     return await new Table().renderTable(block.props);
-        // }
+        case 'table': {
+            const Table = (await import('./Table.js')).default;
+            return await new Table().renderTable(block.props);
+        }        
     
         case 'matchup': {
             const player1Html = await this.renderContentBlock(block.props.player1);
@@ -145,7 +145,6 @@ export default class Card extends AbstractView
         preButton = '',
         contentBlocks = [],
         data = {},
-        table = undefined,
         position = 'center',
     }: CardProps): Promise<string>
     {
@@ -202,14 +201,7 @@ export default class Card extends AbstractView
             : [...inputsHtml, ...extraContentHtml, body].join('\n');
 
 
-        // let tableHtml = '';
-        // if (table) {
-        //     const tableComponent = new Table();
-        //     tableHtml = await tableComponent.renderTable(table);
-        // }
-
-        const bodyContent = [formHtml].filter(Boolean).join('\n');
-        //const bodyContent = [formHtml, tableHtml].filter(Boolean).join('\n');
+        const bodyContent = [formHtml /*, tableHtml if needed */].filter(Boolean).join('\n');
 
         const mergedData = { ...this.contextData, ...data };
 
