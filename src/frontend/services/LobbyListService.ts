@@ -2,6 +2,8 @@
 
 import { ServerMessage, LobbyInfo } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
+import UserService from '../services/UserService.js';
+import { User } from '../../interfaces/userInterfaces.js';
 
 export default class LobbyListService {
     private lobbyData: LobbyInfo[] = [];
@@ -10,6 +12,7 @@ export default class LobbyListService {
 
     constructor() {
         this.handleCreateLobbyClick = this.handleCreateLobbyClick.bind(this);
+        this.handleJoinLobbyClick = this.handleJoinLobbyClick.bind(this);
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
     }
 
@@ -29,14 +32,14 @@ export default class LobbyListService {
                     console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
                 }
                 break;
-            case 'joinedLobby':
-                Router.update();
-                if (data.lobbyId && data.playerNumber) {
-                    Router.redirect(`/lobby/${data.lobbyId}`);
-                } else {
-                    console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
-                }
-                break;
+            // case 'joinedLobby':
+            //     Router.update();
+            //     if (data.lobbyId && data.playerNumber !== undefined) {
+            //         Router.redirect(`/lobby/${data.lobbyId}`);
+            //     } else {
+            //         console.error("LobbyListService: lobbyId or playerNumber missing for joinedLobby", data);
+            //     }
+            //     break;
             default:
                 break;
         }
@@ -51,10 +54,10 @@ export default class LobbyListService {
         if (!this.isInitialized) {
             window.ft_socket.addEventListener('message', this.handleSocketMessage);
             this.isInitialized = true;
-            console.log("LobbyListService: WebSocket message listener initialized.");
         }
 
         this.setupCreateLobbyButtonListener();
+        this.setupJoinLobbyButtonListener();
     }
 
     private setupCreateLobbyButtonListener(): void {
@@ -62,7 +65,16 @@ export default class LobbyListService {
             document.body.removeEventListener('click', this.handleCreateLobbyClick);
             document.body.addEventListener('click', this.handleCreateLobbyClick);
         }).catch(error => {
-            console.error("LobbyListService: waiting for socketReady to setup button listener:", error);
+            console.error("LobbyListService: waiting for socketReady to setup create lobby button listener:", error);
+        });
+    }
+
+    private setupJoinLobbyButtonListener(): void {
+        window.socketReady?.then(() => {
+            document.body.removeEventListener('click', this.handleJoinLobbyClick);
+            document.body.addEventListener('click', this.handleJoinLobbyClick);
+        }).catch(error => {
+            console.error("LobbyListService: waiting for socketReady to setup join lobby button listener:", error);
         });
     }
 
@@ -80,6 +92,49 @@ export default class LobbyListService {
                 }
             } else {
                 console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
+            }
+        }
+    }
+
+    private async handleJoinLobbyClick(e: MouseEvent): Promise<void> {
+        const target = e.target as HTMLElement;
+        const button = target.closest<HTMLAnchorElement>('.join-lobby-btn');
+
+        if (button) {
+            e.preventDefault();
+
+            const href = button.getAttribute('href');
+            if (!href) {
+                console.error("LobbyListService: joinLobbyBtn clicked, but 'href' attribute is missing.");
+                return;
+            }
+
+            const parts = href.split('/');
+            const lobbyId = parts.pop() || parts.pop();
+
+            if (!lobbyId) {
+                console.error(`LobbyListService: Could not parse lobbyId from href: ${href}`);
+                return;
+            }
+
+            let currentUserId: number | undefined;
+            const user: User | null = await UserService.getCurrentUser();
+
+            if (user && typeof user.id === 'number') {
+                currentUserId = user.id;
+            } else {
+                console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
+                return;
+            }
+            if (window.messageHandler) {
+                try {
+                    console.log(`LobbyListService: User ${currentUserId} attempting to join lobby ${lobbyId}`);
+                    await window.messageHandler.joinLobby(lobbyId, currentUserId);
+                } catch (error) {
+                    console.error(`LobbyListService: Error calling messageHandler.joinLobby for lobby ${lobbyId} and user ${currentUserId}:`, error);
+                }
+            } else {
+                console.warn("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
             }
         }
     }
@@ -103,8 +158,13 @@ export default class LobbyListService {
             this.lobbyDataResolvers.push(resolve);
         });
 
-        await window.socketReady;
-        await window.messageHandler.requestLobbyList();
+        try {
+            await window.socketReady;
+            await window.messageHandler.requestLobbyList();
+        } catch (error) {
+            console.error("LobbyListService getLobbies: Error during socket readiness or requesting list:", error);
+            this.resolveLobbyDataPromises(this.lobbyData);
+        }
 
         return promise;
     }
@@ -114,6 +174,7 @@ export default class LobbyListService {
             window.ft_socket.removeEventListener('message', this.handleSocketMessage);
         }
         document.body.removeEventListener('click', this.handleCreateLobbyClick);
+        document.body.removeEventListener('click', this.handleJoinLobbyClick);
         this.isInitialized = false;
         console.log("LobbyListService: Destroyed listeners.");
     }

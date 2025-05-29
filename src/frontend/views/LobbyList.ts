@@ -57,7 +57,11 @@ export default class LobbyList extends AbstractView {
                                 props: {
                                     layout: 'group',
                                     buttons: [
-                                        { text: 'Join Lobby', className: 'btn btn-primary', href: `/lobby/${lobby.id}` }
+                                        {
+                                            text: 'Join Lobby',
+                                            className: 'btn btn-primary join-lobby-btn',
+                                            href: `/lobby/${lobby.id}`
+                                        }
                                     ]
                                 }
                             }

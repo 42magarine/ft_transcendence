@@ -59,6 +59,17 @@ export default class LobbyService {
                 }
                 break;
 
+            case 'playerReady':
+                    if (currentLobbyId && data.lobbyId === currentLobbyId) {
+                    console.log(`[LobbyService] Player ${data.userId} is ready in lobby ${data.lobbyId}`);
+                    // update player status UI
+                }
+                break;
+
+            case 'allPlayersReady':
+                    console.log("alle sind reeeeady")
+                break ;
+
             case 'playerJoined':
                 if (currentLobbyId && data.lobbyId === currentLobbyId) {
                     console.log(`[LobbyService] Player ${data.player?.userId} joined lobby ${data.lobbyId}`);
@@ -73,12 +84,6 @@ export default class LobbyService {
                 }
                 break;
 
-            case 'playerReady':
-                 if (currentLobbyId && data.lobbyId === currentLobbyId) {
-                    console.log(`[LobbyService] Player ${data.userId} is ready in lobby ${data.lobbyId}`);
-                    // update player status UI
-                }
-                break;
 
             case 'gameStarted':
                 if (currentLobbyId && data.lobbyId === currentLobbyId) {
