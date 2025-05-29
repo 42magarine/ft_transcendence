@@ -182,7 +182,6 @@ export class MatchLobby {
         this.checkAllPlayersReady();
     }
 
-    //
     public checkAllPlayersReady() {
         const minPlayers = this._lobbyType === 'game' ? 2 : this._maxPlayers;
 
@@ -199,7 +198,6 @@ export class MatchLobby {
         }
         return allReady;
     }
-
 
     // (>0_0)> really? <(0_0<)
     public isFull(): boolean {
@@ -244,8 +242,6 @@ export class MatchLobby {
             creatorId: this._creatorId!,
             maxPlayers: this._maxPlayers,
             currentPlayers: this._players.size,
-            isPublic: this._isPublic,
-            hasPassword: !!this._password,
             createdAt: this._createdAt,
             lobbyType: this._lobbyType,
             isStarted: this._gameStarted

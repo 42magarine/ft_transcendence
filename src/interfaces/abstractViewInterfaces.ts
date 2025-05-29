@@ -1,7 +1,5 @@
 // BUTTON.TS
-
-export interface ButtonProps
-{
+export interface ButtonProps {
     id?: string;            // ID attribute of the button element
     text?: string;          // Visible text on the button
     className?: string;     // Additional Tailwind/CSS classes for styling
@@ -14,8 +12,7 @@ export interface ButtonProps
     type?: 'submit' | 'button' | 'google-signin' | 'text-with-button';              // Type of button
 }
 
-export interface ButtonGroupProps
-{
+export interface ButtonGroupProps {
     align?: 'center' | 'left' | 'right';    // Alignment of the entire button group
     layout?: 'stack' | 'grid' | 'group';    // Layout type for arranging buttons
     className?: string;                     // Extra classes for the container
@@ -26,9 +23,7 @@ export interface ButtonGroupProps
 }
 
 // CARD.TS
-
-export interface InputField
-{
+export interface InputField {
     name: string;           // Name attribute of the input
     placeholder?: string;   // Placeholder text
     value?: string;         // Initial value
@@ -39,26 +34,24 @@ export interface InputField
     className?: string;     // Additional styling classes
     withConfirm?: boolean;  // Whether to render a confirm field (e.g., confirm password)
     type?:                  // Input type
-        'text'
-        | 'email'
-        | 'password'
-        | 'select'
-        | 'hidden'
-        | 'display'
-        | 'file'
-        | 'checkbox'
-        | 'number';
+    'text'
+    | 'email'
+    | 'password'
+    | 'select'
+    | 'hidden'
+    | 'display'
+    | 'file'
+    | 'checkbox'
+    | 'number';
 }
 
-export interface CardButton
-{
+export interface CardButton {
     text: string;       // Button text
     type: string;       // Button type (usually 'submit' or 'button')
     className?: string; // Button CSS classes
 }
 
-export interface CardProps
-{
+export interface CardProps {
     title?: string;                     // Card header title
     footer?: string;                    // Optional footer content
     className?: string;                 // Card wrapper class
@@ -74,19 +67,18 @@ export interface CardProps
     data?: Record<string, any>;         // Optional dynamic data context
     table?: TableProps;                 // Optional table to render inside the card
     position?:                          // Card alignment on screen
-            'center'
-            | 'top'
-            | 'bottom'
-            | 'left'
-            | 'right'
-            | 'top-left'
-            | 'top-right'
-            | 'bottom-left'
-            | 'bottom-right';
+    'center'
+    | 'top'
+    | 'bottom'
+    | 'left'
+    | 'right'
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right';
 }
 
-export interface CardGroupProps
-{
+export interface CardGroupProps {
     cards: CardProps[];                 // Array of card definitions to render in a group
     layout?: 'stack' | 'grid' | 'flex'; // Layout strategy for displaying cards
     className?: string;                 // CSS class for the group container
@@ -113,11 +105,8 @@ export type ContentBlock =
     | { type: 'twofactor'; props: { length?: number; namePrefix?: string } } // Renders 2FA code inputs
     | { type: 'signup-footer'; props?: {} }; // Renders login link + Google signup button
 
-
 // INPUT.TS
-
-export interface InputProps 
-{
+export interface InputProps {
     id?: string;            // Input ID
     name: string;           // Input name
     type?: string;          // HTML input type
@@ -127,41 +116,28 @@ export interface InputProps
     withConfirm?: boolean;  // Whether to show a confirmation field
 }
 
-
-
 // LABEL.TS
-
-export interface LabelProps
-{
+export interface LabelProps {
     htmlFor: string;    // ID of the element this label describes
     text: string;       // Visible label text
     className?: string; // Additional styling
 }
 
-
 // STATS.TS
-
-export interface StatProps
-{
+export interface StatProps {
     label: string;          // Label text for the stat (e.g. "XP", "Score")
     value: string | number; // Stat value
     className?: string;     // Optional styling
 }
 
-
 // TITLE.TS
-
-export interface TitleProps
-{
+export interface TitleProps {
     title: string;      // Main title
     subtitle?: string;  // Optional subtitle
 }
 
-
 // TOGGLE.TS
-
-export interface ToggleProps
-{
+export interface ToggleProps {
     id: string;             // Toggle ID
     name: string;           // Toggle name
     label: string;          // Toggle label shown to user
@@ -169,12 +145,8 @@ export interface ToggleProps
     readonly?: boolean;     // If true, toggle cannot be changed
 }
 
-
-
 // TABLE.TS
-
-export interface TableColumn
-{
+export interface TableColumn {
     key: string;                            // Column key, maps to data property
     label: string;                          // Column display name
     isAction?: boolean;                     // If true, column is for buttons/actions
@@ -182,8 +154,7 @@ export interface TableColumn
     render?: (row: any) => string;          // Optional custom render logic
 }
 
-export interface TableProps
-{
+export interface TableProps {
     id: string;       // Unique table ID
     title?: string;     // Optional title above the table
     height?: string;    // Optional fixed height (e.g., "300px")
@@ -191,11 +162,8 @@ export interface TableProps
     rowLayout: ((row: any) => ContentBlock[]); // Function that returns how each row is rendered using content blocks
 }
 
-
 // MODAL.TS
-
-export interface ModalProps
-{
+export interface ModalProps {
     id: string;                             // Modal ID
     title?: string;                         // Modal title/header
     content: string;                        // HTML string for modal body content
@@ -206,33 +174,30 @@ export interface ModalProps
     closableOnOutsideClick?: boolean;       // Whether clicking outside closes the modal
 }
 
-
-
 export interface ParagraphProps {
-	html: string;
-	align?: 'left' | 'center' | 'right';
-	className?: string;
+    html: string;
+    align?: 'left' | 'center' | 'right';
+    className?: string;
 }
 
 export interface HeadingProps {
-	level?: 1 | 2 | 3 | 4;
-	text: string;
-	className?: string;
+    level?: 1 | 2 | 3 | 4;
+    text: string;
+    className?: string;
 }
 
 export interface ParagraphProps {
-	html: string;
-	align?: 'left' | 'center' | 'right';
-	className?: string;
+    html: string;
+    align?: 'left' | 'center' | 'right';
+    className?: string;
 }
 
 export interface ContainerProps {
-	html: string;
-	className?: string;
+    html: string;
+    className?: string;
 }
 
 // Toolbar.ts
-
 interface ToolbarButton {
     text: string;
     onClick?: string;  // Optional inline handler or ID

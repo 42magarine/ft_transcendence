@@ -250,9 +250,8 @@ export class MatchController {
             {
                 lobby.removePlayer(player);
             }
-                //if lobby now empty delete lobby from active lobbies -> also need to delete from DB now!!!!
-            if (lobby?.isEmpty()) 
-            {
+            //if lobby now empty delete lobby from active lobbies -> also need to delete from DB now!!!!
+            if (lobby?.isEmpty()) {
                 this._lobbies.delete(player.lobbyId)
                 await this._matchService.deleteMatchByLobbyId(lobbyId);
                 //Write delete lobby from MatchModel Datatable in DB!!!!
@@ -312,8 +311,6 @@ export class MatchController {
                 creatorId: Lobby.player1.id,
                 maxPlayers: Lobby.maxPlayers,
                 currentPlayers: Lobby.lobbyParticipants?.length,
-                isPublic: !Lobby.hasPassword,
-                hasPassword: Lobby.hasPassword || false,
                 createdAt: Lobby.createdAt,
                 lobbyType: 'game' as const,
                 isStarted: false

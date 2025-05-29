@@ -114,12 +114,6 @@ export class MatchModel {
     @Column({ default: '' })
     lobbyName!: string;
 
-    @Column({ default: false })
-    hasPassword!: boolean;
-
-    @Column({ nullable: true })
-    passwordHash?: string;
-
     @Column('simple-json', { nullable: true })
     readyStatusMap?: Record<number, boolean>;
 
@@ -145,12 +139,6 @@ export class MatchModel {
 
 //     @Column({ default: '' })
 //     lobbyName!: string;
-
-//     @Column({ default: false })
-//     hasPassword!: boolean;
-
-//     @Column({ nullable: true })
-//     passwordHash?: string;
 
 //     @Column('simple-json', { nullable: true })
 //     readyStatusMap?: Record<number, boolean>;

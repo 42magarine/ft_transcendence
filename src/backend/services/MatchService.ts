@@ -66,11 +66,9 @@ export class MatchService {
         return await this.matchRepo.remove(match);
     }
 
-    async deleteMatchByLobbyId(lobbyId: string)
-    {
+    async deleteMatchByLobbyId(lobbyId: string) {
         const match = await this.getMatchLobbyById(lobbyId)
-        if (!match)
-        {
+        if (!match) {
             throw new Error("lobby not in MatchModels!!!")
         }
         return await this.matchRepo.remove(match);
@@ -116,7 +114,6 @@ export class MatchService {
         match.maxPlayers = 2; //currently hardcoded!!
         match.isLobbyOpen = true;
         match.status = "pending";
-        match.hasPassword = false;
         match.invitedUserIds = [];
         match.lobbyParticipants = [];
         match.player1Score = 0
