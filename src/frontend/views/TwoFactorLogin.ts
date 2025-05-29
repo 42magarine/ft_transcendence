@@ -10,24 +10,6 @@ export default class TwoFactorLogin extends AbstractView
 		super();
 	}
 
-	private async renderTwoFactorInputFields(username: string): Promise<string>
-	{
-		const input = new Input();
-		const renderedGroup = await input.renderNumericGroup(6, 'tf');
-
-		return `
-			<div id="twoFactorInterfaceLogin" class="mb-6">
-				<h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">
-					Enter the 6-digit code from your authenticator app
-				</h3>
-				<p class="mb-4 text-gray-600 dark:text-gray-400">
-					User: <strong id="tf-username-display">${username}</strong>
-				</p>
-				${renderedGroup}
-			</div>
-		`;
-	}
-
 	async getHtml(): Promise<string>
 	{
 		const userId = sessionStorage.getItem('pendingUserId');
@@ -48,12 +30,12 @@ export default class TwoFactorLogin extends AbstractView
 			contentBlocks:
 			[
 				{
-					type: 'html',
+					type: 'twofactor',
 					props:
 					{
-						html: await this.renderTwoFactorInputFields(username)
+						namePrefix: 'tf'
 					}
-				},
+				},				
 				{
 					type: 'inputgroup',
 					props:

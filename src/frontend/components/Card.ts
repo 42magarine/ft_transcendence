@@ -1,6 +1,7 @@
-import { InputField, CardButton, CardProps, CardGroupProps, ContentBlock } from '../../interfaces/abstractViewInterfaces.js';
+import { InputField, CardButton, CardProps, CardGroupProps, ContentBlock, ToolbarProps } from '../../interfaces/abstractViewInterfaces.js';
 import AbstractView from '../../utils/AbstractView.js';
 import Table from './Table.js';
+import Input from './Input.js'
 
 export default class Card extends AbstractView
 {
@@ -16,144 +17,116 @@ export default class Card extends AbstractView
         this.contextData = { ...this.contextData, ...data };
     }
 
-    protected async renderContentBlock(block: ContentBlock): Promise<string>
-    {
-        switch (block.type)
-        {
-            case 'input':
-            {
-                const
-                {
-                    name,
-                    type = 'text',
-                    placeholder = '',
-                    value = '',
-                    options = [],
-                    min = undefined,
-                    max = undefined,
-                    step = undefined,
-                    className = ''
-                } = block.props;
+    protected async renderContentBlock(block: ContentBlock): Promise<string> {
+        switch (block.type) {
+        case 'input': {
+            const Input = (await import('./Input.js')).default;
+            return await new Input().renderInput(block.props);
+        }
+    
+        case 'label': {
+            const Label = (await import('./Label.js')).default;
+            return await new Label().renderLabel(block.props);
+        }        
+    
+        case 'stat': {
+            const Stat = (await import('./Stat.js')).default;
+            return await new Stat().renderStat(block.props);
+        }   
+    
+        case 'toggle': {
+            const Toggle = (await import('./Toggle.js')).default;
+            return await new Toggle().renderToggle(block.props);
+        }
+    
+        case 'toolbar': {
+            const Toolbar = (await import('./Toolbar.js')).default;
+            return await new Toolbar().renderBlock(block.props);
+        }    
 
-                if (type === 'select')
-                {
-                    return `<select name="${name}" class="p-2 ${className}" required>
-                        <option value="" disabled selected>${placeholder}</option>
-                        ${options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
-                    </select>`;
-                }
-
-                if (type === 'file')
-                {
-                    return `<div class="flex flex-col">
-                        <label for="${name}" class="text-sm font-medium text-white/90">${placeholder}</label>
-                        <input type="file" id="${name}" name="${name}" class="file-input file-input-bordered w-full ${className}" />
-                    </div>`;
-                }
-                if (type === 'checkbox')
-                {
-                    const Toggle = (await import('./Toggle.js')).default;
-                    const toggle = new Toggle();
-                    return await toggle.renderToggle({ id: name, name, label: placeholder || '', checked: value === 'true' });
-                }
-
-                if (type === 'number')
-                {
-                    return `<input type="number" id="${name}" name="${name}" value="${value}" placeholder="${placeholder}"
-                        ${min !== undefined ? `min="${min}"` : ''} ${max !== undefined ? `max="${max}"` : ''} ${step !== undefined ? `step="${step}"` : ''}
-                        class="${className}" required />`;
-                }
-
-                if (type === 'hidden')
-                {
-                    return `<input type="hidden" name="${name}" value="${value}" id="${name}" />`;
-                }
-
-                return `<input type="${type}" id="${name}" name="${name}" value="${value}" placeholder="${placeholder}" required class="${className}" />`;
-            }
-
-            case 'label':
-            {
-                return `<label for="${block.props.htmlFor}" class="text-sm font-medium text-white/90">${block.props.text}</label>`;
-            }
-
-            case 'stat':
-            {
-                return `<div class="stat">
-                    <div class="stat-title text-white/70">${block.props.label}</div>
-                    <div class="stat-value text-white">${block.props.value}</div>
-                </div>`;
-            }
-
-            case 'toggle':
-            {
-                const Toggle = (await import('./Toggle.js')).default;
-                const toggle = new Toggle();
-                return await toggle.renderToggle(block.props);
-            }
-
-            case 'toolbar':
-            {
-                return `<div class="flex gap-2">${block.props.buttons
-                    .map(btn => `<button onclick="${btn.onClick}" class="btn-sm btn-secondary">${btn.text}</button>`)
-                    .join('')}</div>`;
-            }
-
-            case 'matchup':
-            {
-                const player1Block = block.props.player1;
-                const player2Block = block.props.player2;
-            
-                const player1Html = await this.renderContentBlock(player1Block);
-                const player2Html = await this.renderContentBlock(player2Block);
-            
-                return `
-                    <div class="lobby-center text-center">
-                        ${player1Html}
-                        <div class="vs my-2 font-bold text-lg">VS</div>
-                        ${player2Html}
-                    </div>
-                `;
-            }
-                    
-            // case 'table':
-            //{
-            //     return await  new Table().renderTable(block.props);
-            //}
-
-            case 'actions':
-            {
-                return `<div class="lobby-actions mt-4">${block.props.buttons}</div>`;
-            }
-
-            case 'inputgroup':
-            {
-                const { inputs } = block.props;
-                const inputHtmls = await Promise.all(inputs.map(async input => this.renderContentBlock({ type: 'input', props: input })));
-                return inputHtmls.join('\n');
-            }
-
-            case 'button':
-            {
-                const Button = (await import('./Button.js')).default;
-                const btn = new Button();
-                return await btn.renderButton(block.props);
-            }
-
-            case 'buttongroup':
-            {
-                const Button = (await import('./Button.js')).default;
-                const btn = new Button();
-                return await btn.renderGroup(block.props);
-            }
-
-            case 'html':
-            {
-                return block.props.html;
-            }
-
-            default:
-                return '';
+        // case 'table': {
+        //     const Table = (await import('./Table.js')).default;
+        //     return await new Table().renderTable(block.props);
+        // }
+    
+        case 'matchup': {
+            const player1Html = await this.renderContentBlock(block.props.player1);
+            const player2Html = await this.renderContentBlock(block.props.player2);
+            return `
+            <div class="lobby-center text-center">
+                ${player1Html}
+                <div class="vs my-2 font-bold text-lg">VS</div>
+                ${player2Html}
+            </div>`;
+        }
+    
+        case 'actions': {
+            return `<div class="lobby-actions mt-4">${block.props.buttons}</div>`;
+        }
+    
+        case 'inputgroup': {
+            const Input = (await import('./Input.js')).default;
+            const inputHtmls = await Promise.all(
+            block.props.inputs.map(async (input) => new Input().renderInput(input))
+            );
+            return inputHtmls.join('\n');
+        }
+    
+        case 'button': {
+            const Button = (await import('./Button.js')).default;
+            return await new Button().renderButton(block.props);
+        }
+    
+        case 'buttongroup': {
+            const Button = (await import('./Button.js')).default;
+            return await new Button().renderGroup(block.props);
+        }
+    
+        case 'html': {
+            return block.props.html;
+        }
+    
+        case 'twofactor': {
+            const Input = (await import('./Input.js')).default;
+            const tfInputs = await new Input().renderNumericGroup(6, 'tf');
+            return `
+            <div id="twoFactorInterface">
+                <div id="qr-display" class="mb-4"></div>
+                <input type="hidden" id="secret" name="secret" />
+                ${tfInputs}
+            </div>`;
+        }
+    
+        case 'signup-footer': {
+            return `
+            <p>Already have an account? <a router href="/login">log in</a></p>
+            <div class="flex justify-center pt-2">
+                <button id="google-signup" class="btn btn-google">Sign up with Google</button>
+            </div>`;
+        }
+    
+        case 'separator': {
+            const Separator = (await import('./Seperator.js')).default;
+            return await Separator.render(block.props);
+        }
+    
+        case 'heading': {
+            const Heading = (await import('./Heading.js')).default;
+            return await Heading.render(block.props);
+        }
+    
+        case 'paragraph': {
+            const Paragraph = (await import('./Paragraph.js')).default;
+            return await Paragraph.render(block.props);
+        }
+    
+        case 'container': {
+            const Container = (await import('./Container.js')).default;
+            return await Container.render(block.props);
+        }
+    
+        default:
+            return '';
         }
     }
 

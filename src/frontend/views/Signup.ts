@@ -8,26 +8,9 @@ export default class Signup extends AbstractView
 		super();
 	}
 
-	private renderTwoFactorHtml(): string
-	{
-		const secretInput = `<input type="hidden" id="secret" name="secret" />`;
-		const tfInputs = Array.from({ length: 6 }).map((_, i) => `
-			<input type="text" name="tf-${i}" maxlength="1" class="w-10 h-10 text-center border rounded-md" />
-		`).join('');
-		return `
-			<div id="twoFactorInterface">
-				<div id="qr-display" class="mb-4"></div>
-				${secretInput}
-				<div class="flex gap-2 justify-center">${tfInputs}</div>
-			</div>
-		`;
-	}
-
 	async getHtml(): Promise<string>
 	{
-		const card = new Card();
-
-		const signupCard = await card.renderCard(
+		const signupCard = await new Card().renderCard(
 		{
 			title: 'Signup',
 			formId: 'signup-form',
@@ -100,40 +83,14 @@ export default class Signup extends AbstractView
 					}
 				},
 				{
-					type: 'html',
-					props: {
-						html: this.renderTwoFactorHtml()
-					}
-				},
+					type: 'twofactor',
+					props: {}
+				},					
 				{
-					type: 'html',
-					props:
-					{
-						html: `
-							<p>Already have an account? <a router href="/login">log in</a></p>
-							<div class="flex justify-center pt-2">
-								<button id="google-signup" class="btn btn-google">Sign up with Google</button>
-							</div>
-						`
-					}
-				},
-				{
-					type: 'buttongroup',
-					props:
-					{
-						layout: 'stack',
-						align: 'center',
-						buttons:
-						[
-							{
-								id: 'submit-signup',
-								text: 'Sign up',
-								type: 'submit',
-								className: 'btn btn-primary'
-							}
-						]
-					}
+					type: 'signup-footer',
+					props: {}
 				}
+
 			]
 		});
 

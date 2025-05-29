@@ -23,82 +23,85 @@ export default class Profile extends AbstractView
         {
 			const profileCard = await new Card().renderCard(
             {
-				contentBlocks:
+                contentBlocks:
                 [
-					{
-						type: 'html',
-						props:
+                    {
+                        type: 'heading',
+                        props:
                         {
-							html: `<h1 class="text-2xl font-bold text-center mb-4">Profile: ${userData.displayname}</h1>`,
-						},
-					},
-					{
-						type: 'html',
-						props:
+                            text: `Profile: ${userData.displayname}`,
+                            level: 1,
+                            className: 'text-2xl font-bold text-center mb-4'
+                        }
+                    },
+                    {
+                        type: 'container',
+                        props:
                         {
-							html: `
-								<div class="flex flex-col items-center gap-2 mt-4">
-									<div>${profileImageSvg}</div>
-									<h2>${userData.displayname}</h2>
-									<p class="text-muted">@${userData.username}</p>
-								</div>
-							`,
-						},
-					},
-					{
-						type: 'stat',
-						props:
-                        { label: 'Display Name',
+                            className: 'flex flex-col items-center gap-2 mt-4',
+                            html: `
+                                <div>${profileImageSvg}</div>
+                                <h2>${userData.displayname}</h2>
+                                <p class="text-muted">@${userData.username}</p>
+                            `
+                        }
+                    },
+                    {
+                        type: 'stat',
+                        props:
+                        {
+                            label: 'Display Name',
                             value: userData.displayname ?? ''
-                        },
-					},
-					{
-						type: 'stat',
-						props:
-                        { label:
-                            'Username',
+                        }
+                    },
+                    {
+                        type: 'stat',
+                        props:
+                        {
+                            label: 'Username',
                             value: userData.username ?? ''
-                        },
-					},
-					{
-						type: 'stat',
-						props:
-                        { label: 'Email',
+                        }
+                    },
+                    {
+                        type: 'stat',
+                        props:
+                        {
+                            label: 'Email',
                             value: userData.email ?? ''
-                        },
-					},
-					{
-						type: 'stat',
-						props:
+                        }
+                    },
+                    {
+                        type: 'stat',
+                        props:
                         {
                             label: 'User ID',
                             value: userData.id?.toString() ?? ''
-                        },
-					},
-					{
-						type: 'buttongroup',
-						props:
+                        }
+                    },
+                    {
+                        type: 'buttongroup',
+                        props:
                         {
-							layout: 'stack',
-							align: 'center',
-							buttons:
+                            layout: 'stack',
+                            align: 'center',
+                            buttons:
                             [
-								{
-									id: 'edit-profile',
-									text: 'Edit Profile',
-									href: `/users/edit/${this.userId}`,
-									className: 'btn btn-primary',
-								},
-								{
-									id: 'back-to-list',
-									text: 'Back to User List',
-									href: '/user-mangement',
-									className: 'btn btn-secondary',
-								},
-							],
-						},
-					},
-				],
+                                {
+                                    id: 'edit-profile',
+                                    text: 'Edit Profile',
+                                    href: `/users/edit/${this.userId}`,
+                                    className: 'btn btn-primary',
+                                },
+                                {
+                                    id: 'back-to-list',
+                                    text: 'Back to User List',
+                                    href: '/user-mangement',
+                                    className: 'btn btn-secondary',
+                                }
+                            ]
+                        }
+                    }
+                ]                
 			});
 			return this.render(profileCard);
 		}
@@ -108,19 +111,24 @@ export default class Profile extends AbstractView
             {
 				contentBlocks:
                 [
-					{
-						type: 'html',
-						props:
+                    {
+                        type: 'heading',
+                        props:
                         {
-							html: `
-								<h1 class="text-2xl font-bold text-center mb-4">User Profile</h1>
-								<div class="alert alert-warning text-center">
-									User not found or error loading user data.
-								</div>
-							`,
-						},
-					},
-				],
+                            text: 'User Profile',
+                            level: 1,
+                            className: 'text-2xl font-bold text-center mb-4'
+                        }
+                    },
+                    {
+                        type: 'container',
+                        props:
+                        {
+                            className: 'alert alert-warning text-center',
+                            html: 'User not found or error loading user data.'
+                        }
+                    }
+                ]                
 			});
 			return this.render(errorCard);
 		}

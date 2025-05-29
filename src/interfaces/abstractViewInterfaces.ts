@@ -105,7 +105,13 @@ export type ContentBlock =
     | { type: 'inputgroup'; props: { inputs: InputField[] } } // Renders a group of input fields inline
     | { type: 'buttongroup'; props: ButtonGroupProps & { toggles?: ToggleProps[] } } // Renders a button group with optional toggles
     | { type: 'button'; props: ButtonProps } // Renders a standalone button
-    | { type: 'html'; props: { html: string } }; // Renders raw HTML
+    | { type: 'html'; props: { html: string } } // Renders raw HTML
+    | { type: 'separator'; props: { className?: string } }
+    | { type: 'heading'; props: HeadingProps }
+    | { type: 'paragraph'; props: ParagraphProps }
+    | { type: 'container'; props: ContainerProps }
+    | { type: 'twofactor'; props: { length?: number; namePrefix?: string } } // Renders 2FA code inputs
+    | { type: 'signup-footer'; props?: {} }; // Renders login link + Google signup button
 
 
 // INPUT.TS
@@ -198,4 +204,43 @@ export interface ModalProps
     showCloseButton?: boolean;              // Whether to render a close "X" button
     animation?: 'fade' | 'scale' | 'none';  // Animation style
     closableOnOutsideClick?: boolean;       // Whether clicking outside closes the modal
+}
+
+
+
+export interface ParagraphProps {
+	html: string;
+	align?: 'left' | 'center' | 'right';
+	className?: string;
+}
+
+export interface HeadingProps {
+	level?: 1 | 2 | 3 | 4;
+	text: string;
+	className?: string;
+}
+
+export interface ParagraphProps {
+	html: string;
+	align?: 'left' | 'center' | 'right';
+	className?: string;
+}
+
+export interface ContainerProps {
+	html: string;
+	className?: string;
+}
+
+// Toolbar.ts
+
+interface ToolbarButton {
+    text: string;
+    onClick?: string;  // Optional inline handler or ID
+    id?: string;
+    className?: string;
+}
+
+export interface ToolbarProps {
+    buttons: ToolbarButton[];
+    className?: string;
 }

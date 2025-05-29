@@ -35,10 +35,10 @@ export default class Lobby extends AbstractView
             contentBlocks:
             [
                 {
-                    type: 'html',
+                    type: 'separator',
                     props:
                     {
-                        html: `<hr class="my-6 border-t border-gray-300">`
+                        className: 'my-6 border-t border-gray-300'
                     }
                 },
                 // Matchup buttons
@@ -75,10 +75,10 @@ export default class Lobby extends AbstractView
                     }
                 },
                 {
-                    type: 'html',
+                    type: 'separator',
                     props:
                     {
-                        html: `<hr class="my-6 border-t border-gray-300">`
+                        className: 'my-6 border-t border-gray-300'
                     }
                 },
                 // Action buttons

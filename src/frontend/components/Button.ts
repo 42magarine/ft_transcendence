@@ -2,6 +2,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps } from '../../interfaces/abstractViewInterfaces.js';
 import Input from './Input.js';
 
+// This class handles rendering individual buttons and grouped button components with optional inputs and toggles
 export default class Button extends AbstractView
 {
 	constructor(params: URLSearchParams = new URLSearchParams())
@@ -9,8 +10,8 @@ export default class Button extends AbstractView
 		super(params);
 	}
 
-	async renderButton(
-	{
+	// Renders a single button based on ButtonProps
+	async renderButton({
 		id,
 		text,
 		className = '',
@@ -21,27 +22,27 @@ export default class Button extends AbstractView
 		iconHtml = '',
 		align = 'center',
 		textBefore = '',
-	}: ButtonProps): Promise<string>
-	{
-		const statusClassMap: Record<string, string> =
-		{
+	}: ButtonProps): Promise<string> {
+		// Maps status values to color classes
+		const statusClassMap: Record<string, string> = {
 			ready: 'btn-success',
 			waiting: 'btn-warning',
 			unavailable: 'btn-danger',
 		};
 
-		const alignmentMap: Record<string, string> =
-		{
+		// Maps alignment to text-alignment utility classes
+		const alignmentMap: Record<string, string> = {
 			left: 'text-left',
 			center: 'text-center',
 			right: 'text-right',
 		};
 
+		// Final class based on status
 		const statusClass = status ? statusClassMap[status] || '' : '';
 		const alignClass = alignmentMap[align] || '';
 
-		if (type === 'google-signin')
-		{
+		// Special case for Google Sign-In button using Google's JS API widget
+		if (type === 'google-signin') {
 			return this.render(`
 				<div class="${alignClass}">
 					<div id="g_id_onload"
@@ -61,28 +62,32 @@ export default class Button extends AbstractView
 			`);
 		}
 
+		// Builds full class list for the button
 		const finalClass = ['btn', statusClass, className].join(' ').trim();
 		const clickAttr = onClick ? `onclick="${onClick}"` : '';
-		const content = `${iconHtml || ''}${text || ''}`.trim();
+		const content = `${iconHtml || ''}${text || ''}`.trim(); // Includes optional icon HTML
 
+		// Render either as <a> or <button> based on presence of href
 		const buttonHtml = href
 			? `<a id="${id}" href="${href}" router class="${finalClass}">${content}</a>`
 			: `<button id="${id}" type="${type}" class="${finalClass}" ${clickAttr}>${content}</button>`;
 
 		let combinedHtml = buttonHtml;
-		if (type === 'text-with-button' && textBefore)
-		{
+
+		// If button type is 'text-with-button', prefix textBefore content
+		if (type === 'text-with-button' && textBefore) {
 			combinedHtml = `
 				<span class="inline-block mr-2 text-sm text-gray-600">${textBefore}</span>
 				${buttonHtml}
 			`;
 		}
 
+		// Wrap the button in a container div with alignment class
 		return this.render(`<div class="${alignClass}">${combinedHtml}</div>`);
 	}
 
-	async renderGroup(
-	{
+	// Renders a button group, optionally including inputs and toggles
+	async renderGroup({
 		buttons = [],
 		inputs = [],
 		toggles = [],
@@ -92,16 +97,16 @@ export default class Button extends AbstractView
 		className = '',
 	}: ButtonGroupProps & { inputs?: InputProps[]; toggles?: ToggleProps[] }): Promise<string>
 	{
-		const layoutClasses: Record<string, string> =
-		{
+		// Defines layout styles for grouping buttons and inputs
+		const layoutClasses: Record<string, string> = {
 			group: 'btn-group flex flex-row gap-2',
 			stack: 'btn-stack',
 			grid: `btn-grid grid grid-cols-${columns}`,
 			flex: 'btn-flex flex flex-wrap gap-4 items-center',
 		};
 
-		const alignmentMap: Record<string, string> =
-		{
+		// Defines alignment classes
+		const alignmentMap: Record<string, string> = {
 			left: 'justify-start',
 			center: 'justify-center',
 			right: 'justify-end',
@@ -110,24 +115,26 @@ export default class Button extends AbstractView
 		const layoutClass = layoutClasses[layout] || '';
 		const alignmentClass = alignmentMap[align] || '';
 
+		// Render inline inputs (e.g., displayname, email)
 		const inputRenderer = new Input();
 		const renderedInputs = await Promise.all(
 			(inputs || []).map(input => inputRenderer.renderInput({ ...input, bare: true }))
 		);
 
+		// Render toggle switches (e.g., emailVerified, 2FA)
 		const Toggle = (await import('./Toggle.js')).default;
-        const toggleRenderer = new Toggle();
+		const toggleRenderer = new Toggle();
 
-        const renderedToggles = await Promise.all(
-            (toggles || []).map(t => toggleRenderer.renderToggle(t))
-        );
+		const renderedToggles = await Promise.all(
+			(toggles || []).map(t => toggleRenderer.renderToggle(t))
+		);
 
-                
-
+		// Render all buttons passed in
 		const renderedButtons = await Promise.all(
 			(buttons || []).map(btn => this.renderButton(btn))
 		);
 
+		// Combine all components and render in a flex/grid layout
 		return this.render(`
 			<div class="${className} ${layoutClass} ${alignmentClass}">
 				${[...renderedInputs, ...renderedButtons, ...renderedToggles].join('\n')}
@@ -135,6 +142,7 @@ export default class Button extends AbstractView
 		`);
 	}
 
+	// Default rendering if called standalone (fallback)
 	async getHtml(): Promise<string>
 	{
 		return this.render(`<button class="btn">Default Button</button>`);

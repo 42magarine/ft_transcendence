@@ -35,10 +35,10 @@ export default class ProfileEdit extends AbstractView
             contentBlocks:
             [
                 {
-                    type: 'html',
-                    props:
-                    {
-                        html: `<div class="flex justify-center my-4">${profileImageSvg}</div>`
+                    type: 'container',
+                    props: {
+                        className: 'flex justify-center my-4',
+                        html: profileImageSvg
                     }
                 },
                 {

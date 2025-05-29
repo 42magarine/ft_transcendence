@@ -31,10 +31,10 @@ export default class Pong extends AbstractView
                     }
                 },
                 {
-                    type: 'html',
+                    type: 'separator',
                     props:
                     {
-                        html: `<hr class="my-6 border-t border-gray-300">`
+                        className: `<hr class="my-6 border-t border-gray-300">`
                     }
                 },
                 {
