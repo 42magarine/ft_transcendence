@@ -1,11 +1,14 @@
 import AbstractView from '../../utils/AbstractView.js';
 
-export default class Footer extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
+export default class Footer extends AbstractView
+{
+    constructor(params: URLSearchParams = new URLSearchParams(window.location.search))
+	{
         super(params);
     }
 
-    async getHtml(): Promise<string> {
+    async getHtml(): Promise<string>
+	{
         return super.render(`
 			<footer class="w-full py-1 px-5">
 				<div class="flex flex-col md:flex-row justify-between items-center text-sm w-full">

@@ -29,7 +29,7 @@ export default class Lobby extends AbstractView
 
     async getHtml(): Promise<string>
     {
-        const unifiedCard = await new Card().renderCard(
+        const lobbyCard = await new Card().renderCard(
         {
             title: `Lobby ${this.lobbyId}`,
             contentBlocks:
@@ -108,6 +108,6 @@ export default class Lobby extends AbstractView
                 }
             ]
         });
-        return this.render(`${unifiedCard}`);
+        return this.render(`${lobbyCard}`);
     }
 }

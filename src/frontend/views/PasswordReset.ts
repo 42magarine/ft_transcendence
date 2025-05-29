@@ -13,8 +13,6 @@ export default class PasswordReset extends AbstractView
 
     async getHtml(): Promise<string>
     {
-        const card = new Card();
-
         let token = this.params.get('token');
 
         if (!token)
@@ -29,7 +27,7 @@ export default class PasswordReset extends AbstractView
             {
                 await window.userManagementService.verifyPasswordResetToken(token);
 
-                const resetCard = await card.renderCard(
+                const resetCard = await new Card().renderCard(
                 {
                     title: 'Reset Your Password',
                     formId: 'password-reset-form',
@@ -38,11 +36,13 @@ export default class PasswordReset extends AbstractView
                         {
                             name: 'password',
                             type: 'password',
-                            placeholder: 'New Password' },
+                            placeholder: 'New Password'
+                        },
                         {
                             name: 'confirmPassword',
                             type: 'password',
-                            placeholder: 'Confirm New Password' }
+                            placeholder: 'Confirm New Password'
+                        }
                     ],
                     buttonGroup:
                     [
@@ -67,7 +67,7 @@ export default class PasswordReset extends AbstractView
             }
             catch (error)
             {
-                const errorCard = await card.renderCard(
+                const errorCard = await new Card().renderCard(
                 {
                     title: 'Invalid or Expired Link',
                     prefix: '<p class="text-red-500">This password reset link is invalid or has expired.</p>',
@@ -96,7 +96,8 @@ export default class PasswordReset extends AbstractView
         }
         else
         {
-            const requestCard = await card.renderCard({
+            const requestCard = await new Card().renderCard(
+            {
                 title: 'Password Reset',
                 formId: 'password-reset-request-form',
                 inputs:
@@ -104,12 +105,15 @@ export default class PasswordReset extends AbstractView
                     {
                         name: 'email',
                         type: 'email',
-                        placeholder: 'E-Mail' }
+                        placeholder: 'E-Mail'
+                    }
                 ],
                 buttonGroup:
                 [
                     {
-                        text: 'Request Password Reset', type: 'submit', className: "btn btn-primary",
+                        text: 'Request Password Reset',
+                        type: 'submit',
+                        className: "btn btn-primary",
                     },
                     {
                         id: 'login-redirect',

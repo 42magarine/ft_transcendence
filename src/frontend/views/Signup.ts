@@ -1,12 +1,15 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
 
-export default class Signup extends AbstractView {
-	constructor() {
+export default class Signup extends AbstractView
+{
+	constructor()
+	{
 		super();
 	}
 
-	private renderTwoFactorHtml(): string {
+	private renderTwoFactorHtml(): string
+	{
 		const secretInput = `<input type="hidden" id="secret" name="secret" />`;
 		const tfInputs = Array.from({ length: 6 }).map((_, i) => `
 			<input type="text" name="tf-${i}" maxlength="1" class="w-10 h-10 text-center border rounded-md" />
@@ -20,18 +23,22 @@ export default class Signup extends AbstractView {
 		`;
 	}
 
-	async getHtml(): Promise<string> {
+	async getHtml(): Promise<string>
+	{
 		const card = new Card();
 
-		const signupCard = await card.renderCard({
+		const signupCard = await card.renderCard(
+		{
 			title: 'Signup',
 			formId: 'signup-form',
 			prefix: '<div class="signup-avatar"></div>',
 			className: 'max-w-xl mx-auto',
-			contentBlocks: [
+			contentBlocks:
+			[
 				{
 					type: 'input',
-					props: {
+					props:
+					{
 						name: 'avatar',
 						type: 'file',
 						placeholder: 'Avatar'
@@ -39,7 +46,8 @@ export default class Signup extends AbstractView {
 				},
 				{
 					type: 'input',
-					props: {
+					props:
+					{
 						name: 'displayname',
 						type: 'text',
 						placeholder: 'Name'
@@ -47,7 +55,8 @@ export default class Signup extends AbstractView {
 				},
 				{
 					type: 'input',
-					props: {
+					props:
+					{
 						name: 'username',
 						type: 'text',
 						placeholder: 'Username'
@@ -55,7 +64,8 @@ export default class Signup extends AbstractView {
 				},
 				{
 					type: 'input',
-					props: {
+					props:
+					{
 						name: 'email',
 						type: 'email',
 						placeholder: 'E-Mail'
@@ -63,7 +73,8 @@ export default class Signup extends AbstractView {
 				},
 				{
 					type: 'input',
-					props: {
+					props:
+					{
 						name: 'password',
 						type: 'password',
 						placeholder: 'Password',
@@ -72,7 +83,8 @@ export default class Signup extends AbstractView {
 				},
 				{
 					type: 'input',
-					props: {
+					props:
+					{
 						name: 'repeat-password',
 						type: 'password',
 						placeholder: 'Repeat Password'
@@ -80,7 +92,8 @@ export default class Signup extends AbstractView {
 				},
 				{
 					type: 'input',
-					props: {
+					props:
+					{
 						name: 'enableTwoFactor',
 						type: 'checkbox',
 						placeholder: 'Enable 2FA (Requires Mobile App)'
@@ -94,7 +107,8 @@ export default class Signup extends AbstractView {
 				},
 				{
 					type: 'html',
-					props: {
+					props:
+					{
 						html: `
 							<p>Already have an account? <a router href="/login">log in</a></p>
 							<div class="flex justify-center pt-2">
@@ -105,10 +119,12 @@ export default class Signup extends AbstractView {
 				},
 				{
 					type: 'buttongroup',
-					props: {
+					props:
+					{
 						layout: 'stack',
 						align: 'center',
-						buttons: [
+						buttons:
+						[
 							{
 								id: 'submit-signup',
 								text: 'Sign up',

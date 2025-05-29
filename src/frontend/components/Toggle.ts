@@ -30,10 +30,10 @@ export default class Toggle extends AbstractView
 		`);
 	}
 
-	// ✅ This satisfies the AbstractView requirement
 	async getHtml(): Promise<string>
 	{
-		return await this.renderToggle({
+		return await this.renderToggle(
+		{
 			id: 'default-toggle',
 			name: 'defaultToggle',
 			label: 'Email Verified',

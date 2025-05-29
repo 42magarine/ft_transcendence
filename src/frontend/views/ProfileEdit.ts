@@ -28,7 +28,7 @@ export default class ProfileEdit extends AbstractView
         }
 		const profileImageSvg = generateProfileImage(userData, 100, 100);
 
-		const unifiedCard = await  new Card().renderCard(
+		const profileEditCard = await  new Card().renderCard(
         {
 			formId: 'edit-profile-form',
             title: `Edit Profile: ${userData.displayname}`,
@@ -171,7 +171,7 @@ export default class ProfileEdit extends AbstractView
                 }
             ]
 		});
-		return this.render(`${unifiedCard}`);
+		return this.render(`${profileEditCard}`);
 	}
 
 	async mount(): Promise<void>

@@ -2,12 +2,15 @@ import AbstractView from '../../utils/AbstractView.js';
 import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps } from '../../interfaces/abstractViewInterfaces.js';
 import Input from './Input.js';
 
-export default class Button extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
+export default class Button extends AbstractView
+{
+	constructor(params: URLSearchParams = new URLSearchParams())
+	{
 		super(params);
 	}
 
-	async renderButton({
+	async renderButton(
+	{
 		id,
 		text,
 		className = '',
@@ -18,14 +21,17 @@ export default class Button extends AbstractView {
 		iconHtml = '',
 		align = 'center',
 		textBefore = '',
-	}: ButtonProps): Promise<string> {
-		const statusClassMap: Record<string, string> = {
+	}: ButtonProps): Promise<string>
+	{
+		const statusClassMap: Record<string, string> =
+		{
 			ready: 'btn-success',
 			waiting: 'btn-warning',
 			unavailable: 'btn-danger',
 		};
 
-		const alignmentMap: Record<string, string> = {
+		const alignmentMap: Record<string, string> =
+		{
 			left: 'text-left',
 			center: 'text-center',
 			right: 'text-right',
@@ -34,7 +40,8 @@ export default class Button extends AbstractView {
 		const statusClass = status ? statusClassMap[status] || '' : '';
 		const alignClass = alignmentMap[align] || '';
 
-		if (type === 'google-signin') {
+		if (type === 'google-signin')
+		{
 			return this.render(`
 				<div class="${alignClass}">
 					<div id="g_id_onload"
@@ -63,7 +70,8 @@ export default class Button extends AbstractView {
 			: `<button id="${id}" type="${type}" class="${finalClass}" ${clickAttr}>${content}</button>`;
 
 		let combinedHtml = buttonHtml;
-		if (type === 'text-with-button' && textBefore) {
+		if (type === 'text-with-button' && textBefore)
+		{
 			combinedHtml = `
 				<span class="inline-block mr-2 text-sm text-gray-600">${textBefore}</span>
 				${buttonHtml}
@@ -73,7 +81,8 @@ export default class Button extends AbstractView {
 		return this.render(`<div class="${alignClass}">${combinedHtml}</div>`);
 	}
 
-	async renderGroup({
+	async renderGroup(
+	{
 		buttons = [],
 		inputs = [],
 		toggles = [],
@@ -81,15 +90,18 @@ export default class Button extends AbstractView {
 		layout = 'group',
 		columns = 2,
 		className = '',
-	}: ButtonGroupProps & { inputs?: InputProps[]; toggles?: ToggleProps[] }): Promise<string> {
-		const layoutClasses: Record<string, string> = {
+	}: ButtonGroupProps & { inputs?: InputProps[]; toggles?: ToggleProps[] }): Promise<string>
+	{
+		const layoutClasses: Record<string, string> =
+		{
 			group: 'btn-group flex flex-row gap-2',
 			stack: 'btn-stack',
 			grid: `btn-grid grid grid-cols-${columns}`,
 			flex: 'btn-flex flex flex-wrap gap-4 items-center',
 		};
 
-		const alignmentMap: Record<string, string> = {
+		const alignmentMap: Record<string, string> =
+		{
 			left: 'justify-start',
 			center: 'justify-center',
 			right: 'justify-end',
@@ -123,7 +135,8 @@ export default class Button extends AbstractView {
 		`);
 	}
 
-	async getHtml(): Promise<string> {
+	async getHtml(): Promise<string>
+	{
 		return this.render(`<button class="btn">Default Button</button>`);
 	}
 }

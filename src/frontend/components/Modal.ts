@@ -1,17 +1,8 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
-import { ButtonProps } from '../../interfaces/abstractViewInterfaces.js';
+import { ButtonProps, ModalProps } from '../../interfaces/abstractViewInterfaces.js';
 
-interface ModalProps {
-	id: string;
-	title?: string;
-	content: string;
-	footer?: string;
-	footerButtons?: ButtonProps[]; // <-- added
-	showCloseButton?: boolean;
-	animation?: 'fade' | 'scale' | 'none';
-	closableOnOutsideClick?: boolean;
-}
+
 
 export default class Modal extends AbstractView
 {

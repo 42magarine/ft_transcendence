@@ -14,49 +14,156 @@ export default class Home extends AbstractView
         const currentUser = await UserService.getCurrentUser();
 
         // Card to demonstrate all available content block types
-        const testCard = await new Card().renderCard(
+        const homeCard = await new Card().renderCard(
         {
-            title:  currentUser
-                ? `Hello ${currentUser.displayname}, this is Transcendence!`
-                : 'Welcome to',
+            title: currentUser
+                ? `Hello ${currentUser.displayname}, this is Transcendence, please don't delete this card, it is for testing purpose!`
+                : 'Welcome to Transcendence!',
             formId: 'test-form',
             contentBlocks:
             [
+        
+                // LABEL + TEXT INPUT
                 {
                     type: 'label',
                     props:
                     {
-                        htmlFor: 'testInput',
-                        text: 'This is a test label'
+                        htmlFor: 'fullName',
+                        text: 'Full Name'
                     }
                 },
                 {
                     type: 'input',
                     props:
                     {
-                        name: 'testInput',
+                        name: 'fullName',
                         type: 'text',
-                        placeholder: 'Type something...'
+                        placeholder: 'Enter your name',
+                        className: 'input input-bordered'
                     }
                 },
+        
+                // EMAIL + PASSWORD INPUT with confirm
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'email',
+                        type: 'email',
+                        placeholder: 'Enter your email'
+                    }
+                },
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'password',
+                        type: 'password',
+                        placeholder: 'Enter password',
+                        withConfirm: true
+                    }
+                },
+        
+                // HIDDEN + FILE + NUMBER INPUT
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'userId',
+                        type: 'hidden',
+                        value: '12345'
+                    }
+                },
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'avatar',
+                        type: 'file',
+                        placeholder: 'Upload your avatar'
+                    }
+                },
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'age',
+                        type: 'number',
+                        placeholder: 'Enter age',
+                        min: 0,
+                        max: 120,
+                        step: 1
+                    }
+                },
+        
+                // SELECT INPUT
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'country',
+                        type: 'select',
+                        placeholder: 'Choose your country',
+                        options:
+                        [
+                            {
+                                value: 'de',
+                                label: 'Germany'
+                            },
+                            {
+                                value: 'jp',
+                                label: 'Japan'
+                            },
+                            {
+                                value: 'us',
+                                label: 'USA'
+                            }
+                        ]
+                    }
+                },
+        
+                // TOGGLE
                 {
                     type: 'toggle',
                     props:
                     {
-                        id: 'testToggle',
-                        name: 'testToggle',
-                        label: 'Enable feature',
+                        id: 'notify',
+                        name: 'notify',
+                        label: 'Receive Email Notifications',
                         checked: false
+                    }
+                },
+                {
+                    type: 'toggle',
+                    props: {
+                        id: 'readonlyToggle',
+                        name: 'readonlyToggle',
+                        label: 'This toggle is read-only',
+                        checked: false,
+                        readonly: true
+                    }
+                },
+        
+                // STAT BLOCK
+                {
+                    type: 'stat',
+                    props:
+                    {
+                        label: 'Points Earned',
+                        value: 999
                     }
                 },
                 {
                     type: 'stat',
                     props:
                     {
-                        label: 'Current Score',
-                        value: '42'
+                        label: 'Tasks Completed',
+                        value: '12/20',
+                        className: 'text-green-300'
                     }
                 },
+        
+                // TOOLBAR with JavaScript actions
                 {
                     type: 'toolbar',
                     props:
@@ -64,46 +171,60 @@ export default class Home extends AbstractView
                         buttons:
                         [
                             {
-                                text: 'Say Hello',
-                                onClick: "alert('Hello!')"
+                                text: 'Greet',
+                                onClick: "alert('Greetings! 🌟')"
                             },
                             {
-                                text: 'Say Bye',
-                                onClick: "alert('Bye!')"
+                                text: 'Log User',
+                                onClick: "console.log('User logged')"
                             }
                         ]
                     }
                 },
+        
+                // MATCHUP (2 buttons as players)
                 {
                     type: 'matchup',
-                    props: {
-                        player1: {
+                    props:
+                    {
+                        player1:
+                        {
                             type: 'button',
-                            props: {
-                                id: 'player1-btn',
-                                text: 'Alice',
-                                type: 'button',
-                                className: 'btn btn-success'
+                            props:
+                            {
+                                id: 'player-1',
+                                text: 'Max',
+                                className: 'btn btn-info',
+                                type: 'button'
                             }
                         },
-                        player2: {
+                        player2:
+                        {
                             type: 'button',
-                            props: {
-                                id: 'player2-btn',
-                                text: 'Bob',
-                                type: 'button',
-                                className: 'btn btn-warning'
+                            props:
+                            {
+                                id: 'player-2',
+                                text: 'Lena',
+                                className: 'btn btn-success',
+                                type: 'button'
                             }
                         }
                     }
                 },
+        
+                // ACTIONS (HTML buttons)
                 {
                     type: 'actions',
                     props:
                     {
-                        buttons: `<button class="btn btn-accent" onclick="alert('Action clicked!')">Click Me</button>`
+                        buttons: `
+                            <button class="btn btn-accent" onclick="alert('Accepted!')">Accept</button>
+                            <button class="btn btn-error" onclick="alert('Declined!')">Decline</button>
+                        `
                     }
                 },
+        
+                // INPUTGROUP (compact multiple fields)
                 {
                     type: 'inputgroup',
                     props:
@@ -117,10 +238,17 @@ export default class Home extends AbstractView
                             {
                                 name: 'lastName',
                                 placeholder: 'Last Name'
+                            },
+                            {
+                                name: 'nickname',
+                                placeholder: 'Nickname',
+                                type: 'text'
                             }
                         ]
                     }
                 },
+        
+                // BUTTONGROUP (buttons + toggles inline)
                 {
                     type: 'buttongroup',
                     props:
@@ -128,12 +256,12 @@ export default class Home extends AbstractView
                         buttons:
                         [
                             {
-                                text: 'Save',
+                                text: 'Submit',
                                 type: 'submit',
                                 className: 'btn btn-primary'
                             },
                             {
-                                text: 'Cancel',
+                                text: 'Clear',
                                 type: 'button',
                                 className: 'btn btn-secondary'
                             }
@@ -141,33 +269,65 @@ export default class Home extends AbstractView
                         toggles:
                         [
                             {
-                                id: 'acceptTerms',
-                                name: 'acceptTerms',
-                                label: 'Accept Terms',
-                                checked: false }
+                                id: 'terms',
+                                name: 'terms',
+                                label: 'I agree to terms',
+                                checked: false
+                            },
+                            {
+                                id: 'updates',
+                                name: 'updates',
+                                label: 'Enable updates',
+                                checked: true
+                            }
                         ],
                         layout: 'stack',
-                        align: 'left'
+                        align: 'left',
+                        className: 'mb-2'
                     }
                 },
+        
+                // BUTTON: Standalone
                 {
                     type: 'button',
                     props:
                     {
-                        text: 'Standalone Button',
+                        id: 'downloadBtn',
+                        text: 'Download PDF',
                         type: 'button',
-                        className: 'btn btn-info'
+                        className: 'btn btn-outline'
                     }
                 },
+        
+                // BUTTON with icon and alignment
+                {
+                    type: 'button',
+                    props:
+                    {
+                        text: '🔒 Secure Login',
+                        type: 'submit',
+                        className: 'btn btn-warning',
+                        align: 'center'
+                    }
+                },
+        
+                // HTML Block (custom raw HTML)
                 {
                     type: 'html',
                     props:
                     {
-                        html: `<p class="text-white">This is a raw HTML block inside the card.</p>`
+                        html: `
+                            <div class="p-4 bg-neutral text-white rounded-lg">
+                                <h4 class="text-xl font-semibold mb-2">Custom HTML Block</h4>
+                                <p>This block supports any <strong>HTML</strong>, like <em>formatting</em>, <code>code</code>, and more.</p>
+                                <a href="https://example.com" target="_blank" class="text-blue-300 underline">Learn more</a>
+                            </div>
+                        `
                     }
                 }
             ]
         });
-        return this.render(`${testCard}`);
+        
+        return this.render(`${homeCard}`);
     }
 }

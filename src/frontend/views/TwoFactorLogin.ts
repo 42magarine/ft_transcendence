@@ -3,12 +3,15 @@ import Input from '../components/Input.js';
 import AbstractView from '../../utils/AbstractView.js';
 import Router from '../../utils/Router.js';
 
-export default class TwoFactorLogin extends AbstractView {
-	constructor() {
+export default class TwoFactorLogin extends AbstractView
+{
+	constructor()
+	{
 		super();
 	}
 
-	private async renderTwoFactorInputFields(username: string): Promise<string> {
+	private async renderTwoFactorInputFields(username: string): Promise<string>
+	{
 		const input = new Input();
 		const renderedGroup = await input.renderNumericGroup(6, 'tf');
 
@@ -25,40 +28,55 @@ export default class TwoFactorLogin extends AbstractView {
 		`;
 	}
 
-	async getHtml(): Promise<string> {
+	async getHtml(): Promise<string>
+	{
 		const userId = sessionStorage.getItem('pendingUserId');
 		const username = sessionStorage.getItem('pendingUsername');
 
-		if (!userId || !username) {
+		if (!userId || !username)
+		{
 			Router.redirect('/login');
 			return '';
 		}
 
 		const card = new Card();
 
-		const twoFactorCard = await card.renderCard({
+		const twoFactorCard = await card.renderCard(
+		{
 			title: 'Two-Factor Authentication',
 			formId: 'TwoFactorLogin-form',
-			contentBlocks: [
+			contentBlocks:
+			[
 				{
 					type: 'html',
-					props: {
+					props:
+					{
 						html: await this.renderTwoFactorInputFields(username)
 					}
 				},
 				{
 					type: 'inputgroup',
-					props: {
-						inputs: [
-							{ name: 'username', type: 'hidden', value: username },
-							{ name: 'userId', type: 'hidden', value: userId }
+					props:
+					{
+						inputs:
+						[
+							{
+								name: 'username',
+								type: 'hidden', value: username
+							},
+							{
+								name: 'userId',
+								type: 'hidden', value: userId
+							}
 						]
 					}
 				},
 				{
 					type: 'buttongroup',
-					props: {
-						buttons: [
+					props:
+					{
+						buttons:
+						[
 							{
 								text: 'Verify',
 								type: 'submit',
