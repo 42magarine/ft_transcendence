@@ -1,96 +1,72 @@
 import AbstractView from '../../utils/AbstractView.js';
-import Button from '../components/Button.js';
 import Card from '../components/Card.js';
-import Title from '../components/Title.js';
 import { LobbyInfo } from '../../interfaces/interfaces.js';
 
-export default class LobbyList extends AbstractView
-{
-    constructor()
-    {
+export default class LobbyList extends AbstractView {
+    constructor() {
         super();
     }
 
-    async getHtml(): Promise<string>
-    {
+    async getHtml(): Promise<string> {
         let lobbies: LobbyInfo[] = [];
         lobbies = await window.lobbyListService.getLobbies();
 
-        const title = new Title({ title: 'Available Lobbies' });
+        console.debug('[LobbyList] Fetched lobbies:', lobbies);
 
-        const button = new Button();
-        const createLobbyButton = await button.renderButton(
-        {
-            id: 'createLobbyBtn',
-            text: 'Create Lobby',
-            type: 'button',
-            className: 'btn btn-primary'
+        if (!Array.isArray(lobbies) || lobbies.length === 0) {
+            console.warn('[LobbyList] No lobbies found or invalid format.');
+        }
+
+        lobbies.forEach((lobby, i) => {
+            console.log(`[Lobby ${i}]`, {
+                name: lobby.name,
+                id: lobby.id,
+                creatorId: lobby.creatorId,
+                currentPlayers: lobby.currentPlayers,
+                maxPlayers: lobby.maxPlayers,
+                isStarted: lobby.isStarted,
+            });
         });
 
-        const card = new Card();
-        const lobbyListCard = await card.renderCard(
-        {
-            title: 'Lobby List',
-            prefix: createLobbyButton,
-            table: {
-                id: 'lobby-list',
-                height: '400px',
-                data: lobbies,
-                columns:
-                [
-                    {
-                        key: 'name',
-                        label: 'Lobby Name'
+        const lobbyListCard = await new Card().renderCard({
+            title: 'Available Lobbies',
+            contentBlocks: [
+                {
+                    type: 'button',
+                    props: {
+                        id: 'createLobbyBtn',
+                        text: 'Create Lobby',
+                        type: 'button',
+                        className: 'btn btn-primary'
                     },
-                    {
-                        key: 'id',
-                        label: 'ID'
-                    },
-                    {
-                        key:
-                        'creatorId',
-                        label: 'Creator ID'
-                    },
-                    {
-                        key: 'players',
-                        label: 'Players',
-                        render: (lobby) => `${lobby.currentPlayers} / ${lobby.maxPlayers}`
-                    },
-                    {
-                        key: 'status',
-                        label: 'Status',
-                        render: (lobby: { isStarted: boolean }) => lobby.isStarted ? 'Started' : 'Waiting'
-                    },
-                    {
-                        key: 'actions',
-                        label: 'Action',
-                        isAction: true,
-                        buttons: (lobby) =>
-                        [
+                },
+                {
+                    type: 'table',
+                    props: {
+                        id: 'lobby-list',
+                        height: '400px',
+                        data: lobbies,
+                        rowLayout: (lobby) => [
+                            { type: 'label', props: { htmlFor: '', text: `${lobby.name}` } },
+                            { type: 'label', props: { htmlFor: '', text: `${lobby.id}` } },
+                            { type: 'label', props: { htmlFor: '', text: `${lobby.creatorId}` } },
+                            { type: 'stat', props: { label: '', value: `${lobby.currentPlayers} / ${lobby.maxPlayers}` } },
+                            { type: 'stat', props: { label: '', value: lobby.isStarted ? 'Started' : 'Waiting' } },
                             {
-                                id: `accept-${lobby.id}`,
-                                text: 'Accept Invite',
-                                className: 'btn btn-accent accept-invite-btn',
-                                href: `/lobby/${lobby.id}`,
-                                onClick: `handleAcceptInvite(${lobby.id}, ${lobby.creatorId})`
-                            },
-                            {
-                                id: `join-${lobby.id}`,
-                                text: 'Join Lobby',
-                                className: 'btn btn-primary',
-                                href: `/lobby/${lobby.id}`
+                                type: 'buttongroup',
+                                props: {
+                                    layout: 'group',
+                                    buttons: [
+                                        { text: 'Join Lobby', className: 'btn btn-primary', href: `/lobby/${lobby.id}` }
+                                    ]
+                                }
                             }
                         ]
                     }
-                ]
-            }
+                }
+            ]
         });
 
-        return this.render(`
-            <div class="container">
-            ${createLobbyButton}
-            ${lobbyListCard}
-            </div>`
-        );
+        return this.render(`${lobbyListCard}`);
     }
 }

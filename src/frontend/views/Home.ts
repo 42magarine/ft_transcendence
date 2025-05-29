@@ -1,27 +1,333 @@
 import UserService from '../services/UserService.js';
 import AbstractView from '../../utils/AbstractView.js';
-import Title from '../components/Title.js';
+import Card from '../components/Card.js';
 
 export default class Home extends AbstractView
 {
-	constructor()
+    constructor()
     {
-		super();
-	}
+        super();
+    }
 
-	async getHtml(): Promise<string>
+    async getHtml(): Promise<string>
     {
-		const currentUser = await UserService.getCurrentUser();
-		const welcome = currentUser
-			? `Hello ${currentUser.displayname}, this is Transcendence!`
-			: 'Welcome to Transcendence!';
+        const currentUser = await UserService.getCurrentUser();
 
-		const title = new Title(
-            {
-                title: welcome
-            }
-        );
-
-		return this.render(`${await title.getHtml()}`);
-	}
+        // Card to demonstrate all available content block types
+        const homeCard = await new Card().renderCard(
+        {
+            title: currentUser
+                ? `Hello ${currentUser.displayname}, this is Transcendence, please don't delete this card, it is for testing purpose!`
+                : 'Welcome to Transcendence!',
+            formId: 'test-form',
+            contentBlocks:
+            [
+        
+                // LABEL + TEXT INPUT
+                {
+                    type: 'label',
+                    props:
+                    {
+                        htmlFor: 'fullName',
+                        text: 'Full Name'
+                    }
+                },
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'fullName',
+                        type: 'text',
+                        placeholder: 'Enter your name',
+                        className: 'input input-bordered'
+                    }
+                },
+        
+                // EMAIL + PASSWORD INPUT with confirm
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'email',
+                        type: 'email',
+                        placeholder: 'Enter your email'
+                    }
+                },
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'password',
+                        type: 'password',
+                        placeholder: 'Enter password',
+                        withConfirm: true
+                    }
+                },
+        
+                // HIDDEN + FILE + NUMBER INPUT
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'userId',
+                        type: 'hidden',
+                        value: '12345'
+                    }
+                },
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'avatar',
+                        type: 'file',
+                        placeholder: 'Upload your avatar'
+                    }
+                },
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'age',
+                        type: 'number',
+                        placeholder: 'Enter age',
+                        min: 0,
+                        max: 120,
+                        step: 1
+                    }
+                },
+        
+                // SELECT INPUT
+                {
+                    type: 'input',
+                    props:
+                    {
+                        name: 'country',
+                        type: 'select',
+                        placeholder: 'Choose your country',
+                        options:
+                        [
+                            {
+                                value: 'de',
+                                label: 'Germany'
+                            },
+                            {
+                                value: 'jp',
+                                label: 'Japan'
+                            },
+                            {
+                                value: 'us',
+                                label: 'USA'
+                            }
+                        ]
+                    }
+                },
+        
+                // TOGGLE
+                {
+                    type: 'toggle',
+                    props:
+                    {
+                        id: 'notify',
+                        name: 'notify',
+                        label: 'Receive Email Notifications',
+                        checked: false
+                    }
+                },
+                {
+                    type: 'toggle',
+                    props: {
+                        id: 'readonlyToggle',
+                        name: 'readonlyToggle',
+                        label: 'This toggle is read-only',
+                        checked: false,
+                        readonly: true
+                    }
+                },
+        
+                // STAT BLOCK
+                {
+                    type: 'stat',
+                    props:
+                    {
+                        label: 'Points Earned',
+                        value: 999
+                    }
+                },
+                {
+                    type: 'stat',
+                    props:
+                    {
+                        label: 'Tasks Completed',
+                        value: '12/20',
+                        className: 'text-green-300'
+                    }
+                },
+        
+                // TOOLBAR with JavaScript actions
+                {
+                    type: 'toolbar',
+                    props:
+                    {
+                        buttons:
+                        [
+                            {
+                                text: 'Greet',
+                                onClick: "alert('Greetings! 🌟')"
+                            },
+                            {
+                                text: 'Log User',
+                                onClick: "console.log('User logged')"
+                            }
+                        ]
+                    }
+                },
+        
+                // MATCHUP (2 buttons as players)
+                {
+                    type: 'matchup',
+                    props:
+                    {
+                        player1:
+                        {
+                            type: 'button',
+                            props:
+                            {
+                                id: 'player-1',
+                                text: 'Max',
+                                className: 'btn btn-info',
+                                type: 'button'
+                            }
+                        },
+                        player2:
+                        {
+                            type: 'button',
+                            props:
+                            {
+                                id: 'player-2',
+                                text: 'Lena',
+                                className: 'btn btn-success',
+                                type: 'button'
+                            }
+                        }
+                    }
+                },
+        
+                // ACTIONS (HTML buttons)
+                {
+                    type: 'actions',
+                    props:
+                    {
+                        buttons: `
+                            <button class="btn btn-accent" onclick="alert('Accepted!')">Accept</button>
+                            <button class="btn btn-error" onclick="alert('Declined!')">Decline</button>
+                        `
+                    }
+                },
+        
+                // INPUTGROUP (compact multiple fields)
+                {
+                    type: 'inputgroup',
+                    props:
+                    {
+                        inputs:
+                        [
+                            {
+                                name: 'firstName',
+                                placeholder: 'First Name'
+                            },
+                            {
+                                name: 'lastName',
+                                placeholder: 'Last Name'
+                            },
+                            {
+                                name: 'nickname',
+                                placeholder: 'Nickname',
+                                type: 'text'
+                            }
+                        ]
+                    }
+                },
+        
+                // BUTTONGROUP (buttons + toggles inline)
+                {
+                    type: 'buttongroup',
+                    props:
+                    {
+                        buttons:
+                        [
+                            {
+                                text: 'Submit',
+                                type: 'submit',
+                                className: 'btn btn-primary'
+                            },
+                            {
+                                text: 'Clear',
+                                type: 'button',
+                                className: 'btn btn-secondary'
+                            }
+                        ],
+                        toggles:
+                        [
+                            {
+                                id: 'terms',
+                                name: 'terms',
+                                label: 'I agree to terms',
+                                checked: false
+                            },
+                            {
+                                id: 'updates',
+                                name: 'updates',
+                                label: 'Enable updates',
+                                checked: true
+                            }
+                        ],
+                        layout: 'stack',
+                        align: 'left',
+                        className: 'mb-2'
+                    }
+                },
+        
+                // BUTTON: Standalone
+                {
+                    type: 'button',
+                    props:
+                    {
+                        id: 'downloadBtn',
+                        text: 'Download PDF',
+                        type: 'button',
+                        className: 'btn btn-outline'
+                    }
+                },
+        
+                // BUTTON with icon and alignment
+                {
+                    type: 'button',
+                    props:
+                    {
+                        text: '🔒 Secure Login',
+                        type: 'submit',
+                        className: 'btn btn-warning',
+                        align: 'center'
+                    }
+                },
+        
+                // HTML Block (custom raw HTML)
+                {
+                    type: 'html',
+                    props:
+                    {
+                        html: `
+                            <div class="p-4 bg-neutral text-white rounded-lg">
+                                <h4 class="text-xl font-semibold mb-2">Custom HTML Block</h4>
+                                <p>This block supports any <strong>HTML</strong>, like <em>formatting</em>, <code>code</code>, and more.</p>
+                                <a href="https://example.com" target="_blank" class="text-blue-300 underline">Learn more</a>
+                            </div>
+                        `
+                    }
+                }
+            ]
+        });
+        
+        return this.render(`${homeCard}`);
+    }
 }

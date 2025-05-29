@@ -66,6 +66,13 @@ export class MatchService {
         return await this.matchRepo.remove(match);
     }
 
+    async deleteMatchByLobbyId(lobbyId: string) {
+        const match = await this.getMatchLobbyById(lobbyId)
+        if (!match) {
+            throw new Error("lobby not in MatchModels!!!")
+        }
+        return await this.matchRepo.remove(match);
+    }
     //table join search for finding a matchmodel by using the user/playerId (this should be the same btw!!!)
     async findMatchByPlayerId(playerId: number) {
         return await this.matchRepo.createQueryBuilder("match")
@@ -107,14 +114,15 @@ export class MatchService {
         match.maxPlayers = 2; //currently hardcoded!!
         match.isLobbyOpen = true;
         match.status = "pending";
-        match.hasPassword = false;
         match.invitedUserIds = [];
         match.lobbyParticipants = [];
         match.player1Score = 0
         match.player2Score = 0
         match.readyStatusMap = []
 
-        return await this.saveMatch(match);
+        await this.saveMatch(match);
+
+        return;
     }
 
     //function that should return score values / playerInfo of specified Match!

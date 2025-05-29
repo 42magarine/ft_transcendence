@@ -16,6 +16,7 @@ export interface User {
     secret?: string;
     twoFAEnabled?: string;
     listAvatar?: string;
+    googleSignIn?: boolean;
 }
 
 export interface UserList {

@@ -20,7 +20,6 @@ export default abstract class AbstractView {
         this.setDescription(this.description);
     }
 
-
     setTitle(title: string): void {
         document.title = title;
         const metaTitle = document.querySelector('meta[name="title"]');

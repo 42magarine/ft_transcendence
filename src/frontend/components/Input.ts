@@ -16,11 +16,13 @@ export default class Input extends AbstractView
 		value = '',
 		className = '',
 		withConfirm = false,
-		bare = false // ✅ New flag
-	}: InputProps & { withConfirm?: boolean; bare?: boolean }): Promise<string> {
+		bare = false
+	}: InputProps & { withConfirm?: boolean; bare?: boolean }): Promise<string>
+	{
 		const finalClass = className || 'input';
 	
-		if (type === 'display') {
+		if (type === 'display')
+		{
 			return this.render(`
 				<div class="detail-row">
 					<label class="label">${placeholder || name}:</label>
@@ -67,8 +69,9 @@ export default class Input extends AbstractView
 			`;
 		}
 	
-		if (bare) {
-			// ✅ Just return the input directly without wrapper or label
+		if (bare)
+		{
+			// Just return the input directly without wrapper or label
 			return this.render(inputField + confirmInput);
 		}
 	
@@ -82,16 +85,19 @@ export default class Input extends AbstractView
 	}
 	
 
-		async renderNumericGroup(count: number, baseId: string): Promise<string> {
+		async renderNumericGroup(count: number, baseId: string): Promise<string>
+		{
 			const inputs: string[] = [];
 		
-			for (let i = 0; i < count; i++) {
+			for (let i = 0; i < count; i++)
+			{
 				const id = `${baseId}_${i + 1}`;
-				inputs.push(await this.renderInput({
+				inputs.push(await this.renderInput(
+				{
 					id,
 					name: id,
 					type: 'number',
-					bare: true, // ✅ Only input, no label or wrapper
+					bare: true,
 					className: 'tf_numeric w-12 h-12 text-center text-xl border border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white',
 				}));
 			}

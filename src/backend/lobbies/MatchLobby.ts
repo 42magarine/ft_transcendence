@@ -17,10 +17,8 @@ export class MatchLobby {
     protected _maxPlayers: number; //currently set to 2
     protected _gameStarted: boolean = false; // ...
     protected _lobbyName: string; // manually set in lobby or ignore this and delete!
-    protected _isPublic: boolean; // public by default -> set manually or ignore and delete
     protected _createdAt: Date; // set automatically
     protected _lobbyType: 'game' | 'tournament' // currently only supports game
-    protected _password?: string // currently never set -> either set in lobby or ignore and delete (check subject)
     protected _readyPlayers: Set<number> = new Set(); //update for players that pressed ready -> not implemented yet
     protected _creatorId!: number; // set to player1 user Id by default -> get from _dbGame.creatorId instead!!!
     protected _matchService: MatchService; //handed over from matchController in createLobby!
@@ -32,8 +30,6 @@ export class MatchLobby {
         options?: {
             name?: string,
             maxPlayers?: number,
-            isPublic?: boolean,
-            password?: string,
             lobbyType?: 'game' | 'tournament'
         }) {
         this.lobbyId = lobbyId;
@@ -41,8 +37,6 @@ export class MatchLobby {
         this._matchService = matchService!;
         this._players = new Map<number, Player>();
         this._maxPlayers = options?.maxPlayers || 2;
-        this._isPublic = options?.isPublic || true;
-        this._password = options?.password
         this._lobbyName = options?.name || `Lobby ${(lobbyId || '000000').substring(0, 6)}`;
         this._createdAt = new Date();
         this._lobbyType = options?.lobbyType || 'game';
@@ -182,7 +176,6 @@ export class MatchLobby {
         this.checkAllPlayersReady();
     }
 
-    //
     public checkAllPlayersReady() {
         const minPlayers = this._lobbyType === 'game' ? 2 : this._maxPlayers;
 
@@ -199,7 +192,6 @@ export class MatchLobby {
         }
         return allReady;
     }
-
 
     // (>0_0)> really? <(0_0<)
     public isFull(): boolean {
@@ -244,8 +236,6 @@ export class MatchLobby {
             creatorId: this._creatorId!,
             maxPlayers: this._maxPlayers,
             currentPlayers: this._players.size,
-            isPublic: this._isPublic,
-            hasPassword: !!this._password,
             createdAt: this._createdAt,
             lobbyType: this._lobbyType,
             isStarted: this._gameStarted
@@ -259,21 +249,6 @@ export class MatchLobby {
             userId: p.userId,
             isReady: p._isReady
         }));
-    }
-
-    //bool if password is correct(maybe delete if we dont pw protect our lobbies!)
-    public canJoin(userId: number, password?: string) {
-        if (this.isFull() || this._gameStarted) {
-            return false;
-        }
-        if (this._password && this._password !== password) {
-            return false;
-        }
-
-        for (const player of this._players.values()) {
-            if (player.userId === userId) return false;
-        }
-        return true;
     }
 
     /* GAME LOGIC FROM HERE */
@@ -444,4 +419,3 @@ export class MatchLobby {
         })
     }
 }
-// https://meta.intra.42.fr/

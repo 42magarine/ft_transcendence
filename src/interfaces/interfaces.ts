@@ -30,8 +30,6 @@ export interface LobbyInfo {
     creatorId: number | undefined;
     maxPlayers: number;
     currentPlayers: number;
-    isPublic: boolean;
-    hasPassword: boolean;
     createdAt: Date;
     lobbyType: "game" | "tournament"
     isStarted: boolean;
@@ -60,9 +58,11 @@ export interface GameHistoryResponse {
     date: Date;
 }
 
-declare module 'fastify' {
+declare module 'fastify'
+{
     interface FastifyRequest {
-        user?: {
+        user?:
+        {
             id: number;
             role: string;
         }
@@ -97,7 +97,7 @@ export interface createLobbyMessage extends ClientMessage {
     type: "createLobby";
 }
 
-export interface leaveLobby extends ClientMessage {
+export interface leaveLobbyMessage extends ClientMessage {
     type: "leaveLobby";
 }
 
@@ -130,8 +130,7 @@ export interface User {
     isCreator?: boolean;
 }
 
-export interface PlayerDisplayState extends Partial<LobbyParticipant>
-{
+export interface PlayerDisplayState extends Partial<LobbyParticipant> {
     isCreator?: boolean;
     isJoined?: boolean;
 }
@@ -143,6 +142,7 @@ export interface LobbyParticipant extends User {
 
 // This is what LobbyService should ideally provide for currentLobbyData
 // when Lobby.ts needs to render the view.
-export interface LobbyDataWithParticipants extends LobbyInfo { // LobbyInfo is your existing interface
+export interface LobbyDataWithParticipants extends LobbyInfo {
+    // LobbyInfo is your existing interface
     participants: LobbyParticipant[]; // THE CRUCIAL ADDITION
 }
