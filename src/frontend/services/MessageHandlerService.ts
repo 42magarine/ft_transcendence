@@ -61,7 +61,7 @@ export default class MessageHandlerService {
 
     public async markReady(userID: string, lobbyId: string) {
         const msg: ClientMessage = {
-            type: 'playerReady',
+            type: 'ready',
             userID,
             lobbyId,
         };
@@ -99,5 +99,12 @@ export default class MessageHandlerService {
             type: 'getLobbyList',
         };
         await this.safeSend(msg);
+    }
+
+    public async requestLobbyById(lobbyId: string) {
+        const msg: ClientMessage = {
+            type: 'getLobbyById',
+            lobbyId
+        };
     }
 }
