@@ -1,4 +1,5 @@
-export interface ShapeOptions {
+export interface ShapeOptions
+{
     fill?: string;
     stroke?: string;
     strokeWidth?: number;
@@ -6,7 +7,8 @@ export interface ShapeOptions {
     rotate?: number;
 }
 
-export interface TextVisualizationOptions {
+export interface TextVisualizationOptions
+{
     width: number;
     height: number;
     backgroundColor?: string;
@@ -19,7 +21,8 @@ export interface TextVisualizationOptions {
     fontFamily?: string;
 }
 
-export interface PatternResult {
+export interface PatternResult
+{
     pattern: string;
     rect: string;
 }

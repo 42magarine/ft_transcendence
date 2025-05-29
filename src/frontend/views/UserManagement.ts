@@ -1,137 +1,165 @@
 import AbstractView from '../../utils/AbstractView.js';
-import Button from '../components/Button.js';
 import Card from '../components/Card.js';
-import Title from '../components/Title.js';
 import { UserList } from '../../interfaces/userInterfaces.js';
-import { generateProfileImage } from '../../utils/Avatar.js';
+import Modal from '../components/Modal.js';
+import UserService from '../services/UserService.js';
 
-export default class UserManagement extends AbstractView {
-    constructor() {
-        super();
-    }
+export default class UserManagement extends AbstractView
+{
+	constructor()
+	{
+		super();
+	}
 
-    async getHtml(): Promise<string> {
-        // Fetch users from API
-        let users = [];
-        try {
-            const response = await fetch('/api/users/');
-            if (response.ok) {
-                users = await response.json();
-            }
-            else {
-                console.error('Failed to fetch users from API');
-            }
-        }
-        catch (error) {
-            console.error('API request error:', error);
-        }
+	async getHtml(): Promise<string>
+    {
+        let users: UserList[] = await UserService.getAllUsers();
 
-        // Add avatar to each user
-        users.forEach((user: UserList) => {
-            user.listAvatar = generateProfileImage(user, 20, 20);
-        });
-
-        // Title
-        const title = new Title({ title: 'User Management' });
-        const titleSection = await title.getHtml();
-
-        // Optional Button Group
-        const button = new Button();
-        const readAllButtonGroup = await button.renderGroup({
-            layout: 'stack',
-            align: 'center',
-            buttons: [
+        const createUserCard = await new Card().renderCard(
+        {
+            title: 'Create New User',
+            formId: 'create-form',
+            contentBlocks:
+            [
                 {
-                    id: 'read-all',
-                    text: 'Read all Users',
-                    onClick: `document.getElementById('user-list').innerHTML = '<li>Loading...</li>'`
+                    type: 'buttongroup',
+                    props:
+                    {
+                        inputs:
+                        [
+                            {
+                                name: 'displayname',
+                                placeholder: 'Name'
+                            },
+                            {
+                                name: 'email',
+                                type: 'email',
+                                placeholder: 'E-Mail'
+                            },
+                            {
+                                name: 'password',
+                                type: 'password',
+                                placeholder: 'Password',
+                                withConfirm: true
+                            }
+                        ],
+                        toggles:
+                        [
+                            {
+                                id: 'emailVerified',
+                                name: 'emailVerified',
+                                label: 'Email Verified:',
+                                checked: false
+                            },
+                            {
+                                id: 'twoFAEnabled',
+                                name: 'twoFAEnabled',
+                                label: '2FA Enabled:',
+                                checked: false,
+                                readonly: true
+                            },
+                            {
+                                id: 'googleSignIn',
+                                name: 'googleSignIn',
+                                label: 'Google Sign-In:',
+                                checked: false,
+                                readonly: true
+                            }
+                        ],
+                        layout: 'stack',
+                        align: 'left'
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props:
+                    {
+                        buttons:
+                        [
+                            {
+                                text: 'Create User',
+                                type: 'submit',
+                                className: 'btn btn-success'
+                            }
+                        ],
+                        layout: 'stack',
+                        align: 'left'
+                    }
+                },
+                // Safe label
+                {
+                    type: 'label',
+                    props: {
+                        htmlFor: 'dummy-id',
+                        text: ' '
+                    }
+                },
+
+                // Safe table
+                {
+                    type: 'table',
+                    props: {
+                        id: 'user-list',
+                        data: users,
+                        rowLayout: () => []
+                        // rowLayout: (user) =>
+                        // [
+                        //     {
+                        //         type: 'html',
+                        //         props:
+                        //         {
+                        //             html: `
+                        //                 <div class="flex flex-wrap items-center justify-between gap-4 p-2">
+                        //                     <div class="flex gap-4 flex-wrap">
+                        //                         <span><strong>ID:</strong> ${user.id}</span>
+                        //                         <span><strong>Name:</strong> ${user.displayname}</span>
+                        //                         <span><strong>Username:</strong> ${user.username}</span>
+                        //                         <span><strong>Email:</strong> ${user.email}</span>
+                        //                         <span><strong>Verified:</strong> ${user.emailVerified ? 'Yes' : 'No'}</span>
+                        //                         <span><strong>2FA:</strong> ${user.twoFAEnabled ? 'Enabled' : 'Disabled'}</span>
+                        //                     </div>
+                        //                     <div class="flex gap-2 items-center">
+                        //                         <a href="/users/${user.id}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-eye"></i></a>
+                        //                         <a href="/users/edit/${user.id}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-pen-to-square"></i></a>
+                        //                         <button class="btn btn-sm btn-danger delete-user" onclick="handleDeleteUser(${user.id})">
+                        //                             <i class="fa-solid fa-trash"></i>
+                        //                         </button>
+                        //                     </div>
+                        //                 </div>
+                        //             `
+                        //         }
+                        //     }
+                // ]
+                    }
                 }
             ]
         });
 
-        const card = new Card();
-
-        // List Card
-        const listCard = await card.renderCard({
-            title: 'Users',
-            extra: `<table class="list" data-height="400px">
-                <thead>
-                    <tr>
-                        <th>Avatar</th>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>E-Mail</th>
-                        <th>Verified</th>
-                        <th>2FA</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <for each="users" as="user">
-                        <tr>
-                            <td>{{user.listAvatar}}</td>
-                            <td>{{user.id}}</td>
-                            <td>{{user.displayname}}</td>
-                            <td>{{user.username}}</td>
-                            <td>{{user.email}}</td>
-                            <td>{{user.emailVerified}}</td>
-                            <td>{{user.twoFAEnabled}}</td>
-                            <td class="text-right">
-                                <a router class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
-                                <a router class="btn" href="/users/edit/{{user.id}}"><i class="fa-solid fa-pen-to-square"></i></a>
-                                <button type="button" class="btn btn-danger delete-user" data-user="{{user.id}}"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    </for>
-                </tbody>
-            </table>`,
-            data: { users }
-        });
-
-        // Register Card
-        const registerCard = await card.renderCard({
-            title: 'Create User',
-            formId: 'create-form',
-            inputs: [
-                { name: 'displayname', type: 'text', placeholder: 'Name' },
-                { name: 'username', type: 'text', placeholder: 'Username' },
-                { name: 'email', type: 'email', placeholder: 'Email Address' },
+        const deleteModal = await new Modal().renderModal(
+        {
+            id: 'confirm-delete-modal',
+            title: 'Confirm Deletion',
+            content: `
+                <p>Are you sure you want to delete this user?<br>
+                <strong>This action cannot be undone.</strong></p>
+            `,
+            footerButtons:
+            [
                 {
-                    name: 'emailVerified',
-                    type: 'select',
-                    placeholder: 'Mark Email Verified',
-                    value: 'false',
-                    options: [
-                        { label: 'Yes', value: 'true' },
-                        { label: 'No', value: 'false' }
-                    ]
+                    id: 'cancel-delete-btn',
+                    text: 'Cancel',
+                    className: 'btn btn-secondary',
+                    onClick: `document.getElementById('confirm-delete-modal').classList.add('hidden')`
                 },
-                // Hidden value submitted to backend
-                { name: 'twoFAEnabled', type: 'hidden', value: 'false' },
-                // Display-only label row
                 {
-                    name: 'twoFAInfo',
-                    type: 'display',
-                    placeholder: '2FA',
-                    value: '2FA Default Off'
-                },
-                { name: 'password', type: 'password', placeholder: 'Password' }
+                    id: 'confirm-delete-btn',
+                    text: 'Yes, Delete',
+                    className: 'btn btn-danger'
+                }
             ],
-            button: {
-                text: 'Create',
-                type: 'submit',
-                className: 'btn btn-primary'
-            }
+            animation: 'scale',
+            closableOnOutsideClick: true
         });
-
-        // Final layout
-        return this.render(`
-            <div class="container">
-                ${titleSection}
-                ${registerCard}
-                ${listCard}
-            </div>
-        `);
+        return this.render(`${createUserCard}${deleteModal}`);
     }
 }

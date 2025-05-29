@@ -20,3 +20,34 @@
     color: rgba(255, 255, 255, 0.6);
   }
 }
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.label {
+  width: 160px;
+  font-weight: bold;
+  color: #ccc;
+  text-align: right;
+}
+
+.value,
+.input {
+  flex: 1;
+}
+
+/* Remove spinners in Chrome, Safari, Edge */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Remove spinners in Firefox */
+input[type=number] {
+	-moz-appearance: textfield;
+}

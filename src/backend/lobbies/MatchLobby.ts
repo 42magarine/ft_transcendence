@@ -43,7 +43,7 @@ export class MatchLobby {
         this._maxPlayers = options?.maxPlayers || 2;
         this._isPublic = options?.isPublic || true;
         this._password = options?.password
-        this._lobbyName = options?.name || `Lobby ${lobbyId.substring(0, 6)}`
+        this._lobbyName = options?.name || `Lobby ${(lobbyId || '000000').substring(0, 6)}`;
         this._createdAt = new Date();
         this._lobbyType = options?.lobbyType || 'game';
         this._game = new PongGame(matchService);

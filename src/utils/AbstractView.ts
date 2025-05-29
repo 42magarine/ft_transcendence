@@ -1,9 +1,10 @@
 import { TemplateEngine } from "./TemplateEngine.js"
 
-export default abstract class AbstractView {
+export default abstract class AbstractView
+{
     async mount(): Promise<void> { }
     protected params: URLSearchParams;
-    protected title: string;
+    protected title?: string;
     protected description: string;
     protected templateEngine: TemplateEngine;
     protected props: Record<string, any>;
@@ -20,20 +21,24 @@ export default abstract class AbstractView {
         this.setDescription(this.description);
     }
 
-
-    setTitle(title: string): void {
+    setTitle(title: string): void
+    {
         document.title = title;
         const metaTitle = document.querySelector('meta[name="title"]');
-        if (metaTitle) {
+        if (metaTitle)
+            {
             metaTitle.setAttribute('content', title);
         }
     }
 
-    setDescription(description: string): void {
+    setDescription(description: string): void
+    {
         const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
+        if (metaDescription)
+            {
             metaDescription.setAttribute('content', description);
-        } else if (description) {
+        } else if (description)
+            {
             const meta = document.createElement('meta');
             meta.name = 'description';
             meta.content = description;
@@ -41,12 +46,14 @@ export default abstract class AbstractView {
         }
     }
 
-    async render(template: string, data: any = {}): Promise<string> {
+    async render(template: string, data: any = {}): Promise<string>
+    {
         const mergedData = { ...data, props: this.props };
         return this.templateEngine.render(template, mergedData);
     }
 
-    renderWithProps(props: Record<string, any> = {}): Promise<string> {
+    renderWithProps(props: Record<string, any> = {}): Promise<string>
+    {
         this.props = props;
         return this.getHtml();
     }

@@ -2,7 +2,7 @@ import { generateTextVisualization } from "../../utils/Avatar.js"
 import Router from '../../utils/Router.js';
 import { User, ApiErrorResponse, LoginCredentials, AuthResponse, PasswordResetRequest, PasswordResetConfirm, QRResponse } from "../../interfaces/userInterfaces.js";
 import UserService from "./UserService.js";
-
+import Toggle from "../components/Toggle.js"
 export default class UserManagementService {
 
     constructor() {
@@ -357,9 +357,10 @@ export default class UserManagementService {
         if (createForm) {
             createForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-
+    
                 try {
                     const formData = new FormData(createForm);
+    
                     const userData: User = {
                         avatar: formData.get('avatar') as string,
                         displayname: formData.get('displayname') as string,
@@ -367,19 +368,27 @@ export default class UserManagementService {
                         email: formData.get('email') as string,
                         password: formData.get('password') as string,
                         role: formData.get('role') as string,
-                        twoFAEnabled: (formData.get('2FA') === 'on') ? 'true' : 'false'
+                        emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
+                        twoFAEnabled: formData.get('twoFAEnabled') as string
+
                     };
 
+    
                     const result = await this.registerUser(userData);
                     createForm.reset();
-
+    
                 } catch (error) {
                     console.error('Failed to register user:', error);
-                    //alerterror instanceof Error ? error.message : 'Registration failed');
                 }
             });
+    
+            // Setup toggle label logic
+            const toggle = new Toggle();
+            toggle.mountToggle('emailVerified');
+            
         }
     }
+    
 
     private setupDeleteButtons(): void {
         const deleteButtons = document.querySelectorAll('.delete-user') as NodeListOf<HTMLElement>;
@@ -475,10 +484,8 @@ export default class UserManagementService {
                             try {
                                 // For simplicity, we'll use the username as email here
                                 const result = await this.resendVerificationEmail(username);
-                                alert(result.message || 'Verification email sent if account exists');
                             } catch (error) {
                                 console.error('Failed to resend verification:', error);
-                                //alert'Failed to resend verification email');
                             }
                         });
                     }
@@ -976,6 +983,7 @@ export default class UserManagementService {
         document.addEventListener('RouterContentLoaded', () => {
             this.setupEventListeners();
             this.twoFactorNumberActions();
+            this.setupUserManagementView();
             this.initializeGoogleScript();
         });
     }
@@ -996,4 +1004,61 @@ export default class UserManagementService {
             throw error;
         }
     }
+
+    public setupUserManagementView(): void
+    {
+        const toggle = new Toggle();
+        toggle.mountToggle('emailVerified');
+
+        const deleteButtons = document.querySelectorAll('.delete-user');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const modal = document.getElementById('confirm-delete-modal');
+        let selectedUserId: string | null = null;
+
+        deleteButtons.forEach((btn) =>
+        {
+            btn.addEventListener('click', () =>
+            {
+                selectedUserId = btn.getAttribute('data-user');
+                if (modal)
+                {
+                    modal.classList.remove('hidden');
+                }
+            });
+        });
+
+        if (confirmDeleteBtn && modal)
+        {
+            confirmDeleteBtn.addEventListener('click', async () =>
+            {
+                if (selectedUserId)
+                {
+                    try
+                    {
+                        const success = await UserService.deleteUser(Number(selectedUserId));
+                        if (success)
+                        {
+                            window.location.reload();
+                        }
+                        else
+                        {
+                            console.error('Failed to delete user');
+                        }
+                    }
+                    catch (error)
+                    {
+                        console.error('Delete failed:', error);
+                    }
+                    finally
+                    {
+                        modal.classList.add('hidden');
+                        selectedUserId = null;
+                    }
+                }
+            });
+        }
+    }
+
 }
+
+

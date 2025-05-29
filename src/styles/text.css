@@ -18,3 +18,21 @@ p a:hover {
 	opacity: 0.7;
 	text-decoration: none;
 }
+
+.table-container {
+	overflow-x: auto;
+}
+
+table.list {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed; /* <-- makes columns fixed width */
+}
+
+table.list th,
+table.list td {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 1px; /* enables truncation */
+}

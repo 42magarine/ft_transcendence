@@ -1,81 +1,89 @@
-import Title from '../components/Title.js';
 import Card from '../components/Card.js';
-import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 
-export default class Settings extends AbstractView {
-    constructor() {
+export default class Settings extends AbstractView
+{
+    constructor()
+    {
         super();
     }
 
-    async getHtml(): Promise<string> {
-
-        // Title using existing params
-        const title = await new Title({
-            title: 'Settings'
-        }).getHtml();
-
-        // Button using existing params
-        const button = new Button();
-        const saveButtonGroup = await button.renderGroup({
-            layout: 'stack',
-            align: 'center',
-            buttons: [
-                {
-                    id: 'save-settings',
-                    text: '💾 Save Settings',
-                    onClick: ``,
-                }
-            ]
-        });
-
-        const avatarHtml = `
-			<div class="flex flex-col items-center gap-2">
-				<img src="/assets/default-avatar.png" alt="User Avatar" class="w-20 h-20 rounded-full border border-white/20" />
-				<label class="text-sm text-white/80">Change Avatar</label>
-				<input type="file" name="avatar" accept="image/*" class="text-white text-xs" />
-			</div>
-		`;
-
-        const card = new Card();
-        const settingsCard = await card.renderCard({
+    async getHtml(): Promise<string>
+    {
+        const settingsCard = await new Card().renderCard(
+        {
             title: 'Profile Settings',
             formId: 'settings-form',
-            contentBlocks: [
+            contentBlocks:
+            [
                 {
                     type: 'label',
-                    props: { htmlFor: 'avatar', text: 'Avatar' }
+                    props:
+                    {
+                        htmlFor: 'avatar',
+                        text: 'Avatar'
+                    }
                 },
                 {
                     type: 'stat',
-                    props: {
+                    props:
+                    {
                         label: '',
-                        value: avatarHtml
+                        value: `
+                            <div class="flex flex-col items-center gap-2">
+                                <img src="/assets/default-avatar.png" alt="User Avatar" class="w-20 h-20 rounded-full border border-white/20" />
+                                <label class="text-sm text-white/80">Change Avatar</label>
+                                <input type="file" name="avatar" accept="image/*" class="text-white text-xs" />
+                            </div>
+                        `
                     }
                 },
                 {
                     type: 'label',
-                    props: { htmlFor: 'displayName', text: 'Display Name' }
+                    props:
+                    {
+                        htmlFor:
+                        'displayName',
+                        text: 'Display Name'
+                    }
                 },
                 {
                     type: 'input',
-                    props: { name: 'displayName', type: "text", placeholder: 'John Doe' }
+                    props:
+                    {
+                        name: 'displayName',
+                        type: "text",
+                        placeholder: 'John Doe'
+                    }
                 },
                 {
                     type: 'label',
-                    props: { htmlFor: 'email', text: 'Email Address' }
+                    props:
+                    {
+                        htmlFor: 'email',
+                        text: 'Email Address'
+                    }
                 },
                 {
                     type: 'input',
-                    props: { name: 'email', type: 'email', placeholder: 'john@example.com' }
+                    props:
+                    { name: 'email',
+                        type: 'email',
+                        placeholder: 'john@example.com'
+                    }
                 },
                 {
                     type: 'label',
-                    props: { htmlFor: 'language', text: 'Preferred Language' }
+                    props:
+                    {
+                        htmlFor: 'language',
+                        text: 'Preferred Language'
+                    }
                 },
                 {
                     type: 'stat',
-                    props: {
+                    props:
+                    {
                         label: '',
                         value: `
 							<select name="language" class="input-glass w-full bg-white/10 text-white">
@@ -89,25 +97,44 @@ export default class Settings extends AbstractView {
                 },
                 {
                     type: 'label',
-                    props: { htmlFor: 'darkMode', text: 'Dark Mode' }
+                    props:
+                    {
+                        htmlFor: 'darkMode',
+                        text: 'Dark Mode'
+                    }
                 },
                 {
                     type: 'toolbar',
-                    props: {
-                        buttons: [
-                            { text: '🌙 Toggle Dark Mode', onClick: 'toggleDarkMode()' }
+                    props:
+                    {
+                        buttons:
+                        [
+                            {
+                                text: '🌙 Toggle Dark Mode',
+                                onClick: 'toggleDarkMode()'
+                            }
+                        ]
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props:
+                    {
+                        layout: 'stack',
+                        align: 'center',
+                        buttons:
+                        [
+                            {
+                                id: 'save-settings',
+                                text: '💾 Save Settings',
+                                onClick: ``,
+                            }
                         ]
                     }
                 }
             ],
-            extra: `<div class="pt-4">${saveButtonGroup}</div>`,
-            className: 'max-w-xl mx-auto'
         });
 
-        return this.render(`
-			<div class="max-w-5xl mx-auto p-6 space-y-10">
-				${settingsCard}
-			</div>
-		`);
+        return this.render(`${settingsCard}`);
     }
 }
