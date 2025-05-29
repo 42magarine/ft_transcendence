@@ -26,6 +26,7 @@ export interface IGameState {
 
 export interface LobbyInfo {
     id: string;
+    lobbyId: string;
     name: string;
     creatorId: number | undefined;
     maxPlayers: number;

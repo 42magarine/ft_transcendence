@@ -10,6 +10,7 @@ export interface ButtonProps {
     align?: 'left' | 'center' | 'right';                    // Button alignment inside its container
     status?: 'ready' | 'waiting' | 'unavailable'; // Optional status for colored state-based styling
     type?: 'submit' | 'button' | 'google-signin' | 'text-with-button';              // Type of button
+    dataAttributes?: any;
 }
 
 export interface ButtonGroupProps {

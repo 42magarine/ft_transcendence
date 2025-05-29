@@ -17,16 +17,18 @@ export default class LobbyList extends AbstractView {
             console.warn('[LobbyList] No lobbies found or invalid format.');
         }
 
-        lobbies.forEach((lobby, i) => {
-            console.log(`[Lobby ${i}]`, {
-                name: lobby.name,
-                id: lobby.id,
-                creatorId: lobby.creatorId,
-                currentPlayers: lobby.currentPlayers,
-                maxPlayers: lobby.maxPlayers,
-                isStarted: lobby.isStarted,
-            });
-        });
+        // console.log(lobbies);
+        // lobbies.forEach((lobby, i) => {
+        //     console.log(`[Lobby ${i}]`, {
+        //         name: lobby.name,
+        //         id: lobby.id,
+        //         lobbyId: lobby.lobbyId,
+        //         creatorId: lobby.creatorId,
+        //         currentPlayers: lobby.currentPlayers,
+        //         maxPlayers: lobby.maxPlayers,
+        //         isStarted: lobby.isStarted,
+        //     });
+        // });
 
         const lobbyListCard = await new Card().renderCard({
             title: 'Available Lobbies',
@@ -52,15 +54,26 @@ export default class LobbyList extends AbstractView {
                             { type: 'label', props: { htmlFor: '', text: `${lobby.creatorId}` } },
                             { type: 'stat', props: { label: '', value: `${lobby.currentPlayers} / ${lobby.maxPlayers}` } },
                             { type: 'stat', props: { label: '', value: lobby.isStarted ? 'Started' : 'Waiting' } },
+                            // {
+                            //     type: 'button',
+                            //     props: {
+                            //         id: 'JoinLobbyBtn',
+                            //         text: 'Join Lobby',
+                            //         type: 'button',
+                            //         className: 'btn btn-primary'
+                            //     },
+                            // }
                             {
                                 type: 'buttongroup',
                                 props: {
                                     layout: 'group',
                                     buttons: [
                                         {
+                                            id: 'joinLobbyBtn',
                                             text: 'Join Lobby',
-                                            className: 'btn btn-primary join-lobby-btn',
-                                            href: `/lobby/${lobby.id}`
+                                            className: 'btn btn-primary',
+                                            onClick: 'handleJoinLobbyClick(event)',
+                                            dataAttributes: { 'lobby-id': lobby.lobbyId }
                                         }
                                     ]
                                 }

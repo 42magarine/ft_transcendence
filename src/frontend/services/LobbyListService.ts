@@ -32,14 +32,15 @@ export default class LobbyListService {
                     console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
                 }
                 break;
-            // case 'joinedLobby':
-            //     Router.update();
-            //     if (data.lobbyId && data.playerNumber !== undefined) {
-            //         Router.redirect(`/lobby/${data.lobbyId}`);
-            //     } else {
-            //         console.error("LobbyListService: lobbyId or playerNumber missing for joinedLobby", data);
-            //     }
-            //     break;
+            case 'joinedLobby':
+                console.log("backend->frontend joinedLobby")
+                // Router.update();
+                if (data.lobbyId && data.playerNumber !== undefined) {
+                    Router.redirect(`/lobby/${data.lobbyId}`);
+                } else {
+                    console.error("LobbyListService: lobbyId or playerNumber missing for joinedLobby", data);
+                }
+                break;
             default:
                 break;
         }
@@ -98,24 +99,35 @@ export default class LobbyListService {
 
     private async handleJoinLobbyClick(e: MouseEvent): Promise<void> {
         const target = e.target as HTMLElement;
-        const button = target.closest<HTMLAnchorElement>('.join-lobby-btn');
+        const button = target.closest<HTMLAnchorElement>('#joinLobbyBtn');
 
         if (button) {
             e.preventDefault();
+            console.log("join clicked!");
 
-            const href = button.getAttribute('href');
-            if (!href) {
-                console.error("LobbyListService: joinLobbyBtn clicked, but 'href' attribute is missing.");
-                return;
-            }
+            // const href = button.getAttribute('href');
+            // if (!href) {
+            //     console.error("LobbyListService: joinLobbyBtn clicked, but 'href' attribute is missing.");
+            //     return;
+            // }
 
-            const parts = href.split('/');
-            const lobbyId = parts.pop() || parts.pop();
+            // const parts = href.split('/');
+            // const lobbyId = parts.pop() || parts.pop();
+
+            // if (!lobbyId) {
+            //     console.error(`LobbyListService: Could not parse lobbyId from href: ${href}`);
+            //     return;
+            // }
+
+            const lobbyId = button.getAttribute('data-lobby-id');
 
             if (!lobbyId) {
-                console.error(`LobbyListService: Could not parse lobbyId from href: ${href}`);
+                console.error("LobbyListService: joinLobbyBtn clicked, but 'data-lobby-id' attribute is missing.");
                 return;
             }
+
+            console.log(`Joining lobby: ${lobbyId}`);
+
 
             let currentUserId: number | undefined;
             const user: User | null = await UserService.getCurrentUser();

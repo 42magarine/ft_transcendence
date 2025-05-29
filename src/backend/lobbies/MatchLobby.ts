@@ -78,9 +78,7 @@ export class MatchLobby {
     }
 
     // at this point player 1 is already represented in the matchModel but not yet in the map of the LobbyObject
-    public addPlayer(
-        connection: WebSocket,
-        userId: number) {
+    public addPlayer(connection: WebSocket, userId: number) {
         //at this point is allways 0 and 2 so should work!
         if (this._players.size >= this._maxPlayers || this._gameStarted) {
             return null;
@@ -231,7 +229,8 @@ export class MatchLobby {
     //i mean cmon
     public getLobbyInfo(): LobbyInfo {
         return {
-            id: this.lobbyId,
+            id: this.lobbyId,   // Id vs LobbyId ???
+            lobbyId: this.lobbyId,
             name: this._lobbyName,
             creatorId: this._creatorId!,
             maxPlayers: this._maxPlayers,
