@@ -19,54 +19,60 @@ export default class UserManagement extends AbstractView {
                 contentBlocks:
                     [
                         {
+                            type: 'inputgroup',
+                            props: {
+                                inputs: [
+                                    {
+                                        name: 'displayname',
+                                        label: 'Name',
+                                        placeholder: 'Name'
+                                    },
+                                    {
+                                        name: 'email',
+                                        type: 'email',
+                                        label: 'E-Mail',
+                                        placeholder: 'E-Mail'
+                                    },
+                                    {
+                                        id: 'password',
+                                        name: 'password',
+                                        type: 'password',
+                                        label: 'Password',
+                                        placeholder: 'Password',
+                                        withConfirm: true
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             type: 'buttongroup',
-                            props:
-                            {
-                                inputs:
-                                    [
-                                        {
-                                            name: 'displayname',
-                                            placeholder: 'Name'
-                                        },
-                                        {
-                                            name: 'email',
-                                            type: 'email',
-                                            placeholder: 'E-Mail'
-                                        },
-                                        {
-                                            name: 'password',
-                                            type: 'password',
-                                            placeholder: 'Password',
-                                            withConfirm: true
-                                        }
-                                    ],
-                                toggles:
-                                    [
-                                        {
-                                            id: 'emailVerified',
-                                            name: 'emailVerified',
-                                            label: 'Email Verified:',
-                                            checked: false
-                                        },
-                                        {
-                                            id: 'twoFAEnabled',
-                                            name: 'twoFAEnabled',
-                                            label: '2FA Enabled:',
-                                            checked: false,
-                                            readonly: true
-                                        },
-                                        {
-                                            id: 'googleSignIn',
-                                            name: 'googleSignIn',
-                                            label: 'Google Sign-In:',
-                                            checked: false,
-                                            readonly: true
-                                        }
-                                    ],
+                            props: {
+                                toggles: [
+                                    {
+                                        id: 'emailVerified',
+                                        name: 'emailVerified',
+                                        label: 'Email Verified:',
+                                        checked: false
+                                    },
+                                    {
+                                        id: 'twoFAEnabled',
+                                        name: 'twoFAEnabled',
+                                        label: '2FA Enabled:',
+                                        checked: false,
+                                        readonly: true
+                                    },
+                                    {
+                                        id: 'googleSignIn',
+                                        name: 'googleSignIn',
+                                        label: 'Google Sign-In:',
+                                        checked: false,
+                                        readonly: true
+                                    }
+                                ],
                                 layout: 'stack',
                                 align: 'left'
                             }
-                        },
+                        },                        
                         {
                             type: 'buttongroup',
                             props:
@@ -100,46 +106,55 @@ export default class UserManagement extends AbstractView {
                                 title: 'User Overview',
                                 height: '300px',
                                 data: users,
+                                columns: [
+                                    { key: 'id', label: 'ID' },
+                                    { key: 'displayname', label: 'Name' },
+                                    { key: 'username', label: 'Username' },
+                                    { key: 'email', label: 'Email' },
+                                    { key: 'emailVerified', label: 'Verified' },
+                                    { key: 'twoFAEnabled', label: '2FA' },
+                                    { key: 'actions', label: 'Actions' }
+                                ],
                                 rowLayout: (user) => [
                                     {
                                         type: 'label',
                                         props: {
-                                            text: `ID: ${user.id}`,
+                                            text: `${user.id}`,
                                             htmlFor: `user-${user.id}-id`
                                         }
                                     },
                                     {
                                         type: 'label',
                                         props: {
-                                            text: `Name: ${user.displayname}`,
+                                            text: `${user.displayname}`,
                                             htmlFor: `user-${user.id}-name`
                                         }
                                     },
                                     {
                                         type: 'label',
                                         props: {
-                                            text: `Username: ${user.username}`,
+                                            text: `${user.username}`,
                                             htmlFor: `user-${user.id}-username`
                                         }
                                     },
                                     {
                                         type: 'label',
                                         props: {
-                                            text: `Email: ${user.email}`,
+                                            text: `${user.email}`,
                                             htmlFor: `user-${user.id}-email`
                                         }
                                     },
                                     {
                                         type: 'label',
                                         props: {
-                                            text: `Verified: ${user.emailVerified ? 'Yes' : 'No'}`,
+                                            text: `${user.emailVerified ? 'Yes' : 'No'}`,
                                             htmlFor: `user-${user.id}-verified`
                                         }
                                     },
                                     {
                                         type: 'label',
                                         props: {
-                                            text: `2FA: ${user.twoFAEnabled ? 'Enabled' : 'Disabled'}`,
+                                            text: `${user.twoFAEnabled ? 'Enabled' : 'Disabled'}`,
                                             htmlFor: `user-${user.id}-2fa`
                                         }
                                     },
@@ -148,26 +163,29 @@ export default class UserManagement extends AbstractView {
                                         props: {
                                             buttons: [
                                                 {
-                                                    text: '',
-                                                    html: `<a href="/users/${user.id}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-eye"></i></a>`
+                                                    iconHtml: '<i class="fa-solid fa-eye"></i>',
+                                                    href: `/users/${user.id}`,
+                                                    className: 'btn btn-sm btn-primary',
+                                                    align: 'center',
                                                 },
                                                 {
-                                                    text: '',
-                                                    html: `<a href="/users/edit/${user.id}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-pen-to-square"></i></a>`
+                                                    iconHtml: '<i class="fa-solid fa-pen-to-square"></i>',
+                                                    href: `/users/edit/${user.id}`,
+                                                    className: 'btn btn-sm btn-primary',
+                                                    align: 'center',
                                                 },
                                                 {
-                                                    text: '',
-                                                    html: `<button class="btn btn-sm btn-danger delete-user" onclick="handleDeleteUser(${user.id})">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                </button>`
+                                                    iconHtml: '<i class="fa-solid fa-trash"></i>',
+                                                    onClick: `handleDeleteUser(${user.id})`,
+                                                    className: 'btn btn-sm btn-danger delete-user',
+                                                    align: 'center',
                                                 }
-                                            ]
+                                            ]                                            
                                         }
                                     }
                                 ]
                             }
                         }
-
                     ]
             });
 

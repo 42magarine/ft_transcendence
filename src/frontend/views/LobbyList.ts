@@ -46,30 +46,64 @@ export default class LobbyList extends AbstractView {
                     type: 'table',
                     props: {
                         id: 'lobby-list',
+                        title: 'Lobby List',
                         height: '400px',
                         data: lobbies,
+                        columns: [
+                            { key: 'name', label: 'Lobby' },
+                            { key: 'id', label: 'ID' },
+                            { key: 'creatorID', label: 'Creator' },
+                            { key: 'players', label: 'Players' },
+                            { key: 'status', label: 'Status' },
+                            { key: 'actions', label: 'Actions' }
+                        ],
                         rowLayout: (lobby) => [
-                            { type: 'label', props: { htmlFor: '', text: `${lobby.name}` } },
-                            { type: 'label', props: { htmlFor: '', text: `${lobby.id}` } },
-                            { type: 'label', props: { htmlFor: '', text: `${lobby.creatorId}` } },
-                            { type: 'stat', props: { label: '', value: `${lobby.currentPlayers} / ${lobby.maxPlayers}` } },
-                            { type: 'stat', props: { label: '', value: lobby.isStarted ? 'Started' : 'Waiting' } },
                             {
-                                type: 'buttongroup',
+                                type: 'label',
                                 props: {
-                                    layout: 'group',
-                                    buttons: [
-                                        {
+                                    htmlFor: '',
+                                    text: `${lobby.name}`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    htmlFor: '',
+                                    text: `${lobby.id}`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    htmlFor: '',
+                                    text: `${lobby.id}`
+                                }
+                            },
+                            {
+                                type: 'stat',
+                                props: {
+                                    label: '',
+                                    value: `${lobby.currentPlayers} / ${lobby.maxPlayers}`
+                                }
+                            },
+                            {
+                                type: 'stat',
+                                props: {
+                                    label: '',
+                                    value: lobby.isStarted ? 'Started' : 'Waiting'
+                                }
+                            },
+                            {
+                                type: 'button',
+                                props:
+                                {
                                             id: 'joinLobbyBtn',
                                             text: 'Join Lobby',
                                             className: 'btn btn-primary',
                                             onClick: 'handleJoinLobbyClick(event)',
-                                            dataAttributes:
-                                            {
-                                                'lobby-id': lobby.lobbyId  
+                                            dataAttributes: {
+                                                'lobby-id': lobby.lobbyId
                                             }
-                                        }
-                                    ]
                                 }
                             }
                         ]

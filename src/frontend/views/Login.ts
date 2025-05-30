@@ -8,7 +8,6 @@ export default class Login extends AbstractView
     {
 		super();
 	}
-
 	async getHtml(): Promise<string>
     {
 		const loginCard = await new Card().renderCard(

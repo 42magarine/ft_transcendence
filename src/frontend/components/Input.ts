@@ -8,6 +8,25 @@ export default class Input extends AbstractView
 		super(params);
 	}
 
+	private attachConfirmToggleListener(id: string, name: string): void {
+		requestAnimationFrame(() => {
+			const input = document.getElementById(id) as HTMLInputElement | null;
+			const confirmRow = document.getElementById(`${id}-confirm-row`);
+	
+			if (!input || !confirmRow) return;
+	
+			input.addEventListener('input', () => {
+				if (input.value.trim().length > 0) {
+					confirmRow.classList.remove('hidden');
+				} else {
+					confirmRow.classList.add('hidden');
+					const confirmInput = confirmRow.querySelector(`input[name="${name}Confirm"]`) as HTMLInputElement | null;
+					if (confirmInput) confirmInput.value = '';
+				}
+			});
+		});
+	}	
+
 	async renderInput({
 		id = '',
 		name,
@@ -16,21 +35,12 @@ export default class Input extends AbstractView
 		value = '',
 		className = '',
 		withConfirm = false,
-		bare = false
+		bare = false,
+		label,
 	}: InputProps & { withConfirm?: boolean; bare?: boolean }): Promise<string>
 	{
 		const finalClass = className || 'input';
-	
-		if (type === 'display')
-		{
-			return this.render(`
-				<div class="detail-row">
-					<label class="label">${placeholder || name}:</label>
-					<span class="value">${value || ''}</span>
-				</div>
-			`);
-		}
-	
+
 		const inputField = type === 'select'
 			? `<select name="${name}" id="${id}" class="${finalClass}">${value}</select>`
 			: `<input
@@ -41,89 +51,92 @@ export default class Input extends AbstractView
 					value="${value}"
 					class="${finalClass}"
 				/>`;
-	
+
 		let confirmInput = '';
 		if (withConfirm && type === 'password') {
 			confirmInput = `
-				<div class="detail-row" id="${id}-confirm-row" style="display: none;">
+				<div class="detail-row hidden" id="${id}-confirm-row">
 					<label class="label">Confirm Password:</label>
 					<input class="input" type="password" name="${name}Confirm" placeholder="Repeat ${placeholder}" />
 				</div>
-				<script>
-					document.addEventListener('DOMContentLoaded', function () {
-						const input = document.getElementById('${id}');
-						const confirmRow = document.getElementById('${id}-confirm-row');
-						if (input && confirmRow) {
-							input.addEventListener('input', () => {
-								if (input.value.trim().length > 0) {
-									confirmRow.style.display = 'block';
-								} else {
-									confirmRow.style.display = 'none';
-									const confirmInput = confirmRow.querySelector('input[name="${name}Confirm"]');
-									if (confirmInput) confirmInput.value = '';
-								}
-							});
-						}
-					});
-				</script>
 			`;
 		}
-	
-		if (bare)
-		{
-			// Just return the input directly without wrapper or label
+
+		// Auto-bind show/hide logic after render
+		if (withConfirm && type === 'password' && id) {
+			console.log('hjgakusydgkuyd');
+			// Return special placeholder to call later
+			const listenerScript = `<script>window.__deferredConfirmFields = window.__deferredConfirmFields || []; window.__deferredConfirmFields.push({id: "${id}", name: "${name}"});</script>`;
+			return this.render(`
+				<div class="detail-row">
+					<label class="label" for="${id || name}">${label || placeholder || name}:</label>
+					${inputField}
+				</div>
+				${confirmInput}
+				${listenerScript}
+			`);
+		}
+		
+
+		if (type === 'display') {
+			return this.render(`
+				<div class="detail-row">
+					<label class="label">${label || placeholder || name}:</label>
+					<span class="value">${value || ''}</span>
+				</div>
+				${confirmInput}
+			`);
+		}
+
+		if (bare) {
 			return this.render(inputField + confirmInput);
 		}
-	
+
 		return this.render(`
 			<div class="detail-row">
-				<label class="label">${placeholder || name}:</label>
+				<label class="label" for="${id || name}">${label || placeholder || name}:</label>
 				${inputField}
 			</div>
 			${confirmInput}
 		`);
 	}
-	
 
-		async renderNumericGroup(count: number, baseId: string): Promise<string>
-		{
-			const inputs: string[] = [];
-		
-			for (let i = 0; i < count; i++)
-			{
-				const id = `${baseId}_${i + 1}`;
-				inputs.push(await this.renderInput(
-				{
-					id,
-					name: id,
-					type: 'number',
-					bare: true,
-					className: 'tf_numeric w-12 h-12 text-center text-xl border border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white',
-				}));
-			}
-		
-			const halfway = Math.floor(count / 2);
-			return this.render(`
-				<div class="flex justify-center space-x-2">
-					${inputs.slice(0, halfway).join('\n')}
-					<div class="spacer w-4"></div>
-					${inputs.slice(halfway).join('\n')}
-				</div>
-			`);
+	async renderNumericGroup(count: number, baseId: string): Promise<string>
+	{
+		const inputs: string[] = [];
+
+		for (let i = 0; i < count; i++) {
+			const id = `${baseId}_${i + 1}`;
+			inputs.push(await this.renderInput({
+				id,
+				name: id,
+				type: 'number',
+				bare: true,
+				className: 'tf_numeric w-12 h-12 text-center text-xl border border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+			}));
 		}
-		
-		async renderInputGroup(inputs: InputProps[]): Promise<string>
-		{
-			const renderedInputs: string[] = [];
 
-			for (const input of inputs)
-			{
-				const html = await this.renderInput(input);
-				renderedInputs.push(html);
-			}
+		const halfway = Math.floor(count / 2);
+		return this.render(`
+			<div class="flex justify-center space-x-2">
+				${inputs.slice(0, halfway).join('\n')}
+				<div class="spacer w-4"></div>
+				${inputs.slice(halfway).join('\n')}
+			</div>
+		`);
+	}
 
-			return this.render(renderedInputs.join('\n'));
+	async renderInputGroup(inputs: InputProps[]): Promise<string>
+	{
+		const renderedInputs: string[] = [];
+
+		for (const input of inputs) {
+			const html = await this.renderInput(input);
+			renderedInputs.push(html);
 		}
+
+		return this.render(renderedInputs.join('\n'));
+	}
 
 	async getHtml(): Promise<string>
 	{

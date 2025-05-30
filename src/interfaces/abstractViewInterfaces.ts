@@ -30,6 +30,7 @@ export interface ButtonGroupProps {
 
 // CARD.TS
 export interface InputField {
+    id?: string;
     name: string;           // Name attribute of the input
     placeholder?: string;   // Placeholder text
     value?: string;         // Initial value
@@ -39,6 +40,7 @@ export interface InputField {
     step?: number;          // Step size for number inputs
     className?: string;     // Additional styling classes
     withConfirm?: boolean;  // Whether to render a confirm field (e.g., confirm password)
+    label?: string; 
     type?:                  // Input type
     'text'
     | 'email'
@@ -103,7 +105,7 @@ export type ContentBlock =
     | { type: 'buttongroup'; props: ButtonGroupProps & { toggles?: ToggleProps[] } } // Renders a button group with optional toggles
     | { type: 'button'; props: ButtonProps } // Renders a standalone button
     | { type: 'html'; props: { html: string } } // Renders raw HTML
-    | { type: 'separator'; props: { className?: string } }
+    | { type: 'separator'; props?: { className?: string } }
     | { type: 'heading'; props: HeadingProps }
     | { type: 'paragraph'; props: ParagraphProps }
     | { type: 'container'; props: ContainerProps }
@@ -118,6 +120,7 @@ export interface InputProps {
     placeholder?: string;   // Placeholder value
     value?: string;         // Default value
     className?: string;     // Custom classes
+    label?: string;
     withConfirm?: boolean;  // Whether to show a confirmation field
 }
 
@@ -151,20 +154,20 @@ export interface ToggleProps {
 }
 
 // TABLE.TS
+// In abstractViewInterfaces.ts
 export interface TableColumn {
-    key: string;                            // Column key, maps to data property
-    label: string;                          // Column display name
-    isAction?: boolean;                     // If true, column is for buttons/actions
-    buttons?: (row: any) => ButtonProps[];  // Optional row-specific buttons
-    render?: (row: any) => string;          // Optional custom render logic
+	key: string;
+	label: string;
+	colspan?: number;
 }
 
 export interface TableProps {
-    id: string;       // Unique table ID
-    title?: string;     // Optional title above the table
-    height?: string;    // Optional fixed height (e.g., "300px")
-    data: any[];        // Array of row data objects
-    rowLayout: ((row: any) => ContentBlock[]); // Function that returns how each row is rendered using content blocks
+	id: string;
+	title?: string;
+	height?: string;
+	data: any[];
+	rowLayout: (row: any) => ContentBlock[];
+	columns?: TableColumn[];
 }
 
 // MODAL.TS

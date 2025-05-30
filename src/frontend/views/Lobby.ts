@@ -13,7 +13,7 @@ export default class Lobby extends AbstractView
     private lobbyId: string;
 
     private currentPlayerDisplay: PlayerDisplayState = { username: 'You', isJoined: false, isReady: false };
-    private opponentPlayerDisplay: PlayerDisplayState = { username: 'Waiting...', isJoined: false, isReady: false };
+    private opponentPlayerDisplay: PlayerDisplayState = { username: 'Opponent', isJoined: false, isReady: false };
 
     constructor(params: URLSearchParams)
     {
@@ -29,6 +29,20 @@ export default class Lobby extends AbstractView
 
     async getHtml(): Promise<string>
     {
+        if (window.socketReady) {
+            await window.socketReady;
+        } else {
+            console.warn('[Lobby.ts] socketReady promise is missing!');
+        }
+    
+        if (!window.lobbyService) {
+            console.warn('[Lobby.ts] LobbyService is not initialized yet.');
+            return this.render('<p>Loading lobby data...</p>');
+        }
+    
+        const lobbyData = window.lobbyService.getCurrentLobbyData();
+        console.log('[Lobby.ts] Current lobby data after await:', lobbyData);
+    
         const lobbyCard = await new Card().renderCard(
         {
             title: `Lobby ${this.lobbyId}`,
@@ -36,10 +50,6 @@ export default class Lobby extends AbstractView
             [
                 {
                     type: 'separator',
-                    props:
-                    {
-                        className: 'my-6 border-t border-gray-300'
-                    }
                 },
                 // Matchup buttons
                 {
@@ -52,10 +62,10 @@ export default class Lobby extends AbstractView
                             props:
                             {
                                 id: 'player1',
-                                text: this.currentPlayerDisplay.username || 'You',
+                                text: this.currentPlayerDisplay.username,
                                 className:
                                     `btn ${this.currentPlayerDisplay.isReady ? 'btn-success'
-                                    : (this.currentPlayerDisplay.isJoined ? 'btn-warning' : 'btn-neutral')}`
+                                    : (this.currentPlayerDisplay.isJoined ? 'btn-warning' : 'btn-primary')}`
                             }
                         },
                         player2:
@@ -69,17 +79,13 @@ export default class Lobby extends AbstractView
                                     : 'Waiting for Opponent...',
                                 className:
                                     `btn ${this.opponentPlayerDisplay.isReady ? 'btn-success'
-                                    : (this.opponentPlayerDisplay.isJoined ? 'btn-warning' : 'btn-neutral')}`
+                                    : (this.opponentPlayerDisplay.isJoined ? 'btn-warning' : 'btn-primary')}`
                             }
                         }
                     }
                 },
                 {
                     type: 'separator',
-                    props:
-                    {
-                        className: 'my-6 border-t border-gray-300'
-                    }
                 },
                 // Action buttons
                 {
@@ -102,8 +108,6 @@ export default class Lobby extends AbstractView
                                 href: '/lobbylist'
                             }
                         ],
-                        layout: 'group',
-                        align: 'center'
                     }
                 }
             ]

@@ -61,7 +61,7 @@ export default class Card extends AbstractView {
 
             case 'separator': {
                 const Separator = (await import('./Seperator.js')).default;
-                return await Separator.renderSeparator(block.props);
+                return await Separator.renderSeparator(block.props ?? {});
             }
 
             case 'heading': {

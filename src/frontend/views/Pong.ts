@@ -32,10 +32,6 @@ export default class Pong extends AbstractView
                 },
                 {
                     type: 'separator',
-                    props:
-                    {
-                        className: `<hr class="my-6 border-t border-gray-300">`
-                    }
                 },
                 {
                     type: 'buttongroup',
