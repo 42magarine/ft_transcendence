@@ -12,7 +12,7 @@ export class MatchController {
     protected _clients: Map<WebSocket, Player | null>; //is EMPTY on startup
     protected _handlers: MessageHandlers;
     protected _userService: UserService;
-    protected _invites: Map<string, { from: number, to: number, lobbyId: string, expires: Date }>
+    // protected _invites: Map<string, { from: number, to: number, lobbyId: string, expires: Date }>
     private _matchService: MatchService;
 
     constructor(userService: UserService, lobbies: Map<string, MatchLobby>) {
@@ -21,30 +21,30 @@ export class MatchController {
         this._matchService = new MatchService(userService);
         this._clients = new Map<WebSocket, Player | null>(); // player will be null on creation
         this._handlers = new MessageHandlers(this.broadcast.bind(this));
-        this._invites = new Map<string, { from: number, to: number, lobbyId: string, expires: Date }>();
+        // this._invites = new Map<string, { from: number, to: number, lobbyId: string, expires: Date }>();
         //should Invites be in matchcontroller or userController?
 
-        setInterval(() => {
-            this.cleanUpInvites();
-        }, 60000);
+        // setInterval(() => {
+        //     this.cleanUpInvites();
+        // }, 60000);
         this.initMatchController();
     }
 
     // automated function that cleans up invites every minute(set in setInterval)
-    private async cleanUpInvites() {
-        const now = new Date();
+    // private async cleanUpInvites() {
+    //     const now = new Date();
 
-        for (const [inviteId, invite] of this._invites.entries()) {
-            if (invite.expires < now) {
-                this._invites.delete(inviteId);
-            }
+    //     for (const [inviteId, invite] of this._invites.entries()) {
+    //         if (invite.expires < now) {
+    //             this._invites.delete(inviteId);
+    //         }
 
-            const lobby = this._lobbies.get(invite.lobbyId)
-            if (lobby && lobby.isEmpty()) {
-                this._lobbies.delete(invite.lobbyId);
-            }
-        }
-    }
+    //         const lobby = this._lobbies.get(invite.lobbyId)
+    //         if (lobby && lobby.isEmpty()) {
+    //             this._lobbies.delete(invite.lobbyId);
+    //         }
+    //     }
+    // }
 
     //should get all open lobbies out of DB on startup and then save them into the lobby MAP
     private async initMatchController() {
@@ -325,6 +325,7 @@ export class MatchController {
 
     //create ne lobby object with id, broadcast and matchservice!
     protected createLobby(lobbyId: string, userId: number): MatchLobby {
+        //create this lobby as matchmodel in DB
         this._matchService.createInitialMatchModelforLobby(lobbyId, userId)
 
         return new MatchLobby(
