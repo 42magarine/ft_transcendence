@@ -8,11 +8,10 @@ import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
 
 export class MatchController {
-    protected _lobbies: Map<string, MatchLobby>;
-    protected _clients: Map<WebSocket, Player | null>; //is EMPTY on startup
-    protected _handlers: MessageHandlers;
-    protected _userService: UserService;
-    protected _invites: Map<string, { from: number, to: number, lobbyId: string, expires: Date }>
+    private _lobbies: Map<string, MatchLobby>;
+    private _clients: Map<WebSocket, Player | null>; //is EMPTY on startup
+    private _handlers: MessageHandlers;
+    private _userService: UserService;
     private _matchService: MatchService;
 
     constructor(userService: UserService, lobbies: Map<string, MatchLobby>) {
@@ -21,29 +20,7 @@ export class MatchController {
         this._matchService = new MatchService(userService);
         this._clients = new Map<WebSocket, Player | null>(); // player will be null on creation
         this._handlers = new MessageHandlers(this.broadcast.bind(this));
-        this._invites = new Map<string, { from: number, to: number, lobbyId: string, expires: Date }>();
-        //should Invites be in matchcontroller or userController?
-
-        setInterval(() => {
-            this.cleanUpInvites();
-        }, 60000);
         this.initMatchController();
-    }
-
-    // automated function that cleans up invites every minute(set in setInterval)
-    private async cleanUpInvites() {
-        const now = new Date();
-
-        for (const [inviteId, invite] of this._invites.entries()) {
-            if (invite.expires < now) {
-                this._invites.delete(inviteId);
-            }
-
-            const lobby = this._lobbies.get(invite.lobbyId)
-            if (lobby && lobby.isEmpty()) {
-                this._lobbies.delete(invite.lobbyId);
-            }
-        }
     }
 
     //should get all open lobbies out of DB on startup and then save them into the lobby MAP
@@ -81,7 +58,7 @@ export class MatchController {
 
     //actual handle connection message function
     //that triggers on: "message" case in handleConnection function!
-    protected handleMessage(message: string | Buffer, connection: WebSocket): void {
+    private handleMessage(message: string | Buffer, connection: WebSocket): void {
         let data: ClientMessage;
         try {
             data = JSON.parse(message.toString()) as ClientMessage;
@@ -96,7 +73,7 @@ export class MatchController {
 
         switch (data.type) {
             case "joinLobby":
-                this.handleJoinLobby(connection, (data as joinLobbyMessage).userId!, (data as joinLobbyMessage).lobbyId)
+                this.handleJoinLobby(connection, (data as joinLobbyMessage).userId!, (data as joinLobbyMessage).lobbyId!)
                 break;
             case "createLobby":
                 this.handleCreateLobby(connection, (data as createLobbyMessage).userId!)
@@ -131,13 +108,13 @@ export class MatchController {
         }
     }
 
-    protected sendMessage(connection: WebSocket, data: ServerMessage): void {
+    private sendMessage(connection: WebSocket, data: ServerMessage): void {
         if (connection.readyState === WebSocket.OPEN) {
             connection.send(JSON.stringify(data));
         }
     }
 
-    protected handleClose(connection: WebSocket): void {
+    private handleClose(connection: WebSocket): void {
         const player = this._clients.get(connection);
 
         if (player && player.lobbyId) {
@@ -155,7 +132,7 @@ export class MatchController {
     }
 
     //receives lobbyId and distributes a servermessage to all connected users in that lobby!!!!
-    protected broadcast(lobbyId: string, data: ServerMessage): void {
+    private broadcast(lobbyId: string, data: ServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
             if (player?.lobbyId === lobbyId && connection.readyState === WebSocket.OPEN) {
                 connection.send(JSON.stringify(data));
@@ -170,67 +147,75 @@ export class MatchController {
     // -> sends back message to client "lobbyCreated" with lobbyId and player.Id which should also be user.Id!!!
 
     // maybe should also add maxPlayercount into this function OR we create handleCreateTournamentLobby (maybe better)
-    protected handleCreateLobby(connection: WebSocket, userId: number) {
+    private async handleCreateLobby(connection: WebSocket, userId: number) {
+        console.log("handleCreateLobby");
+
         const lobbyId = randomUUID();
-        const lobby = this.createLobby(lobbyId, userId);
+        const lobby = new MatchLobby(
+            lobbyId,
+            this.broadcast.bind(this),
+            this._matchService
+        );
 
         this._lobbies.set(lobbyId, lobby);
 
-        const player = lobby.addPlayer(connection, userId);
-
+        const player = await lobby.addPlayer(connection, userId);
         if (player) {
-            this._clients.set(connection, player); // set into clients map for future use!
-            // send ANOTHER message to frontend with lobbyCreated!!
+            console.log("handleCreateLobby: lobby created with player 1");
+
+            this._clients.set(connection, player);
+
             this.sendMessage(connection, {
                 type: "lobbyCreated",
                 lobbyId: lobbyId,
                 playerNumber: player._playerNumber
-            })
+            });
         }
     }
 
-    protected handleJoinLobby(connection: WebSocket, userId: number, lobbyId?: string) {
-        console.log("handleJoinLobby")
-        if (!lobbyId) {
+    private async handleJoinLobby(connection: WebSocket, userId: number, lobbyId: string) {
+        console.log("handleJoinLobby");
+
+        if (!userId || !lobbyId) {
             this.sendMessage(connection, {
                 type: "error",
-                message: "Lobby Id is required"
-            })
+                message: "UserId and LobbyId are required"
+            });
             return;
         }
-        console.log("has lob id 1 ")
-        console.log(lobbyId)
-        console.log(this._lobbies)
-        const lobby = this._lobbies.get(lobbyId)
-        //if not in memory (which it now should be -> write code to try retrieve from backend before calling !lobby condition!)
 
-        console.log(lobby)
+        const lobby = this._lobbies.get(lobbyId);
         if (!lobby) {
             this.sendMessage(connection, {
                 type: "error",
-                message: "Lobby no idea"
-            })
+                message: "Lobby not found"
+            });
             return;
         }
-        console.log("has lob id 2 ")
 
-        console.log("addPlayer")
-        // add player to lobbyId to load into lobby setting.
-        const player = lobby.addPlayer(connection, userId)
-        console.log(player)
-        if (player) { //use clients as repository of connections / players that are active
-            this._clients.set(connection, player)
+        const player = await lobby.addPlayer(connection, userId);
+        if (player) {
+            console.log("handleJoinLobby: player 2 joined");
+
+            this._clients.set(connection, player);
+
+            this.sendMessage(connection, {
+                type: "joinedLobby",
+                lobbyId: lobbyId,
+                playerNumber: player._playerNumber
+            });
         }
-
-        //maybe do broadcast for this for other people to see as well(beauty feature ig)
-        this.sendMessage(connection, {
-            type: "joinedLobby",
-            lobbyId: lobbyId,
-            playerNumber: player!._playerNumber
-        })
+        else {
+            this.sendMessage(connection, {
+                type: "error",
+                message: "Could not join lobby (full or error)"
+            });
+        }
     }
 
-    protected async handleLeaveLobby(connection: WebSocket, lobbyId: string) {
+    private async handleLeaveLobby(connection: WebSocket, lobbyId: string) {
+        console.log("handleLeaveLobby");
+
         const player = this._clients.get(connection);
         //retrieve player from active clients
 
@@ -311,16 +296,6 @@ export class MatchController {
         this.sendMessage(connection, { type: "lobbyList", lobbies: openLobbies });
     }
 
-    //create ne lobby object with id, broadcast and matchservice!
-    protected createLobby(lobbyId: string, userId: number): MatchLobby {
-        this._matchService.createInitialMatchModelforLobby(lobbyId, userId)
-
-        return new MatchLobby(
-            lobbyId,
-            this.broadcast.bind(this),
-            this._matchService
-        )
-    }
 
     /* GAME LOGIC FUNCTIONS FROM HERE */
     // FREDDY SCHWING DEIN ARSCH HIER DRAN UND CHECK DIE AB! <3
