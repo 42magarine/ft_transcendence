@@ -1,7 +1,5 @@
-import { InputField, CardButton, CardProps, CardGroupProps, ContentBlock, ToolbarProps } from '../../interfaces/abstractViewInterfaces.js';
+import { CardProps, CardGroupProps, ContentBlock, } from '../../interfaces/abstractViewInterfaces.js';
 import AbstractView from '../../utils/AbstractView.js';
-import Table from './Table.js';
-import Input from './Input.js'
 
 export default class Card extends AbstractView {
     private contextData: Record<string, any> = {};
@@ -45,29 +43,11 @@ export default class Card extends AbstractView {
                 const Table = (await import('./Table.js')).default;
                 return await new Table().renderTable(block.props);
             }
-
-            case 'matchup': {
-                const player1Html = await this.renderContentBlock(block.props.player1);
-                const player2Html = await this.renderContentBlock(block.props.player2);
-                return `
-            <div class="lobby-center text-center">
-                ${player1Html}
-                <div class="vs my-2 font-bold text-lg">VS</div>
-                ${player2Html}
-            </div>`;
-            }
-
-            case 'actions': {
-                return `<div class="lobby-actions mt-4">${block.props.buttons}</div>`;
-            }
-
+            
             case 'inputgroup': {
                 const Input = (await import('./Input.js')).default;
-                const inputHtmls = await Promise.all(
-                    block.props.inputs.map(async (input) => new Input().renderInput(input))
-                );
-                return inputHtmls.join('\n');
-            }
+                return await new Input().renderInputGroup(block.props.inputs);
+            }            
 
             case 'button': {
                 const Button = (await import('./Button.js')).default;
@@ -76,50 +56,46 @@ export default class Card extends AbstractView {
 
             case 'buttongroup': {
                 const Button = (await import('./Button.js')).default;
-                return await new Button().renderGroup(block.props);
-            }
-
-            case 'html': {
-                return block.props.html;
-            }
-
-            case 'twofactor': {
-                const Input = (await import('./Input.js')).default;
-                const tfInputs = await new Input().renderNumericGroup(6, 'tf');
-                return `
-            <div id="twoFactorInterface">
-                <div id="qr-display" class="mb-4"></div>
-                <input type="hidden" id="secret" name="secret" />
-                ${tfInputs}
-            </div>`;
-            }
-
-            case 'signup-footer': {
-                return `
-            <p>Already have an account? <a router href="/login">log in</a></p>
-            <div class="flex justify-center pt-2">
-                <button id="google-signup" class="btn btn-google">Sign up with Google</button>
-            </div>`;
+                return await new Button().renderButtonGroup(block.props);
             }
 
             case 'separator': {
                 const Separator = (await import('./Seperator.js')).default;
-                return await Separator.render(block.props);
+                return await Separator.renderSeparator(block.props);
             }
 
             case 'heading': {
                 const Heading = (await import('./Heading.js')).default;
-                return await Heading.render(block.props);
+                return await Heading.renderHeading(block.props);
             }
 
             case 'paragraph': {
                 const Paragraph = (await import('./Paragraph.js')).default;
-                return await Paragraph.render(block.props);
+                return await Paragraph.renderParagraph(block.props);
             }
 
             case 'container': {
                 const Container = (await import('./Container.js')).default;
-                return await Container.render(block.props);
+                return await Container.renderContainer(block.props);
+            }
+
+            case 'matchup': {
+                const renderMatchup = (await import('./Matchup.js')).default;
+                return await renderMatchup(block.props, this.renderContentBlock.bind(this));
+            }            
+
+            case 'twofactor': {
+                const renderTwoFactor = (await import('./TwoFactor.js')).default;
+                return renderTwoFactor();
+            }
+            
+            case 'signup-footer': {
+                const renderSignupFooter = (await import('./SignupFooter.js')).default;
+                return renderSignupFooter();
+            }
+            
+            case 'html': {
+                return block.props.html;
             }
 
             default:
@@ -174,7 +150,7 @@ export default class Card extends AbstractView {
         if (buttonGroup && buttonGroup.length > 0) {
             const Button = (await import('./Button.js')).default;
             const btn = new Button();
-            buttonGroupHtml = await btn.renderGroup(
+            buttonGroupHtml = await btn.renderButtonGroup(
                 {
                     buttons: buttonGroup,
                     align: 'center',
@@ -226,7 +202,7 @@ export default class Card extends AbstractView {
         `, mergedData);
     }
 
-    async renderGroup(
+    async rendercardGroup(
         {
             cards,
             layout = 'grid',

@@ -36,7 +36,7 @@ export default class Modal extends AbstractView
 		if (footerButtons.length > 0)
 		{
 			const buttonRenderer = new Button();
-			const buttonGroupHtml = await buttonRenderer.renderGroup({
+			const buttonGroupHtml = await buttonRenderer.renderButtonGroup({
 				buttons: footerButtons,
 				align: 'right',
 				layout: 'group'

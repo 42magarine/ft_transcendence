@@ -2,7 +2,7 @@
 import { ParagraphProps } from '../../interfaces/abstractViewInterfaces.js';
 
 export default class ParagraphBlock {
-	static async render({ html, align = 'left', className = '' }: ParagraphProps): Promise<string> {
+	static async renderContainer({ html, align = 'left', className = '' }: ParagraphProps): Promise<string> {
 		const alignClass = align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : '';
 		return `<p class="${[alignClass, className].join(' ').trim()}">${html}</p>`;
 	}

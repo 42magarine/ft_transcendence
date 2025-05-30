@@ -112,7 +112,18 @@ export default class Input extends AbstractView
 			`);
 		}
 		
+		async renderInputGroup(inputs: InputProps[]): Promise<string>
+		{
+			const renderedInputs: string[] = [];
 
+			for (const input of inputs)
+			{
+				const html = await this.renderInput(input);
+				renderedInputs.push(html);
+			}
+
+			return this.render(renderedInputs.join('\n'));
+		}
 
 	async getHtml(): Promise<string>
 	{

@@ -212,18 +212,6 @@ export default class Home extends AbstractView
                     }
                 },
         
-                // ACTIONS (HTML buttons)
-                {
-                    type: 'actions',
-                    props:
-                    {
-                        buttons: `
-                            <button class="btn btn-accent" onclick="alert('Accepted!')">Accept</button>
-                            <button class="btn btn-error" onclick="alert('Declined!')">Decline</button>
-                        `
-                    }
-                },
-        
                 // INPUTGROUP (compact multiple fields)
                 {
                     type: 'inputgroup',

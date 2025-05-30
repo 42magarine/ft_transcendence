@@ -58,7 +58,7 @@ export default class Table extends AbstractView {
             }
             case 'buttongroup': {
                 const Button = (await import('./Button.js')).default;
-                return await new Button().renderGroup(block.props);
+                return await new Button().renderButtonGroup(block.props);
             }
             default:
                 return '';

@@ -17,19 +17,17 @@ export default class Toolbar extends AbstractView {
 			</button>
 		`).join('\n');
 
-		return this.render( // ✅ this is from AbstractView: (template, data?)
+		return this.render(
 			`<div class="toolbar flex gap-2 justify-end ${className}">
 				${buttonHtml}
 			</div>`
 		);
 	}
 
-	// ✅ Use a different name to avoid overriding AbstractView.render
 	async renderBlock(props: ToolbarProps): Promise<string> {
 		return this.renderToolbar(props);
 	}
 
-	// Optional preview renderer
 	async getHtml(): Promise<string> {
 		return await this.renderToolbar({
 			buttons: [

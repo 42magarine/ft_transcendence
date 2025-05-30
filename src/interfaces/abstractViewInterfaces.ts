@@ -1,4 +1,9 @@
 // BUTTON.TS
+
+export type ButtonAlign = 'left' | 'center' | 'right';
+export type ButtonStatus = 'ready' | 'waiting' | 'unavailable';
+export type ButtonType = 'submit' | 'button' | 'google-signin' | 'text-with-button';
+
 export interface ButtonProps {
     id?: string;            // ID attribute of the button element
     text?: string;          // Visible text on the button
@@ -94,7 +99,6 @@ export type ContentBlock =
     | { type: 'toolbar'; props: { buttons: { text: string; onClick: string }[] } } // Renders a button toolbar
     | { type: 'table'; props: TableProps } // Renders a dynamic data table
     | { type: 'matchup'; props: { player1: ContentBlock; player2: ContentBlock } } // Renders a matchup block with 2 child content blocks
-    | { type: 'actions'; props: { buttons: string } } // Renders raw HTML action buttons
     | { type: 'inputgroup'; props: { inputs: InputField[] } } // Renders a group of input fields inline
     | { type: 'buttongroup'; props: ButtonGroupProps & { toggles?: ToggleProps[] } } // Renders a button group with optional toggles
     | { type: 'button'; props: ButtonProps } // Renders a standalone button
@@ -209,4 +213,12 @@ interface ToolbarButton {
 export interface ToolbarProps {
     buttons: ToolbarButton[];
     className?: string;
+}
+
+// matchup props
+
+export interface MatchupProps
+{
+	player1: ContentBlock;
+	player2: ContentBlock;
 }

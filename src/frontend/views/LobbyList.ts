@@ -54,15 +54,6 @@ export default class LobbyList extends AbstractView {
                             { type: 'label', props: { htmlFor: '', text: `${lobby.creatorId}` } },
                             { type: 'stat', props: { label: '', value: `${lobby.currentPlayers} / ${lobby.maxPlayers}` } },
                             { type: 'stat', props: { label: '', value: lobby.isStarted ? 'Started' : 'Waiting' } },
-                            // {
-                            //     type: 'button',
-                            //     props: {
-                            //         id: 'JoinLobbyBtn',
-                            //         text: 'Join Lobby',
-                            //         type: 'button',
-                            //         className: 'btn btn-primary'
-                            //     },
-                            // }
                             {
                                 type: 'buttongroup',
                                 props: {
@@ -73,7 +64,10 @@ export default class LobbyList extends AbstractView {
                                             text: 'Join Lobby',
                                             className: 'btn btn-primary',
                                             onClick: 'handleJoinLobbyClick(event)',
-                                            dataAttributes: { 'lobby-id': lobby.lobbyId }
+                                            dataAttributes:
+                                            {
+                                                'lobby-id': lobby.lobbyId  
+                                            }
                                         }
                                     ]
                                 }

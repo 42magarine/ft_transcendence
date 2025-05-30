@@ -69,7 +69,7 @@ export default class Header extends AbstractView
 		if (!noMenu.includes(location.pathname))
 		{
 			const button = new Button();
-			buttonGroupHtml = await button.renderGroup(
+			buttonGroupHtml = await button.renderButtonGroup(
 			{
 				layout: 'group',
 				align: 'right',
