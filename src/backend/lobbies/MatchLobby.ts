@@ -67,8 +67,6 @@ export class MatchLobby {
     }
 
     public async addPlayer(connection: WebSocket, userId: number): Promise<Player | null> {
-        console.log("addPlayer");
-
         if (this._players.size >= this._maxPlayers) {
             return null;
         }

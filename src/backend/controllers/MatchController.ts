@@ -134,7 +134,8 @@ export class MatchController {
     //receives lobbyId and distributes a servermessage to all connected users in that lobby!!!!
     private broadcast(lobbyId: string, data: ServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
-            if (player?.lobbyId === lobbyId && connection.readyState === WebSocket.OPEN) {
+            // player?.lobbyId === lobbyId &&  removed from condition
+            if (connection.readyState === WebSocket.OPEN) {
                 connection.send(JSON.stringify(data));
             }
         }
@@ -148,7 +149,6 @@ export class MatchController {
 
     // maybe should also add maxPlayercount into this function OR we create handleCreateTournamentLobby (maybe better)
     private async handleCreateLobby(connection: WebSocket, userId: number) {
-        console.log("handleCreateLobby");
 
         const lobbyId = randomUUID();
         const lobby = new MatchLobby(
@@ -161,7 +161,6 @@ export class MatchController {
 
         const player = await lobby.addPlayer(connection, userId);
         if (player) {
-            console.log("handleCreateLobby: lobby created with player 1");
 
             this._clients.set(connection, player);
 
@@ -174,7 +173,6 @@ export class MatchController {
     }
 
     private async handleJoinLobby(connection: WebSocket, userId: number, lobbyId: string) {
-        console.log("handleJoinLobby");
 
         if (!userId || !lobbyId) {
             this.sendMessage(connection, {
@@ -195,7 +193,6 @@ export class MatchController {
 
         const player = await lobby.addPlayer(connection, userId);
         if (player) {
-            console.log("handleJoinLobby: player 2 joined");
 
             this._clients.set(connection, player);
 
@@ -214,8 +211,6 @@ export class MatchController {
     }
 
     private async handleLeaveLobby(connection: WebSocket, lobbyId: string) {
-        console.log("handleLeaveLobby");
-
         const player = this._clients.get(connection);
         //retrieve player from active clients
 

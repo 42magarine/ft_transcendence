@@ -60,7 +60,7 @@ export default class LobbyService {
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: ServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-
+        console.log(data.type)
         switch (data.type) {
             case 'lobbyInfo':
                 if (data.lobby) {
