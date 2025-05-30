@@ -2,7 +2,6 @@ import { User, ApiErrorResponse } from '../../interfaces/userInterfaces.js';
 
 export default class UserService {
     static async getCurrentUser(): Promise<User | null> {
-
         try {
             const response = await fetch('/api/users/me', {
                 method: 'GET',

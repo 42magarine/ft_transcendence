@@ -41,7 +41,7 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async joinGame(lobbyId: string, userId: number) {
+    public async joinLobby(lobbyId: string, userId: number) {
         console.log("JOINNNN")
         const msg: ClientMessage = {
             type: 'joinLobby',

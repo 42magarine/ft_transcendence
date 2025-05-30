@@ -357,10 +357,10 @@ export default class UserManagementService {
         if (createForm) {
             createForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-    
+
                 try {
                     const formData = new FormData(createForm);
-    
+
                     const userData: User = {
                         avatar: formData.get('avatar') as string,
                         displayname: formData.get('displayname') as string,
@@ -373,22 +373,20 @@ export default class UserManagementService {
 
                     };
 
-    
+
                     const result = await this.registerUser(userData);
                     createForm.reset();
-    
+
                 } catch (error) {
                     console.error('Failed to register user:', error);
                 }
             });
-    
+
             // Setup toggle label logic
             const toggle = new Toggle();
             toggle.mountToggle('emailVerified');
-            
         }
     }
-    
 
     private setupDeleteButtons(): void {
         const deleteButtons = document.querySelectorAll('.delete-user') as NodeListOf<HTMLElement>;
@@ -1005,8 +1003,7 @@ export default class UserManagementService {
         }
     }
 
-    public setupUserManagementView(): void
-    {
+    public setupUserManagementView(): void {
         const toggle = new Toggle();
         toggle.mountToggle('emailVerified');
 
@@ -1015,42 +1012,31 @@ export default class UserManagementService {
         const modal = document.getElementById('confirm-delete-modal');
         let selectedUserId: string | null = null;
 
-        deleteButtons.forEach((btn) =>
-        {
-            btn.addEventListener('click', () =>
-            {
+        deleteButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
                 selectedUserId = btn.getAttribute('data-user');
-                if (modal)
-                {
+                if (modal) {
                     modal.classList.remove('hidden');
                 }
             });
         });
 
-        if (confirmDeleteBtn && modal)
-        {
-            confirmDeleteBtn.addEventListener('click', async () =>
-            {
-                if (selectedUserId)
-                {
-                    try
-                    {
+        if (confirmDeleteBtn && modal) {
+            confirmDeleteBtn.addEventListener('click', async () => {
+                if (selectedUserId) {
+                    try {
                         const success = await UserService.deleteUser(Number(selectedUserId));
-                        if (success)
-                        {
+                        if (success) {
                             window.location.reload();
                         }
-                        else
-                        {
+                        else {
                             console.error('Failed to delete user');
                         }
                     }
-                    catch (error)
-                    {
+                    catch (error) {
                         console.error('Delete failed:', error);
                     }
-                    finally
-                    {
+                    finally {
                         modal.classList.add('hidden');
                         selectedUserId = null;
                     }
@@ -1060,5 +1046,3 @@ export default class UserManagementService {
     }
 
 }
-
-

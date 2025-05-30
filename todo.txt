@@ -24,3 +24,12 @@
 12. JWT refresh testen ob es funktioniert
 
 13. login mit email-adresse nicht mit username
+
+14. Aktuelle Probleme (Spieler in DB speichern):
+    - Verantwortlichkeiten sind vermischt: Der Controller ruft sowohl MatchLobby als auch MatchService direkt auf
+    - Fehlende DB-Updates: Wenn der zweite Spieler beitritt, wird die DB nicht aktualisiert
+
+    Saubere Trennung:
+        - Controller: WebSocket-Handling
+        - MatchLobby: Player-Management + Game-State
+        - MatchService: Ausschließlich DB-Operationen

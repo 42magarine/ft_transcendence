@@ -138,9 +138,9 @@ document.addEventListener('RouterContentLoaded', async () => {
             if (window.lobbyListService && typeof window.lobbyListService.destroy === 'function') {
                 window.lobbyListService.destroy();
             }
-            // if (window.lobbyService && typeof window.lobbyService.destroy === 'function') {
-            //     window.lobbyService.destroy();
-            // }
+            if (window.lobbyService && typeof window.lobbyService.destroy === 'function') {
+                window.lobbyService.destroy();
+            }
             window.ft_socket = undefined;
             window.socketReady = undefined;
             window.messageHandler = undefined;
