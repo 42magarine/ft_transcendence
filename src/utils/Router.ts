@@ -4,6 +4,18 @@ import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';
 import UserService from '../frontend/services/UserService.js';
 
+
+// User click <a href="/lobby/123" router>
+//          ↓
+// Router intercepts click → matches route `/lobby/:id`
+//          ↓
+// Creates new LobbyView(params: { id: 123 })
+//          ↓
+// LobbyView uses LobbyService to fetch data
+//          ↓
+// LobbyView renders data to HTML via getHtml()
+
+
 export default class Router {
     private routes: Route[] = [];
     private currentView: AbstractView | null = null;

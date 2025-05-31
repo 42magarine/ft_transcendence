@@ -100,7 +100,6 @@ export default class LobbyList extends AbstractView {
                                     id: 'joinLobbyBtn',
                                     text: 'Join Lobby',
                                     className: 'btn btn-primary',
-                                    onClick: 'handleJoinLobbyClick(event)',
                                     dataAttributes: {
                                         'lobby-id': lobby.lobbyId
                                     }

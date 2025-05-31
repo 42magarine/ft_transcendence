@@ -44,6 +44,12 @@ export default class Header extends AbstractView
 						className: "btn btn-sm"
 					},
 					{
+						id: 'localpong-btn',
+						text: 'Local Pong',
+						href: '/localpong',
+						className: "btn btn-sm"
+					},
+					{
 						id: 'user-btn',
 						text: 'Lobby List',
 						href: '/lobbylist',

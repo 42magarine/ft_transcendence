@@ -1,34 +1,32 @@
+import type { IGameState } from "../../interfaces/interfaces.js";
 
-import { ClientMessage, ServerMessage, IGameState } from "../../interfaces/interfaces.js";
-import { IPaddleDirection } from "../../interfaces/interfaces.js";
+interface BallStateWithVelocity {
+    x: number;
+    y: number;
+    radius: number;
+    velocityX: number;
+    velocityY: number;
+}
 
 class LocalGameService {
-    private socket!: WebSocket;
-    private socketReady: Promise<void> = Promise.resolve();
     private canvas!: HTMLCanvasElement;
     private ctx!: CanvasRenderingContext2D;
-    private state: IGameState | null = null;
-    private playerId: number | null = null;
+    private state: IGameState & { ball: BallStateWithVelocity } | null = null;
     private keysPressed: Record<string, boolean> = {};
     private inputLoop: number | null = null;
     private initialized: boolean = false;
 
-    // Singleton instance
+    constructor() {}
 
-    constructor() {
-    }
+    public onCanvasReady(): void {
+        if (this.initialized) return;
 
-    public initialize(): void {
-        if (this.initialized) {
-            return;
-        }
-
-        document.addEventListener('RouterContentLoaded', () => {
-            this.initCanvas();
-            this.setupEventListeners();
-            this.setupKeyboardListeners();
-            this.initialized = true;
-        });
+        console.log('[LocalGameService] onCanvasReady() called');
+        this.initCanvas();
+        this.setupEventListeners();
+        this.setupKeyboardListeners();
+        this.initialized = true;
+        console.log('[LocalGameService] Initialized');
     }
 
     private initCanvas(): void {
@@ -38,55 +36,25 @@ class LocalGameService {
             return;
         }
         this.ctx = this.canvas.getContext("2d")!;
+        this.resetGame();
+        console.log('[LocalGameService] Canvas initialized');
     }
 
     private setupEventListeners(): void {
+        console.log('[LocalGameService] Setting up event listeners');
         const startButton = document.getElementById("startGameButton") as HTMLButtonElement | null;
         const pauseButton = document.getElementById("pauseGameButton") as HTMLButtonElement | null;
         const resumeButton = document.getElementById("resumeGameButton") as HTMLButtonElement | null;
         const resetButton = document.getElementById("resetGameButton") as HTMLButtonElement | null;
 
-        if (startButton) {
-            startButton.addEventListener("click", () => {
-                const startMsg: ClientMessage = { type: "startGame" };
-                this.safeSend(startMsg);
-            });
-        }
-
-        if (pauseButton) {
-            pauseButton.addEventListener("click", () => {
-                const pauseMsg: ClientMessage = { type: "pauseGame" };
-                this.safeSend(pauseMsg);
-            });
-        }
-
-        if (resumeButton) {
-            resumeButton.addEventListener("click", () => {
-                const resumeMsg: ClientMessage = { type: "resumeGame" };
-                this.safeSend(resumeMsg);
-            });
-        }
-
-        if (resetButton) {
-            resetButton.addEventListener("click", () => {
-                const resetMsg: ClientMessage = { type: "resetGame" };
-                this.safeSend(resetMsg);
-            });
-        }
-
-        // Cleanup on page unload
-        window.addEventListener("beforeunload", () => {
-            const msg: ClientMessage = { type: "resetGame" };
-            this.safeSend(msg);
-        });
-
-        window.addEventListener("unload", () => {
-            const msg: ClientMessage = { type: "resetGame" };
-            this.safeSend(msg);
-        });
+        if (startButton) startButton.addEventListener("click", () => this.startGame());
+        if (pauseButton) pauseButton.addEventListener("click", () => this.pauseGame());
+        if (resumeButton) resumeButton.addEventListener("click", () => this.resumeGame());
+        if (resetButton) resetButton.addEventListener("click", () => this.resetGame());
     }
 
     private setupKeyboardListeners(): void {
+        console.log('[LocalGameService] Setting up keyboard listeners');
         window.addEventListener("keydown", (event: KeyboardEvent) => {
             this.keysPressed[event.key] = true;
         });
@@ -97,100 +65,133 @@ class LocalGameService {
 
         const inputLoop = () => {
             this.handleInput();
+            this.updateGame();
+            this.draw();
+            this.inputLoop = window.requestAnimationFrame(inputLoop);
         };
 
+        this.inputLoop = window.requestAnimationFrame(inputLoop);
+    }
+
+    private startGame(): void {
+        if (this.state) this.state.paused = false;
+    }
+
+    private pauseGame(): void {
+        if (this.state) this.state.paused = true;
+    }
+
+    private resumeGame(): void {
+        if (this.state) this.state.paused = false;
+    }
+
+    private resetGame(): void {
+        this.state = {
+            ball: { x: 400, y: 300, radius: 10, velocityX: 5, velocityY: 5 },
+            paddle1: { x: 20, y: 250, width: 20, height: 100 },
+            paddle2: { x: 760, y: 250, width: 20, height: 100 },
+            score1: 0,
+            score2: 0,
+            paused: true,
+            running: false,
+            gameIsOver: false
+        };
+        this.draw();
     }
 
     private handleInput(): void {
-        if (!this.state || this.state.paused) {
-            return;
+        if (!this.state || this.state.paused || this.state.gameIsOver) return;
+
+        if (this.keysPressed["w"] || this.keysPressed["W"]) this.state.paddle1.y -= 5;
+        if (this.keysPressed["s"] || this.keysPressed["S"]) this.state.paddle1.y += 5;
+        if (this.keysPressed["ArrowUp"]) this.state.paddle2.y -= 5;
+        if (this.keysPressed["ArrowDown"]) this.state.paddle2.y += 5;
+    }
+
+    private updateGame(): void {
+        if (!this.state || this.state.paused || this.state.gameIsOver) return;
+
+        const ball = this.state.ball;
+        ball.x += ball.velocityX;
+        ball.y += ball.velocityY;
+
+        if (ball.y <= 0 || ball.y >= this.canvas.height) ball.velocityY *= -1;
+
+        const paddle1 = this.state.paddle1;
+        const paddle2 = this.state.paddle2;
+
+        if (ball.x <= paddle1.x + paddle1.width &&
+            ball.y >= paddle1.y &&
+            ball.y <= paddle1.y + paddle1.height) {
+            ball.velocityX *= -1;
+        } else if (ball.x + ball.radius >= paddle2.x &&
+                   ball.y >= paddle2.y &&
+                   ball.y <= paddle2.y + paddle2.height) {
+            ball.velocityX *= -1;
         }
 
-        if (this.playerId === 1) {
-            if (this.keysPressed["w"] || this.keysPressed["W"]) {
-                this.sendMovePaddle("up");
-            }
-            if (this.keysPressed["s"] || this.keysPressed["S"]) {
-                this.sendMovePaddle("down");
-            }
-        } else if (this.playerId === 2) {
-            if (this.keysPressed["ArrowUp"]) {
-                this.sendMovePaddle("up");
-            }
-            if (this.keysPressed["ArrowDown"]) {
-                this.sendMovePaddle("down");
-            }
+        if (ball.x < 0) {
+            this.state.score2++;
+            this.resetBall();
+        } else if (ball.x > this.canvas.width) {
+            this.state.score1++;
+            this.resetBall();
+        }
+
+        if (this.state.score1 >= 5 || this.state.score2 >= 5) {
+            this.state.gameIsOver = true;
+            this.state.paused = true;
         }
     }
 
-    private sendMovePaddle(direction: IPaddleDirection): void {
-        const moveMsg: ClientMessage = {
-            type: "movePaddle",
-            direction: direction
-        };
-        this.safeSend(moveMsg);
-    }
-
-    private safeSend(msg: ClientMessage): void {
-        if (window.ft_socket) {
-            if (window.ft_socket.readyState === WebSocket.OPEN) {
-                window.ft_socket.send(JSON.stringify(msg));
-            } else {
-                console.warn("Tried to send a message but WebSocket is not open:", msg);
-            }
-        } else {
-            console.warn("Tried to send a message but WebSocket is not open:", msg);
-        }
+    private resetBall(): void {
+        if (!this.state) return;
+        this.state.ball.x = this.canvas.width / 2;
+        this.state.ball.y = this.canvas.height / 2;
+        this.state.ball.velocityX *= -1;
+        this.state.ball.velocityY = 5;
+        this.state.paused = false;
     }
 
     private draw(): void {
-        if (!this.state || !this.ctx || !this.canvas) {
-            return;
-        }
+        if (!this.state || !this.ctx || !this.canvas) return;
 
-        // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw ball
         this.ctx.beginPath();
         this.ctx.arc(this.state.ball.x, this.state.ball.y, this.state.ball.radius, 0, Math.PI * 2);
         this.ctx.fillStyle = "#FFFFFF";
         this.ctx.fill();
         this.ctx.closePath();
 
-        // Draw paddles (filled)
         this.ctx.fillStyle = "#FF0000";
         this.ctx.fillRect(this.state.paddle1.x, this.state.paddle1.y, this.state.paddle1.width, this.state.paddle1.height);
         this.ctx.fillRect(this.state.paddle2.x, this.state.paddle2.y, this.state.paddle2.width, this.state.paddle2.height);
 
-        // Add paddle hitbox outlines for debugging
         this.ctx.strokeStyle = "#00FF00";
         this.ctx.strokeRect(this.state.paddle1.x, this.state.paddle1.y, this.state.paddle1.width, this.state.paddle1.height);
         this.ctx.strokeRect(this.state.paddle2.x, this.state.paddle2.y, this.state.paddle2.width, this.state.paddle2.height);
 
-        // Draw scores
         this.ctx.font = "24px Arial";
         this.ctx.fillStyle = "#FFFFFF";
         this.ctx.fillText(`Player 1: ${this.state.score1}`, 50, 30);
         this.ctx.fillText(`Player 2: ${this.state.score2}`, this.canvas.width - 180, 30);
 
-        // Draw pause indicator
-        if (this.state.paused) {
+        if (this.state.paused && !this.state.gameIsOver) {
             this.ctx.font = "48px Arial";
             this.ctx.fillStyle = "#FFFF00";
             this.ctx.textAlign = "center";
             this.ctx.fillText("PAUSED", this.canvas.width / 2, this.canvas.height / 2);
-            this.ctx.textAlign = "left"; // Reset text align
+            this.ctx.textAlign = "left";
         }
 
-        // Draw game over indicator
         if (this.state.gameIsOver) {
             this.ctx.font = "48px Arial";
             this.ctx.fillStyle = "#FF0000";
             this.ctx.textAlign = "center";
             const winner = this.state.score1 > this.state.score2 ? "Player 1" : "Player 2";
             this.ctx.fillText(`${winner} Wins!`, this.canvas.width / 2, this.canvas.height / 2);
-            this.ctx.textAlign = "left"; // Reset text align
+            this.ctx.textAlign = "left";
         }
     }
 
@@ -199,32 +200,10 @@ class LocalGameService {
             this.inputLoop = null;
         }
 
-        if (window.ft_socket) {
-            if (window.ft_socket.readyState === WebSocket.OPEN) {
-                window.ft_socket.close();
-            }
-        }
-
         this.initialized = false;
         console.log("LocalGameService cleaned up");
     }
-
-    // Getters for accessing current state (optional)
-    public getPlayerId(): number | null {
-        return this.playerId;
-    }
-
-    public getGameState(): IGameState | null {
-        return this.state;
-    }
-
-    public isConnected(): boolean {
-        return !!(window.ft_socket && window.ft_socket.readyState === WebSocket.OPEN);
-    }
 }
 
-// Create and initialize the singleton instance
 const localGameService = new LocalGameService();
-localGameService.initialize();
-
 export default localGameService;

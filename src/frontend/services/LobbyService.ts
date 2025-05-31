@@ -26,11 +26,13 @@ export default class LobbyService {
         this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
     }
 
+    // Extracts the current lobby ID from the URL path
     private getCurrentLobbyIdFromUrl(): string {
         const match = window.location.pathname.match(/\/lobby\/([^/]+)/);
         return match?.[1] || '';
     }
 
+    // Initializes the service with socket, message handler, and user service
     public init(socket: WebSocket, messageHandler: MessageHandlerService, userService: UserService): void {
         if (this.isInitialized && this.socket === socket) {
             this.setupUIEventListeners();
@@ -57,10 +59,11 @@ export default class LobbyService {
         this.idForCurrentPromise = null;
     }
 
+    // Handles messages received via WebSocket
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: ServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        console.log(data.type)
+
         switch (data.type) {
             case 'lobbyInfo':
                 if (data.lobby) {
@@ -69,17 +72,16 @@ export default class LobbyService {
                         createdAt: new Date(data.lobby.createdAt)
                     };
 
-                    let promiseResolvedByThisMessage = false;
-
+                    // Resolve pending promise if the ID matches
                     if (this.idForCurrentPromise === receivedLobbyInfo.id && this.currentLobbyPromiseResolver) {
                         console.log(`[LobbyService] Received data for pending promise ${receivedLobbyInfo.id}. Updating currentLobbyData and resolving promise.`);
-                        this.currentLobbyData = receivedLobbyInfo; // Set currentLobbyData
-                        this.currentLobbyPromiseResolver(receivedLobbyInfo); // Resolve the promise with this data
-                        this.currentLobbyPromiseResolver = null; // Clear resolver
-                        this.idForCurrentPromise = null; // Clear ID
-                        promiseResolvedByThisMessage = true;
+                        this.currentLobbyData = receivedLobbyInfo;
+                        this.currentLobbyPromiseResolver(receivedLobbyInfo);
+                        this.currentLobbyPromiseResolver = null;
+                        this.idForCurrentPromise = null;
                     }
 
+                    // Always update currentLobbyData if matches current URL
                     if (receivedLobbyInfo.id === currentUrlLobbyId) {
                         this.currentLobbyData = receivedLobbyInfo;
                     }
@@ -92,9 +94,11 @@ export default class LobbyService {
                     else if (this.player2 && this.player2.userId === data.userId) this.player2.isReady = data.isReady;
                 }
                 break;
+
             case 'allPlayersReady':
                 if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) console.log("[LobbyService] All players are ready!");
                 break;
+
             case 'playerJoined':
                 if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId && data.playerInfo) {
                     const { playerNumber, userId, isReady } = data.playerInfo;
@@ -102,33 +106,37 @@ export default class LobbyService {
                     else if (playerNumber === 2) this.player2 = { userId, isReady };
                 }
                 break;
+
             case 'playerLeft':
-                 if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId && data.playerInfo) {
+                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId && data.playerInfo) {
                     const { playerNumber } = data.playerInfo;
                     if (playerNumber === 1) this.player1 = null;
                     else if (playerNumber === 2) this.player2 = null;
-                 }
+                }
                 break;
+
             case 'gameStarted':
                 if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) {
                     console.log(`[LobbyService] Game started in lobby ${data.lobbyId}. Game ID: ${data.gameId}`);
                 }
                 break;
+
             default:
                 break;
         }
     }
 
+    // Adds event listeners for UI button clicks
     private setupUIEventListeners(): void {
         document.body.removeEventListener('click', this.handleLobbyPageClick);
         document.body.addEventListener('click', this.handleLobbyPageClick);
     }
 
+    // Handles clicks on "start game" and "leave" buttons in the lobby
     private async handleLobbyPageClick(e: MouseEvent): Promise<void> {
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
-        if (!currentLobbyId || !window.location.pathname.startsWith("/lobby/")) {
-            return;
-        }
+        if (!currentLobbyId || !window.location.pathname.startsWith("/lobby/")) return;
+
         const target = e.target as HTMLElement;
         const startGameBtn = target.closest('#startGameBtn');
         if (startGameBtn) {
@@ -139,6 +147,7 @@ export default class LobbyService {
             this.messageHandler.markReady(currentUser.id.toString(), currentLobbyId);
             return;
         }
+
         const leaveBtn = target.closest('#leaveBtn');
         if (leaveBtn) {
             e.preventDefault();
@@ -149,6 +158,7 @@ export default class LobbyService {
         }
     }
 
+    // Fetches the current lobby data and returns it as a Promise
     public async getCurrentLobbyData(): Promise<LobbyInfo> {
         const lobbyIdFromUrl = this.getCurrentLobbyIdFromUrl();
         if (!this.messageHandler || !this.socket || this.socket.readyState !== WebSocket.OPEN) {
@@ -159,23 +169,27 @@ export default class LobbyService {
             this.currentLobbyPromiseResolver = resolve;
             this.idForCurrentPromise = lobbyIdFromUrl;
         });
+
         try {
             await this.messageHandler.requestLobbyById(lobbyIdFromUrl);
         } catch (error) {
+            // If request fails but we have cached data, resolve with it
             if (this.currentLobbyData && this.currentLobbyData.id === lobbyIdFromUrl && this.currentLobbyPromiseResolver) {
-                 console.warn(`[LobbyService getCurrentLobbyData] Resolving with STALE/CACHED data for ${lobbyIdFromUrl} due to request send error.`);
-                 this.currentLobbyPromiseResolver(this.currentLobbyData);
-                 this.currentLobbyPromiseResolver = null;
-                 this.idForCurrentPromise = null;
+                console.warn(`[LobbyService getCurrentLobbyData] Resolving with STALE/CACHED data for ${lobbyIdFromUrl} due to request send error.`);
+                this.currentLobbyPromiseResolver(this.currentLobbyData);
+                this.currentLobbyPromiseResolver = null;
+                this.idForCurrentPromise = null;
             }
         }
 
         return promise;
     }
 
+    // Getters for player states
     public getPlayer1(): LobbyPlayer | null { return this.player1; }
     public getPlayer2(): LobbyPlayer | null { return this.player2; }
 
+    // Clean up listeners and internal state
     public destroy(): void {
         if (this.socket) {
             this.socket.removeEventListener('message', this.handleSocketMessage);
@@ -191,6 +205,7 @@ export default class LobbyService {
         this.currentLobbyData = undefined;
         this.player1 = null;
         this.player2 = null;
+
         console.log('[LobbyService] Destroyed.');
     }
 }

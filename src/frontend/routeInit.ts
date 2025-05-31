@@ -13,6 +13,7 @@ import Signup from './views/Signup.js';
 import PasswordReset from './views/PasswordReset.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
 import LobbyList from './views/LobbyList.js';
+import PongLocal from './views/PongLocal.js';
 
 const routes = [
     {
@@ -138,6 +139,15 @@ const routes = [
         metadata: {
             title: 'Transcendence - settings',
             description: 'Welcome to Settings'
+        }
+    },
+    {
+        path: '/localpong',
+        role: 'user_id',
+        view: PongLocal,
+        metadata: {
+            title: 'Transcendence - Pong Local',
+            description: 'Welcome to Local Pong'
         }
     }
 ];
