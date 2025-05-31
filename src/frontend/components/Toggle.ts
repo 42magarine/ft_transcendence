@@ -24,7 +24,7 @@ export default class Toggle extends AbstractView
 						${readonly ? 'disabled' : ''}>
 						No
 					</button>
-					<input type="hidden" id="${id}" name="${name}" value="${checked ? 'true' : 'false'}" />
+					${!readonly ? `<input type="hidden" id="${id}" name="${name}" value="${checked ? 'true' : 'false'}" />` : ''}
 				</div>
 			</div>
 		`);
