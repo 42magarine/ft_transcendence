@@ -89,7 +89,7 @@ export default class PongLocal extends AbstractView {
 			]
 		});
 
-		setTimeout(() => localGameService.onCanvasReady(), 0);
+		setTimeout(() => localGameService.onCanvasReady(), 0); // Clean and fire-and-forget
 		return this.render(`${gameCard}`);
 	}
 }
