@@ -81,6 +81,17 @@ export interface InputProps {
     withConfirm?: boolean;
 }
 
+export interface SliderProps {
+	id: string;
+	label: string;
+	min: number;
+	max: number;
+	step?: number;
+	value?: number;
+	onInput?: string;
+	className?: string;
+}
+
 // =========================
 // 🗂️ CARD + GROUP INTERFACES
 // =========================
@@ -140,6 +151,7 @@ export type ContentBlock =
     | { type: 'inputgroup'; props: { inputs: InputField[] } }
     | { type: 'buttongroup'; props: ButtonGroupProps & { toggles?: ToggleProps[] } }
     | { type: 'button'; props: ButtonProps }
+    | { type: 'slider'; props: SliderProps }
     | { type: 'html'; props: { html: string } }
     | { type: 'separator'; props?: { className?: string } }
     | { type: 'heading'; props: HeadingProps }

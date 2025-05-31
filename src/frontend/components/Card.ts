@@ -94,6 +94,11 @@ export default class Card extends AbstractView {
                 return renderSignupFooter();
             }
             
+            case 'slider': {
+                const Slider = (await import('./Slider.js')).default;
+                return await new Slider().renderSlider(block.props);
+            }
+
             case 'html': {
                 return block.props.html;
             }
