@@ -1,4 +1,4 @@
-import { ShapeOptions, TextVisualizationOptions, PatternResult } from "../interfaces/avatarInterfaces.js"
+import { ShapeOptions, TextVisualizationOptions, PatternResult } from "../interfaces/userManagementInterfaces.js"
 
 function getColorFromString(text: string, index: number = 0): string {
     // Generate a deterministic color based on the string and index

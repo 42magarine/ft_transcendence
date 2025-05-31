@@ -1,3 +1,7 @@
+// =========================
+//   USER INTERFACES
+// =========================
+
 export interface User {
     id?: number;
     username: string;
@@ -30,38 +34,6 @@ export interface UserList {
     role?: string;
 }
 
-export interface ApiErrorResponse {
-    error: string;
-}
-
-export interface LoginCredentials {
-    email: string;
-    password: string;
-}
-
-export interface AuthResponse {
-    message?: string;
-    error?: string;
-    requireTwoFactor?: boolean;
-    userId?: number;
-    username?: string;
-}
-
-export interface PasswordResetRequest {
-    email: string;
-}
-
-export interface PasswordResetConfirm {
-    password: string;
-    confirmPassword: string;
-    token: string;
-}
-
-export interface QRResponse {
-    secret: string,
-    qr: string
-}
-
 export interface RegisterCredentials {
     username: string;
     email: string;
@@ -78,6 +50,33 @@ export interface RegisterCredentials {
     tf_six?: string;
 }
 
+export interface ApiErrorResponse {
+    error: string;
+}
+
+export interface LoginCredentials {
+    email: string;
+    password: string;
+}
+
+// =========================
+//   AUTH INTERFACES
+// =========================
+
+
+export interface AuthResponse {
+    message?: string;
+    error?: string;
+    requireTwoFactor?: boolean;
+    userId?: number;
+    username?: string;
+}
+
+export interface QRResponse {
+    secret: string,
+    qr: string
+}
+
 export interface JWTPayload {
     userID: string;
     email: string;
@@ -92,23 +91,40 @@ export interface AuthTokens {
     username?: string;
 }
 
-export interface TwoFactorVerificationRequest {
-    userId: number;
-    code: string;
-}
 
-export interface TwoFactorResponse {
-    qr: string;
-    secret: string;
-}
-
+// do we need this????
 export interface GoogleLoginBody {
     token: string;
 }
 
-// Available roles as enum for type safety
-export enum UserRole {
-    USER = 'user',
-    ADMIN = 'admin',
-    MASTER = 'master'
+
+// =========================
+//   AVATAR INTERFACES
+// =========================
+
+
+export interface ShapeOptions {
+    fill?: string;
+    stroke?: string;
+    strokeWidth?: number;
+    opacity?: number;
+    rotate?: number;
+}
+
+export interface TextVisualizationOptions {
+    width: number;
+    height: number;
+    backgroundColor?: string;
+    useShapes?: boolean;
+    maxShapes?: number;
+    colorPalette?: string[];
+    showText?: boolean;
+    textColor?: string;
+    fontSize?: number;
+    fontFamily?: string;
+}
+
+export interface PatternResult {
+    pattern: string;
+    rect: string;
 }

@@ -1,24 +1,20 @@
-import { ServerMessage, LobbyInfo } from '../../interfaces/interfaces.js';
+import { IServerMessage, ILobbyInfo, ILobbyPlayer} from '../../interfaces/interfaces.js';
 import MessageHandlerService from './MessageHandlerService.js';
 import UserService from './UserService.js';
 
-interface LobbyPlayer {
-    userId: number;
-    isReady: boolean;
-}
 
 export default class LobbyService {
-    private currentLobbyData?: LobbyInfo;
+    private currentLobbyData?: ILobbyInfo;
     private socket?: WebSocket;
 
     private messageHandler!: MessageHandlerService;
     private userService!: UserService;
     private isInitialized: boolean = false;
 
-    private currentLobbyPromiseResolver: ((value: LobbyInfo) => void) | null = null;
+    private currentLobbyPromiseResolver: ((value: ILobbyInfo) => void) | null = null;
     private idForCurrentPromise: string | null = null;
-    private player1: LobbyPlayer | null = null;
-    private player2: LobbyPlayer | null = null;
+    private player1: ILobbyPlayer | null = null;
+    private player2: ILobbyPlayer | null = null;
 
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
@@ -57,13 +53,13 @@ export default class LobbyService {
     }
 
     private handleSocketMessage(event: MessageEvent<string>): void {
-        const data: ServerMessage = JSON.parse(event.data);
+        const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-
+        console.log(data.type)
         switch (data.type) {
             case 'lobbyInfo':
                 if (data.lobby) {
-                    const receivedLobbyInfo: LobbyInfo = {
+                    const receivedLobbyInfo: ILobbyInfo = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt)
                     };
@@ -89,14 +85,35 @@ export default class LobbyService {
                 break;
 
             case 'allPlayersReady':
-                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) console.log("[LobbyService] All players are ready!");
+                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId)
+                    console.log("[LobbyService] All players are ready!");
                 break;
 
             case 'playerJoined':
-                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId && data.playerInfo) {
-                    const { playerNumber, userId, isReady } = data.playerInfo;
-                    if (playerNumber === 1) this.player1 = { userId, isReady };
-                    else if (playerNumber === 2) this.player2 = { userId, isReady };
+                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) {
+                    const { playerNumber, userId, userName, isReady } = data;
+
+                    if (playerNumber !== undefined && userId !== undefined) {
+
+                        const ILobbyPlayer: ILobbyPlayer = {
+                            playerNumber: playerNumber,
+                            userId: userId,
+                            userName: userName,
+                            isReady: isReady
+                        };
+
+                        if (playerNumber === 1) {
+                            this.player1 = ILobbyPlayer;
+                            console.log("Player 1 updated:", this.player1);
+                        } else if (playerNumber === 2) {
+                            this.player2 = ILobbyPlayer;
+                            console.log("Player 2 updated:", this.player2);
+                        } else {
+                            console.warn("Received playerJoined for unexpected playerNumber:", playerNumber);
+                        }
+                    } else {
+                        console.warn("Received incomplete playerJoined data:", data);
+                    }
                 }
                 break;
 
@@ -149,13 +166,13 @@ export default class LobbyService {
         }
     }
 
-    public async getCurrentLobbyData(): Promise<LobbyInfo> {
+    public async getCurrentLobbyData(): Promise<ILobbyInfo> {
         const lobbyIdFromUrl = this.getCurrentLobbyIdFromUrl();
         if (!this.messageHandler || !this.socket || this.socket.readyState !== WebSocket.OPEN) {
             console.warn("[LobbyService] getCurrentLobbyData: Dependencies (MessageHandler/Socket) not ready or socket not open.")
         }
 
-        const promise = new Promise<LobbyInfo>((resolve) => {
+        const promise = new Promise<ILobbyInfo>((resolve) => {
             this.currentLobbyPromiseResolver = resolve;
             this.idForCurrentPromise = lobbyIdFromUrl;
         });
@@ -174,8 +191,8 @@ export default class LobbyService {
         return promise;
     }
 
-    public getPlayer1(): LobbyPlayer | null { return this.player1; }
-    public getPlayer2(): LobbyPlayer | null { return this.player2; }
+    public getPlayer1(): ILobbyPlayer | null { return this.player1; }
+    public getPlayer2(): ILobbyPlayer | null { return this.player2; }
 
     public destroy(): void {
         if (this.socket) {

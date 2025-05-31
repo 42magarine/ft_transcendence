@@ -1,4 +1,4 @@
-import { ClientMessage } from '../../interfaces/interfaces.js';
+import { IClientMessage } from '../../interfaces/interfaces.js';
 import UserService from './UserService.js';
 
 export default class MessageHandlerService {
@@ -7,7 +7,7 @@ export default class MessageHandlerService {
     constructor() {
     }
 
-    private async safeSend(msg: ClientMessage) {
+    private async safeSend(msg: IClientMessage) {
         console.log("safeSend -> ", msg)
         if (!window.socketReady) {
             console.error('MessageHandlerService: window.socketReady promise does not exist.');
@@ -34,7 +34,7 @@ export default class MessageHandlerService {
         this.currentUser = await UserService.getCurrentUser();
         if (!this.currentUser) return;
 
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'createLobby',
             userId: this.currentUser.id,
         };
@@ -43,7 +43,7 @@ export default class MessageHandlerService {
 
     public async joinLobby(lobbyId: string, userId: number) {
         console.log("JoinLobby()")
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'joinLobby',
             lobbyId,
             userId
@@ -52,7 +52,7 @@ export default class MessageHandlerService {
     }
 
     public async startGame(lobbyId: string) {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'startGame',
             lobbyId,
         };
@@ -60,7 +60,7 @@ export default class MessageHandlerService {
     }
 
     public async markReady(userID: string, lobbyId: string) {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'ready',
             userID,
             lobbyId,
@@ -69,7 +69,7 @@ export default class MessageHandlerService {
     }
 
     public async leaveLobby(lobbyId: string) {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'leaveLobby',
             lobbyId,
         };
@@ -77,7 +77,7 @@ export default class MessageHandlerService {
     }
 
     public async sendInvite(userID: string, lobbyId: string) {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'sendInvite',
             userID,
             lobbyId,
@@ -86,7 +86,7 @@ export default class MessageHandlerService {
     }
 
     public async acceptInvite(userID: string, lobbyId: string) {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'acceptInvite',
             userID,
             lobbyId,
@@ -95,14 +95,14 @@ export default class MessageHandlerService {
     }
 
     public async requestLobbyList() {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'getLobbyList',
         };
         await this.safeSend(msg);
     }
 
     public async requestLobbyById(lobbyId: string) {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'getLobbyById',
             lobbyId
         };

@@ -4,7 +4,7 @@ import { OAuth2Client } from 'google-auth-library';
 
 import { AppDataSource } from "../DataSource.js";
 import { UserModel } from "../models/MatchModel.js";
-import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from "../../interfaces/userInterfaces.js";
+import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from "../../interfaces/userManagementInterfaces.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, hashPW, verifyPW } from "../middleware/security.js";
 import { deleteAvatar } from "../services/FileService.js";
 import { EmailService } from "../services/EmailService.js";
@@ -38,10 +38,20 @@ export class UserService {
         return user;
     }
 
+    async getUsernameById(userId: number): Promise<string | null> {
+        const user = await this.findUserById(userId);
+
+        if (user) {
+            return user.username;
+        }
+
+        return null;
+    }
+
     async createUser(userData: RegisterCredentials & { password: string, avatar?: string }): Promise<UserModel> {
         try {
             console.debug('[createUser] Starting user creation process for:', userData.email);
-    
+
             // Step 1: Check for existing email
             const existingUser = await this.findUserByEmail(userData.email);
             if (existingUser) {
@@ -52,16 +62,16 @@ export class UserService {
                 console.error('[createUser] Missing username in userData:', userData);
                 throw new Error('Username is required');
             }
-            
-    
+
+
             // Step 2: Force role to 'user'
             userData.role = 'user';
             console.debug('[createUser] Role set to "user"');
-    
+
             // Step 3: Generate email verification token
             const verificationToken = this.emailService.generateToken();
             console.debug('[createUser] Generated verification token:', verificationToken);
-    
+
             // Step 4: Create user instance
             const user = this.userRepo.create({
                 ...userData,
@@ -69,11 +79,11 @@ export class UserService {
                 verificationToken: verificationToken
             });
             console.debug('[createUser] User object created:', user);
-    
+
             // Step 5: Save user to DB
             const savedUser = await this.userRepo.save(user);
             console.debug('[createUser] User saved to DB with ID:', savedUser.id);
-    
+
             // Step 6: Attempt to send verification email
             try {
                 await this.emailService.sendVerificationEmail(
@@ -86,14 +96,14 @@ export class UserService {
                 console.error('[createUser] Failed to send verification email:', emailError);
                 // User creation continues even if email fails
             }
-    
+
             return savedUser;
         } catch (error) {
             console.error('[createUser] User creation failed:', error);
             throw new Error('Failed to create user');
         }
     }
-    
+
     async updateUser(user: UserModel): Promise<UserModel> {
         try {
 
@@ -112,7 +122,7 @@ export class UserService {
             if (currentUser.role === 'master') {
                 user.role = 'master';
             }
-    
+
             const allowedFields = [
                 'displayname',
                 'username',
@@ -131,14 +141,14 @@ export class UserService {
                 console.error('[updateUser] Update succeeded, but user could not be fetched afterwards.');
                 throw new Error('Updated user not found');
             }
-    
+
             return updatedUser;
         } catch (error) {
             console.error('[updateUser] Failed to update user:', error);
             throw new Error('Failed to update user');
         }
     }
-    
+
 
     async deleteUser(userId: number): Promise<boolean> {
         try {

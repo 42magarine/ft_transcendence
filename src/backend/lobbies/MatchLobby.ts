@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { LobbyInfo, ServerMessage } from "../../interfaces/interfaces.js";
+import { ILobbyInfo, IServerMessage } from "../../interfaces/interfaces.js";
 import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState } from "../../interfaces/interfaces.js";
@@ -11,7 +11,7 @@ export class MatchLobby {
     private _saveScoreInterval: NodeJS.Timeout | null = null;
     private _lobbyId: string;
     private _players: Map<number, Player>;
-    private _broadcast: (lobbyId: string, data: ServerMessage) => void;
+    private _broadcast: (lobbyId: string, data: IServerMessage) => void;
     private _maxPlayers: number;
     private _gameStarted: boolean = false;
     private _lobbyName: string;
@@ -22,7 +22,7 @@ export class MatchLobby {
     private _matchService: MatchService;
 
     constructor(lobbyId: string,
-        broadcast: (lobbyId: string, data: ServerMessage) => void,
+        broadcast: (lobbyId: string, data: IServerMessage) => void,
         matchService: MatchService,
         options?: {
             name?: string,
@@ -87,7 +87,8 @@ export class MatchLobby {
             }
 
             const player = new Player(connection, playerNumber, userId);
-
+            player._lobbyId = this._lobbyId;
+            player._name = this._matchService.userService.getUsernameById(userId); // <--- no comment
             // add player to this._players (type: map)
             this._players.set(playerNumber, player);
 
@@ -96,12 +97,11 @@ export class MatchLobby {
 
             this._broadcast(this._lobbyId, {
                 type: "playerJoined",
-                playerCount: this._players.size,
-                playerInfo: {
-                    playerNumber: playerNumber,
-                    userId: player.userId,
-                    isReady: player._isReady
-                }
+                // playerCount: this._players.size, <--- do we need this here?
+                playerNumber: playerNumber,
+                userId: player.userId,
+                userName: player._name,
+                isReady: player._isReady
             });
 
             return player;
@@ -207,7 +207,7 @@ export class MatchLobby {
         return this._lobbyId;
     }
 
-    public getLobbyInfo(): LobbyInfo {
+    public getLobbyInfo(): ILobbyInfo {
         return {
             id: this._lobbyId,   // Id vs LobbyId ???
             lobbyId: this._lobbyId,
@@ -232,7 +232,6 @@ export class MatchLobby {
 
     /* GAME LOGIC FROM HERE */
 
-    //START GAME
     public async startGame() {
         if (this._players.size < 2 || this._gameStarted) {
             return;
@@ -292,7 +291,6 @@ export class MatchLobby {
         await this._matchService.updateScore(this._gameId, state.score1, state.score2, 0)
     }
 
-    //check for win and actually save winner in case of win!!
     private async handleGameWin(winningPlayerId: number, player1Score: number, player2Score: number) {
         this.stopGame();
 
@@ -324,7 +322,6 @@ export class MatchLobby {
         })
     }
 
-    //resume game... duh
     public resumeGame() {
         if (this._game.isPaused) {
             this._game.resumeGame()
@@ -344,7 +341,6 @@ export class MatchLobby {
         }
     }
 
-    // are you stupid?
     public pauseGame() {
         if (!this._gameStarted || this._game.isPaused) {
             return;
@@ -367,7 +363,6 @@ export class MatchLobby {
         })
     }
 
-    // no srsly, who reads this???
     public async stopGame() {
         if (!this._gameStarted) {
             return;

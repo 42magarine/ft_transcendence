@@ -1,7 +1,6 @@
 import { randomUUID } from "crypto";
-import { ClientMessage, createLobbyMessage, GameActionMessage, joinLobbyMessage, leaveLobbyMessage, ReadyMessage, ServerMessage } from "../../interfaces/interfaces.js";
+import { IClientMessage, IServerMessage, IPaddleDirection } from "../../interfaces/interfaces.js";
 import { Player } from "../gamelogic/components/Player.js";
-import { MessageHandlers } from "../services/MessageHandlers.js";
 import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
@@ -10,16 +9,12 @@ import { MatchService } from "../services/MatchService.js";
 export class MatchController {
     private _lobbies: Map<string, MatchLobby>;
     private _clients: Map<WebSocket, Player | null>; //is EMPTY on startup
-    private _handlers: MessageHandlers;
-    private _userService: UserService;
     private _matchService: MatchService;
 
     constructor(userService: UserService, lobbies: Map<string, MatchLobby>) {
-        this._userService = userService;
         this._lobbies = lobbies;
         this._matchService = new MatchService(userService);
         this._clients = new Map<WebSocket, Player | null>(); // player will be null on creation
-        this._handlers = new MessageHandlers(this.broadcast.bind(this));
         this.initMatchController();
     }
 
@@ -59,9 +54,9 @@ export class MatchController {
     //actual handle connection message function
     //that triggers on: "message" case in handleConnection function!
     private handleMessage(message: string | Buffer, connection: WebSocket): void {
-        let data: ClientMessage;
+        let data: IClientMessage;
         try {
-            data = JSON.parse(message.toString()) as ClientMessage;
+            data = JSON.parse(message.toString()) as IClientMessage;
         } catch (error: unknown) {
             console.error("Invalid message format", error)
             return;
@@ -73,21 +68,19 @@ export class MatchController {
 
         switch (data.type) {
             case "joinLobby":
-                this.handleJoinLobby(connection, (data as joinLobbyMessage).userId!, (data as joinLobbyMessage).lobbyId!)
+                this.handleJoinLobby(connection, data.userId!, data.lobbyId!)
                 break;
             case "createLobby":
-                this.handleCreateLobby(connection, (data as createLobbyMessage).userId!)
+                this.handleCreateLobby(connection, data.userId!)
                 break;
             case "leaveLobby":
-                this.handleLeaveLobby(connection, (data as leaveLobbyMessage).lobbyId!)
+                this.handleLeaveLobby(connection, data.lobbyId!)
                 break;
-            case "gameAction":
-                if (player) {
-                    this._handlers.handleGameAction(player, (data as GameActionMessage))
-                }
+            case "movePaddle":
+                this.handleMovePaddle(connection, player!, data.direction!);
                 break;
             case "ready":
-                this.handlePlayerReady(connection, player!, (data as ReadyMessage).ready)
+                this.handlePlayerReady(connection, player!, data.ready)
                 break;
             case "startGame":
                 this.handleStartGame(connection, player!);
@@ -104,11 +97,11 @@ export class MatchController {
             case "getLobbyById":
                 this.handleGetLobbyById(connection, data.lobbyId!)
             default:
-                throw Error("WTF DUDE!!!");
+                throw Error("Backend: invalid message type received");
         }
     }
 
-    private sendMessage(connection: WebSocket, data: ServerMessage): void {
+    private sendMessage(connection: WebSocket, data: IServerMessage): void {
         if (connection.readyState === WebSocket.OPEN) {
             connection.send(JSON.stringify(data));
         }
@@ -131,11 +124,11 @@ export class MatchController {
         this._clients.delete(connection);
     }
 
-    //receives lobbyId and distributes a servermessage to all connected users in that lobby!!!!
-    private broadcast(lobbyId: string, data: ServerMessage): void {
+    //receives lobbyId and distributes a IServerMessage to all connected users in that lobby!!!!
+    private broadcast(lobbyId: string, data: IServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
             // player?.lobbyId === lobbyId &&  removed from condition
-            if (connection.readyState === WebSocket.OPEN) {
+            if (player?.lobbyId === lobbyId &&connection.readyState === WebSocket.OPEN) {
                 connection.send(JSON.stringify(data));
             }
         }
@@ -229,8 +222,6 @@ export class MatchController {
             }
         }
 
-        //?? what should this do lol
-        //hmmmmmm let me think about it
         //set connection to null so association with player disappears
         this._clients.set(connection, null)
 
@@ -238,11 +229,9 @@ export class MatchController {
         this.sendMessage(connection, {
             type: "leftLobby"
         })
-
         //should close connection? -> no will be needed for other commands
     }
 
-    //pretty self explanatory -> get out of active lobbies -> maybe implement retrieval from MatchModels if not in active lobby map!!
     private async handleGetLobbyById(connection: WebSocket, lobbyId: string) {
         const lobby = this._lobbies.get(lobbyId);
 
@@ -261,9 +250,7 @@ export class MatchController {
     }
 
 
-    //this retrieves from matchmodels for older lobbies / pending lobbies and stuff!
     private async handleGetLobbyList(connection: WebSocket) {
-        //getopenlobbies gets all matchmodels with state 'pending' and bool isOpen == true!!!
         const openMatchModels = await this._matchService.getOpenLobbies();
 
         const openLobbies = openMatchModels.map(Lobby => {
@@ -293,7 +280,6 @@ export class MatchController {
 
 
     /* GAME LOGIC FUNCTIONS FROM HERE */
-    // FREDDY SCHWING DEIN ARSCH HIER DRAN UND CHECK DIE AB! <3
     private handlePlayerReady(connection: WebSocket, player: Player, isReady: boolean) {
         if (!player || !player.lobbyId) {
             this.sendMessage(connection, {
@@ -386,6 +372,28 @@ export class MatchController {
                 type: "error",
                 message: "Only lobby creator can resume game"
             })
+        }
+    }
+
+    private handleMovePaddle(connection: WebSocket, player: Player, direction: IPaddleDirection): void {
+        if (!player.lobbyId) {
+            this.sendMessage(connection, {
+                type: "error",
+                message: "Player not in a lobby."
+            });
+            return;
+        }
+
+        const lobby = this._lobbies.get(player.lobbyId);
+        if (lobby) {
+            this.broadcast(player.lobbyId, {
+                type: "paddleMove",
+                playerNumber: player._playerNumber,
+                direction: direction
+            });
+        } else {
+            console.error(`Lobby ${player.lobbyId} not found for player ${player.id} during movePaddle.`);
+            this.sendMessage(connection, { type: "error", message: "Internal server error: Lobby not found." });
         }
     }
 }

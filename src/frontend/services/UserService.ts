@@ -1,4 +1,4 @@
-import { User, ApiErrorResponse } from '../../interfaces/userInterfaces.js';
+import { User, ApiErrorResponse } from '../../interfaces/userManagementInterfaces.js';
 
 export default class UserService {
     static async getCurrentUser(): Promise<User | null> {

@@ -1,8 +1,9 @@
 import { WebSocket } from "ws";
-
+import { UserService } from "../../services/UserService.js";
 export class Player {
     public _playerNumber: number;
     public _userId: number;
+    public _name?: Promise <string | null>;
     public _score: number = 0;
     public _playing: boolean = false;
     public _connection: WebSocket;
@@ -17,11 +18,11 @@ export class Player {
         this._joinedAt = new Date();
     }
 
-    public sendMessage(data: object): void {
-        if (this._connection.readyState === WebSocket.OPEN) {
-            this._connection.send(JSON.stringify(data));
-        }
-    }
+    // public sendMessage(data: object): void {
+    //     if (this._connection.readyState === WebSocket.OPEN) {
+    //         this._connection.send(JSON.stringify(data));
+    //     }
+    // }
 
     public get id(): number {
         return this._playerNumber;

@@ -2,12 +2,12 @@
 
 import Router from '../../utils/Router.js';
 import UserService from '../services/UserService.js';
-import { User } from '../../interfaces/userInterfaces.js';
-import { ServerMessage, LobbyInfo } from '../../interfaces/interfaces.js';
+import { User } from '../../interfaces/userManagementInterfaces.js';
+import { IServerMessage, ILobbyInfo } from '../../interfaces/interfaces.js';
 
 export default class LobbyListService {
-    private lobbyData: LobbyInfo[] = [];
-    private lobbyDataResolvers: ((lobbies: LobbyInfo[]) => void)[] = [];
+    private lobbyData: ILobbyInfo[] = [];
+    private lobbyDataResolvers: ((lobbies: ILobbyInfo[]) => void)[] = [];
     private isInitialized = false;
 
     constructor() {
@@ -17,7 +17,7 @@ export default class LobbyListService {
     }
 
     private handleSocketMessage(event: MessageEvent<string>): void {
-        const data: ServerMessage = JSON.parse(event.data);
+        const data: IServerMessage = JSON.parse(event.data);
 
         switch (data.type) {
             case 'lobbyList':
@@ -129,12 +129,12 @@ export default class LobbyListService {
         }
     }
 
-    private resolveLobbyDataPromises(lobbies: LobbyInfo[]): void {
+    private resolveLobbyDataPromises(lobbies: ILobbyInfo[]): void {
         this.lobbyDataResolvers.forEach(resolve => resolve(lobbies));
         this.lobbyDataResolvers = [];
     }
 
-    public async getLobbies(): Promise<LobbyInfo[]> {
+    public async getLobbies(): Promise<ILobbyInfo[]> {
         if (!window.messageHandler) {
             console.warn("LobbyListService getLobbies: messageHandler not found.");
             return Promise.resolve(this.lobbyData);
@@ -144,7 +144,7 @@ export default class LobbyListService {
             return Promise.resolve(this.lobbyData);
         }
 
-        const promise = new Promise<LobbyInfo[]>((resolve) => {
+        const promise = new Promise<ILobbyInfo[]>((resolve) => {
             this.lobbyDataResolvers.push(resolve);
         });
 

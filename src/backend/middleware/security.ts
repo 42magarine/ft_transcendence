@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { JWTPayload } from "../../interfaces/userInterfaces.js";
+import { JWTPayload } from "../../interfaces/userManagementInterfaces.js";
 import { FastifyRequest, FastifyReply } from "fastify";
 
 export function generateAccessToken(payload: JWTPayload): string {

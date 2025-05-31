@@ -6,7 +6,7 @@ import './services/LanguageService.js';
 import LobbyListService from './services/LobbyListService.js';
 import LobbyService from './services/LobbyService.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
-import UserMangementService from './services/UserManagementService.js';
+import UserManagementService from './services/UserManagementService.js';
 import UserService from './services/UserService.js';
 
 // ===============
@@ -36,7 +36,7 @@ globalTemplateEngine.registerComponent('Button', Button);
 // 🧩 GLOBAL SINGLETONS
 // =====================
 window.userService = new UserService();
-window.userManagementService = new UserMangementService();
+window.userManagementService = new UserManagementService();
 
 // ==============================
 // 📦 FOOTER + HEADER RENDERING

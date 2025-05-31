@@ -1,6 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import { UserList } from '../../interfaces/userInterfaces.js';
+import { UserList } from '../../interfaces/userManagementInterfaces.js';
 import Modal from '../components/Modal.js';
 import UserService from '../services/UserService.js';
 
@@ -77,7 +77,7 @@ export default class UserManagement extends AbstractView {
                                 layout: 'stack',
                                 align: 'left'
                             }
-                        },                        
+                        },
                         {
                             type: 'buttongroup',
                             props:
@@ -185,7 +185,7 @@ export default class UserManagement extends AbstractView {
                                                     className: 'btn btn-sm btn-red delete-user',
                                                     align: 'center',
                                                 }
-                                            ]                                            
+                                            ]
                                         }
                                     }
                                 ]
