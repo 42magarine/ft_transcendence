@@ -1,4 +1,4 @@
-import { CardProps, CardGroupProps, ContentBlock, } from '../../interfaces/abstractViewInterfaces.js';
+import { CardProps, CardGroupProps, ContentBlock, } from '../../interfaces/componentInterfaces.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class Card extends AbstractView {

@@ -1,5 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { StatProps } from '../../interfaces/abstractViewInterfaces.js';
+import { StatProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Stat extends AbstractView
 {

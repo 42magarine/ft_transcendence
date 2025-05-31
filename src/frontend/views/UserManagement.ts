@@ -82,7 +82,7 @@ export default class UserManagement extends AbstractView {
                                         {
                                             text: 'Create User',
                                             type: 'submit',
-                                            className: 'btn btn-success'
+                                            className: 'btn btn-green'
                                         }
                                     ],
                                 layout: 'stack',
@@ -177,7 +177,7 @@ export default class UserManagement extends AbstractView {
                                                 {
                                                     iconHtml: '<i class="fa-solid fa-trash"></i>',
                                                     onClick: `handleDeleteUser(${user.id})`,
-                                                    className: 'btn btn-sm btn-danger delete-user',
+                                                    className: 'btn btn-sm btn-red delete-user',
                                                     align: 'center',
                                                 }
                                             ]                                            
@@ -208,10 +208,9 @@ export default class UserManagement extends AbstractView {
                         {
                             id: 'confirm-delete-btn',
                             text: 'Yes, Delete',
-                            className: 'btn btn-danger'
+                            className: 'btn btn-red'
                         }
                     ],
-                animation: 'scale',
                 closableOnOutsideClick: true
             });
         return this.render(`${createUserCard}${deleteModal}`);

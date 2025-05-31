@@ -123,13 +123,13 @@ export default class ProfileEdit extends AbstractView
                                 id: 'submit-profile',
                                 text: 'Update Profile',
                                 type: 'submit',
-                                className: 'btn btn-success'
+                                className: 'btn btn-green'
                             },
                             {
                                 id: 'delete-user-btn',
                                 text: 'Delete Profile',
                                 type: 'button',
-                                className: 'btn btn-danger'
+                                className: 'btn btn-red'
                             }
                         ]
                     }
@@ -162,7 +162,7 @@ export default class ProfileEdit extends AbstractView
                                     <p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>
                                     <div class="flex justify-end gap-4 mt-6">
                                         <button class="btn btn-secondary" onclick="document.getElementById('confirm-delete-modal').classList.add('hidden')">Cancel</button>
-                                        <button id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+                                        <button id="confirm-delete-btn" class="btn btn-red">Yes, Delete</button>
                                     </div>
                                 </div>
                             </div>

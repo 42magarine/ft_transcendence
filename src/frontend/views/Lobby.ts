@@ -1,6 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import type { CardProps } from '../../interfaces/abstractViewInterfaces.js';
+import type { CardProps } from '../../interfaces/componentInterfaces.js';
 import Router from '../../utils/Router.js';
 import {
     LobbyParticipant,
@@ -29,19 +29,6 @@ export default class Lobby extends AbstractView
 
     async getHtml(): Promise<string>
     {
-        if (window.socketReady) {
-            await window.socketReady;
-        } else {
-            console.warn('[Lobby.ts] socketReady promise is missing!');
-        }
-    
-        if (!window.lobbyService) {
-            console.warn('[Lobby.ts] LobbyService is not initialized yet.');
-            return this.render('<p>Loading lobby data...</p>');
-        }
-    
-        const lobbyData = window.lobbyService.getCurrentLobbyData();
-        console.log('[Lobby.ts] Current lobby data after await:', lobbyData);
     
         const lobbyCard = await new Card().renderCard(
         {
@@ -64,8 +51,8 @@ export default class Lobby extends AbstractView
                                 id: 'player1',
                                 text: this.currentPlayerDisplay.username,
                                 className:
-                                    `btn ${this.currentPlayerDisplay.isReady ? 'btn-success'
-                                    : (this.currentPlayerDisplay.isJoined ? 'btn-warning' : 'btn-primary')}`
+                                    `btn ${this.currentPlayerDisplay.isReady ? 'btn-green'
+                                    : (this.currentPlayerDisplay.isJoined ? 'btn-yellow' : 'btn-primary')}`
                             }
                         },
                         player2:
@@ -78,8 +65,8 @@ export default class Lobby extends AbstractView
                                     ? (this.opponentPlayerDisplay.username || 'Opponent')
                                     : 'Waiting for Opponent...',
                                 className:
-                                    `btn ${this.opponentPlayerDisplay.isReady ? 'btn-success'
-                                    : (this.opponentPlayerDisplay.isJoined ? 'btn-warning' : 'btn-primary')}`
+                                    `btn ${this.opponentPlayerDisplay.isReady ? 'btn-green'
+                                    : (this.opponentPlayerDisplay.isJoined ? 'btn-yellow' : 'btn-primary')}`
                             }
                         }
                     }
@@ -103,7 +90,6 @@ export default class Lobby extends AbstractView
                             {
                                 id: 'leaveBtn',
                                 text: 'Leave Lobby',
-                                className: 'btn btn-danger',
                                 type: 'button',
                                 href: '/lobbylist'
                             }

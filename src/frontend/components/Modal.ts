@@ -1,6 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
-import { ButtonProps, ModalProps } from '../../interfaces/abstractViewInterfaces.js';
+import { ButtonProps, ModalProps } from '../../interfaces/componentInterfaces.js';
 
 
 
@@ -18,17 +18,10 @@ export default class Modal extends AbstractView
 		footer = '',
 		footerButtons = [], // added
 		showCloseButton = true,
-		animation = 'fade',
 		closableOnOutsideClick = true,
 	}: ModalProps): Promise<string>
 	{
-		const animationClass = {
-			fade: 'opacity-0 pointer-events-none transition-opacity duration-200',
-			scale: 'scale-95 opacity-0 pointer-events-none transition-all duration-200',
-			none: ''
-		}[animation];
 
-		const animationDataAttr = animation !== 'none' ? `data-animation="${animation}"` : '';
 		const closableAttr = closableOnOutsideClick ? `data-close-on-outside="true"` : '';
 
 		let footerHtml = footer;
@@ -47,8 +40,7 @@ export default class Modal extends AbstractView
 		return this.render(`
 			<div
 				id="${id}"
-				class="fixed inset-0 z-50 bg-black/50 flex justify-center items-center hidden"
-				${animationDataAttr} ${closableAttr}
+				class="fixed inset-0 z-50 bg-black/50 flex justify-center items-center hidden" ${closableAttr}
 				onclick="handleModalOutsideClick(event, '${id}')"
 			>
 				<div
@@ -85,7 +77,6 @@ export default class Modal extends AbstractView
 				onClick: `document.getElementById('default-modal').classList.add('hidden')`
 			}
 		],
-		animation: 'scale',
 		closableOnOutsideClick: true
 	});
 }

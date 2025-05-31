@@ -1,6 +1,6 @@
 // File: frontend/components/Table.ts
 import AbstractView from '../../utils/AbstractView.js';
-import { TableProps, ContentBlock } from '../../interfaces/abstractViewInterfaces.js';
+import { TableProps, ContentBlock } from '../../interfaces/componentInterfaces.js';
 
 export default class Table extends AbstractView
 {

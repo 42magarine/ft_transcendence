@@ -1,5 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { LabelProps } from '../../interfaces/abstractViewInterfaces.js';
+import { LabelProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Label extends AbstractView
 {

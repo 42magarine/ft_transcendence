@@ -1,5 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { InputProps } from '../../interfaces/abstractViewInterfaces.js';
+import { InputProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Input extends AbstractView
 {
@@ -7,25 +7,6 @@ export default class Input extends AbstractView
 	{
 		super(params);
 	}
-
-	private attachConfirmToggleListener(id: string, name: string): void {
-		requestAnimationFrame(() => {
-			const input = document.getElementById(id) as HTMLInputElement | null;
-			const confirmRow = document.getElementById(`${id}-confirm-row`);
-	
-			if (!input || !confirmRow) return;
-	
-			input.addEventListener('input', () => {
-				if (input.value.trim().length > 0) {
-					confirmRow.classList.remove('hidden');
-				} else {
-					confirmRow.classList.add('hidden');
-					const confirmInput = confirmRow.querySelector(`input[name="${name}Confirm"]`) as HTMLInputElement | null;
-					if (confirmInput) confirmInput.value = '';
-				}
-			});
-		});
-	}	
 
 	async renderInput({
 		id = '',

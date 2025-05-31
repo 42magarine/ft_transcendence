@@ -97,10 +97,8 @@ class LocalGameService {
 
         const inputLoop = () => {
             this.handleInput();
-            this.inputLoop = requestAnimationFrame(inputLoop);
         };
 
-        this.inputLoop = requestAnimationFrame(inputLoop);
     }
 
     private handleInput(): void {
@@ -198,7 +196,6 @@ class LocalGameService {
 
     public cleanup(): void {
         if (this.inputLoop !== null) {
-            cancelAnimationFrame(this.inputLoop);
             this.inputLoop = null;
         }
 

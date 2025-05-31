@@ -1,5 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { ToggleProps } from '../../interfaces/abstractViewInterfaces.js';
+import { ToggleProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Toggle extends AbstractView
 {

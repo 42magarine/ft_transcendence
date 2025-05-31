@@ -1,5 +1,5 @@
 // File: frontend/components/Matchup.ts
-import type { ContentBlock, MatchupProps } from '../../interfaces/abstractViewInterfaces.js';
+import type { ContentBlock, MatchupProps } from '../../interfaces/componentInterfaces.js';
 
 type RenderContentBlockFn = (block: ContentBlock) => Promise<string>;
 

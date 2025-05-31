@@ -97,13 +97,13 @@ export default class LobbyList extends AbstractView {
                                 type: 'button',
                                 props:
                                 {
-                                            id: 'joinLobbyBtn',
-                                            text: 'Join Lobby',
-                                            className: 'btn btn-primary',
-                                            onClick: 'handleJoinLobbyClick(event)',
-                                            dataAttributes: {
-                                                'lobby-id': lobby.lobbyId
-                                            }
+                                    id: 'joinLobbyBtn',
+                                    text: 'Join Lobby',
+                                    className: 'btn btn-primary',
+                                    onClick: 'handleJoinLobbyClick(event)',
+                                    dataAttributes: {
+                                        'lobby-id': lobby.lobbyId
+                                    }
                                 }
                             }
                         ]

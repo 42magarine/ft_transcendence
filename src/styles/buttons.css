@@ -43,11 +43,47 @@
 }
 
 /* 🔴 Danger (destructive action) */
-.btn-danger {
+.btn-red {
 @apply bg-red-800/80 text-white
 		hover:bg-red-900/80
 		active:bg-red-800/80;
 }
+
+/* 🔵 Blue = Informational */
+.btn-blue {
+	@apply bg-blue-600 text-white
+		hover:bg-blue-700
+		active:bg-blue-800;
+}
+
+/* ⚫ Black = Strong Emphasis */
+.btn-black {
+	@apply bg-black text-white
+		hover:bg-gray-900
+		active:bg-gray-800;
+}
+
+/* ⚪ White = Inverse */
+.btn-white {
+	@apply bg-white text-black border
+		hover:bg-gray-100
+		active:bg-gray-200;
+}
+
+/* ⚫⚪ Gray = Subtle Neutral */
+.btn-gray {
+	@apply bg-gray-500 text-white
+		hover:bg-gray-600
+		active:bg-gray-700;
+}
+
+/* ♻ Transparent background */
+.btn-transparent {
+	@apply bg-transparent text-black
+		hover:bg-gray-100
+		active:bg-gray-200;
+}
+
 
 /* 🔘 Outline variant (border-only) */
 .btn-outline {
@@ -97,20 +133,20 @@
 }
 
 /* ✅ Green = Ready */
-.btn-success {
+.btn-green {
 	@apply bg-green-600 text-white
 		hover:bg-green-700
 		active:bg-green-800;
 }
 
 /* 🟡 Yellow = Waiting */
-.btn-warning {
+.btn-yellow {
 	@apply bg-yellow-400 text-black
 		hover:bg-yellow-500
 		active:bg-yellow-600;
 }
 
-/* 🔴 Red = Unavailable — already exists, reuse `btn-danger` */
+/* 🔴 Red = Unavailable — already exists, reuse `btn-red` */
 
 .hidden {
 	display: none;

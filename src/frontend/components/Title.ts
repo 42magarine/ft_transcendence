@@ -1,5 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { TitleProps } from '../../interfaces/abstractViewInterfaces.js';
+import { TitleProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Title extends AbstractView
 {

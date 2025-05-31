@@ -82,7 +82,7 @@ export default class LobbyListService {
     private async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
         const target = e.target as HTMLElement;
         const button = target.closest('#createLobbyBtn');
-
+        console.log('handleCreateLobbyClick(e: MouseEvent): Promise');
         if (button) {
             e.preventDefault();
             if (window.messageHandler) {

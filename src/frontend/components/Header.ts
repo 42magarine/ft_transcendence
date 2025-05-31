@@ -112,14 +112,14 @@ export default class Header extends AbstractView
 						<a router href="/users/${currentUser.id}">Profile</a>
 					</div>
 					<div class="dropdown-item">
-						<button id="logout-btn" type="button" class="btn btn-danger btn-sm">Logout</button>
+						<button id="logout-btn" type="button" class="btn btn-red btn-sm">Logout</button>
 					</div>
 				</div>
 			</div>
 			`
 		}
 
-		//{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-danger btn-sm' }
+		//{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-red btn-sm' }
 		return super.render(`
 			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">

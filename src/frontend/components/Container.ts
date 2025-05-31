@@ -1,5 +1,5 @@
 // components/cardblocks/ParagraphBlock.ts
-import { ParagraphProps } from '../../interfaces/abstractViewInterfaces.js';
+import { ParagraphProps } from '../../interfaces/componentInterfaces.js';
 
 export default class ParagraphBlock {
 	static async renderContainer({ html, align = 'left', className = '' }: ParagraphProps): Promise<string> {

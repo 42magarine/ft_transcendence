@@ -1,5 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps } from '../../interfaces/abstractViewInterfaces.js';
+import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps } from '../../interfaces/componentInterfaces.js';
 import Input from './Input.js';
 import renderGoogleSignInButton from './GoogleSignIn.js';
 
@@ -17,7 +17,7 @@ export default class Button extends AbstractView
         type = 'button',
         onClick = '',
         href,
-        status,
+        color,
         iconHtml = '',
         align = 'center',
         textBefore = '',
@@ -30,10 +30,12 @@ export default class Button extends AbstractView
     
         let finalClass = 'btn'; // Base class applied to every button
     
-        // Add status class if provided (e.g., btn-ready, btn-warning)
-        if (status)
-            finalClass += ` btn-${status}`;
-    
+        // Add color class if provided (e.g., btn-ready, btn-yellow)
+        if (color)
+            finalClass += ` btn-${color}`;
+        else 
+            finalClass += ` btn-primary`;
+
         // Append any custom classes passed in the props
         if (className)
             finalClass += ` ${className}`;

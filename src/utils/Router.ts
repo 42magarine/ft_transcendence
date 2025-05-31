@@ -1,4 +1,4 @@
-import { Route } from "./types.js";
+import { Route } from "../interfaces/interfaces.js";
 import AbstractView from "./AbstractView.js";
 import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';

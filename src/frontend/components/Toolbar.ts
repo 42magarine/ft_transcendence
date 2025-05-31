@@ -1,5 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { ToolbarProps } from '../../interfaces/abstractViewInterfaces.js';
+import { ToolbarProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Toolbar extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams()) {

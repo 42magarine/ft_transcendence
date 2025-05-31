@@ -1,3 +1,35 @@
+import type MessageHandlerService from '../frontend/services/MessageHandlerService.js';
+import type LobbyListService from '../frontend/services/LobbyListService.js';
+import type LobbyService from '../frontend/services/LobbyService.js';
+import type UserService from '../frontend/services/UserService.js';
+import type UserMangementService from '../frontend/services/UserManagementService.js';
+import AbstractView from "../utils/AbstractView.js";
+
+export interface Route {
+    path: string | RegExp;
+    view: new (params: URLSearchParams) => AbstractView;
+    metadata?: {
+        title?: string;
+        description?: string;
+    };
+    role?: string;
+}
+
+
+declare global {
+	interface Window {
+		ft_socket?: WebSocket;
+		socketReady?: Promise<void>;
+		messageHandler?: MessageHandlerService;
+		lobbyListService: LobbyListService;
+		lobbyService?: LobbyService;
+		userService: UserService;
+		userManagementService: UserMangementService;
+	}
+}
+
+export {};
+
 export type IPaddleDirection = 'up' | 'down';
 
 export interface IBallState {

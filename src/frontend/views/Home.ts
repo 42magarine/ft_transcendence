@@ -22,7 +22,15 @@ export default class Home extends AbstractView
             formId: 'test-form',
             contentBlocks:
             [
-        
+                {
+                    type: 'button',
+                    props:
+                    {
+                        text: 'Max',
+                        type: 'button',
+                        color: 'red'
+                    }
+                },
                 // LABEL + TEXT INPUT
                 {
                     type: 'label',
@@ -205,7 +213,7 @@ export default class Home extends AbstractView
                             {
                                 id: 'player-2',
                                 text: 'Lena',
-                                className: 'btn btn-success',
+                                className: 'btn btn-green',
                                 type: 'button'
                             }
                         }
@@ -294,7 +302,7 @@ export default class Home extends AbstractView
                     {
                         text: '🔒 Secure Login',
                         type: 'submit',
-                        className: 'btn btn-warning',
+                        className: 'btn btn-yellow',
                         align: 'center'
                     }
                 },
