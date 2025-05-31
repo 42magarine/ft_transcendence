@@ -30,6 +30,14 @@ declare global {
 
 export {};
 
+export interface BallStateWithVelocity {
+	x: number;
+	y: number;
+	radius: number;
+	velocityX: number;
+	velocityY: number;
+}
+
 export type IPaddleDirection = 'up' | 'down';
 
 export interface IBallState {

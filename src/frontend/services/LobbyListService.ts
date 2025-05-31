@@ -16,7 +16,6 @@ export default class LobbyListService {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
     }
 
-    // Handles incoming WebSocket messages related to lobby list and lobby creation/joining
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: ServerMessage = JSON.parse(event.data);
 
@@ -44,7 +43,6 @@ export default class LobbyListService {
         }
     }
 
-    // Initializes the service by adding listeners
     public init(): void {
         if (!window.ft_socket) {
             console.warn("LobbyListService init: ft_socket not available.");
@@ -60,7 +58,6 @@ export default class LobbyListService {
         this.setupJoinLobbyButtonListener();
     }
 
-    // Sets up the click listener for the Create Lobby button
     private setupCreateLobbyButtonListener(): void {
         window.socketReady?.then(() => {
             document.body.removeEventListener('click', this.handleCreateLobbyClick);
@@ -70,7 +67,6 @@ export default class LobbyListService {
         });
     }
 
-    // Sets up the click listener for Join Lobby buttons
     private setupJoinLobbyButtonListener(): void {
         window.socketReady?.then(() => {
             document.body.removeEventListener('click', this.handleJoinLobbyClick);
@@ -80,7 +76,6 @@ export default class LobbyListService {
         });
     }
 
-    // Handles Create Lobby button click
     private async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
         const target = e.target as HTMLElement;
         const button = target.closest('#createLobbyBtn');
@@ -134,13 +129,11 @@ export default class LobbyListService {
         }
     }
 
-    // Resolves all queued promises with current lobby list
     private resolveLobbyDataPromises(lobbies: LobbyInfo[]): void {
         this.lobbyDataResolvers.forEach(resolve => resolve(lobbies));
         this.lobbyDataResolvers = [];
     }
 
-    // Gets the latest list of lobbies via WebSocket
     public async getLobbies(): Promise<LobbyInfo[]> {
         if (!window.messageHandler) {
             console.warn("LobbyListService getLobbies: messageHandler not found.");
@@ -166,7 +159,6 @@ export default class LobbyListService {
         return promise;
     }
 
-    // Cleans up listeners and resets state
     public destroy(): void {
         if (window.ft_socket) {
             window.ft_socket.removeEventListener('message', this.handleSocketMessage);

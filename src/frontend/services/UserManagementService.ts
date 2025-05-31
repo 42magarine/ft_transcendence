@@ -12,17 +12,12 @@ export default class UserManagementService {
     async registerUser(userData: User, avatarFile?: File): Promise<string> {
         console.log("Registering user with data:", userData);
         try {
-            // Check if 2FA is enabled but code verification is needed
             if (userData.secret &&
                 userData.tf_one && userData.tf_two && userData.tf_three &&
                 userData.tf_four && userData.tf_five && userData.tf_six) {
 
-                // Combine the 2FA code
                 const code = `${userData.tf_one}${userData.tf_two}${userData.tf_three}${userData.tf_four}${userData.tf_five}${userData.tf_six}`;
-
-                // Verify the 2FA code before registration
                 try {
-                    // Call to verify the code with the controller
                     const verifyResponse = await fetch('/api/users/verify-two-factor-setup', {
                         method: 'POST',
                         headers: {
@@ -39,9 +34,6 @@ export default class UserManagementService {
                         throw new Error(errorData.error || 'Two-factor code verification failed');
                     }
                 } catch (error) {
-                    //alert'User registration successful, but two-factor authentication could not be enabled due to invalid code. You can enable it later in your account settings.');
-
-                    // Remove 2FA data before proceeding with registration
                     userData.secret = undefined;
                     userData.tf_one = undefined;
                     userData.tf_two = undefined;
@@ -52,13 +44,9 @@ export default class UserManagementService {
                 }
             }
 
-            // Check if we have an avatar file
             if (avatarFile && avatarFile.size > 0) {
-
-                // Create FormData object for multipart/form-data submission
                 const formData = new FormData();
 
-                // Add user data fields
                 formData.append('username', userData.username);
                 formData.append('email', userData.email);
                 formData.append('password', userData.password || '');
@@ -71,7 +59,6 @@ export default class UserManagementService {
                     formData.append('role', userData.role);
                 }
 
-                // Only add 2FA data if it exists
                 if (userData.tf_one) {
                     formData.append('tf_one', userData.tf_one);
                 }
@@ -94,10 +81,8 @@ export default class UserManagementService {
                     formData.append('secret', userData.secret);
                 }
 
-                // Add the file with fieldname 'avatar'
                 formData.append('avatar', avatarFile);
 
-                // Send multipart form request
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     body: formData
@@ -111,8 +96,6 @@ export default class UserManagementService {
                 Router.update();
                 return await response.text();
             } else {
-                // Regular JSON request without file
-
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: {
@@ -152,18 +135,14 @@ export default class UserManagementService {
 
             const result = await response.json() as AuthResponse;
 
-            // Check if 2FA is required
             if (result.requireTwoFactor) {
-                // Store credentials temporarily (for the 2FA verification)
                 sessionStorage.setItem('pendingUserId', result.userId?.toString() || '');
                 sessionStorage.setItem('pendingUsername', result.username || '');
 
-                // Redirect to 2FA page
                 Router.redirect('/two-factor');
                 return result;
             }
 
-            // Normal login flow
             Router.redirect('/');
 
             return result;
@@ -187,13 +166,11 @@ export default class UserManagementService {
 
         const result = await response.json() as AuthResponse;
 
-        // Normal login flow
         Router.redirect('/');
 
         return result;
     }
 
-    // New method to verify 2FA code
     async verifyTwoFactor(userId: number, code: string): Promise<AuthResponse> {
         try {
             const response = await fetch('/api/users/verify-two-factor', {
@@ -211,14 +188,9 @@ export default class UserManagementService {
 
             const result = await response.json() as AuthResponse;
 
-            // Clear temporary storage
             sessionStorage.removeItem('pendingUserId');
             sessionStorage.removeItem('pendingUsername');
-
-            // Trigger router update after successful login
             Router.update();
-
-            // Redirect to home page
             Router.redirect('/');
 
             return result;
@@ -300,7 +272,6 @@ export default class UserManagementService {
         }
     }
 
-    // New method to verify password reset token
     async verifyPasswordResetToken(token: string): Promise<boolean> {
         try {
             const response = await fetch(`/api/reset-password/${token}`);
@@ -317,7 +288,6 @@ export default class UserManagementService {
         }
     }
 
-    // New method to verify email
     async verifyEmail(token: string): Promise<boolean> {
         try {
             const response = await fetch(`/api/verify-email/${token}`);
@@ -334,7 +304,6 @@ export default class UserManagementService {
         }
     }
 
-    // Setup all event listeners across the application
     setupEventListeners(): void {
         this.setupCreateForm();
         this.setupDeleteButtons();
@@ -345,7 +314,7 @@ export default class UserManagementService {
         this.setupResendVerificationForm();
         this.setupLogoutButton();
         this.setupVerifyEmail();
-        this.setupTwoFactorForm(); // Add the new 2FA form setup
+        this.setupTwoFactorForm();
     }
 
     private setupCreateForm(): void {
@@ -377,8 +346,6 @@ export default class UserManagementService {
                     console.error('Failed to register user:', error);
                 }
             });
-
-            // Setup toggle label logic
             const toggle = new Toggle();
             toggle.mountToggle('emailVerified');
         }
@@ -401,7 +368,6 @@ export default class UserManagementService {
                 const userId = deleteButton.getAttribute('data-user');
                 if (!userId) {
                     console.error('No user ID provided for delete operation');
-                    //alert'Unable to delete user: No ID provided');
                     return;
                 }
 
@@ -412,7 +378,6 @@ export default class UserManagementService {
                     }
                     catch (error) {
                         console.error('Failed to delete user:', error);
-                        //alerterror instanceof Error ? error.message : 'Failed to delete user');
                     }
                 }
             });
@@ -431,18 +396,11 @@ export default class UserManagementService {
                         email: formData.get('email') as string,
                         password: formData.get('password') as string,
                     };
-
-                    // The login method now handles redirection to 2FA if needed
                     await this.login(credentials);
-
-                    // Form reset only happens if we don't redirect to 2FA
                     loginForm.reset();
 
                 } catch (error) {
                     console.error('Failed to login:', error);
-                    //alerterror instanceof Error ? error.message : 'Login failed');
-
-                    // Add a link to request password reset or resend verification email
                     const errorMessage = document.createElement('div');
                     errorMessage.className = 'mt-4 text-red-500';
                     errorMessage.innerHTML = `
@@ -460,23 +418,18 @@ export default class UserManagementService {
 
                     errorMessage.classList.add('login-error');
                     loginForm.appendChild(errorMessage);
-
-                    // Add event listener for resend verification link
                     const resendLink = document.getElementById('resend-verification');
                     if (resendLink) {
                         resendLink.addEventListener('click', async (e) => {
                             e.preventDefault();
-                            // Get the username value from the loginForm
                             const loginFormData = new FormData(loginForm);
                             const username = loginFormData.get('username') as string;
 
                             if (!username) {
-                                //alert'Please enter your username to resend verification email');
                                 return;
                             }
 
                             try {
-                                // For simplicity, we'll use the username as email here
                                 const result = await this.resendVerificationEmail(username);
                             } catch (error) {
                                 console.error('Failed to resend verification:', error);
@@ -488,17 +441,14 @@ export default class UserManagementService {
         }
     }
 
-    // New method to setup 2FA verification form
     private setupTwoFactorForm(): void {
         const twoFactorForm = document.getElementById('TwoFactorLogin-form') as HTMLFormElement | null;
         if (twoFactorForm) {
-            // Populate hidden fields with stored values from the session storage
             const hiddenUsername = twoFactorForm.querySelector('input[name="username"]') as HTMLInputElement;
             const userId = sessionStorage.getItem('pendingUserId');
             const username = sessionStorage.getItem('pendingUsername');
 
             if (!userId || !username) {
-                // No pending 2FA verification, redirect back to login
                 Router.redirect('/login');
                 return;
             }
@@ -507,7 +457,6 @@ export default class UserManagementService {
                 hiddenUsername.value = username;
             }
 
-            // Add submit button dynamically if it doesn't exist
             if (!twoFactorForm.querySelector('button[type="submit"]')) {
                 const submitButton = document.createElement('button');
                 submitButton.type = 'submit';
@@ -516,12 +465,10 @@ export default class UserManagementService {
                 twoFactorForm.appendChild(submitButton);
             }
 
-            // Setup form submission
             twoFactorForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 try {
-                    // Get all the 2FA code digits
                     const tf_one = (document.getElementById('tf_one') as HTMLInputElement).value;
                     const tf_two = (document.getElementById('tf_two') as HTMLInputElement).value;
                     const tf_three = (document.getElementById('tf_three') as HTMLInputElement).value;
@@ -529,22 +476,17 @@ export default class UserManagementService {
                     const tf_five = (document.getElementById('tf_five') as HTMLInputElement).value;
                     const tf_six = (document.getElementById('tf_six') as HTMLInputElement).value;
 
-                    // Combine the digits
                     const code = `${tf_one}${tf_two}${tf_three}${tf_four}${tf_five}${tf_six}`;
 
-                    // Validate code format
                     if (code.length !== 6 || !/^\d+$/.test(code)) {
-                        //alert'Please enter a valid 6-digit code');
                         return;
                     }
 
-                    // Verify the 2FA code
                     await this.verifyTwoFactor(parseInt(userId, 10), code);
 
 
                 } catch (error) {
                     console.error('Two-factor verification failed:', error);
-                    //alerterror instanceof Error ? error.message : 'Two-factor verification failed');
                 }
             });
         }
@@ -553,7 +495,6 @@ export default class UserManagementService {
     private setupSignupForm(): void {
         const signupForm = document.getElementById('signup-form') as HTMLFormElement | null;
         if (signupForm) {
-            // Set accept attribute for avatar file input to only allow image files
             const avatarInput = signupForm.querySelector('input[name="avatar"]') as HTMLInputElement;
             if (avatarInput) {
                 avatarInput.setAttribute('accept', 'image/jpeg, image/png');
@@ -594,7 +535,6 @@ export default class UserManagementService {
                 })
             }
 
-            // Keep the existing SVG generation based on displayname
             if (usernameInput && signupavatar && avatarInput) {
                 usernameInput.addEventListener("keyup", function (e) {
                     if (e.target && (avatarInput.value == "" || avatarInput.value == null)) {
@@ -614,22 +554,17 @@ export default class UserManagementService {
                 });
             }
 
-            // Add file input preview handling
             if (avatarInput && signupavatar) {
                 avatarInput.addEventListener("change", function () {
                     if (this.files && this.files[0]) {
                         const file = this.files[0];
 
-                        // Validate file type
                         if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
-                            //alert'Please select a JPEG or PNG image file');
                             this.value = '';
                             return;
                         }
 
-                        // Validate file size (max 2MB)
                         if (file.size > 2 * 1024 * 1024) {
-                            //alert'File size should not exceed 2MB');
                             this.value = '';
                             return;
                         }
@@ -648,7 +583,6 @@ export default class UserManagementService {
 
                         reader.readAsDataURL(file);
                     } else if (usernameInput) {
-                        // If file is removed, revert to generated avatar based on displayname
                         const inputElement = usernameInput as HTMLInputElement;
                         const seed = inputElement.value;
 
@@ -671,16 +605,13 @@ export default class UserManagementService {
                 try {
                     const formData = new FormData(signupForm);
 
-                    // Check if passwords match
                     const password = formData.get('password') as string;
                     const repeatPassword = formData.get('repeat-password') as string;
 
                     if (password !== repeatPassword) {
-                        //alert'Passwords do not match');
                         return;
                     }
 
-                    // Create base user data
                     const userData: User = {
                         displayname: formData.get('displayname') as string,
                         username: formData.get('username') as string,
@@ -696,30 +627,20 @@ export default class UserManagementService {
                         secret: formData.get('secret') as string
                     };
 
-                    // Get the avatar file if it exists
                     const avatarFile = formData.get('avatar') as File;
                     let result;
 
-                    // Check if a file was actually selected
                     if (avatarFile && avatarFile.size > 0) {
-                        // Pass both userData and the file
                         result = await this.registerUser(userData, avatarFile);
                     } else {
-                        // Just pass userData
                         result = await this.registerUser(userData);
                     }
 
                     signupForm.reset();
-
-                    // Show success message
-                    //alert'Registration successful! Please check your email to verify your account.');
-
-                    // Redirect to login page
                     Router.redirect('/login');
 
                 } catch (error) {
                     console.error('Failed to register user:', error);
-                    //alerterror instanceof Error ? error.message : 'Registration failed');
                 }
             });
         }
@@ -736,7 +657,6 @@ export default class UserManagementService {
                     const email = formData.get('email') as string;
 
                     if (!email) {
-                        //alert'Please enter your email address');
                         return;
                     }
 
@@ -745,8 +665,6 @@ export default class UserManagementService {
                     passwordResetForm.reset();
                 } catch (error) {
                     console.error('Failed to request password reset:', error);
-                    // For security reasons, we still give a generic message
-                    //alert'If your email exists in our system, you will receive a password reset link.');
                 }
             });
         }
@@ -762,29 +680,22 @@ export default class UserManagementService {
                     const formData = new FormData(resetForm);
                     const password = formData.get('password') as string;
                     const confirmPassword = formData.get('confirmPassword') as string;
-
-                    // Get token from URL or parameters
-                    // In this case, we'll need to get it from the current path
                     const pathParts = window.location.pathname.split('/');
                     const token = pathParts[pathParts.length - 1];
 
                     if (!token) {
-                        //alert'Missing reset token');
                         return;
                     }
 
                     if (!password || !confirmPassword) {
-                        //alert'Please fill in all fields');
                         return;
                     }
 
                     if (password !== confirmPassword) {
-                        //alert'Passwords do not match');
                         return;
                     }
 
                     if (password.length < 8) {
-                        //alert'Password must be at least 8 characters long');
                         return;
                     }
 
@@ -792,11 +703,9 @@ export default class UserManagementService {
                     alert(result.message || 'Password reset successful');
                     resetForm.reset();
 
-                    // Redirect to login page
                     Router.redirect('/login');
                 } catch (error) {
                     console.error('Failed to reset password:', error);
-                    //alerterror instanceof Error ? error.message : 'Failed to reset password');
                 }
             });
         }
@@ -812,7 +721,6 @@ export default class UserManagementService {
                 const email = formData.get('email');
 
                 if (!email) {
-                    //alert'Please enter your email address');
                     return;
                 }
 
@@ -821,7 +729,6 @@ export default class UserManagementService {
                     alert(response.message || 'If your account exists, a verification email has been sent.');
                 } catch (error) {
                     console.error('Error resending verification email:', error);
-                    //alert'Failed to resend verification email. Please try again later.');
                 }
             });
         }
@@ -835,12 +742,9 @@ export default class UserManagementService {
 
                 try {
                     await this.logout();
-
-                    // Redirect to login page
                     Router.redirect('/login');
                 } catch (error) {
                     console.error('Failed to logout:', error);
-                    //alerterror instanceof Error ? error.message : 'Logout failed');
                 }
             });
         }
@@ -848,32 +752,26 @@ export default class UserManagementService {
 
     // Handle email verification process - this corresponds to the inline script in EmailVerification.ts
     private setupVerifyEmail(): void {
-        // Check if we're on the email verification page
         if (window.location.pathname.startsWith('/verify-email')) {
-            // Extract token from URL path
             const pathParts = window.location.pathname.split('/');
             const token = pathParts.length > 2 ? pathParts[pathParts.length - 1] : null;
 
-            // If we have a token, try to verify the email
             if (token) {
                 this.handleEmailVerification(token);
             }
         }
     }
 
-    // Process email verification with token
     private async handleEmailVerification(token: string): Promise<void> {
         try {
             const success = await this.verifyEmail(token);
 
             if (success) {
-                // Verification successful
                 Router.redirect('/login?verified=true');
             }
         } catch (error) {
             console.error('Error verifying email:', error);
 
-            // Display error message
             const cardContainer = document.querySelector('.space-y-8');
             if (cardContainer) {
                 const errorMessage = error instanceof Error ? error.message : 'Email verification failed';
@@ -903,21 +801,14 @@ export default class UserManagementService {
     }
 
     private twoFactorNumberActions(): void {
-        // Get all numeric input fields
         const numericInputs = document.querySelectorAll('.tf_numeric') as NodeListOf<HTMLInputElement>;
 
-        // Add event listeners to each input
         numericInputs.forEach((input, index) => {
-            // Handle input event (when value changes)
             input.addEventListener('input', function (this: HTMLInputElement, e: Event) {
-                // Restrict to only one digit
                 if (this.value.length > 1) {
                     this.value = this.value.slice(0, 1);
                 }
-
-                // If we have a digit and we're not at the last input, focus on next available empty input
                 if (this.value.length === 1 && index < numericInputs.length - 1) {
-                    // Find the next empty input, if any
                     let nextInputIndex = index + 1;
                     while (nextInputIndex < numericInputs.length) {
                         if (!numericInputs[nextInputIndex].value) {
@@ -929,32 +820,26 @@ export default class UserManagementService {
                 }
             });
 
-            // Handle keydown for special cases like delete/backspace
             input.addEventListener('keydown', function (this: HTMLInputElement, e: KeyboardEvent) {
-                // If backspace/delete on empty field, go back to previous field
                 if ((e.key === 'Backspace' || e.key === 'Delete') && !this.value && index > 0) {
                     numericInputs[index - 1].focus();
                 }
 
-                // If left arrow and not first field, go to previous field
                 if (e.key === 'ArrowLeft' && index > 0) {
                     numericInputs[index - 1].focus();
                 }
 
-                // If right arrow and not last field, go to next field
                 if (e.key === 'ArrowRight' && index < numericInputs.length - 1) {
                     numericInputs[index + 1].focus();
                 }
             });
 
-            // Prevent non-numeric input
             input.addEventListener('keypress', function (this: HTMLInputElement, e: KeyboardEvent) {
                 if (!/[0-9]/.test(e.key)) {
                     e.preventDefault();
                 }
             });
 
-            // Select all text when focused
             input.addEventListener('focus', function (this: HTMLInputElement) {
                 this.select();
             });
@@ -970,7 +855,6 @@ export default class UserManagementService {
         document.head.appendChild(script);
     }
 
-    // Initialize all event listeners when the content is loaded
     initialize(): void {
         document.addEventListener('RouterContentLoaded', () => {
             this.setupEventListeners();

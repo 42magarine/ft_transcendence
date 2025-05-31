@@ -16,8 +16,7 @@ export default class LobbyService {
     private isInitialized: boolean = false;
 
     private currentLobbyPromiseResolver: ((value: LobbyInfo) => void) | null = null;
-    private idForCurrentPromise: string | null = null; // Tracks which lobbyId the promise is for
-
+    private idForCurrentPromise: string | null = null;
     private player1: LobbyPlayer | null = null;
     private player2: LobbyPlayer | null = null;
 
@@ -26,13 +25,11 @@ export default class LobbyService {
         this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
     }
 
-    // Extracts the current lobby ID from the URL path
     private getCurrentLobbyIdFromUrl(): string {
         const match = window.location.pathname.match(/\/lobby\/([^/]+)/);
         return match?.[1] || '';
     }
 
-    // Initializes the service with socket, message handler, and user service
     public init(socket: WebSocket, messageHandler: MessageHandlerService, userService: UserService): void {
         if (this.isInitialized && this.socket === socket) {
             this.setupUIEventListeners();
@@ -59,7 +56,6 @@ export default class LobbyService {
         this.idForCurrentPromise = null;
     }
 
-    // Handles messages received via WebSocket
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: ServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
@@ -72,7 +68,6 @@ export default class LobbyService {
                         createdAt: new Date(data.lobby.createdAt)
                     };
 
-                    // Resolve pending promise if the ID matches
                     if (this.idForCurrentPromise === receivedLobbyInfo.id && this.currentLobbyPromiseResolver) {
                         console.log(`[LobbyService] Received data for pending promise ${receivedLobbyInfo.id}. Updating currentLobbyData and resolving promise.`);
                         this.currentLobbyData = receivedLobbyInfo;
@@ -80,8 +75,6 @@ export default class LobbyService {
                         this.currentLobbyPromiseResolver = null;
                         this.idForCurrentPromise = null;
                     }
-
-                    // Always update currentLobbyData if matches current URL
                     if (receivedLobbyInfo.id === currentUrlLobbyId) {
                         this.currentLobbyData = receivedLobbyInfo;
                     }
@@ -126,13 +119,11 @@ export default class LobbyService {
         }
     }
 
-    // Adds event listeners for UI button clicks
     private setupUIEventListeners(): void {
         document.body.removeEventListener('click', this.handleLobbyPageClick);
         document.body.addEventListener('click', this.handleLobbyPageClick);
     }
 
-    // Handles clicks on "start game" and "leave" buttons in the lobby
     private async handleLobbyPageClick(e: MouseEvent): Promise<void> {
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
         if (!currentLobbyId || !window.location.pathname.startsWith("/lobby/")) return;
@@ -158,7 +149,6 @@ export default class LobbyService {
         }
     }
 
-    // Fetches the current lobby data and returns it as a Promise
     public async getCurrentLobbyData(): Promise<LobbyInfo> {
         const lobbyIdFromUrl = this.getCurrentLobbyIdFromUrl();
         if (!this.messageHandler || !this.socket || this.socket.readyState !== WebSocket.OPEN) {
@@ -173,7 +163,6 @@ export default class LobbyService {
         try {
             await this.messageHandler.requestLobbyById(lobbyIdFromUrl);
         } catch (error) {
-            // If request fails but we have cached data, resolve with it
             if (this.currentLobbyData && this.currentLobbyData.id === lobbyIdFromUrl && this.currentLobbyPromiseResolver) {
                 console.warn(`[LobbyService getCurrentLobbyData] Resolving with STALE/CACHED data for ${lobbyIdFromUrl} due to request send error.`);
                 this.currentLobbyPromiseResolver(this.currentLobbyData);
@@ -185,11 +174,9 @@ export default class LobbyService {
         return promise;
     }
 
-    // Getters for player states
     public getPlayer1(): LobbyPlayer | null { return this.player1; }
     public getPlayer2(): LobbyPlayer | null { return this.player2; }
 
-    // Clean up listeners and internal state
     public destroy(): void {
         if (this.socket) {
             this.socket.removeEventListener('message', this.handleSocketMessage);

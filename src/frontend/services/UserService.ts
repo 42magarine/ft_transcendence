@@ -5,11 +5,9 @@ export default class UserService {
         try {
             const response = await fetch('/api/users/me', {
                 method: 'GET',
-                credentials: 'include', // This is CRUCIAL for sending cookies
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
-                    // If you're using Authorization header instead of cookies:
-                    // 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 }
             });
 
