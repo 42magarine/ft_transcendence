@@ -16,6 +16,8 @@ class LocalGameService {
     private inputLoop: number | null = null;
     private initialized: boolean = false;
     private paddleSpeed: number = 5;
+    private winScore: number = 5;
+    private countdownActive: boolean = false;
 
     constructor() {}
 
@@ -75,11 +77,60 @@ class LocalGameService {
         this.inputLoop = window.requestAnimationFrame(inputLoop);
     }
 
+    private async fadeText(text: string, color: string, duration: number): Promise<void> {
+        const steps = 30;
+        const interval = duration / steps;
+        for (let i = 0; i < steps; i++) {
+            this.draw(); // redraw game state
+    
+            const alpha = 1 - i / steps;
+            this.ctx.globalAlpha = alpha;
+            this.ctx.font = "64px Arial";
+            this.ctx.fillStyle = color;
+            this.ctx.textAlign = "center";
+            this.ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
+            this.ctx.globalAlpha = 1;
+    
+            await new Promise(resolve => setTimeout(resolve, interval));
+        }
+    }
+
+    
+    private async countdown(): Promise<void> {
+        if (!this.ctx || !this.canvas || !this.state) return;
+    
+        this.countdownActive = true;
+        this.state.paused = true;
+    
+        for (let i = 3; i > 0; i--) {
+            this.draw();
+            this.ctx.font = "64px Arial";
+            this.ctx.fillStyle = "#00FFFF";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText(i.toString(), this.canvas.width / 2, this.canvas.height / 2);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    
+        this.state.paused = false;
+        this.draw();
+    
+        // Fade out "GO!" text
+        await this.fadeText("GO!", "#00FF00", 2000);
+    
+        this.startGameLoop();
+        this.countdownActive = false;
+    }
+    
+    
+
+    
     private setupSliderListeners(): void {
         const paddleSpeedInput = document.getElementById('paddleSpeedInput') as HTMLInputElement;
         const paddleHeightInput = document.getElementById('paddleHeightInput') as HTMLInputElement;
-        const ballSpeedXInput = document.getElementById('ballSpeedXInput') as HTMLInputElement;
-        const ballSpeedYInput = document.getElementById('ballSpeedYInput') as HTMLInputElement;
+        const paddleWidthInput = document.getElementById('paddleWidthInput') as HTMLInputElement;
+        const ballSpeedInput = document.getElementById('ballSpeedInput') as HTMLInputElement;
+        const ballSizeInput = document.getElementById('ballSizeInput') as HTMLInputElement;
+        const winScoreInput = document.getElementById('winScoreInput') as HTMLInputElement;
     
         if (paddleSpeedInput) {
             paddleSpeedInput.addEventListener('input', () => {
@@ -95,41 +146,64 @@ class LocalGameService {
             });
         }
     
-        if (ballSpeedXInput) {
-            ballSpeedXInput.addEventListener('input', () => {
-                const val = parseFloat(ballSpeedXInput.value);
-                if (!isNaN(val)) this.updateBallSpeedX(val);
+        if (paddleWidthInput) {
+            paddleWidthInput.addEventListener('input', () => {
+                const val = parseFloat(paddleWidthInput.value);
+                if (!isNaN(val)) this.updatePaddleWidth(val);
             });
         }
     
-        if (ballSpeedYInput) {
-            ballSpeedYInput.addEventListener('input', () => {
-                const val = parseFloat(ballSpeedYInput.value);
-                if (!isNaN(val)) this.updateBallSpeedY(val);
+        if (ballSpeedInput) {
+            ballSpeedInput.addEventListener('input', () => {
+                const val = parseFloat(ballSpeedInput.value);
+                if (!isNaN(val)) this.updateBallSpeed(val);
+            });
+        }
+    
+        if (ballSizeInput) {
+            ballSizeInput.addEventListener('input', () => {
+                const val = parseFloat(ballSizeInput.value);
+                if (!isNaN(val)) this.updateBallSize(val);
+            });
+        }
+    
+        if (winScoreInput) {
+            winScoreInput.addEventListener('input', () => {
+                const val = parseInt(winScoreInput.value);
+                if (!isNaN(val)) this.updateWinScore(val);
             });
         }
     }
+    
 
     
-    private startGame(): void {
-        if (this.state) this.state.paused = false;
+    private async startGame(): Promise<void> {
+        if (this.state) {
+            this.stopGameLoop();
+            await this.countdown();
+        }
     }
+    
 
     private pauseGame(): void {
         if (this.state) this.state.paused = true;
     }
 
-    private resumeGame(): void {
-        if (this.state) this.state.paused = false;
+   
+    private async resumeGame(): Promise<void> {
+        if (this.state) {
+            this.stopGameLoop();
+            await this.countdown();
+        }
     }
-
     private resetGame(): void {
         const paddleSpeed = parseInt((document.getElementById('paddleSpeedInput') as HTMLInputElement)?.value || '5');
         const paddleHeight = parseInt((document.getElementById('paddleHeightInput') as HTMLInputElement)?.value || '100');
         const ballSpeedX = parseInt((document.getElementById('ballSpeedXInput') as HTMLInputElement)?.value || '5');
         const ballSpeedY = parseInt((document.getElementById('ballSpeedYInput') as HTMLInputElement)?.value || '5');
-    
+        const winScore = parseInt((document.getElementById('winScoreInput') as HTMLInputElement)?.value || '5');
         this.paddleSpeed = isNaN(paddleSpeed) ? 5 : paddleSpeed;
+        this.winScore = isNaN(winScore) ? 5 : winScore;
     
         this.state = {
             ball: { x: 400, y: 300, radius: 10, velocityX: ballSpeedX, velocityY: ballSpeedY },
@@ -156,7 +230,8 @@ class LocalGameService {
     }
     
 
-    private updateGame(): void {
+    private async updateGame(): Promise<void> {
+    
         if (!this.state || this.state.paused || this.state.gameIsOver) return;
 
         const ball = this.state.ball;
@@ -180,26 +255,36 @@ class LocalGameService {
 
         if (ball.x < 0) {
             this.state.score2++;
-            this.resetBall();
+            await this.resetBall();
         } else if (ball.x > this.canvas.width) {
             this.state.score1++;
-            this.resetBall();
+            await this.resetBall();
         }
+        if (this.state.score1 >= this.winScore || this.state.score2 >= this.winScore) {
 
-        if (this.state.score1 >= 5 || this.state.score2 >= 5) {
             this.state.gameIsOver = true;
             this.state.paused = true;
+            this.stopGameLoop();
         }
     }
 
-    private resetBall(): void {
+    private async resetBall(): Promise<void> {
         if (!this.state) return;
+    
+        // Reset ball position to center
         this.state.ball.x = this.canvas.width / 2;
         this.state.ball.y = this.canvas.height / 2;
+    
+        // Reverse X direction, keep current Y direction (or set new Y speed)
         this.state.ball.velocityX *= -1;
         this.state.ball.velocityY = 5;
-        this.state.paused = false;
+    
+        // If game is over, do not start countdown
+        if (this.state.gameIsOver) return;
+    
+        await this.countdown();
     }
+    
 
     private draw(): void {
         if (!this.state || !this.ctx || !this.canvas) return;
@@ -225,7 +310,7 @@ class LocalGameService {
         this.ctx.fillText(`Player 1: ${this.state.score1}`, 50, 30);
         this.ctx.fillText(`Player 2: ${this.state.score2}`, this.canvas.width - 180, 30);
 
-        if (this.state.paused && !this.state.gameIsOver) {
+        if (this.state.paused && !this.state.gameIsOver && !this.countdownActive) {
             this.ctx.font = "48px Arial";
             this.ctx.fillStyle = "#FFFF00";
             this.ctx.textAlign = "center";
@@ -258,10 +343,27 @@ class LocalGameService {
         this.state.ball.velocityX = speedX * Math.sign(this.state.ball.velocityX);
     }
     
-    public updateBallSpeedY(speedY: number): void {
+    public updateBallSpeed(speed: number): void {
         if (!this.state) return;
-        this.state.ball.velocityY = speedY * Math.sign(this.state.ball.velocityY);
+        this.state.ball.velocityX = speed * Math.sign(this.state.ball.velocityX);
+        this.state.ball.velocityY = speed * Math.sign(this.state.ball.velocityY);
     }
+    
+    public updateBallSize(size: number): void {
+        if (!this.state) return;
+        this.state.ball.radius = size;
+    }
+    
+    public updatePaddleWidth(width: number): void {
+        if (!this.state) return;
+        this.state.paddle1.width = width;
+        this.state.paddle2.width = width;
+    }
+    
+    public updateWinScore(score: number): void {
+        this.winScore = score;
+    }
+    
     
 
     public cleanup(): void {
@@ -272,6 +374,25 @@ class LocalGameService {
         this.initialized = false;
         console.log("LocalGameService cleaned up");
     }
+
+    private stopGameLoop(): void {
+        if (this.inputLoop !== null) {
+            cancelAnimationFrame(this.inputLoop);
+            this.inputLoop = null;
+        }
+    }
+    
+    private startGameLoop(): void {
+        const inputLoop = () => {
+            this.handleInput();
+            this.updateGame();
+            this.draw();
+            this.inputLoop = window.requestAnimationFrame(inputLoop);
+        };
+        this.inputLoop = window.requestAnimationFrame(inputLoop);
+    }
+
+    
 }
 
 const localGameService = new LocalGameService();

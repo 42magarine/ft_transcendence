@@ -30,21 +30,37 @@ export default class PongLocal extends AbstractView {
 					value: 100
 				}},
 				{ type: 'slider', props: {
-					id: 'ballSpeedXInput',
-					label: 'Ball Speed X',
+					id: 'ballSpeedInput',
+					label: 'Ball Speed',
 					min: 1,
 					max: 20,
 					step: 1,
 					value: 5
 				}},
 				{ type: 'slider', props: {
-					id: 'ballSpeedYInput',
-					label: 'Ball Speed Y',
+					id: 'ballSizeInput',
+					label: 'Ball Size',
+					min: 5,
+					max: 30,
+					step: 1,
+					value: 10
+				}},
+				{ type: 'slider', props: {
+					id: 'paddleWidthInput',
+					label: 'Paddle Width',
+					min: 5,
+					max: 50,
+					step: 1,
+					value: 20
+				}},
+				{ type: 'slider', props: {
+					id: 'winScoreInput',
+					label: 'Win Score',
 					min: 1,
 					max: 20,
 					step: 1,
 					value: 5
-				}},
+				}},				
 				{ type: 'separator' },				
 				{
 					type: 'html',
