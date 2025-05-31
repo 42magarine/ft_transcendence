@@ -159,7 +159,7 @@ export interface LabelProps {
 }
 
 export interface ToggleProps {
-    id: string;
+    id?: string;
     name: string;
     label: string;
     checked: boolean;

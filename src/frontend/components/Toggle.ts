@@ -61,7 +61,6 @@ export default class Toggle extends AbstractView
 				noBtn.classList.remove('active', 'bg-red-500', 'text-white');
 			
 				noBtn.classList.add('text-white/50');
-				console.log(input.value);
 			});
 			
 			noBtn.addEventListener('click', () =>
@@ -72,7 +71,6 @@ export default class Toggle extends AbstractView
 				yesBtn.classList.remove('active', 'bg-green-500', 'text-white');
 			
 				yesBtn.classList.add('text-white/50');
-				console.log(input.value);
 			});
 	}
 }

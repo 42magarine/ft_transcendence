@@ -442,7 +442,6 @@ export class UserController {
                     userData.avatar = avatarData;
                 }
 
-                console.log("Processed user data:", userData);
 
                 if (!userData.username || !userData.email || !userData.password) {
                     return reply.code(400).send({ error: 'Missing required fields' });

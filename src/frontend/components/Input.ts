@@ -45,7 +45,7 @@ export default class Input extends AbstractView
 
 		// Auto-bind show/hide logic after render
 		if (withConfirm && type === 'password' && id) {
-			console.log('hjgakusydgkuyd');
+
 			// Return special placeholder to call later
 			const listenerScript = `<script>window.__deferredConfirmFields = window.__deferredConfirmFields || []; window.__deferredConfirmFields.push({id: "${id}", name: "${name}"});</script>`;
 			return this.render(`

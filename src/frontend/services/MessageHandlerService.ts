@@ -42,7 +42,7 @@ export default class MessageHandlerService {
     }
 
     public async joinLobby(lobbyId: string, userId: number) {
-        console.log("JOINNNN")
+        console.log("JoinLobby()")
         const msg: ClientMessage = {
             type: 'joinLobby',
             lobbyId,

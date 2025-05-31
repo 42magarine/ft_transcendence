@@ -1,7 +1,7 @@
 // ====================
 // 🌐 ROUTES & SERVICES
 // ====================
-import routes from './route_init.js';
+import routes from './routeInit.js';
 import './services/LanguageService.js';
 import LobbyListService from './services/LobbyListService.js';
 import LobbyService from './services/LobbyService.js';
@@ -84,71 +84,100 @@ function webSocketWrapper(socket: WebSocket): Promise<void> {
 }
 
 function initSocket(): void {
-	const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-	const socket = new WebSocket(`${wsProtocol}//${window.location.host}/api/game/wss`);
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    let socket = new WebSocket(`${wsProtocol}//${window.location.host}/api/game/wss`);
 
-	window.ft_socket = socket;
+    window.ft_socket = socket;
 
-	window.socketReady = webSocketWrapper(socket)
-		.then(() => {
-			window.lobbyListService = new LobbyListService();
-			window.lobbyService = new LobbyService();
-			window.messageHandler = new (MessageHandlerService as any)(
-				socket,
-				window.socketReady,
-				window.userService
-			);
+    window.socketReady = webSocketWrapper(socket)
+        .then(() => {
+            window.lobbyListService = new LobbyListService();
+            window.lobbyService = new LobbyService();
+            window.messageHandler = new (MessageHandlerService as any)(socket, window.socketReady, window.userService);
 
-			window.lobbyListService?.init();
-            if (window.messageHandler) {
+            if (window.lobbyListService && window.socketReady) {
+                window.lobbyListService.init();
+            }
+            if (window.lobbyService && window.messageHandler) {
                 window.lobbyService.init(socket, window.messageHandler, window.userService);
             }
-    
-		})
-		.catch((err) => {
-			console.error('WebSocket connection error:', err);
-			throw err;
-		});
+        })
+        .catch((err) => {
+            console.error('WebSocket connection error:', err);
+            throw err;
+        });
 }
+
 
 // =======================
 // ⚡ ROUTER EVENT HANDLING
 // =======================
 
 document.addEventListener('RouterContentLoaded', async () => {
-	const currentUser = await UserService.getCurrentUser();
+    console.log("RouterContentLoaded event triggered.");
+    const currentUser = await UserService.getCurrentUser();
+    if (!currentUser) {
+        console.log("No user found, ensuring socket is closed.");
+        if (window.ft_socket) {
+            if (window.ft_socket.readyState === WebSocket.OPEN ||
+                window.ft_socket.readyState === WebSocket.CONNECTING) {
+                window.ft_socket.close(1000, 'User logged out');
+            }
+            if (window.lobbyListService && typeof window.lobbyListService.destroy === 'function') {
+                window.lobbyListService.destroy();
+            }
+            if (window.lobbyService && typeof window.lobbyService.destroy === 'function') {
+                window.lobbyService.destroy();
+            }
+            window.ft_socket = undefined;
+            window.socketReady = undefined;
+            window.messageHandler = undefined;
+            // window.lobbyListService = undefined;
+            window.lobbyService = undefined;
+        }
+        return;
+    }
 
-	if (!currentUser) {
-		console.log("No user found, ensuring socket is closed.");
-		if (window.ft_socket?.readyState === WebSocket.OPEN ||
-			window.ft_socket?.readyState === WebSocket.CONNECTING) {
-			window.ft_socket.close(1000, 'User logged out');
-		}
-		window.lobbyListService?.destroy?.();
-		window.ft_socket = undefined;
-		window.socketReady = undefined;
-		window.messageHandler = undefined;
-		window.lobbyService = undefined;
-		return;
-	}
+    if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
+        console.warn("RouterContentLoaded: Socket not ready or not open. Calling initSocket().");
+        initSocket();
+        try {
+            await window.socketReady;
+            console.log("RouterContentLoaded: Socket and services initialized via initSocket().");
+        } catch (error) {
+            console.error("RouterContentLoaded: Failed to initialize socket via initSocket():", error);
+        }
+    } else {
+        console.log("RouterContentLoaded: Socket is already ready.");
+        if (!window.messageHandler) {
+             window.lobbyListService = window.lobbyListService || new LobbyListService();
+             window.lobbyService = window.lobbyService || new LobbyService();
+             window.messageHandler = new MessageHandlerService();
 
-	if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-		initSocket();
-		try {
-			await window.socketReady;
-		} catch (error) {
-			console.error("RouterContentLoaded: Failed to initialize socket via initSocket():", error);
-		}
-	} else if (!window.messageHandler) {
-		window.lobbyListService = window.lobbyListService || new LobbyListService();
-		window.lobbyService = window.lobbyService || new LobbyService();
-		window.messageHandler = new MessageHandlerService();
+             if (window.lobbyListService) window.lobbyListService.init();
+             if (window.lobbyService && window.messageHandler) {
+                 window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
+             }
+        } else {
+            if (window.lobbyListService) {
+                console.log("RouterContentLoaded: Socket and messageHandler ready. Re-initializing LobbyListService UI components.");
+                window.lobbyListService.init();
+            }
+            if (window.lobbyService) {
+                 // lobbyService.init might also need to be called if it manages UI specific to its views.
+                 // window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
+            }
+        }
+    }
+});
 
-		window.lobbyListService.init();
-		window.lobbyService?.init(window.ft_socket, window.messageHandler, window.userService);
-	} else {
-		window.lobbyListService?.init();
-	}
+/**
+ * Initial render and background setup on first load
+ */
+document.addEventListener('DOMContentLoaded', async () => {
+    await renderHeader();
+    await renderFooter();
+    await router.render();
 });
 
 // =======================

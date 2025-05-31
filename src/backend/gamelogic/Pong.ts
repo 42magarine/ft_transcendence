@@ -177,11 +177,11 @@ export class PongGame {
         }
     }
 
-    public setPlayer(playerNum: 1 | 2, player: Player) {
-        if (playerNum === 1) {
+    public setPlayer(playerNumber: number, player: Player) {
+        if (playerNumber === 1) {
             this._player1 = player
         }
-        else {
+        else if (playerNumber === 2) {
             this._player2 = player
         }
     }

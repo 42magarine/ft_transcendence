@@ -1,9 +1,9 @@
 // LobbyListService.ts
 
-import { ServerMessage, LobbyInfo } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
 import UserService from '../services/UserService.js';
 import { User } from '../../interfaces/userInterfaces.js';
+import { ServerMessage, LobbyInfo } from '../../interfaces/interfaces.js';
 
 export default class LobbyListService {
     private lobbyData: LobbyInfo[] = [];
@@ -28,7 +28,8 @@ export default class LobbyListService {
                 if (data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
                     Router.redirect(`/lobby/${data.lobbyId}`);
-                } else {
+                }
+                else {
                     console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
                 }
                 break;
@@ -37,11 +38,10 @@ export default class LobbyListService {
                 // Router.update();
                 if (data.lobbyId && data.playerNumber !== undefined) {
                     Router.redirect(`/lobby/${data.lobbyId}`);
-                } else {
+                }
+                else {
                     console.error("LobbyListService: lobbyId or playerNumber missing for joinedLobby", data);
                 }
-                break;
-            default:
                 break;
         }
     }
@@ -80,6 +80,8 @@ export default class LobbyListService {
     }
 
     private async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
+        console.log("handleCreateLobbyClick");
+
         const target = e.target as HTMLElement;
         const button = target.closest('#createLobbyBtn');
         console.log('handleCreateLobbyClick(e: MouseEvent): Promise');
@@ -88,36 +90,25 @@ export default class LobbyListService {
             if (window.messageHandler) {
                 try {
                     await window.messageHandler.createLobby();
-                } catch (error) {
+                }
+                catch (error) {
                     console.error("LobbyListService: Error calling createLobby:", error);
                 }
-            } else {
+            }
+            else {
                 console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
             }
         }
     }
 
     private async handleJoinLobbyClick(e: MouseEvent): Promise<void> {
+        console.log("handleJoinLobbyClick");
+
         const target = e.target as HTMLElement;
         const button = target.closest<HTMLAnchorElement>('#joinLobbyBtn');
 
         if (button) {
             e.preventDefault();
-            console.log("join clicked!");
-
-            // const href = button.getAttribute('href');
-            // if (!href) {
-            //     console.error("LobbyListService: joinLobbyBtn clicked, but 'href' attribute is missing.");
-            //     return;
-            // }
-
-            // const parts = href.split('/');
-            // const lobbyId = parts.pop() || parts.pop();
-
-            // if (!lobbyId) {
-            //     console.error(`LobbyListService: Could not parse lobbyId from href: ${href}`);
-            //     return;
-            // }
 
             const lobbyId = button.getAttribute('data-lobby-id');
 
@@ -128,13 +119,13 @@ export default class LobbyListService {
 
             console.log(`Joining lobby: ${lobbyId}`);
 
-
             let currentUserId: number | undefined;
             const user: User | null = await UserService.getCurrentUser();
 
             if (user && typeof user.id === 'number') {
                 currentUserId = user.id;
-            } else {
+            }
+            else {
                 console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
                 return;
             }
@@ -142,10 +133,12 @@ export default class LobbyListService {
                 try {
                     console.log(`LobbyListService: User ${currentUserId} attempting to join lobby ${lobbyId}`);
                     await window.messageHandler.joinLobby(lobbyId, currentUserId);
-                } catch (error) {
+                }
+                catch (error) {
                     console.error(`LobbyListService: Error calling messageHandler.joinLobby for lobby ${lobbyId} and user ${currentUserId}:`, error);
                 }
-            } else {
+            }
+            else {
                 console.warn("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
             }
         }

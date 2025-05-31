@@ -28,6 +28,11 @@ export default class UserManagement extends AbstractView {
                                         placeholder: 'Name'
                                     },
                                     {
+                                        name: 'username',
+                                        label: 'Username',
+                                        placeholder: 'Username'
+                                    },
+                                    {
                                         name: 'email',
                                         type: 'email',
                                         label: 'E-Mail',
