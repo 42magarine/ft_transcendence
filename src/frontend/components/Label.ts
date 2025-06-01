@@ -7,20 +7,28 @@ export default class Label extends AbstractView {
 	}
 
 	async renderLabel({ htmlFor, text, className = '', id }: LabelProps): Promise<string> {
-		const labelClass = `mt-2 ${className}`.trim(); // Add margin-top spacing
+		const labelClass = `mt-2 ${className}`.trim();
+
+		// If value is embedded in text (e.g. "Email: user@example.com"), split it
+		let [labelText, valueText] = text.split(':');
+		valueText = valueText?.trim() ?? '';
 
 		return this.render(`
-			<label for="${htmlFor}" ${id ? `id="${id}"` : ''} class="${labelClass}">
-				${text}
-			</label>
+			<div class="flex flex-row items-center gap-4 ${labelClass}" ${id ? `id="${id}"` : ''}>
+				<label for="${htmlFor}" class="text-sm text-gray-400 font-medium">
+					${labelText}:
+				</label>
+				<span class="text-base text-white">${valueText}</span>
+			</div>
 		`);
 	}
 
 	async getHtml(): Promise<string> {
 		return this.render(`
-			<label for="default" class="mt-2">
-				Default Label
-			</label>
+			<div class="flex flex-row items-center gap-4 mt-2">
+				<label for="default" class="text-sm text-gray-400 font-medium">Label:</label>
+				<span class="text-base text-white">Value</span>
+			</div>
 		`);
 	}
 }

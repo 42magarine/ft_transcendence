@@ -98,7 +98,6 @@ export default class PongLocal extends AbstractView {
 						props:
 						{
 							layout: 'group',
-							align: 'left',
 							buttons:
 								[
 									{

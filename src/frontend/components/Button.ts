@@ -174,7 +174,11 @@ export default class Button extends AbstractView
         const allHtmlBlocks = [...inputsHtml, ...buttonsHtml, ...togglesHtml].join('\n');
     
         // Return the final HTML wrapped in a container with layout and alignment classes
-        return allHtmlBlocks;
+        return this.render(`
+            <div class="${layoutClass} ${alignmentClass} ${className}">
+                ${allHtmlBlocks}
+            </div>
+        `);        
     }    
 
 	async getHtml(): Promise<string>

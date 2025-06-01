@@ -45,13 +45,6 @@ export default class Friends extends AbstractView {
                         align: 'left'
                     }
                 },                
-				{
-					type: 'label',
-					props: {
-						htmlFor: 'dummy-id',
-						text: ' '
-					}
-				},
                 {
                     type: 'label',
                     props: {
