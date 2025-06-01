@@ -63,7 +63,7 @@ The application runs on [http://localhost:3000](http://localhost:3000)
 |                      | Use a database for the backend                                     | 0.5    |
 | **User Management**  | Standard user management, authentication, users across tournaments | 1      |
 |                      | Implementing a remote authentication                               | 1      |
-| **Gameplay & UX**    | Remote players (real-time multiplayer)                             | 1      |
+| **Gameplay & UX**    | Remote players (real-time multIPlayerState)                             | 1      |
 |                      | Game customization options (e.g. paddles, themes, speed)           | 0.5    |
 | **Cybersecurity**    | Implement Two-Factor Authentication (2FA) and JWT                  | 1      |
 | **Accessibility**    | Support on all devices (responsive design)                         | 0.5    |

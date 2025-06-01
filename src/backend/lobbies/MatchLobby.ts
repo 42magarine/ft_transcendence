@@ -1,9 +1,10 @@
 import { WebSocket } from "ws";
-import { ILobbyInfo, IServerMessage } from "../../interfaces/interfaces.js";
+import { ILobbyState, IServerMessage } from "../../interfaces/interfaces.js";
 import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState } from "../../interfaces/interfaces.js";
 import { PongGame } from "../gamelogic/Pong.js";
+import user from "../../routes/user.js";
 
 export class MatchLobby {
     private _game: PongGame;
@@ -85,10 +86,11 @@ export class MatchLobby {
                     return null;
                 }
             }
-
-            const player = new Player(connection, playerNumber, userId);
-            player._lobbyId = this._lobbyId;
-            player._name = this._matchService.userService.getUsernameById(userId); // <--- no comment
+            const user = await this._matchService.userService.findUserById(userId);
+            if (!user) {
+                return null;
+            }
+            const player = new Player(connection, playerNumber, userId, this._lobbyId, user.username);
             // add player to this._players (type: map)
             this._players.set(playerNumber, player);
 
@@ -207,7 +209,7 @@ export class MatchLobby {
         return this._lobbyId;
     }
 
-    public getLobbyInfo(): ILobbyInfo {
+    public getLobbyInfo(): ILobbyState {
         return {
             id: this._lobbyId,   // Id vs LobbyId ???
             lobbyId: this._lobbyId,
@@ -221,7 +223,8 @@ export class MatchLobby {
         };
     }
 
-    //get list of players for lobbyview or smthing idk??
+    
+
     public getPlayerList() {
         return Array.from(this._players.values()).map(p => ({
             playerNumber: p._playerNumber,

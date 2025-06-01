@@ -64,7 +64,7 @@ export interface IGameState {
     gameIsOver: boolean;
 }
 
-export interface ILobbyInfo {
+export interface ILobbyState {
     id: string;
     lobbyId: string;
     name: string;
@@ -72,11 +72,12 @@ export interface ILobbyInfo {
     maxPlayers: number;
     currentPlayers: number;
     createdAt: Date;
+    // lobbyPlayers: IPlayerState[];
     lobbyType: "game" | "tournament"
     isStarted: boolean;
 }
 
-export interface ILobbyPlayer {
+export interface IPlayerState {
     playerNumber: number;
     userId: number;
     userName: string;
@@ -110,7 +111,7 @@ export interface IServerMessage {
     userId?: number;
     direction?: IPaddleDirection;
     timestamp?: string;
-    lobbies?: ILobbyInfo[]
+    lobbies?: ILobbyState[]
     [key: string]: any;
 }
 

@@ -3,18 +3,20 @@ import { UserService } from "../../services/UserService.js";
 export class Player {
     public _playerNumber: number;
     public _userId: number;
-    public _name?: Promise <string | null>;
+    public _name: string;
     public _score: number = 0;
     public _playing: boolean = false;
     public _connection: WebSocket;
-    public _lobbyId: string | null = null
+    public _lobbyId: string;
     public _isReady: boolean = false;
     public _joinedAt: Date;
 
-    constructor(connection: WebSocket, playerNumber: number, userId: number) {
+    constructor(connection: WebSocket, playerNumber: number, userId: number, lobbyId: string, name: string) {
         this._connection = connection;
         this._playerNumber = playerNumber;
         this._userId = userId;
+        this._lobbyId = lobbyId;
+        this._name = name;
         this._joinedAt = new Date();
     }
 
@@ -56,7 +58,7 @@ export class Player {
         return this._lobbyId;
     }
 
-    public set lobbyId(value: string | null) {
+    public set lobbyId(value: string) {
         this._lobbyId = value;
     }
 }

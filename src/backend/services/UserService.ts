@@ -38,16 +38,6 @@ export class UserService {
         return user;
     }
 
-    async getUsernameById(userId: number): Promise<string | null> {
-        const user = await this.findUserById(userId);
-
-        if (user) {
-            return user.username;
-        }
-
-        return null;
-    }
-
     async createUser(userData: RegisterCredentials & { password: string, avatar?: string }): Promise<UserModel> {
         try {
             console.debug('[createUser] Starting user creation process for:', userData.email);

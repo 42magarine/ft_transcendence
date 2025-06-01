@@ -1,20 +1,20 @@
-import { IServerMessage, ILobbyInfo, ILobbyPlayer} from '../../interfaces/interfaces.js';
+import { IServerMessage, ILobbyState, IPlayerState} from '../../interfaces/interfaces.js';
 import MessageHandlerService from './MessageHandlerService.js';
 import UserService from './UserService.js';
 
 
 export default class LobbyService {
-    private currentLobbyData?: ILobbyInfo;
+    private currentLobbyData?: ILobbyState;
     private socket?: WebSocket;
 
     private messageHandler!: MessageHandlerService;
     private userService!: UserService;
     private isInitialized: boolean = false;
 
-    private currentLobbyPromiseResolver: ((value: ILobbyInfo) => void) | null = null;
+    private currentLobbyPromiseResolver: ((value: ILobbyState) => void) | null = null;
     private idForCurrentPromise: string | null = null;
-    private player1: ILobbyPlayer | null = null;
-    private player2: ILobbyPlayer | null = null;
+    private player1: IPlayerState | null = null;
+    private player2: IPlayerState | null = null;
 
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
@@ -59,7 +59,7 @@ export default class LobbyService {
         switch (data.type) {
             case 'lobbyInfo':
                 if (data.lobby) {
-                    const receivedLobbyInfo: ILobbyInfo = {
+                    const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt)
                     };
@@ -95,7 +95,7 @@ export default class LobbyService {
 
                     if (playerNumber !== undefined && userId !== undefined) {
 
-                        const ILobbyPlayer: ILobbyPlayer = {
+                        const IPlayerState: IPlayerState = {
                             playerNumber: playerNumber,
                             userId: userId,
                             userName: userName,
@@ -103,10 +103,10 @@ export default class LobbyService {
                         };
 
                         if (playerNumber === 1) {
-                            this.player1 = ILobbyPlayer;
+                            this.player1 = IPlayerState;
                             console.log("Player 1 updated:", this.player1);
                         } else if (playerNumber === 2) {
-                            this.player2 = ILobbyPlayer;
+                            this.player2 = IPlayerState;
                             console.log("Player 2 updated:", this.player2);
                         } else {
                             console.warn("Received playerJoined for unexpected playerNumber:", playerNumber);
@@ -166,13 +166,13 @@ export default class LobbyService {
         }
     }
 
-    public async getCurrentLobbyData(): Promise<ILobbyInfo> {
+    public async getCurrentLobbyData(): Promise<ILobbyState> {
         const lobbyIdFromUrl = this.getCurrentLobbyIdFromUrl();
         if (!this.messageHandler || !this.socket || this.socket.readyState !== WebSocket.OPEN) {
             console.warn("[LobbyService] getCurrentLobbyData: Dependencies (MessageHandler/Socket) not ready or socket not open.")
         }
 
-        const promise = new Promise<ILobbyInfo>((resolve) => {
+        const promise = new Promise<ILobbyState>((resolve) => {
             this.currentLobbyPromiseResolver = resolve;
             this.idForCurrentPromise = lobbyIdFromUrl;
         });
@@ -191,8 +191,8 @@ export default class LobbyService {
         return promise;
     }
 
-    public getPlayer1(): ILobbyPlayer | null { return this.player1; }
-    public getPlayer2(): ILobbyPlayer | null { return this.player2; }
+    public getPlayer1(): IPlayerState | null { return this.player1; }
+    public getPlayer2(): IPlayerState | null { return this.player2; }
 
     public destroy(): void {
         if (this.socket) {

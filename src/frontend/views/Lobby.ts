@@ -2,15 +2,15 @@ import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import type { CardProps } from '../../interfaces/componentInterfaces.js';
 import Router from '../../utils/Router.js';
-import { ILobbyPlayer } from '../../interfaces/interfaces.js';
+import { IPlayerState } from '../../interfaces/interfaces.js';
 
 
 export default class Lobby extends AbstractView
 {
     private lobbyId: string;
 
-    private player1: ILobbyPlayer = { userName: 'You', playerNumber: 1, userId: 1, isJoined: false, isReady: false };
-    private player2: ILobbyPlayer = { userName: 'Opponent', playerNumber: 2, userId: 2, isJoined: false, isReady: false };
+    private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isJoined: false, isReady: false };
+    private player2: IPlayerState = { userName: 'Opponent', playerNumber: 2, userId: 2, isJoined: false, isReady: false };
 
     constructor(params: URLSearchParams)
     {
