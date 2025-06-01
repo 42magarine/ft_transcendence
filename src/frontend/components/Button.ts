@@ -18,7 +18,7 @@ export default class Button extends AbstractView
         onClick = '',
         href,
         color,
-        iconHtml = '',
+        icon = '',
         align = 'center',
         textBefore = '',
         dataAttributes = {}
@@ -28,18 +28,22 @@ export default class Button extends AbstractView
         if (type === 'google-signin')
             return renderGoogleSignInButton(align);
     
-        let finalClass = 'btn'; // Base class applied to every button
-    
-        // Add color class if provided (e.g., btn-ready, btn-yellow)
+        let finalClass = 'btn'; // Always include base class
+
+        // Apply color class independently
         if (color)
             finalClass += ` btn-${color}`;
-        else 
-            finalClass += ` btn-primary`;
-
-        // Append any custom classes passed in the props
+        else if (type === 'submit')
+            finalClass += ' btn-green';
+        else if (type === 'delete')
+            finalClass += ' btn-red';
+        else
+            finalClass += ' btn-primary'; // default
+        
+        // Add custom styling className if provided (e.g. outline, spacing)
         if (className)
-            finalClass += ` ${className}`;
-        finalClass = finalClass.trim();
+            finalClass += ` ${className.trim()}`;        
+        
     
         // Sets text alignment for the container div (e.g., text-left, text-center)
         let alignClass = '';
@@ -65,8 +69,20 @@ export default class Button extends AbstractView
         }
     
         // Combine icon and text, fallback to empty strings if undefined
-        const content = `${iconHtml || ''}${text || ''}`.trim();
-    
+
+        // Handle icon rendering if icon prop is provided
+        let iconHtml = '';
+        if (icon) {
+            iconHtml = `<i class="fa-solid fa-${icon}"></i>`;
+        }
+
+        let content = '';
+        if (iconHtml && text) {
+            content = `${iconHtml}<span class="ml-2">${text}</span>`;
+        } else {
+            content = iconHtml || text || '';
+        }
+
         let element = '';
     
         // If it's a link-style button

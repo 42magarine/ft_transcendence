@@ -254,12 +254,10 @@ export default class Home extends AbstractView
                             {
                                 text: 'Submit',
                                 type: 'submit',
-                                className: 'btn btn-primary'
                             },
                             {
                                 text: 'Clear',
                                 type: 'button',
-                                className: 'btn btn-secondary'
                             }
                         ],
                         toggles:
@@ -290,8 +288,8 @@ export default class Home extends AbstractView
                     {
                         id: 'downloadBtn',
                         text: 'Download PDF',
-                        type: 'button',
-                        className: 'btn btn-outline'
+                        className: 'btn btn-outline', 
+                        color: 'red'
                     }
                 },
         
@@ -301,8 +299,7 @@ export default class Home extends AbstractView
                     props:
                     {
                         text: '🔒 Secure Login',
-                        type: 'submit',
-                        className: 'btn btn-yellow',
+                        color: 'yellow',
                         align: 'center'
                     }
                 },
@@ -320,7 +317,56 @@ export default class Home extends AbstractView
                             </div>
                         `
                     }
-                }
+                },
+
+                {
+                    type: 'buttongroup',
+                    props: {
+                        buttons: [
+                            {
+                                id: 'btnDefault',
+                                text: 'Default',
+                                type: 'button'
+                            },
+                            {
+                                id: 'btnGreen',
+                                text: 'Success',
+                                color: 'green'
+                            },
+                            {
+                                id: 'btnRed',
+                                text: 'Delete',
+                                type: 'delete',
+                                color: 'black'
+                            },
+                            {
+                                id: 'btnSubmit',
+                                text: 'Submit',
+                                type: 'submit'
+                            },
+                            {
+                                id: 'btnWithIcon',
+                                icon: 'download',
+                                text: 'Download',
+                                color: 'blue'
+                            },
+                            {
+                                id: 'btnOnlyIcon',
+                                icon: 'fa-cog',
+                                color: 'yellow'
+                            },
+                            {
+                                id: 'btnWithJS',
+                                text: 'Alert',
+                                onClick: "alert('Button clicked!')",
+                                color: 'yellow'
+                            }
+                        ],
+                        layout: 'group',
+                        align: 'left',
+                        className: 'mt-4'
+                    }
+                }                
             ]
         });
         

@@ -43,33 +43,29 @@ export default class Lobby extends AbstractView
                     type: 'matchup',
                     props:
                     {
-                        player1:
-                        {
+                        player1: {
                             type: 'button',
-                            props:
-                            {
+                            props: {
                                 id: 'player1',
                                 text: this.currentPlayerDisplay.username,
-                                className:
-                                    `btn ${this.currentPlayerDisplay.isReady ? 'btn-green'
-                                    : (this.currentPlayerDisplay.isJoined ? 'btn-yellow' : 'btn-primary')}`
+                                color: this.currentPlayerDisplay.isReady
+                                    ? 'green'
+                                    : (this.currentPlayerDisplay.isJoined ? 'yellow' : 'primary')
                             }
                         },
-                        player2:
-                        {
+                        player2: {
                             type: 'button',
-                            props:
-                            {
+                            props: {
                                 id: 'player2',
                                 text: this.opponentPlayerDisplay.isJoined
                                     ? (this.opponentPlayerDisplay.username || 'Opponent')
                                     : 'Waiting for Opponent...',
-                                className:
-                                    `btn ${this.opponentPlayerDisplay.isReady ? 'btn-green'
-                                    : (this.opponentPlayerDisplay.isJoined ? 'btn-yellow' : 'btn-primary')}`
+                                color: this.opponentPlayerDisplay.isReady
+                                    ? 'green'
+                                    : (this.opponentPlayerDisplay.isJoined ? 'yellow' : 'primary')
                             }
                         }
-                    }
+                    }                    
                 },
                 {
                     type: 'separator',
@@ -84,14 +80,12 @@ export default class Lobby extends AbstractView
                             {
                                 id: 'startGameBtn',
                                 text: 'Click when Ready',
-                                className: 'btn btn-primary',
-                                type: 'button'
                             },
                             {
                                 id: 'leaveBtn',
                                 text: 'Leave Lobby',
-                                type: 'button',
-                                href: '/lobbylist'
+                                href: '/lobbylist',
+                                color : 'red'
                             }
                         ],
                     }

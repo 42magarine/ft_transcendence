@@ -14,6 +14,7 @@ import PasswordReset from './views/PasswordReset.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
 import LobbyList from './views/LobbyList.js';
 import PongLocal from './views/PongLocal.js';
+import Friends from './views/FriendList.js';
 
 const routes = [
     {
@@ -148,6 +149,15 @@ const routes = [
         metadata: {
             title: 'Transcendence - Pong Local',
             description: 'Welcome to Local Pong'
+        }
+    },
+    {
+        path: '/friends',
+        role: 'user_id',
+        view: Friends,
+        metadata: {
+            title: 'Transcendence - Friends',
+            description: 'Manage your friends and connections'
         }
     }
 ];

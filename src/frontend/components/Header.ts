@@ -15,61 +15,73 @@ export default class Header extends AbstractView
 		const noMenu = ['/login', '/signup', '/two-factor'];
 
 		const currentUser = await UserService.getCurrentUser();
-		let buttonSet =
-		[
+		let buttonSet = [
 			{
 				id: 'login-btn',
 				text: 'Login',
-				href: '/login',
-				className: 'btn btn-sm'
+				icon: 'right-to-bracket',
+				href: '/login'
 			},
 			{
 				id: 'signup-btn',
 				text: 'Signup',
-				href: '/signup',
-				className: 'btn btn-sm'
+				icon: 'user-plus',
+				href: '/signup'
 			}
 		];
-		if (currentUser != null)
-		{
-			if (currentUser.role == 'admin' || currentUser.role == 'master')
-			{
-
-				buttonSet =
-				[
+		
+		if (currentUser != null) {
+			if (currentUser.role === 'admin' || currentUser.role === 'master') {
+				buttonSet = [
 					{
-						id: 'user-btn',
+						id: 'friends-btn',
+						text: 'Friends List',
+						icon: 'user-group',
+						href: '/friends',
+					},
+					{
+						id: 'user-management-btn',
 						text: 'User Management',
-						href: '/user-mangement',
-						className: "btn btn-sm"
+						icon: 'users',
+						href: '/user-mangement'
 					},
 					{
 						id: 'localpong-btn',
 						text: 'Local Pong',
-						href: '/localpong',
-						className: "btn btn-sm"
+						icon: 'table-tennis-paddle-ball',
+						href: '/localpong'
 					},
 					{
-						id: 'user-btn',
+						id: 'lobby-list-btn',
 						text: 'Lobby List',
-						href: '/lobbylist',
-						className: "btn btn-sm"
+						icon: 'list',
+						href: '/lobbylist'
 					}
-				]
-			}
-			else
-			{
-				buttonSet =
-				[
+				];
+			} else {
+				buttonSet = [
 					{
-						id: 'user-btn',
+						id: 'friends-btn',
+						text: 'Friends List',
+						icon: 'user-group',
+						href: '/friends',
+					},
+					{
+						id: 'localpong-btn',
+						text: 'Local Pong',
+						icon: 'table-tennis-paddle-ball',
+						href: '/localpong'
+					},
+					{
+						id: 'lobby-list-btn',
 						text: 'Lobby List',
-						href: '/lobbylist',
-						className: "btn btn-sm"
+						icon: 'list',
+						href: '/lobbylist'
 					}
-				]
+				];
 			}
 		}
+		
 
 		let buttonGroupHtml = '';
 		if (!noMenu.includes(location.pathname))

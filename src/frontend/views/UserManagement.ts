@@ -168,22 +168,20 @@ export default class UserManagement extends AbstractView {
                                         props: {
                                             buttons: [
                                                 {
-                                                    iconHtml: '<i class="fa-solid fa-eye"></i>',
+                                                    icon: 'eye',
+                                                    text: 'View',
                                                     href: `/users/${user.id}`,
-                                                    className: 'btn btn-sm btn-primary',
-                                                    align: 'center',
                                                 },
                                                 {
-                                                    iconHtml: '<i class="fa-solid fa-pen-to-square"></i>',
+                                                    icon: 'pen-to-square',
+                                                    text: 'Edit',
                                                     href: `/users/edit/${user.id}`,
-                                                    className: 'btn btn-sm btn-primary',
-                                                    align: 'center',
                                                 },
                                                 {
-                                                    iconHtml: '<i class="fa-solid fa-trash"></i>',
+                                                    icon: 'trash',
+                                                    text: 'Delete',
                                                     onClick: `handleDeleteUser(${user.id})`,
-                                                    className: 'btn btn-sm btn-red delete-user',
-                                                    align: 'center',
+                                                    type: 'delete',
                                                 }
                                             ]                                            
                                         }

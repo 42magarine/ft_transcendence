@@ -43,25 +43,25 @@ window.userManagementService = new UserMangementService();
 // ==============================
 
 async function renderFooter(): Promise<void> {
-	const footer = new Footer();
-	const footerHtml = await footer.renderWithProps({
-		year: '2025',
-		links: [
-			{ text: 'Privacy', href: '/privacy' },
-			{ text: 'Terms', href: '/terms' },
-			{ text: 'Imprint', href: '/imprint' }
-		]
-	});
-	const footerElement = document.getElementById('footer-root');
-	if (footerElement)
+    const footer = new Footer();
+    const footerHtml = await footer.renderWithProps({
+        year: '2025',
+        links: [
+            { text: 'Privacy', href: '/privacy' },
+            { text: 'Terms', href: '/terms' },
+            { text: 'Imprint', href: '/imprint' }
+        ]
+    });
+    const footerElement = document.getElementById('footer-root');
+    if (footerElement)
         footerElement.innerHTML = footerHtml;
 }
 
 async function renderHeader(): Promise<void> {
-	const header = new Header(new URLSearchParams(window.location.search));
-	const headerHtml = await header.getHtml();
-	const headerElement = document.getElementById('header-root');
-	if (headerElement)
+    const header = new Header(new URLSearchParams(window.location.search));
+    const headerHtml = await header.getHtml();
+    const headerElement = document.getElementById('header-root');
+    if (headerElement)
         headerElement.innerHTML = headerHtml;
 }
 
@@ -70,17 +70,17 @@ async function renderHeader(): Promise<void> {
 // =======================
 
 function webSocketWrapper(socket: WebSocket): Promise<void> {
-	return new Promise((resolve, reject) => {
-		if (socket.readyState === WebSocket.OPEN) {
-			resolve();
-		} else {
-			socket.addEventListener('open', () => resolve(), { once: true });
-			socket.addEventListener('error', (event) => {
-				console.error('WebSocket error event:', event);
-				reject(new Error('WebSocket connection failed'));
-			}, { once: true });
-		}
-	});
+    return new Promise((resolve, reject) => {
+        if (socket.readyState === WebSocket.OPEN) {
+            resolve();
+        } else {
+            socket.addEventListener('open', () => resolve(), { once: true });
+            socket.addEventListener('error', (event) => {
+                console.error('WebSocket error event:', event);
+                reject(new Error('WebSocket connection failed'));
+            }, { once: true });
+        }
+    });
 }
 
 function initSocket(): void {
@@ -150,22 +150,22 @@ document.addEventListener('RouterContentLoaded', async () => {
     } else {
         console.log("RouterContentLoaded: Socket is already ready.");
         if (!window.messageHandler) {
-             window.lobbyListService = window.lobbyListService || new LobbyListService();
-             window.lobbyService = window.lobbyService || new LobbyService();
-             window.messageHandler = new MessageHandlerService();
+            window.lobbyListService = window.lobbyListService || new LobbyListService();
+            window.lobbyService = window.lobbyService || new LobbyService();
+            window.messageHandler = new MessageHandlerService();
 
-             if (window.lobbyListService) window.lobbyListService.init();
-             if (window.lobbyService && window.messageHandler) {
-                 window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
-             }
+            if (window.lobbyListService) window.lobbyListService.init();
+            if (window.lobbyService && window.messageHandler) {
+                window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
+            }
         } else {
             if (window.lobbyListService) {
                 console.log("RouterContentLoaded: Socket and messageHandler ready. Re-initializing LobbyListService UI components.");
                 window.lobbyListService.init();
             }
             if (window.lobbyService) {
-                 // lobbyService.init might also need to be called if it manages UI specific to its views.
-                 // window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
+                // lobbyService.init might also need to be called if it manages UI specific to its views.
+                // window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
             }
         }
     }
@@ -192,9 +192,9 @@ const router = new Router(routes);
 // =======================
 
 document.addEventListener('DOMContentLoaded', async () => {
-	await renderHeader();
-	await renderFooter();
-	await router.render();
+    await renderHeader();
+    await renderFooter();
+    await router.render();
 });
 
 // ============================
@@ -202,10 +202,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ============================
 
 (window as any).handleGoogleLogin = async function (response: any) {
-	try {
-		await window.userManagementService.loginWithGoogle(response.credential);
-	} catch (error) {
-		console.error('Google login failed:', error);
-		throw error;
-	}
+    try {
+        await window.userManagementService.loginWithGoogle(response.credential);
+    } catch (error) {
+        console.error('Google login failed:', error);
+        throw error;
+    }
 };

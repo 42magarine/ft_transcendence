@@ -334,7 +334,8 @@ export default class UserManagementService {
                         password: formData.get('password') as string,
                         role: formData.get('role') as string,
                         emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
-                        twoFAEnabled: formData.get('twoFAEnabled') as string
+                        twoFAEnabled: formData.get('twoFAEnabled') as string,
+                        status: 'offline'
 
                     };
 
@@ -624,7 +625,8 @@ export default class UserManagementService {
                         tf_four: formData.get('tf_four') as string,
                         tf_five: formData.get('tf_five') as string,
                         tf_six: formData.get('tf_six') as string,
-                        secret: formData.get('secret') as string
+                        secret: formData.get('secret') as string,
+                        status: 'offline'
                     };
 
                     const avatarFile = formData.get('avatar') as File;

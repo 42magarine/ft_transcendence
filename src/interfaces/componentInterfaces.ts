@@ -16,7 +16,7 @@ export type ButtonColor =
     | 'transparent'
     | 'outline';
 
-export type ButtonType = 'submit' | 'button' | 'google-signin' | 'text-with-button';
+export type ButtonType = 'submit' | 'delete' | 'button' | 'google-signin' | 'text-with-button';
 
 export interface ButtonProps {
     id?: string;
@@ -25,7 +25,7 @@ export interface ButtonProps {
     textBefore?: string;
     onClick?: string;
     href?: string;
-    iconHtml?: string;
+    icon?: string;
     align?: ButtonAlign;
     color?: ButtonColor;
     type?: ButtonType;
@@ -167,6 +167,7 @@ export type ContentBlock =
 export interface LabelProps {
     htmlFor: string;
     text: string;
+    id?: string;
     className?: string;
 }
 

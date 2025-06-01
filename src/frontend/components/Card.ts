@@ -58,6 +58,11 @@ export default class Card extends AbstractView {
                 const Button = (await import('./Button.js')).default;
                 return await new Button().renderButtonGroup(block.props);
             }
+            
+            case 'slider': {
+                const Slider = (await import('./Slider.js')).default;
+                return await new Slider().renderSlider(block.props);
+            }
 
             case 'separator': {
                 const Separator = (await import('./Seperator.js')).default;
@@ -92,11 +97,6 @@ export default class Card extends AbstractView {
             case 'signup-footer': {
                 const renderSignupFooter = (await import('./SignupFooter.js')).default;
                 return renderSignupFooter();
-            }
-            
-            case 'slider': {
-                const Slider = (await import('./Slider.js')).default;
-                return await new Slider().renderSlider(block.props);
             }
 
             case 'html': {

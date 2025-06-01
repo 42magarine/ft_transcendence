@@ -17,6 +17,13 @@ export interface User {
     twoFAEnabled?: string;
     listAvatar?: string;
     googleSignIn?: boolean;
+    status: 'online' | 'offline';
+}
+
+export interface FriendList {
+	id?: number;
+	username: string;
+	status: 'online' | 'offline';
 }
 
 export interface UserList {
