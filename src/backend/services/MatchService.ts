@@ -3,8 +3,8 @@ import { MatchModel } from "../models/MatchModel.js";
 import { UserService } from "./UserService.js";
 
 export class MatchService {
-    public matchRepo = AppDataSource.getRepository(MatchModel);
-    public userService: UserService;
+    private matchRepo = AppDataSource.getRepository(MatchModel);
+    private userService: UserService;
 
     constructor(userService: UserService) {
         this.userService = userService;

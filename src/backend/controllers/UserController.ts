@@ -5,7 +5,11 @@ import { UserModel } from "../models/MatchModel.js";
 import { RegisterCredentials, LoginCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/userInterfaces.js";
 
 export class UserController {
-    constructor(private userService: UserService) { }
+    private _userService: UserService;
+
+    constructor(userService: UserService) {
+        this._userService = userService;
+    }
 
     async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
         try {
@@ -14,7 +18,7 @@ export class UserController {
             }
 
             const currentUserId = request.user.id;
-            const user = await this.userService.findUserById(currentUserId);
+            const user = await this._userService.findUserById(currentUserId);
             if (!user) {
                 return reply.code(404).send({ error: 'User not found' });
             }
@@ -29,7 +33,7 @@ export class UserController {
 
     async getAllUser(request: FastifyRequest, reply: FastifyReply) {
         try {
-            const users = await this.userService.findAllUsers();
+            const users = await this._userService.findAllUsers();
             reply.code(200).send(users);
         }
         catch (error) {
@@ -54,7 +58,7 @@ export class UserController {
                 return reply.code(403).send({ error: 'Insufficient permissions to read this user' });
             }
 
-            const user = await this.userService.findUserById(userId);
+            const user = await this._userService.findUserById(userId);
 
             if (!user) {
                 return reply.code(404).send({ error: 'User not found' });
@@ -121,7 +125,7 @@ export class UserController {
             // Create updated user object
             const updatedUser = { id: userId, ...updates } as UserModel;
 
-            const result = await this.userService.updateUser(updatedUser);
+            const result = await this._userService.updateUser(updatedUser);
             reply.code(200).send({ message: 'User updated successfully', user: result });
         }
         catch (error) {
@@ -150,7 +154,7 @@ export class UserController {
                 return reply.code(403).send({ error: 'Insufficient permissions to delete this user' });
             }
 
-            const deleted = await this.userService.deleteUser(deleteUserId);
+            const deleted = await this._userService.deleteUser(deleteUserId);
             if (!deleted) {
                 return reply.code(404).send({ error: 'User not found or cannot be deleted' });
             }
@@ -165,7 +169,7 @@ export class UserController {
     // Modified login method to handle 2FA
     async login(request: FastifyRequest<{ Body: LoginCredentials }>, reply: FastifyReply) {
         try {
-            const result = await this.userService.login(request.body);
+            const result = await this._userService.login(request.body);
 
             // Check if 2FA is required
             if ('requireTwoFactor' in result && result.requireTwoFactor) {
@@ -210,7 +214,7 @@ export class UserController {
 
     async loginWithGoogle(request: FastifyRequest<{ Body: GoogleLoginBody }>, reply: FastifyReply) {
         try {
-            const authResult = await this.userService.loginWithGoogle(request.body.token);
+            const authResult = await this._userService.loginWithGoogle(request.body.token);
 
             reply.setCookie('accessToken', authResult.accessToken, {
                 httpOnly: true,
@@ -242,7 +246,7 @@ export class UserController {
             }
 
             // Verify the 2FA code
-            const result = await this.userService.verifyTwoFactorCode(userId, code);
+            const result = await this._userService.verifyTwoFactorCode(userId, code);
 
             // Set the authentication cookie
             reply.setCookie('accessToken', result.accessToken, {
@@ -270,7 +274,7 @@ export class UserController {
                 return reply.code(400).send({ error: 'Email is required' });
             }
 
-            await this.userService.requestPasswordReset(email);
+            await this._userService.requestPasswordReset(email);
 
             // Always return success for security reasons, even if email doesn't exist
             return reply.code(200).send({
@@ -294,7 +298,7 @@ export class UserController {
                 return reply.code(400).send({ error: 'Reset token is required' });
             }
 
-            await this.userService.verifyResetToken(token);
+            await this._userService.verifyResetToken(token);
 
             return reply.code(200).send({ valid: true });
         }
@@ -330,7 +334,7 @@ export class UserController {
                 return reply.code(400).send({ error: 'Password must be at least 8 characters long' });
             }
 
-            await this.userService.resetPassword(token, password);
+            await this._userService.resetPassword(token, password);
 
             return reply.code(200).send({ message: 'Password has been reset successfully' });
         }
@@ -349,7 +353,7 @@ export class UserController {
                 return reply.code(400).send({ error: 'Verification token is required' });
             }
 
-            await this.userService.verifyEmail(token);
+            await this._userService.verifyEmail(token);
 
             // Redirect to login page after successful verification
             return reply.redirect('/login?verified=true');
@@ -370,7 +374,7 @@ export class UserController {
             }
 
             // Find user by email
-            const user = await this.userService.findUserByEmail(email);
+            const user = await this._userService.findUserByEmail(email);
 
             if (!user) {
                 // Don't reveal if email exists or not
@@ -454,7 +458,7 @@ export class UserController {
                 }
 
                 // Register user with 2FA data included
-                await this.userService.register(userData, requestingUserRole);
+                await this._userService.register(userData, requestingUserRole);
 
                 return reply.code(201).send({
                     message: "Registration successful. Please check your email to verify your account.",
@@ -482,7 +486,7 @@ export class UserController {
                 }
 
                 // Register user with 2FA data
-                await this.userService.register(userData, requestingUserRole);
+                await this._userService.register(userData, requestingUserRole);
 
                 return reply.code(201).send({
                     message: "Registration successful. Please check your email to verify your account.",
@@ -513,7 +517,7 @@ export class UserController {
                 return reply.code(401).send({ error: 'Refresh token required' });
             }
 
-            const result = await this.userService.refreshToken(refreshToken);
+            const result = await this._userService.refreshToken(refreshToken);
 
             reply.setCookie('accessToken', result.accessToken, {
                 httpOnly: true,
@@ -550,7 +554,7 @@ export class UserController {
     }
 
     async generateQR(request: FastifyRequest, reply: FastifyReply) {
-        let secAQrCode = await this.userService.generateQR();
+        let secAQrCode = await this._userService.generateQR();
         if (!secAQrCode) {
             return reply.code(500).send({ error: "QR generation failed!" });
         }

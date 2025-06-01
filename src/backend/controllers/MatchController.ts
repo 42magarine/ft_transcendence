@@ -1,24 +1,21 @@
-import { randomUUID } from "crypto";
-import { ClientMessage, createLobbyMessage, GameActionMessage, joinLobbyMessage, leaveLobbyMessage, ReadyMessage, ServerMessage } from "../../interfaces/interfaces.js";
-import { Player } from "../gamelogic/components/Player.js";
-import { MessageHandlers } from "../services/MessageHandlers.js";
-import { UserService } from "../services/UserService.js";
 import { WebSocket } from "ws";
-import { MatchLobby } from "../lobbies/MatchLobby.js";
+import { randomUUID } from "crypto";
+import { Player } from "../gamelogic/components/Player.js";
 import { MatchService } from "../services/MatchService.js";
+import { MessageHandlers } from "../services/MessageHandlers.js";
+import { MatchLobby } from "../lobbies/MatchLobby.js";
+import { ClientMessage, createLobbyMessage, GameActionMessage, joinLobbyMessage, leaveLobbyMessage, ReadyMessage, ServerMessage } from "../../interfaces/interfaces.js";
 
 export class MatchController {
-    private _lobbies: Map<string, MatchLobby>;
-    private _clients: Map<WebSocket, Player | null>; //is EMPTY on startup
-    private _handlers: MessageHandlers;
-    private _userService: UserService;
     private _matchService: MatchService;
+    private _lobbies: Map<string, MatchLobby>;
+    private _clients: Map<WebSocket, Player | null>;
+    private _handlers: MessageHandlers;
 
-    constructor(userService: UserService, lobbies: Map<string, MatchLobby>) {
-        this._userService = userService;
-        this._lobbies = lobbies;
-        this._matchService = new MatchService(userService);
-        this._clients = new Map<WebSocket, Player | null>(); // player will be null on creation
+    constructor(matchService: MatchService) {
+        this._matchService = matchService;
+        this._lobbies = new Map();
+        this._clients = new Map();
         this._handlers = new MessageHandlers(this.broadcast.bind(this));
         this.initMatchController();
     }
