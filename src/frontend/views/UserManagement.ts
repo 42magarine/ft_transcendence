@@ -64,7 +64,6 @@ export default class UserManagement extends AbstractView {
                                         name: 'twoFAEnabled',
                                         label: '2FA Enabled:',
                                         checked: false,
-                                        readonly: true
                                     },
                                     {
                                         id: 'googleSignIn',

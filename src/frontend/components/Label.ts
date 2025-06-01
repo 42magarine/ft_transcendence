@@ -7,7 +7,7 @@ export default class Label extends AbstractView {
 	}
 
 	async renderLabel({ htmlFor, text, className = '', id }: LabelProps): Promise<string> {
-		const labelClass = className;
+		const labelClass = `mt-2 ${className}`.trim(); // Add margin-top spacing
 
 		return this.render(`
 			<label for="${htmlFor}" ${id ? `id="${id}"` : ''} class="${labelClass}">
@@ -18,7 +18,7 @@ export default class Label extends AbstractView {
 
 	async getHtml(): Promise<string> {
 		return this.render(`
-			<label for="default">
+			<label for="default" class="mt-2">
 				Default Label
 			</label>
 		`);
