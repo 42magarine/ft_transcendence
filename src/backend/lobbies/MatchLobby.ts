@@ -40,24 +40,6 @@ export class MatchLobby {
         this._game = new PongGame(matchService);
     }
 
-    // on player removed pause game! -> also need to update users and stuff maybe!!
-    private onPlayerRemoved(player: Player): void {
-        if (this._game.isRunning && !this._game.isPaused) {
-            this._game.pauseGame();
-        }
-    }
-
-    //update lobby participants more for tournament
-    // private async updateLobbyParticipants() {
-    //     if (this._dbGame && this._gameId) {
-    //         for (const player of this._players.values()) {
-    //             if (player.userId) {
-    //                 await this._matchService!.addLobbyParticipant(this._gameId, player.userId)
-    //             }
-    //         }
-    //     }
-    // }
-
     public getGameState(): IGameState {
         return this._game.getState();
     }
@@ -92,7 +74,7 @@ export class MatchLobby {
             this._players.set(playerNumber, player);
 
             // add player to this._game.player1 or player2 (type: PongGame)
-            this._game.setPlayer(player._playerNumber, player);
+            this._game.setPlayer(playerNumber, player);
 
             this._broadcast(this._lobbyId, {
                 type: "playerJoined",
@@ -112,30 +94,45 @@ export class MatchLobby {
         }
     }
 
-    public removePlayer(player: Player): void {
-        this._players.delete(player.id);
-        this._readyPlayers.delete(player.id);
-        this.onPlayerRemoved(player);
+    public async removePlayer(player: Player): Promise<void> {
+        try {
+            // Spieler aus DB entfernen
+            await this._matchService.removePlayerFromMatch(this._lobbyId, player.userId);
 
-        console.log(`Player ${player.id} disconnected`);
+            // Spieler aus Maps entfernen
+            this._players.delete(player._playerNumber);
+            this._readyPlayers.delete(player._playerNumber);
 
-        this._broadcast(this._lobbyId, {
-            type: "playerDisconnected",
-            id: player.id,
-            playerCount: this._players.size
-        });
+            // Spieler aus PongGame entfernen
+            this._game.removePlayer(player._playerNumber);
 
-        if (this._creatorId === player.userId && this._players.size > 0) {
-            const nextPlayer = this._players.values().next().value;
+            console.log(`Player ${player._playerNumber} (userId: ${player.userId}) left lobby ${this._lobbyId}`);
 
-            if (nextPlayer && nextPlayer.userId) {
-                this._creatorId = nextPlayer.userId;
-                this._broadcast(this._lobbyId, {
-                    type: "newCreator",
-                    creatorId: this._creatorId,
-                    creatorPlayerId: nextPlayer.id
-                })
+            this._broadcast(this._lobbyId, {
+                type: "playerDisconnected",
+                playerNumber: player._playerNumber,
+                userId: player.userId,
+                playerCount: this._players.size
+            });
+
+            // Wenn Creator verlässt, neuen Creator bestimmen
+            if (this._creatorId === player.userId && this._players.size > 0) {
+                const nextPlayer = this._players.values().next().value;
+
+                if (nextPlayer && nextPlayer.userId) {
+                    this._creatorId = nextPlayer.userId;
+
+                    this._broadcast(this._lobbyId, {
+                        type: "newCreator",
+                        creatorId: this._creatorId,
+                        creatorPlayerId: nextPlayer.id
+                    });
+                }
             }
+        }
+        catch (error) {
+            console.error("Error removing player from lobby:", error);
+            throw error;
         }
     }
 

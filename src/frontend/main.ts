@@ -12,7 +12,6 @@ import UserService from './services/UserService.js';
 // ===============
 // 🔧 GLOBAL UTILS
 // ===============
-import '../utils/table.js';
 import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
 import { TemplateEngine } from '../utils/TemplateEngine.js';

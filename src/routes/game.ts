@@ -8,8 +8,6 @@ export default async function (fastify: FastifyInstance) {
     const matchService = new MatchService(userService);
     const matchController = new MatchController(matchService);
 
-    // Websocket route handler
-    fastify.get('/api/game/wss', { websocket: true }, (connection, _request) => {
-        matchController.handleConnection(connection);
-    });
+    // Websocket route
+    fastify.get('/api/game/wss', { websocket: true }, matchController.handleConnection.bind(matchController));
 }

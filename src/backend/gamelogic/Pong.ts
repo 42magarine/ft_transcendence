@@ -186,6 +186,15 @@ export class PongGame {
         }
     }
 
+    public removePlayer(playerNumber: number): void {
+        if (playerNumber === 1) {
+            this._player1 = null;
+        }
+        else if (playerNumber === 2) {
+            this._player2 = null;
+        }
+    }
+
     public getState(): IGameState {
         return {
             ball: {
