@@ -52,6 +52,7 @@ export class MatchController {
 
     private sendMessage(connection: WebSocket, data: ServerMessage) {
         if (connection.readyState === WebSocket.OPEN) {
+            console.log("sendMessage (backend->frontend): ", data)
             connection.send(JSON.stringify(data));
         }
     }

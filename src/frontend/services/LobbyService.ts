@@ -135,7 +135,7 @@ export default class LobbyService {
             if (!this.messageHandler || !this.userService || !currentLobbyId) return;
             const currentUser = await UserService.getCurrentUser();
             if (!currentUser || !currentUser.id) return;
-            this.messageHandler.markReady(currentUser.id.toString(), currentLobbyId);
+            this.messageHandler.markReady(currentLobbyId, currentUser.id);
             return;
         }
 

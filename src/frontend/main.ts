@@ -72,41 +72,44 @@ function webSocketWrapper(socket: WebSocket): Promise<void> {
     return new Promise((resolve, reject) => {
         if (socket.readyState === WebSocket.OPEN) {
             resolve();
-        } else {
+        }
+        else {
             socket.addEventListener('open', () => resolve(), { once: true });
             socket.addEventListener('error', (event) => {
                 console.error('WebSocket error event:', event);
                 reject(new Error('WebSocket connection failed'));
-            }, { once: true });
+            },
+                { once: true }
+            );
         }
     });
 }
 
-function initSocket(): void {
+async function initSocket(): Promise<void> {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    let socket = new WebSocket(`${wsProtocol}//${window.location.host}/api/game/wss`);
+    const socket = new WebSocket(`${wsProtocol}//${window.location.host}/api/game/wss`);
 
     window.ft_socket = socket;
 
-    window.socketReady = webSocketWrapper(socket)
-        .then(() => {
-            window.lobbyListService = new LobbyListService();
-            window.lobbyService = new LobbyService();
-            window.messageHandler = new (MessageHandlerService as any)(socket, window.socketReady, window.userService);
+    try {
+        const readyPromise = webSocketWrapper(socket);
+        window.socketReady = readyPromise;
 
-            if (window.lobbyListService && window.socketReady) {
-                window.lobbyListService.init();
-            }
-            if (window.lobbyService && window.messageHandler) {
-                window.lobbyService.init(socket, window.messageHandler, window.userService);
-            }
-        })
-        .catch((err) => {
-            console.error('WebSocket connection error:', err);
-            throw err;
-        });
+        await readyPromise;
+
+        window.lobbyListService = new LobbyListService();
+        window.lobbyService = new LobbyService();
+        window.messageHandler = new MessageHandlerService();
+
+        window.lobbyListService.init();
+
+        window.lobbyService.init(socket, window.messageHandler, window.userService);
+    }
+    catch (error) {
+        console.error('WebSocket connection error:', error);
+        throw error;
+    }
 }
-
 
 // =======================
 // ⚡ ROUTER EVENT HANDLING
@@ -128,11 +131,11 @@ document.addEventListener('RouterContentLoaded', async () => {
             if (window.lobbyService && typeof window.lobbyService.destroy === 'function') {
                 window.lobbyService.destroy();
             }
-            window.ft_socket = undefined;
-            window.socketReady = undefined;
-            window.messageHandler = undefined;
+            // window.ft_socket = undefined;
+            // window.socketReady = undefined;
+            // window.messageHandler = undefined;
             // window.lobbyListService = undefined;
-            window.lobbyService = undefined;
+            // window.lobbyService = undefined;
         }
         return;
     }
@@ -146,7 +149,8 @@ document.addEventListener('RouterContentLoaded', async () => {
         } catch (error) {
             console.error("RouterContentLoaded: Failed to initialize socket via initSocket():", error);
         }
-    } else {
+    }
+    else {
         console.log("RouterContentLoaded: Socket is already ready.");
         if (!window.messageHandler) {
             window.lobbyListService = window.lobbyListService || new LobbyListService();
@@ -157,7 +161,8 @@ document.addEventListener('RouterContentLoaded', async () => {
             if (window.lobbyService && window.messageHandler) {
                 window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
             }
-        } else {
+        }
+        else {
             if (window.lobbyListService) {
                 console.log("RouterContentLoaded: Socket and messageHandler ready. Re-initializing LobbyListService UI components.");
                 window.lobbyListService.init();

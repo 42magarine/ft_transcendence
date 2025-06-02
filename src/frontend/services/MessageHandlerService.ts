@@ -1,14 +1,9 @@
 import { ClientMessage } from '../../interfaces/interfaces.js';
-import UserService from './UserService.js';
 
 export default class MessageHandlerService {
-    private currentUser: any = null;
-
-    constructor() {
-    }
-
     private async safeSend(msg: ClientMessage) {
-        console.log("safeSend -> ", msg)
+        console.log("safeSend (frontend->backend): ", msg)
+
         if (!window.socketReady) {
             console.error('MessageHandlerService: window.socketReady promise does not exist.');
             throw new Error('Socket readiness promise not available. Cannot send message.');
@@ -26,23 +21,18 @@ export default class MessageHandlerService {
             console.warn(`MessageHandlerService: ${errorMessage}`, msg);
             throw new Error(errorMessage);
         }
-
         window.ft_socket.send(JSON.stringify(msg));
     }
 
-    public async createLobby() {
-        this.currentUser = await UserService.getCurrentUser();
-        if (!this.currentUser) return;
-
+    public async createLobby(userId: number) {
         const msg: ClientMessage = {
             type: 'createLobby',
-            userId: this.currentUser.id,
+            userId
         };
         await this.safeSend(msg);
     }
 
     public async joinLobby(lobbyId: string, userId: number) {
-        console.log("JoinLobby()")
         const msg: ClientMessage = {
             type: 'joinLobby',
             lobbyId,
@@ -59,10 +49,10 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async markReady(userID: string, lobbyId: string) {
+    public async markReady(lobbyId: string, userId: number) {
         const msg: ClientMessage = {
             type: 'ready',
-            userID,
+            userId,
             lobbyId,
         };
         await this.safeSend(msg);
@@ -71,25 +61,7 @@ export default class MessageHandlerService {
     public async leaveLobby(lobbyId: string) {
         const msg: ClientMessage = {
             type: 'leaveLobby',
-            lobbyId,
-        };
-        await this.safeSend(msg);
-    }
-
-    public async sendInvite(userID: string, lobbyId: string) {
-        const msg: ClientMessage = {
-            type: 'sendInvite',
-            userID,
-            lobbyId,
-        };
-        await this.safeSend(msg);
-    }
-
-    public async acceptInvite(userID: string, lobbyId: string) {
-        const msg: ClientMessage = {
-            type: 'acceptInvite',
-            userID,
-            lobbyId,
+            lobbyId
         };
         await this.safeSend(msg);
     }
@@ -106,5 +78,6 @@ export default class MessageHandlerService {
             type: 'getLobbyById',
             lobbyId
         };
+        await this.safeSend(msg);
     }
 }

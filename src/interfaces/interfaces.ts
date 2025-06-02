@@ -18,23 +18,23 @@ export interface Route {
 declare global {
 	interface Window {
 		ft_socket?: WebSocket;
-		socketReady?: Promise<void>;
-		messageHandler?: MessageHandlerService;
+		socketReady: Promise<void>;
+		messageHandler: MessageHandlerService;
 		lobbyListService: LobbyListService;
-		lobbyService?: LobbyService;
+		lobbyService: LobbyService;
 		userService: UserService;
 		userManagementService: UserMangementService;
 	}
 }
 
-export {};
+export { };
 
 export interface BallStateWithVelocity {
-	x: number;
-	y: number;
-	radius: number;
-	velocityX: number;
-	velocityY: number;
+    x: number;
+    y: number;
+    radius: number;
+    velocityX: number;
+    velocityY: number;
 }
 
 export type IPaddleDirection = 'up' | 'down';

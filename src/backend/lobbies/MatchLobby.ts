@@ -76,6 +76,8 @@ export class MatchLobby {
             // add player to this._game.player1 or player2 (type: PongGame)
             this._game.setPlayer(playerNumber, player);
 
+            console.log(`Player ${player._playerNumber} (userId: ${player.userId}) join lobby ${this._lobbyId}`);
+
             this._broadcast(this._lobbyId, {
                 type: "playerJoined",
                 playerCount: this._players.size,
