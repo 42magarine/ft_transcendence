@@ -52,7 +52,6 @@ export default class EmailVerification extends AbstractView
                         props:
                         {
                             text: 'Resend Verification Email',
-                            type: 'submit',
                             className: 'btn btn-primary'
                         }
                     }

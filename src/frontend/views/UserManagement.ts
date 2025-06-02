@@ -1,7 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import { UserList } from '../../interfaces/userInterfaces.js';
-import Modal from '../components/Modal.js';
 import UserService from '../services/UserService.js';
 
 export default class UserManagement extends AbstractView {
@@ -86,19 +85,12 @@ export default class UserManagement extends AbstractView {
                                         {
                                             text: 'Create User',
                                             type: 'submit',
-                                            className: 'btn btn-green'
+                                            color: 'green',
+                                            className: 'w-full'
                                         }
                                     ],
                                 layout: 'stack',
                                 align: 'left'
-                            }
-                        },
-                        // Safe label
-                        {
-                            type: 'label',
-                            props: {
-                                htmlFor: 'dummy-id',
-                                text: ' '
                             }
                         },
 
@@ -151,8 +143,10 @@ export default class UserManagement extends AbstractView {
                                     {
                                         type: 'label',
                                         props: {
-                                            text: `${user.emailVerified ? 'Yes' : 'No'}`,
-                                            htmlFor: `user-${user.id}-verified`
+                                            htmlFor: `user-${user.id}-verified`,
+                                            iconHtml: user.emailVerified ? 'fa-check' : 'fa-times',
+                                            color: user.emailVerified ? 'green' : 'red',
+                                            className: 'text-sm'
                                         }
                                     },
                                     {
@@ -177,11 +171,11 @@ export default class UserManagement extends AbstractView {
                                                     href: `/users/edit/${user.id}`,
                                                 },
                                                 {
+                                                    id: `delete-user-${user.id}`,
                                                     icon: 'trash',
                                                     text: 'Delete',
-                                                    onClick: `handleDeleteUser(${user.id})`,
-                                                    type: 'delete',
-                                                }
+                                                    color: 'red',
+                                                }                                                  
                                             ]                                            
                                         }
                                     }
@@ -190,31 +184,6 @@ export default class UserManagement extends AbstractView {
                         }
                     ]
             });
-
-        const deleteModal = await new Modal().renderModal(
-            {
-                id: 'confirm-delete-modal',
-                title: 'Confirm Deletion',
-                content: `
-                <p>Are you sure you want to delete this user?<br>
-                <strong>This action cannot be undone.</strong></p>
-            `,
-                footerButtons:
-                    [
-                        {
-                            id: 'cancel-delete-btn',
-                            text: 'Cancel',
-                            className: 'btn btn-secondary',
-                            onClick: `document.getElementById('confirm-delete-modal').classList.add('hidden')`
-                        },
-                        {
-                            id: 'confirm-delete-btn',
-                            text: 'Yes, Delete',
-                            className: 'btn btn-red'
-                        }
-                    ],
-                closableOnOutsideClick: true
-            });
-        return this.render(`${createUserCard}${deleteModal}`);
+        return this.render(`${createUserCard}`);
     }
 }

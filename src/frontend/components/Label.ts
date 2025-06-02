@@ -6,22 +6,44 @@ export default class Label extends AbstractView {
 		super(params);
 	}
 
-	async renderLabel({ htmlFor, text, className = '', id }: LabelProps): Promise<string> {
+	async renderLabel({
+		htmlFor,
+		text = '',
+		className = '',
+		id,
+		iconHtml = '',
+		color
+	}: LabelProps): Promise<string> {
 		const labelClass = `mt-2 ${className}`.trim();
-
-		// If value is embedded in text (e.g. "Email: user@example.com"), split it
+	
 		let [labelText, valueText] = text.split(':');
 		valueText = valueText?.trim() ?? '';
-
+	
+		const hasText = labelText?.trim() !== '';
+	
+		const colorClassMap: Record<string, string> = {
+			green: 'text-green-500',
+			red: 'text-red-500',
+			yellow: 'text-yellow-500',
+			gray: 'text-gray-500',
+			blue: 'text-blue-500',
+			black: 'text-black',
+			white: 'text-white',
+		};
+	
+		const icon = iconHtml
+			? `<i class="fas ${iconHtml} ${color && colorClassMap[color] ? colorClassMap[color] : ''}"></i> `
+			: '';
+	
 		return this.render(`
 			<div class="flex flex-row items-center gap-4 ${labelClass}" ${id ? `id="${id}"` : ''}>
 				<label for="${htmlFor}" class="text-sm text-gray-400 font-medium">
-					${labelText}:
+					${icon}${hasText ? labelText : ''}
 				</label>
-				<span class="text-base text-white">${valueText}</span>
+				${hasText ? `<span class="text-base text-white">${valueText}</span>` : ''}
 			</div>
 		`);
-	}
+	}	
 
 	async getHtml(): Promise<string> {
 		return this.render(`

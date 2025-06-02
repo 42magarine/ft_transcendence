@@ -3,20 +3,19 @@ import Card from '../components/Card.js';
 import UserService from '../services/UserService.js';
 
 export default class ProfileEdit extends AbstractView {
-	constructor() {
-		super();
-	}
+	constructor(params: URLSearchParams) {
+		super(params);
+	}	
 
 	async getHtml(): Promise<string> {
-		const user = await UserService.getCurrentUser();
+		const userId = Number(this.params.get('id'));
+		const user = await UserService.getUserById(userId);
 
 		const profileCard = await new Card().renderCard({
 			title: 'Edit Your Profile',
-			formId: 'edit-profile-form',
+			formId: `edit_profile_form/${userId}`, // ✅ Unique form ID
 			contentBlocks: [
-                {
-                    type: 'separator',
-                },
+				{ type: 'separator' },
 				{
 					type: 'inputgroup',
 					props: {
@@ -52,9 +51,7 @@ export default class ProfileEdit extends AbstractView {
 						]
 					}
 				},
-				{
-					type: 'separator',
-				},
+				{ type: 'separator' },
 				{
 					type: 'buttongroup',
 					props: {
@@ -62,16 +59,15 @@ export default class ProfileEdit extends AbstractView {
 						align: 'left',
 						buttons: [
 							{
+								id: `submit-profile-btn-${userId}`,  // ✅ Unique submit button ID
 								text: 'Update Profile',
-								type: 'submit',
-								className: 'btn btn-green w-full'
+								color: 'green',
+								className: 'w-full'
 							}
 						]
 					}
 				},
-				{
-					type: 'separator',
-				},
+				{ type: 'separator' },
 				{
 					type: 'buttongroup',
 					props: {
@@ -80,8 +76,8 @@ export default class ProfileEdit extends AbstractView {
 						buttons: [
 							{
 								text: 'Deactivate Account',
-								type: 'button',
 								onClick: 'handleDeactivateAccount()',
+								color: 'red',
 								className: 'btn btn-red w-full'
 							}
 						]
@@ -91,5 +87,12 @@ export default class ProfileEdit extends AbstractView {
 		});
 
 		return this.render(profileCard);
+	}
+
+	onMounted(): void {
+		const userId = this.params.get('id');
+		if (userId) {
+			UserService.attachUpdateHandler(`submit-profile-btn-${userId}`, `edit_profile_form/${userId}`, userId);
+		}
 	}
 }

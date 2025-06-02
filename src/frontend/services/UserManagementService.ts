@@ -3,8 +3,9 @@ import Router from '../../utils/Router.js';
 import { User, ApiErrorResponse, LoginCredentials, AuthResponse, PasswordResetRequest, PasswordResetConfirm, QRResponse } from "../../interfaces/userInterfaces.js";
 import UserService from "./UserService.js";
 import Toggle from "../components/Toggle.js"
-export default class UserManagementService {
+import Modal from '../components/Modal.js';
 
+export default class UserManagementService {
     constructor() {
         this.initialize();
     }
@@ -883,46 +884,77 @@ export default class UserManagementService {
         }
     }
 
-    public setupUserManagementView(): void {
+    public async setupUserManagementView(): Promise<void> {
         const toggle = new Toggle();
         toggle.mountToggle('emailVerified');
-
-        const deleteButtons = document.querySelectorAll('.delete-user');
-        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        const modal = document.getElementById('confirm-delete-modal');
+    
+        // Inject modal manually into DOM
+        const modalContainer = document.createElement('div');
+        modalContainer.innerHTML = await new Modal().renderModal({
+            id: 'confirm-delete-modal',
+            title: 'Confirm Deletion',
+            content: `
+                <p>Are you sure you want to delete this user?<br>
+                <strong>This action cannot be undone.</strong></p>
+            `,
+            footerButtons: [
+                {
+                    id: 'cancel-delete-btn',
+                    text: 'Cancel',
+                    className: 'btn btn-secondary',
+                    onClick: `document.getElementById('confirm-delete-modal').classList.add('hidden')`
+                },
+                {
+                    id: 'confirm-delete-btn',
+                    text: 'Yes, Delete',
+                    className: 'btn btn-red'
+                }
+            ],
+            closableOnOutsideClick: true
+        });
+    
+        document.body.appendChild(modalContainer); // Append modal to end of body
+    
         let selectedUserId: string | null = null;
-
+    
+        const deleteButtons = document.querySelectorAll('button[id^="delete-user-"]');
         deleteButtons.forEach((btn) => {
             btn.addEventListener('click', () => {
-                selectedUserId = btn.getAttribute('data-user');
-                if (modal) {
-                    modal.classList.remove('hidden');
+                const match = btn.id.match(/^delete-user-(\d+)$/);
+                if (match) {
+                    selectedUserId = match[1];
+                    const modal = document.getElementById('confirm-delete-modal');
+                    if (modal) modal.classList.remove('hidden');
                 }
             });
         });
-
+    
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const modal = document.getElementById('confirm-delete-modal');
+    
         if (confirmDeleteBtn && modal) {
             confirmDeleteBtn.addEventListener('click', async () => {
                 if (selectedUserId) {
                     try {
                         const success = await UserService.deleteUser(Number(selectedUserId));
-                        if (success) {
-                            window.location.reload();
-                        }
-                        else {
-                            console.error('Failed to delete user');
-                        }
-                    }
-                    catch (error) {
-                        console.error('Delete failed:', error);
-                    }
-                    finally {
+                        if (success) window.location.reload();
+                        else console.error('Failed to delete user');
+                    } catch (err) {
+                        console.error('Delete failed:', err);
+                    } finally {
                         modal.classList.add('hidden');
                         selectedUserId = null;
                     }
                 }
             });
         }
+    
+        if (cancelDeleteBtn && modal) {
+            cancelDeleteBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                selectedUserId = null;
+            });
+        }
     }
-
 }

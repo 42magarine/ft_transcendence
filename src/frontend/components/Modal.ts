@@ -53,7 +53,7 @@ export default class Modal extends AbstractView {
 				onclick="handleModalOutsideClick(event, '${id}')"
 			>
 				<div
-					class="bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
+					class=" dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
 					onclick="event.stopPropagation();"
 				>
 					${showCloseButton ? this.renderCloseButton(id) : ''}

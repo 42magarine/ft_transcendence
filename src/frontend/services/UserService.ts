@@ -115,48 +115,57 @@ export default class UserService {
 
     static attachProfileFormHandlers(formId: string, userId: string): void
     {
+        console.log(`[attachProfileFormHandlers] Initializing with formId: ${formId} and userId: ${userId}`);
         const form = document.getElementById(formId) as HTMLFormElement | null;
         if (!form)
         {
-            console.warn(`Form with ID ${formId} not found`);
+            console.warn(`[attachProfileFormHandlers] Form with ID '${formId}' not found`);
             return;
         }
-
+        console.log('[attachProfileFormHandlers] Form found.');
+    
         const passwordInput = form.querySelector('input[name="password"]') as HTMLInputElement;
         const confirmPasswordRow = document.getElementById('password-confirm-row');
-
+    
         if (passwordInput && confirmPasswordRow)
         {
+            console.log('[attachProfileFormHandlers] Password input and confirm row found.');
             passwordInput.addEventListener('input', () =>
             {
+                console.log('[attachProfileFormHandlers] Password input detected:', passwordInput.value);
                 if (passwordInput.value.trim().length > 0)
                 {
+                    console.log('[attachProfileFormHandlers] Showing confirm password row.');
                     confirmPasswordRow.style.display = 'block';
                 }
                 else
                 {
+                    console.log('[attachProfileFormHandlers] Hiding confirm password row and clearing confirm input.');
                     confirmPasswordRow.style.display = 'none';
                     const confirmInput = confirmPasswordRow.querySelector('input[name="passwordConfirm"]') as HTMLInputElement;
                     if (confirmInput) confirmInput.value = '';
                 }
             });
         }
-
+    
         form.addEventListener('submit', async (e) =>
         {
             e.preventDefault();
-
+            console.log('[attachProfileFormHandlers] Submit triggered');
+    
             const formData = new FormData(form);
             const payload: any = Object.fromEntries(formData.entries());
-
+            console.log('[attachProfileFormHandlers] Form payload before processing:', payload);
+    
             const password = payload.password as string;
             const confirmPassword = payload.passwordConfirm as string;
             payload.emailVerified = (formData.get('emailVerified') === 'true');
-
+    
             if (password)
             {
                 if (password !== confirmPassword)
                 {
+                    console.warn('[attachProfileFormHandlers] Passwords do not match.');
                     alert('Passwords do not match.');
                     return;
                 }
@@ -166,25 +175,28 @@ export default class UserService {
                 delete payload.password;
                 delete payload.passwordConfirm;
             }
-
+    
             try
             {
+                console.log('[attachProfileFormHandlers] Sending updateUser request...');
                 const success = await UserService.updateUser(userId, payload);
                 if (success)
                 {
+                    console.log('[attachProfileFormHandlers] Update successful, redirecting...');
                     window.location.href = `/users/${userId}`;
                 }
                 else
                 {
-                    console.error('Failed to update profile.');
+                    console.error('[attachProfileFormHandlers] Failed to update profile.');
                 }
             }
             catch (error)
             {
-                console.error('Update failed:', error);
+                console.error('[attachProfileFormHandlers] Update failed:', error);
             }
         });
     }
+    
 
     static attachDeleteHandler(buttonId: string, modalId: string, confirmButtonId: string, userId: string): void
     {
@@ -245,7 +257,7 @@ export default class UserService {
     static async addFriendByUsername(username: string): Promise<boolean> {
         console.log('[UserService] Attempting to add friend:', username);
         try {
-            const response = await fetch(`/api/friends/add`, {
+            const response = await fetch(`/api/users/friends`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username })
@@ -263,7 +275,7 @@ export default class UserService {
     static async removeFriendById(id: number): Promise<boolean> {
         console.log('[UserService] Attempting to remove friend ID:', id);
         try {
-            const response = await fetch(`/api/friends/remove/${id}`, {
+            const response = await fetch(`/api/users/friends/${id}`, {
                 method: 'DELETE'
             });
             if (!response.ok) throw new Error(await response.text());
@@ -363,4 +375,52 @@ export default class UserService {
             });
         }
     }    
+
+    static attachUpdateHandler(buttonId: string, formId: string, userId: string): void {
+        console.log(`[attachUpdateHandler] Binding button #${buttonId} to form #${formId} for user ${userId}`);
+    
+        const button = document.getElementById(buttonId);
+        const form = document.getElementById(formId) as HTMLFormElement;
+    
+        if (!button || !form) {
+            console.warn(`[attachUpdateHandler] Button or form not found`);
+            return;
+        }
+    
+        button.addEventListener('click', async () => {
+            console.log('[attachUpdateHandler] Button clicked, preparing submission...');
+            const formData = new FormData(form);
+            const payload: any = Object.fromEntries(formData.entries());
+            console.log('[attachUpdateHandler] Collected payload:', payload);
+    
+            const password = payload.password as string;
+            const confirmPassword = payload.passwordConfirm as string;
+            payload.emailVerified = (formData.get('emailVerified') === 'true');
+    
+            if (password) {
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match.');
+                    return;
+                }
+            } else {
+                delete payload.password;
+                delete payload.passwordConfirm;
+            }
+    
+            try {
+                console.log('[attachUpdateHandler] Sending update...');
+                const success = await UserService.updateUser(userId, payload);
+                if (success) {
+                    console.log('[attachUpdateHandler] Update successful. Redirecting...');
+                    window.location.href = `/users/${userId}`;
+                } else {
+                    console.error('[attachUpdateHandler] Update failed.');
+                }
+            } catch (err) {
+                console.error('[attachUpdateHandler] Exception during update:', err);
+            }
+        });
+    }
+
+    
 }

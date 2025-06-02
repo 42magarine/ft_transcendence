@@ -2,7 +2,10 @@
 // 🎨 BUTTON INTERFACES
 // =========================
 
-export type ButtonAlign = 'left' | 'center' | 'right';
+export type ButtonAlign =
+    | 'left'
+    | 'center'
+    | 'right';
 
 export type ButtonColor =
     | 'primary'
@@ -16,7 +19,12 @@ export type ButtonColor =
     | 'transparent'
     | 'outline';
 
-export type ButtonType = 'submit' | 'delete' | 'button' | 'google-signin' | 'text-with-button';
+export type ButtonType = 
+    | 'submit'
+    | 'delete'
+    | 'button'
+    | 'google-signin'
+    | 'text-with-button';
 
 export interface ButtonProps {
     id?: string;
@@ -34,7 +42,10 @@ export interface ButtonProps {
 
 export interface ButtonGroupProps {
     align?: ButtonAlign;
-    layout?: 'stack' | 'grid' | 'group';
+    layout?:
+        | 'stack'
+        | 'grid'
+        | 'group';
     className?: string;
     columns?: number;
     buttons?: ButtonProps[];
@@ -166,9 +177,11 @@ export type ContentBlock =
 
 export interface LabelProps {
     htmlFor: string;
-    text: string;
+    text?: string;
     id?: string;
     className?: string;
+    iconHtml?: string;
+    color?: 'green' | 'red' | 'gray' | 'yellow' | string; 
 }
 
 export interface ToggleProps {

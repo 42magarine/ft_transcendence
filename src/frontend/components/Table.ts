@@ -51,7 +51,7 @@ export default class Table extends AbstractView
             <div class="table-container">
                 ${title ? `<h2 class="text-xl font-semibold mb-2 text-white">${title}</h2>` : ''}
                 <div class="overflow-y-auto rounded-md" style="max-height: ${height};">
-                    <table id="${tableId}" class="w-full table-fixed border-collapse text-sm text-white">
+                    <table id="${tableId}" class="w-full table-auto border-collapse text-sm text-white">
                         ${headerHtml}
                         <tbody>
                             ${rowsHtml.join('\n')}

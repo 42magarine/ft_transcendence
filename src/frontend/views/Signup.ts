@@ -72,7 +72,6 @@ export default class Signup extends AbstractView {
 						buttons: [
 							{
 								text: 'Create Account',
-								type: 'submit',
 								className: 'btn btn-green'
 							}
 						],
