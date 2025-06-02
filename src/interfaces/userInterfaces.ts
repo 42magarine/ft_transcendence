@@ -1,3 +1,12 @@
+declare module 'fastify' {
+    interface FastifyRequest {
+        user?: {
+            id: number;
+            role: string;
+        }
+    }
+}
+
 export interface User {
     id?: number;
     username: string;
@@ -21,9 +30,9 @@ export interface User {
 }
 
 export interface FriendList {
-	id?: number;
-	username: string;
-	status: 'online' | 'offline';
+    id?: number;
+    username: string;
+    status: 'online' | 'offline';
 }
 
 export interface UserList {
@@ -86,8 +95,7 @@ export interface RegisterCredentials {
 }
 
 export interface JWTPayload {
-    userID: string;
-    email: string;
+    userId: string;
     role: string;
 }
 
@@ -111,11 +119,4 @@ export interface TwoFactorResponse {
 
 export interface GoogleLoginBody {
     token: string;
-}
-
-// Available roles as enum for type safety
-export enum UserRole {
-    USER = 'user',
-    ADMIN = 'admin',
-    MASTER = 'master'
 }

@@ -40,105 +40,82 @@ export class UserService {
 
     async createUser(userData: RegisterCredentials & { password: string, avatar?: string }): Promise<UserModel> {
         try {
-            console.debug('[createUser] Starting user creation process for:', userData.email);
-    
-            // Step 1: Check for existing email
+            // Check if user already exists by email
             const existingUser = await this.findUserByEmail(userData.email);
             if (existingUser) {
-                console.warn('[createUser] Email already in use:', userData.email);
                 throw new Error('Email already exists');
             }
-            if (!userData.username) {
-                console.error('[createUser] Missing username in userData:', userData);
-                throw new Error('Username is required');
-            }
-            
-    
-            // Step 2: Force role to 'user'
+
+            // Always set role to 'user'
             userData.role = 'user';
-            console.debug('[createUser] Role set to "user"');
-    
-            // Step 3: Generate email verification token
+
+            // Generate verification token for email verification
             const verificationToken = this.emailService.generateToken();
-            console.debug('[createUser] Generated verification token:', verificationToken);
-    
-            // Step 4: Create user instance
+
+            // Create user with verification token and emailVerified=false
             const user = this.userRepo.create({
                 ...userData,
                 emailVerified: false,
                 verificationToken: verificationToken
             });
-            console.debug('[createUser] User object created:', user);
-    
-            // Step 5: Save user to DB
+
             const savedUser = await this.userRepo.save(user);
-            console.debug('[createUser] User saved to DB with ID:', savedUser.id);
-    
-            // Step 6: Attempt to send verification email
+
+            // Send verification email
             try {
                 await this.emailService.sendVerificationEmail(
                     userData.email,
                     verificationToken,
                     userData.username
                 );
-                console.debug('[createUser] Verification email sent to:', userData.email);
-            } catch (emailError) {
-                console.error('[createUser] Failed to send verification email:', emailError);
-                // User creation continues even if email fails
             }
-    
+            catch (error) {
+                console.error('Failed to send verification email:', error);
+                // Continue with user creation even if email fails
+            }
+
             return savedUser;
-        } catch (error) {
-            console.error('[createUser] User creation failed:', error);
+        }
+        catch (error) {
             throw new Error('Failed to create user');
         }
     }
-    
+
     async updateUser(user: UserModel): Promise<UserModel> {
         try {
-
             const currentUser = await this.findUserById(user.id);
             if (!currentUser) {
-                console.warn('[updateUser] No user found with ID:', user.id);
                 throw new Error('User not found');
             }
+
+            // Check if avatar has changed, delete old avatar if needed
             if (user.avatar !== currentUser.avatar && currentUser.avatar) {
                 try {
                     await deleteAvatar(currentUser.avatar);
-                } catch (error) {
-                    console.error('[updateUser] Avatar delete failed:', error);
+                }
+                catch (error) {
+                    console.error('Avatar delete failed:', error);
+                    // Continue with update even if avatar deletion fails
                 }
             }
+
+            // Master role cannot be changed
             if (currentUser.role === 'master') {
                 user.role = 'master';
             }
-    
-            const allowedFields = [
-                'displayname',
-                'username',
-                'email',
-                'emailVerified',
-                'twoFAEnabled',
-                'avatar',
-            ];
 
-            const updatePayload = Object.fromEntries(
-                Object.entries(user).filter(([key]) => allowedFields.includes(key))
-            );
-            await this.userRepo.update(currentUser.id, updatePayload);
+            await this.userRepo.update(currentUser.id, user);
             const updatedUser = await this.findUserById(currentUser.id);
             if (!updatedUser) {
-                console.error('[updateUser] Update succeeded, but user could not be fetched afterwards.');
                 throw new Error('Updated user not found');
             }
-    
+
             return updatedUser;
-        } catch (error) {
-            console.error('[updateUser] Failed to update user:', error);
+        }
+        catch (error) {
             throw new Error('Failed to update user');
         }
     }
-    
 
     async deleteUser(userId: number): Promise<boolean> {
         try {
@@ -257,8 +234,7 @@ export class UserService {
 
     private generateTokens(user: UserModel): AuthTokens {
         const payload: JWTPayload = {
-            userID: user.id.toString(),
-            email: user.email,
+            userId: user.id.toString(),
             role: user.role
         };
 
@@ -268,7 +244,7 @@ export class UserService {
         return { accessToken, refreshToken };
     }
 
-    public async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+    async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
         try {
             const { userId } = verifyRefreshToken(refreshToken);
             const user = await this.findUserById(parseInt(userId));
@@ -277,8 +253,7 @@ export class UserService {
             }
 
             const payload: JWTPayload = {
-                userID: user.id.toString(),
-                email: user.email,
+                userId: user.id.toString(),
                 role: user.role
             };
             return { accessToken: generateAccessToken(payload) };

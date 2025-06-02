@@ -15,7 +15,6 @@ export interface Route {
     role?: string;
 }
 
-
 declare global {
 	interface Window {
 		ft_socket?: WebSocket;
@@ -97,17 +96,6 @@ export interface GameHistoryResponse {
     opponentScore: number;
     result: string;
     date: Date;
-}
-
-declare module 'fastify'
-{
-    interface FastifyRequest {
-        user?:
-        {
-            id: number;
-            role: string;
-        }
-    }
 }
 
 export interface ClientMessage {

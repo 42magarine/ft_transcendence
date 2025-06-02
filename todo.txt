@@ -33,3 +33,6 @@
         - Controller: WebSocket-Handling
         - MatchLobby: Player-Management + Game-State
         - MatchService: Ausschließlich DB-Operationen
+
+
+15. user controller / user service -> rückgabewerte ans frontend filter (siehe getCurrentUser)

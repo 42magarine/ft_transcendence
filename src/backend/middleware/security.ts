@@ -51,22 +51,24 @@ export async function verifyJWT(token: string): Promise<JWTPayload> {
 export const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const token = request.cookies.accessToken;
-
         if (!token) {
-            return reply.code(200).send(null);
+            return reply.code(401).send({ error: 'Access token required' });
         }
 
         const payload = verifyAccessToken(token);
         if (!payload) {
-            return reply.code(401).send({ error: 'Invalid Access token' });
+            return reply.code(401).send({ error: 'Invalid or expired access token' });
         }
 
-        request.user = { id: parseInt(payload.userID, 10), role: payload.role };
+        request.user = {
+            id: parseInt(payload.userId),
+            role: payload.role
+        };
     }
     catch (error) {
-        return reply.code(403).send({ error: 'Invalid or expired token' });
+        return reply.code(401).send({ error: 'Invalid or expired access token' });
     }
-}
+};
 
 // export async function verify2FA();
 // export async function createQRCode2FA();

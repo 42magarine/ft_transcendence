@@ -13,12 +13,7 @@ export class UserController {
 
     async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
         try {
-            if (!request.user) {
-                return reply.code(200).send(null);
-            }
-
-            const currentUserId = request.user.id;
-            const user = await this._userService.findUserById(currentUserId);
+            const user = await this._userService.findUserById(request.user!.id);
             if (!user) {
                 return reply.code(404).send({ error: 'User not found' });
             }
@@ -43,7 +38,7 @@ export class UserController {
 
     async getUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
-            const userId = parseInt(request.params.id, 10);
+            const userId = parseInt(request.params.id);
             if (isNaN(userId)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
@@ -53,17 +48,14 @@ export class UserController {
 
             const isOwnAccount = currentUserId === userId;
             const canRead = isOwnAccount || currentUserRole === 'master';
-
             if (!canRead) {
                 return reply.code(403).send({ error: 'Insufficient permissions to read this user' });
             }
 
             const user = await this._userService.findUserById(userId);
-
             if (!user) {
                 return reply.code(404).send({ error: 'User not found' });
             }
-
             reply.code(200).send(user);
         }
         catch (error) {
@@ -73,7 +65,7 @@ export class UserController {
 
     async updateUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
-            const userId = parseInt(request.params.id, 10);
+            const userId = parseInt(request.params.id);
             if (isNaN(userId)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
@@ -140,7 +132,7 @@ export class UserController {
 
     async deleteUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
-            const deleteUserId = parseInt(request.params.id, 10);
+            const deleteUserId = parseInt(request.params.id);
             if (isNaN(deleteUserId)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
@@ -530,8 +522,7 @@ export class UserController {
             return reply.code(200).send(result);
         }
         catch (error) {
-            const message = error instanceof Error ? error.message : 'Refreshing Token failed';
-            return reply.code(403).send({ error: message });
+            return reply.code(401).send({ error: 'Refreshing Token failed' });
         }
     }
 

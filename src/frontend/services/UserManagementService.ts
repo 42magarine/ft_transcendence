@@ -374,7 +374,7 @@ export default class UserManagementService {
 
                 if (confirm('Are you sure you want to delete this user?')) {
                     try {
-                        await UserService.deleteUser(parseInt(userId, 10));
+                        await UserService.deleteUser(parseInt(userId));
                         Router.update();
                     }
                     catch (error) {
@@ -483,7 +483,7 @@ export default class UserManagementService {
                         return;
                     }
 
-                    await this.verifyTwoFactor(parseInt(userId, 10), code);
+                    await this.verifyTwoFactor(parseInt(userId), code);
 
 
                 } catch (error) {
