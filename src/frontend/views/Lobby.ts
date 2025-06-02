@@ -2,15 +2,15 @@ import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import type { CardProps } from '../../interfaces/componentInterfaces.js';
 import Router from '../../utils/Router.js';
-import { IPlayerState } from '../../interfaces/interfaces.js';
+import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
 
 
 export default class Lobby extends AbstractView
 {
     private lobbyId: string;
 
-    private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isJoined: false, isReady: false };
-    private player2: IPlayerState = { userName: 'Opponent', playerNumber: 2, userId: 2, isJoined: false, isReady: false };
+    private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isReady: false };
+    private player2: IPlayerState = { userName: 'Opponent', playerNumber: 2, userId: 2, isReady: false };
 
     constructor(params: URLSearchParams)
     {
@@ -26,10 +26,23 @@ export default class Lobby extends AbstractView
 
     async getHtml(): Promise<string>
     {
+        let lobby: ILobbyState
+        // if (window.lobbyService)
+        // {
+            lobby = await window.lobbyService.getLobbyState();
+            if (lobby.lobbyPlayers)
+            {
+                if (lobby.lobbyPlayers[0])
+                    this.player1 = lobby.lobbyPlayers[0];
+                if (lobby.lobbyPlayers[1])
+                    this.player2 = lobby.lobbyPlayers[1];
+            }
+        // }
+
 
         const lobbyCard = await new Card().renderCard(
         {
-            title: `Lobby ${this.lobbyId}`,
+            title: `Lobby ${lobby.lobbyId}`,
             contentBlocks:
             [
                 {
@@ -48,8 +61,7 @@ export default class Lobby extends AbstractView
                                 id: 'player1',
                                 text: this.player1.userName,
                                 className:
-                                    `btn ${this.player1.isReady ? 'btn-green'
-                                    : (this.player1.isJoined ? 'btn-yellow' : 'btn-primary')}`
+                                    `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
                             }
                         },
                         player2:
@@ -58,12 +70,9 @@ export default class Lobby extends AbstractView
                             props:
                             {
                                 id: 'player2',
-                                text: this.player2.isJoined
-                                    ? (this.player2.userName || 'Opponent')
-                                    : 'Waiting for Opponent...',
+                                text: (this.player2.userName || 'Waiting for Opponent...'),
                                 className:
-                                    `btn ${this.player2.isReady ? 'btn-green'
-                                    : (this.player2.isJoined ? 'btn-yellow' : 'btn-primary')}`
+                                    `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
                             }
                         }
                     }

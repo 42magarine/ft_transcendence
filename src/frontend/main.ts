@@ -12,7 +12,6 @@ import UserService from './services/UserService.js';
 // ===============
 // 🔧 GLOBAL UTILS
 // ===============
-import '../utils/table.js';
 import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
 import { TemplateEngine } from '../utils/TemplateEngine.js';
@@ -133,7 +132,7 @@ document.addEventListener('RouterContentLoaded', async () => {
             window.socketReady = undefined;
             window.messageHandler = undefined;
             // window.lobbyListService = undefined;
-            window.lobbyService = undefined;
+            // window.lobbyService = undefined;
         }
         return;
     }

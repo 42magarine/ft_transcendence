@@ -101,9 +101,10 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async requestLobbyById(lobbyId: string) {
+    public async requestLobbyState(lobbyId: string) {
+        console.log("requestLobbyState")
         const msg: IClientMessage = {
-            type: 'getLobbyById',
+            type: 'getLobbyState',
             lobbyId
         };
     }

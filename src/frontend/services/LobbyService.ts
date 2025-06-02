@@ -1,24 +1,50 @@
-import { IServerMessage, ILobbyState, IPlayerState} from '../../interfaces/interfaces.js';
+import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
 import MessageHandlerService from './MessageHandlerService.js';
 import UserService from './UserService.js';
 
-
 export default class LobbyService {
-    private currentLobbyData?: ILobbyState;
+    private lobbyState!: ILobbyState;
     private socket?: WebSocket;
 
-    private messageHandler!: MessageHandlerService;
-    private userService!: UserService;
-    private isInitialized: boolean = false;
+    private messageHandler: MessageHandlerService;
+    private userService: UserService; // Now required in constructor
 
-    private currentLobbyPromiseResolver: ((value: ILobbyState) => void) | null = null;
-    private idForCurrentPromise: string | null = null;
-    private player1: IPlayerState | null = null;
-    private player2: IPlayerState | null = null;
+    private lobbyDataResolvers: ((lobby: ILobbyState) => void)[] = [];
 
-    constructor() {
+    constructor(messageHandler: MessageHandlerService, userService: UserService) {
+        this.messageHandler = messageHandler;
+        this.userService = userService;
+
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
         this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
+
+        this.setupUIEventListeners();
+
+        console.log('[LobbyService] Core dependencies initialized.');
+    }
+
+    public connectSocket(socket: WebSocket): void {
+        if (this.socket === socket && this.socket.readyState === WebSocket.OPEN) {
+            return;
+        }
+
+        if (this.socket) {
+            this.socket.removeEventListener('message', this.handleSocketMessage);
+        }
+
+        this.socket = socket;
+        this.socket.addEventListener('message', this.handleSocketMessage);
+    }
+
+    /**
+     * Disconnects the current WebSocket from the service.
+     */
+    public disconnectSocket(): void {
+        if (this.socket) {
+            this.socket.removeEventListener('message', this.handleSocketMessage);
+            this.socket = undefined;
+            console.log('[LobbyService] Socket disconnected.');
+        }
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -26,111 +52,27 @@ export default class LobbyService {
         return match?.[1] || '';
     }
 
-    public init(socket: WebSocket, messageHandler: MessageHandlerService, userService: UserService): void {
-        if (this.isInitialized && this.socket === socket) {
-            this.setupUIEventListeners();
-            return;
-        }
-
-        this.socket = socket;
-        this.messageHandler = messageHandler;
-        this.userService = userService;
-
-        this.socket.removeEventListener('message', this.handleSocketMessage);
-        this.socket.addEventListener('message', this.handleSocketMessage);
-
-        this.setupUIEventListeners();
-        this.isInitialized = true;
-
-        this.player1 = null;
-        this.player2 = null;
-
-        if (this.currentLobbyPromiseResolver) {
-            console.warn('[LobbyService init] A pending getCurrentLobbyData() promise was orphaned because the service is re-initializing.');
-            this.currentLobbyPromiseResolver = null;
-        }
-        this.idForCurrentPromise = null;
-    }
-
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
         console.log(data.type)
         switch (data.type) {
-            case 'lobbyInfo':
+            case 'lobbyState':
                 if (data.lobby) {
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
-                        createdAt: new Date(data.lobby.createdAt)
+                        createdAt: new Date(data.lobby.createdAt),
+                        lobbyPlayers: data.lobby.lobbyPlayers || []
                     };
 
-                    if (this.idForCurrentPromise === receivedLobbyInfo.id && this.currentLobbyPromiseResolver) {
-                        console.log(`[LobbyService] Received data for pending promise ${receivedLobbyInfo.id}. Updating currentLobbyData and resolving promise.`);
-                        this.currentLobbyData = receivedLobbyInfo;
-                        this.currentLobbyPromiseResolver(receivedLobbyInfo);
-                        this.currentLobbyPromiseResolver = null;
-                        this.idForCurrentPromise = null;
-                    }
-                    if (receivedLobbyInfo.id === currentUrlLobbyId) {
-                        this.currentLobbyData = receivedLobbyInfo;
+                    // Update general cache if it's the current lobby
+                    if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
+                        this.lobbyState = receivedLobbyInfo;
+                        // console.log(`[LobbyService] Main lobbyState for ${currentUrlLobbyId} updated.`);
                     }
                 }
                 break;
-
-            case 'playerReady':
-                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId && data.userId !== undefined && typeof data.isReady === 'boolean') {
-                    if (this.player1 && this.player1.userId === data.userId) this.player1.isReady = data.isReady;
-                    else if (this.player2 && this.player2.userId === data.userId) this.player2.isReady = data.isReady;
-                }
-                break;
-
-            case 'allPlayersReady':
-                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId)
-                    console.log("[LobbyService] All players are ready!");
-                break;
-
-            case 'playerJoined':
-                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) {
-                    const { playerNumber, userId, userName, isReady } = data;
-
-                    if (playerNumber !== undefined && userId !== undefined) {
-
-                        const IPlayerState: IPlayerState = {
-                            playerNumber: playerNumber,
-                            userId: userId,
-                            userName: userName,
-                            isReady: isReady
-                        };
-
-                        if (playerNumber === 1) {
-                            this.player1 = IPlayerState;
-                            console.log("Player 1 updated:", this.player1);
-                        } else if (playerNumber === 2) {
-                            this.player2 = IPlayerState;
-                            console.log("Player 2 updated:", this.player2);
-                        } else {
-                            console.warn("Received playerJoined for unexpected playerNumber:", playerNumber);
-                        }
-                    } else {
-                        console.warn("Received incomplete playerJoined data:", data);
-                    }
-                }
-                break;
-
-            case 'playerLeft':
-                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId && data.playerInfo) {
-                    const { playerNumber } = data.playerInfo;
-                    if (playerNumber === 1) this.player1 = null;
-                    else if (playerNumber === 2) this.player2 = null;
-                }
-                break;
-
-            case 'gameStarted':
-                if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) {
-                    console.log(`[LobbyService] Game started in lobby ${data.lobbyId}. Game ID: ${data.gameId}`);
-                }
-                break;
-
+            // ... other cases
             default:
                 break;
         }
@@ -149,9 +91,16 @@ export default class LobbyService {
         const startGameBtn = target.closest('#startGameBtn');
         if (startGameBtn) {
             e.preventDefault();
-            if (!this.messageHandler || !this.userService || !currentLobbyId) return;
-            const currentUser = await UserService.getCurrentUser();
-            if (!currentUser || !currentUser.id) return;
+            // messageHandler and userService are now guaranteed to be available
+            if (!currentLobbyId) { // Still check currentLobbyId
+                console.warn("[LobbyService] Cannot start game: current lobby ID not found.");
+                return;
+            }
+            const currentUser = await UserService.getCurrentUser(); // Assuming this is a static method
+            if (!currentUser || !currentUser.id) {
+                console.warn("[LobbyService] Cannot start game: current user not found.");
+                return;
+            }
             this.messageHandler.markReady(currentUser.id.toString(), currentLobbyId);
             return;
         }
@@ -166,50 +115,114 @@ export default class LobbyService {
         }
     }
 
-    public async getCurrentLobbyData(): Promise<ILobbyState> {
-        const lobbyIdFromUrl = this.getCurrentLobbyIdFromUrl();
-        if (!this.messageHandler || !this.socket || this.socket.readyState !== WebSocket.OPEN) {
-            console.warn("[LobbyService] getCurrentLobbyData: Dependencies (MessageHandler/Socket) not ready or socket not open.")
+    private resolveLobbyDataPromises(lobbies: ILobbyState): void {
+        this.lobbyDataResolvers.forEach(resolve => resolve(lobbies));
+        this.lobbyDataResolvers = [];
+    }
+
+    public async getLobbyState(): Promise<ILobbyState> {
+        if (!window.messageHandler) {
+            console.warn("LobbyListService getLobbies: messageHandler not found.");
+            return Promise.resolve(this.lobbyState);
+        }
+        if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
+            console.warn("LobbyListService getLobbies: WebSocket not open.");
+            return Promise.resolve(this.lobbyState);
         }
 
         const promise = new Promise<ILobbyState>((resolve) => {
-            this.currentLobbyPromiseResolver = resolve;
-            this.idForCurrentPromise = lobbyIdFromUrl;
+            this.lobbyDataResolvers.push(resolve);
         });
 
         try {
-            await this.messageHandler.requestLobbyById(lobbyIdFromUrl);
+            await window.socketReady;
+            await window.messageHandler.requestLobbyList();
         } catch (error) {
-            if (this.currentLobbyData && this.currentLobbyData.id === lobbyIdFromUrl && this.currentLobbyPromiseResolver) {
-                console.warn(`[LobbyService getCurrentLobbyData] Resolving with STALE/CACHED data for ${lobbyIdFromUrl} due to request send error.`);
-                this.currentLobbyPromiseResolver(this.currentLobbyData);
-                this.currentLobbyPromiseResolver = null;
-                this.idForCurrentPromise = null;
-            }
+            console.error("LobbyListService getLobbies: Error during socket readiness or requesting list:", error);
+            this.resolveLobbyDataPromises(this.lobbyState);
         }
 
         return promise;
     }
 
-    public getPlayer1(): IPlayerState | null { return this.player1; }
-    public getPlayer2(): IPlayerState | null { return this.player2; }
 
     public destroy(): void {
-        if (this.socket) {
-            this.socket.removeEventListener('message', this.handleSocketMessage);
-        }
+        this.disconnectSocket(); // Use the dedicated disconnect method
         document.body.removeEventListener('click', this.handleLobbyPageClick);
 
-        if (this.currentLobbyPromiseResolver) {
-            this.currentLobbyPromiseResolver = null;
-        }
-        this.idForCurrentPromise = null;
-
-        this.isInitialized = false;
-        this.currentLobbyData = undefined;
-        this.player1 = null;
-        this.player2 = null;
+        // No need to nullify messageHandler and userService, as they are constructor-injected
+        // and their lifecycle is managed by whatever created LobbyService.
 
         console.log('[LobbyService] Destroyed.');
     }
 }
+// // ... other cases remain the same
+// case 'playerReady':
+//     if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId && data.userId !== undefined && typeof data.isReady === 'boolean') {
+//         if (this.lobbyState && this.lobbyState.lobbyPlayers && this.lobbyState.lobbyId === currentUrlLobbyId) {
+//             const player = this.lobbyState.lobbyPlayers.find(p => p.userId === data.userId);
+//             if (player) {
+//                 player.isReady = data.isReady;
+//                 // console.log(`[LobbyService] Player ${data.userId} ready status updated to ${data.isReady}. Players:`, this.lobbyState.lobbyPlayers);
+//             } else {
+//                 console.warn(`[LobbyService] playerReady: Player with userId ${data.userId} not found in lobbyPlayers.`);
+//             }
+//         } else {
+//              console.warn("[LobbyService] playerReady: lobbyState not available or for a different lobby.");
+//         }
+//     }
+//     break;
+// case 'allPlayersReady':
+//     if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) {
+//         console.log("[LobbyService] All players are ready!");
+//     }
+//     break;
+// case 'playerJoined':
+//     if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) {
+//         const { playerNumber, userId, userName, isReady } = data;
+//         if (typeof playerNumber === 'number' && typeof userId === 'number' && typeof userName === 'string' && typeof isReady === 'boolean') {
+//             const joinedPlayer: IPlayerState = { playerNumber, userId, userName, isReady };
+//             if (this.lobbyState && this.lobbyState.lobbyId === currentUrlLobbyId) {
+//                 if (!this.lobbyState.lobbyPlayers) this.lobbyState.lobbyPlayers = [];
+//                 this.lobbyState.lobbyPlayers = this.lobbyState.lobbyPlayers.filter(
+//                     p => p.userId !== joinedPlayer.userId && p.playerNumber !== joinedPlayer.playerNumber
+//                 );
+//                 this.lobbyState.lobbyPlayers.push(joinedPlayer);
+//                 this.lobbyState.lobbyPlayers.sort((a, b) => a.playerNumber - b.playerNumber);
+//                 // console.log("[LobbyService] Player joined, lobbyPlayers updated:", this.lobbyState.lobbyPlayers);
+//             } else {
+//                 console.warn("[LobbyService] playerJoined: lobbyState not available or for a different lobby.");
+//             }
+//         } else {
+//             console.warn("[LobbyService] Received incomplete playerJoined data:", data);
+//         }
+//     }
+//     break;
+// case 'playerLeft':
+//     if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId && data.playerInfo) {
+//         const playerNumberToRemove = data.playerInfo.playerNumber;
+//         if (typeof playerNumberToRemove === 'number') {
+//             if (this.lobbyState && this.lobbyState.lobbyPlayers && this.lobbyState.lobbyId === currentUrlLobbyId) {
+//                 const initialPlayerCount = this.lobbyState.lobbyPlayers.length;
+//                 this.lobbyState.lobbyPlayers = this.lobbyState.lobbyPlayers.filter(p => p.playerNumber !== playerNumberToRemove);
+//                 if (this.lobbyState.lobbyPlayers.length < initialPlayerCount) {
+//                     // console.log(`[LobbyService] Player from slot ${playerNumberToRemove} left, lobbyPlayers updated:`, this.lobbyState.lobbyPlayers);
+//                 } else {
+//                     console.warn(`[LobbyService] PlayerLeft: Player in slot ${playerNumberToRemove} not found.`);
+//                 }
+//             } else {
+//                  console.warn("[LobbyService] playerLeft: lobbyState not available or for a different lobby.");
+//             }
+//         } else {
+//              console.warn("[LobbyService] PlayerLeft: playerNumber missing or invalid in playerInfo.", data.playerInfo);
+//         }
+//     }
+//     break;
+// case 'gameStarted':
+//     if (currentUrlLobbyId && data.lobbyId === currentUrlLobbyId) {
+//         console.log(`[LobbyService] Game started in lobby ${data.lobbyId}. Game ID: ${data.gameId}`);
+//         if (this.lobbyState && this.lobbyState.lobbyId === currentUrlLobbyId) {
+//             this.lobbyState.isStarted = true;
+//         }
+//     }
+//     break;

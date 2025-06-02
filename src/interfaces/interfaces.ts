@@ -22,7 +22,7 @@ declare global {
 		socketReady?: Promise<void>;
 		messageHandler?: MessageHandlerService;
 		lobbyListService: LobbyListService;
-		lobbyService?: LobbyService;
+		lobbyService: LobbyService;
 		userService: UserService;
 		userManagementService: UserManagementService;
 	}
@@ -65,14 +65,13 @@ export interface IGameState {
 }
 
 export interface ILobbyState {
-    id: string;
     lobbyId: string;
     name: string;
     creatorId: number | undefined;
     maxPlayers: number;
     currentPlayers: number;
     createdAt: Date;
-    // lobbyPlayers: IPlayerState[];
+    lobbyPlayers?: IPlayerState[];
     lobbyType: "game" | "tournament"
     isStarted: boolean;
 }
@@ -82,7 +81,6 @@ export interface IPlayerState {
     userId: number;
     userName: string;
     isReady: boolean;
-    isJoined?: boolean; // remove this
 }
 
 

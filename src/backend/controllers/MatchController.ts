@@ -65,7 +65,7 @@ export class MatchController {
         //Player will be null on startup
         //-> when creating / joining lobby on subsequent calls should be able to get a player to the corresponding lobby!
         const player = this._clients.get(connection);
-
+        console.log(data.type)
         switch (data.type) {
             case "joinLobby":
                 this.handleJoinLobby(connection, data.userId!, data.lobbyId!)
@@ -94,8 +94,8 @@ export class MatchController {
             case "getLobbyList":
                 this.handleGetLobbyList(connection);
                 break;
-            case "getLobbyById":
-                this.handleGetLobbyById(connection, data.lobbyId!)
+            case "getLobbyState":
+                this.handleGetLobbyState(connection, data.lobbyId!)
             default:
                 throw Error("Backend: invalid message type received");
         }
@@ -232,7 +232,7 @@ export class MatchController {
         //should close connection? -> no will be needed for other commands
     }
 
-    private async handleGetLobbyById(connection: WebSocket, lobbyId: string) {
+    private async handleGetLobbyState(connection: WebSocket, lobbyId: string) {
         const lobby = this._lobbies.get(lobbyId);
 
         if (!lobby) {
@@ -244,8 +244,8 @@ export class MatchController {
         }
 
         this.sendMessage(connection, {
-            type: 'lobbyInfo',
-            lobby: lobby.getLobbyInfo()
+            type: 'lobbyState',
+            lobby: lobby.getLobbyState()
         })
     }
 
@@ -259,7 +259,7 @@ export class MatchController {
             );
 
             if (activeLobby) {
-                return activeLobby.getLobbyInfo();
+                return activeLobby.getLobbyState();
             }
 
             return {
@@ -271,7 +271,9 @@ export class MatchController {
                 currentPlayers: Lobby.lobbyParticipants?.length,
                 createdAt: Lobby.createdAt,
                 lobbyType: 'game' as const,
-                isStarted: false
+                isStarted: false,
+
+                //lobbyPlayers -> lobbyParticipants ???
             }
         })
 

@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { ILobbyState, IServerMessage } from "../../interfaces/interfaces.js";
+import { ILobbyState, IPlayerState, IServerMessage } from "../../interfaces/interfaces.js";
 import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState } from "../../interfaces/interfaces.js";
@@ -209,9 +209,8 @@ export class MatchLobby {
         return this._lobbyId;
     }
 
-    public getLobbyInfo(): ILobbyState {
+    public getLobbyState(): ILobbyState {
         return {
-            id: this._lobbyId,   // Id vs LobbyId ???
             lobbyId: this._lobbyId,
             name: this._lobbyName,
             creatorId: this._creatorId!,
@@ -219,16 +218,17 @@ export class MatchLobby {
             currentPlayers: this._players.size,
             createdAt: this._createdAt,
             lobbyType: this._lobbyType,
+            lobbyPlayers: this.getPlayerStates(),
             isStarted: this._gameStarted
         };
     }
 
-    
 
-    public getPlayerList() {
+    public getPlayerStates() : IPlayerState[] {
         return Array.from(this._players.values()).map(p => ({
             playerNumber: p._playerNumber,
-            userId: p.userId,
+            userId: p._userId,
+            userName: p._name,
             isReady: p._isReady
         }));
     }
