@@ -2,12 +2,12 @@
 
 import Router from '../../utils/Router.js';
 import UserService from '../services/UserService.js';
-import { User } from '../../interfaces/userInterfaces.js';
-import { ServerMessage, LobbyInfo } from '../../interfaces/interfaces.js';
+import { User } from '../../interfaces/userManagementInterfaces.js';
+import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
 
 export default class LobbyListService {
-    private lobbyData: LobbyInfo[] = [];
-    private lobbyDataResolvers: ((lobbies: LobbyInfo[]) => void)[] = [];
+    private lobbyData: ILobbyState[] = [];
+    private lobbyDataResolvers: ((lobbies: ILobbyState[]) => void)[] = [];
     private isInitialized = false;
 
     constructor() {
@@ -17,7 +17,7 @@ export default class LobbyListService {
     }
 
     private handleSocketMessage(event: MessageEvent<string>): void {
-        const data: ServerMessage = JSON.parse(event.data);
+        const data: IServerMessage = JSON.parse(event.data);
 
         switch (data.type) {
             case 'lobbyList':
@@ -34,10 +34,11 @@ export default class LobbyListService {
                 break;
             case 'joinedLobby':
                 console.log("backend->frontend joinedLobby")
-                if (data.lobbyId && data.playerNumber !== undefined) {
+                if (data.lobbyId) {
                     Router.redirect(`/lobby/${data.lobbyId}`);
-                } else {
-                    console.error("LobbyListService: lobbyId or playerNumber missing for joinedLobby", data);
+                }
+                else {
+                    console.error("LobbyListService: lobbyId missing for joinedLobby", data);
                 }
                 break;
         }
@@ -136,12 +137,12 @@ export default class LobbyListService {
         }
     }
 
-    private resolveLobbyDataPromises(lobbies: LobbyInfo[]): void {
+    private resolveLobbyDataPromises(lobbies: ILobbyState[]): void {
         this.lobbyDataResolvers.forEach(resolve => resolve(lobbies));
         this.lobbyDataResolvers = [];
     }
 
-    public async getLobbies(): Promise<LobbyInfo[]> {
+    public async getLobbies(): Promise<ILobbyState[]> {
         if (!window.messageHandler) {
             console.warn("LobbyListService getLobbies: messageHandler not found.");
             return Promise.resolve(this.lobbyData);
@@ -151,7 +152,7 @@ export default class LobbyListService {
             return Promise.resolve(this.lobbyData);
         }
 
-        const promise = new Promise<LobbyInfo[]>((resolve) => {
+        const promise = new Promise<ILobbyState[]>((resolve) => {
             this.lobbyDataResolvers.push(resolve);
         });
 

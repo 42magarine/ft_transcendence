@@ -1,4 +1,4 @@
-import { User, ApiErrorResponse, FriendList } from '../../interfaces/userInterfaces.js';
+import { User, ApiErrorResponse, FriendList } from '../../interfaces/userManagementInterfaces.js';
 
 export default class UserService {
     static async getCurrentUser(): Promise<User | null> {
@@ -113,11 +113,9 @@ export default class UserService {
         }
     }
 
-    static attachProfileFormHandlers(formId: string, userId: string): void
-    {
+    static attachProfileFormHandlers(formId: string, userId: string): void {
         const form = document.getElementById(formId) as HTMLFormElement | null;
-        if (!form)
-        {
+        if (!form) {
             console.warn(`Form with ID ${formId} not found`);
             return;
         }
@@ -125,16 +123,12 @@ export default class UserService {
         const passwordInput = form.querySelector('input[name="password"]') as HTMLInputElement;
         const confirmPasswordRow = document.getElementById('password-confirm-row');
 
-        if (passwordInput && confirmPasswordRow)
-        {
-            passwordInput.addEventListener('input', () =>
-            {
-                if (passwordInput.value.trim().length > 0)
-                {
+        if (passwordInput && confirmPasswordRow) {
+            passwordInput.addEventListener('input', () => {
+                if (passwordInput.value.trim().length > 0) {
                     confirmPasswordRow.style.display = 'block';
                 }
-                else
-                {
+                else {
                     confirmPasswordRow.style.display = 'none';
                     const confirmInput = confirmPasswordRow.querySelector('input[name="passwordConfirm"]') as HTMLInputElement;
                     if (confirmInput) confirmInput.value = '';
@@ -142,8 +136,7 @@ export default class UserService {
             });
         }
 
-        form.addEventListener('submit', async (e) =>
-        {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const formData = new FormData(form);
@@ -153,72 +146,56 @@ export default class UserService {
             const confirmPassword = payload.passwordConfirm as string;
             payload.emailVerified = (formData.get('emailVerified') === 'true');
 
-            if (password)
-            {
-                if (password !== confirmPassword)
-                {
+            if (password) {
+                if (password !== confirmPassword) {
                     alert('Passwords do not match.');
                     return;
                 }
             }
-            else
-            {
+            else {
                 delete payload.password;
                 delete payload.passwordConfirm;
             }
 
-            try
-            {
+            try {
                 const success = await UserService.updateUser(userId, payload);
-                if (success)
-                {
+                if (success) {
                     window.location.href = `/users/${userId}`;
                 }
-                else
-                {
+                else {
                     console.error('Failed to update profile.');
                 }
             }
-            catch (error)
-            {
+            catch (error) {
                 console.error('Update failed:', error);
             }
         });
     }
 
-    static attachDeleteHandler(buttonId: string, modalId: string, confirmButtonId: string, userId: string): void
-    {
+    static attachDeleteHandler(buttonId: string, modalId: string, confirmButtonId: string, userId: string): void {
         const deleteBtn = document.getElementById(buttonId);
         const confirmBtn = document.getElementById(confirmButtonId);
         const modal = document.getElementById(modalId);
 
-        if (deleteBtn && modal)
-        {
-            deleteBtn.addEventListener('click', () =>
-            {
+        if (deleteBtn && modal) {
+            deleteBtn.addEventListener('click', () => {
                 modal.classList.remove('hidden');
             });
         }
 
-        if (confirmBtn && modal)
-        {
-            confirmBtn.addEventListener('click', async () =>
-            {
-                try
-                {
+        if (confirmBtn && modal) {
+            confirmBtn.addEventListener('click', async () => {
+                try {
                     const success = await UserService.deleteUser(Number(userId));
-                    if (success)
-                    {
+                    if (success) {
                         window.location.href = '/user-mangement';
                     }
-                    else
-                    {
+                    else {
                         console.error('Failed to delete user.');
                         modal.classList.add('hidden');
                     }
                 }
-                catch (error)
-                {
+                catch (error) {
                     console.error('Delete failed:', error);
                     modal.classList.add('hidden');
                 }
@@ -241,7 +218,7 @@ export default class UserService {
             return [];
         }
     }
-    
+
     static async addFriendByUsername(username: string): Promise<boolean> {
         console.log('[UserService] Attempting to add friend:', username);
         try {
@@ -259,7 +236,7 @@ export default class UserService {
             return false;
         }
     }
-    
+
     static async removeFriendById(id: number): Promise<boolean> {
         console.log('[UserService] Attempting to remove friend ID:', id);
         try {
@@ -274,19 +251,19 @@ export default class UserService {
             return false;
         }
     }
-    
+
     static attachFriendHandlers(): void {
         const addBtn = document.getElementById('add-friend-btn');
         const input = document.querySelector<HTMLInputElement>('input[name="username"]');
         const feedback = document.getElementById('friend-feedback'); // our feedback label
-    
+
         let selectedFriendId: number | null = null;
-    
+
         // Handle Add Friend
         if (addBtn && input) {
             addBtn.addEventListener('click', async () => {
                 const username = input.value.trim();
-    
+
                 // Show warning if input is empty
                 if (!username) {
                     if (feedback) {
@@ -297,7 +274,7 @@ export default class UserService {
                     }
                     return;
                 }
-    
+
                 const success = await UserService.addFriendByUsername(username);
                 if (success) {
                     if (feedback) {
@@ -316,7 +293,7 @@ export default class UserService {
                     }
                 }
             });
-    
+
             // Clear message on input
             input.addEventListener('input', () => {
                 if (feedback) {
@@ -325,25 +302,25 @@ export default class UserService {
                 }
             });
         }
-    
+
         // Handle Remove Friend buttons
         document.querySelectorAll('[id^="remove-friend-"]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const id = Number(btn.id.split('remove-friend-')[1]);
                 if (isNaN(id)) return;
-    
+
                 selectedFriendId = id;
                 const modal = document.getElementById('confirm-remove-modal');
                 if (modal) modal.classList.remove('hidden');
             });
         });
-    
+
         // Confirm Remove
         const confirmBtn = document.getElementById('confirm-remove-btn');
         if (confirmBtn) {
             confirmBtn.addEventListener('click', async () => {
                 if (selectedFriendId === null) return;
-    
+
                 const success = await UserService.removeFriendById(selectedFriendId);
                 if (success) location.reload();
                 else {
@@ -352,7 +329,7 @@ export default class UserService {
                 }
             });
         }
-    
+
         // Cancel Remove
         const cancelBtn = document.getElementById('cancel-remove-btn');
         if (cancelBtn) {
@@ -362,5 +339,5 @@ export default class UserService {
                 selectedFriendId = null;
             });
         }
-    }    
+    }
 }

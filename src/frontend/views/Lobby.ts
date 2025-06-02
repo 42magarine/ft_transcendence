@@ -1,13 +1,14 @@
 import AbstractView from '../../utils/AbstractView.js';
-import Router from '../../utils/Router.js';
 import Card from '../components/Card.js';
-import { LobbyParticipant, LobbyDataWithParticipants, PlayerDisplayState } from '../../interfaces/interfaces.js';
+import Router from '../../utils/Router.js';
+import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
+
 
 export default class Lobby extends AbstractView {
     private lobbyId: string;
 
-    private currentPlayerDisplay: PlayerDisplayState = { username: 'You', isJoined: false, isReady: false };
-    private opponentPlayerDisplay: PlayerDisplayState = { username: 'Opponent', isJoined: false, isReady: false };
+    private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isReady: false };
+    private player2: IPlayerState = { userName: 'Opponent', playerNumber: 2, userId: 2, isReady: false };
 
     constructor(params: URLSearchParams) {
         super();
@@ -20,7 +21,29 @@ export default class Lobby extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
+        let lobby: ILobbyState
 
+        // TODO fuer Jonathan:
+        //
+        // Hier die daten mit getLobbyState() in den view ziehen.
+        // alles fuer player sollte jetzt da drin sein. Siehe getLobbyState() im backend!!
+        //
+        //
+        // LobbyService ueberarbeiten und in schoen und nutzlosen code raus und sinnvollen code rein!!
+        // danke <3
+
+        // if (window.lobbyService)
+        // {
+        // lobby = await window.lobbyService.getLobbyState();
+        // if (lobby.lobbyPlayers) {
+        //     if (lobby.lobbyPlayers[0])
+        //         this.player1 = lobby.lobbyPlayers[0];
+        //     if (lobby.lobbyPlayers[1])
+        //         this.player2 = lobby.lobbyPlayers[1];
+        // }
+        // }
+
+        console.log("penis");
         const lobbyCard = await new Card().renderCard(
             {
                 title: `Lobby ${this.lobbyId}`,
@@ -34,26 +57,25 @@ export default class Lobby extends AbstractView {
                             type: 'matchup',
                             props:
                             {
-                                player1: {
+                                player1:
+                                {
                                     type: 'button',
-                                    props: {
+                                    props:
+                                    {
                                         id: 'player1',
-                                        text: this.currentPlayerDisplay.username,
-                                        color: this.currentPlayerDisplay.isReady
-                                            ? 'green'
-                                            : (this.currentPlayerDisplay.isJoined ? 'yellow' : 'primary')
+                                        text: this.player1.userName,
+                                        className: `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 },
-                                player2: {
+                                player2:
+                                {
                                     type: 'button',
-                                    props: {
+                                    props:
+                                    {
                                         id: 'player2',
-                                        text: this.opponentPlayerDisplay.isJoined
-                                            ? (this.opponentPlayerDisplay.username || 'Opponent')
-                                            : 'Waiting for Opponent...',
-                                        color: this.opponentPlayerDisplay.isReady
-                                            ? 'green'
-                                            : (this.opponentPlayerDisplay.isJoined ? 'yellow' : 'primary')
+                                        text: (this.player2.userName || 'Waiting for Opponent...'),
+                                        className:
+                                            `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 }
                             }
@@ -71,12 +93,14 @@ export default class Lobby extends AbstractView {
                                         {
                                             id: 'startGameBtn',
                                             text: 'Click when Ready',
+                                            className: 'btn btn-primary',
+                                            type: 'button'
                                         },
                                         {
                                             id: 'leaveBtn',
                                             text: 'Leave Lobby',
-                                            href: '/lobbylist',
-                                            color: 'red'
+                                            type: 'button',
+                                            href: '/lobbylist'
                                         }
                                     ],
                             }

@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { UserService } from "../services/UserService.js";
 import { saveAvatar, deleteAvatar } from "../services/FileService.js";
 import { UserModel } from "../models/MatchModel.js";
-import { RegisterCredentials, LoginCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/userInterfaces.js";
+import { RegisterCredentials, LoginCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/userManagementInterfaces.js";
 
 export class UserController {
     private _userService: UserService;

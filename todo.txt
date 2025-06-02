@@ -38,3 +38,5 @@
 15. user controller / user service -> rückgabewerte ans frontend filter (siehe getCurrentUser)
 
 16. eine Interface für alle User Daten?
+
+

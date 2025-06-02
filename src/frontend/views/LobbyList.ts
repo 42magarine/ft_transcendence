@@ -1,6 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import { LobbyInfo } from '../../interfaces/interfaces.js';
+import { ILobbyState } from '../../interfaces/interfaces.js';
 
 export default class LobbyList extends AbstractView {
     constructor() {
@@ -8,7 +8,7 @@ export default class LobbyList extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        let lobbies: LobbyInfo[] = [];
+        let lobbies: ILobbyState[] = [];
         lobbies = await window.lobbyListService.getLobbies();
 
         console.debug('[LobbyList] Fetched lobbies:', lobbies);

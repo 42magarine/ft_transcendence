@@ -6,7 +6,7 @@ import './services/LanguageService.js';
 import LobbyListService from './services/LobbyListService.js';
 import LobbyService from './services/LobbyService.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
-import UserMangementService from './services/UserManagementService.js';
+import UserManagementService from './services/UserManagementService.js';
 import UserService from './services/UserService.js';
 
 // ===============
@@ -35,7 +35,7 @@ globalTemplateEngine.registerComponent('Button', Button);
 // 🧩 GLOBAL SINGLETONS
 // =====================
 window.userService = new UserService();
-window.userManagementService = new UserMangementService();
+window.userManagementService = new UserManagementService();
 
 // ==============================
 // 📦 FOOTER + HEADER RENDERING
@@ -97,13 +97,11 @@ async function initSocket(): Promise<void> {
 
         await readyPromise;
 
+        window.messageHandler = new MessageHandlerService();
         window.lobbyListService = new LobbyListService();
         window.lobbyService = new LobbyService();
-        window.messageHandler = new MessageHandlerService();
 
         window.lobbyListService.init();
-
-        window.lobbyService.init(socket, window.messageHandler, window.userService);
     }
     catch (error) {
         console.error('WebSocket connection error:', error);
@@ -153,14 +151,14 @@ document.addEventListener('RouterContentLoaded', async () => {
     else {
         console.log("RouterContentLoaded: Socket is already ready.");
         if (!window.messageHandler) {
+            window.messageHandler = new MessageHandlerService();
             window.lobbyListService = window.lobbyListService || new LobbyListService();
             window.lobbyService = window.lobbyService || new LobbyService();
-            window.messageHandler = new MessageHandlerService();
 
             if (window.lobbyListService) window.lobbyListService.init();
-            if (window.lobbyService && window.messageHandler) {
-                window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
-            }
+            // if (window.lobbyService && window.messageHandler) {
+            //     window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
+            // }
         }
         else {
             if (window.lobbyListService) {

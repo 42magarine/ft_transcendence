@@ -1,5 +1,5 @@
 // core/LocalGameService.ts
-import type { IGameState, BallStateWithVelocity } from "../../interfaces/interfaces.js";
+import type { IGameState, IBallState } from "../../interfaces/interfaces.js";
 import LocalGameLogic from "./GameLogic.js";
 
 class LocalGameService {
@@ -184,7 +184,7 @@ class LocalGameService {
     // Getter Methods
     // ---------------------------
 
-    public getGameState(): IGameState & { ball: BallStateWithVelocity } | null {
+    public getGameState(): IGameState | null {
         return this.gameLogic?.state || null;
     }
 

@@ -4,7 +4,7 @@ import { OAuth2Client } from 'google-auth-library';
 
 import { AppDataSource } from "../DataSource.js";
 import { UserModel } from "../models/MatchModel.js";
-import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from "../../interfaces/userInterfaces.js";
+import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from "../../interfaces/userManagementInterfaces.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, hashPW, verifyPW } from "../middleware/security.js";
 import { deleteAvatar } from "../services/FileService.js";
 import { EmailService } from "../services/EmailService.js";

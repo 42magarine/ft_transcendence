@@ -7,6 +7,10 @@ declare module 'fastify' {
     }
 }
 
+// =========================
+//   USER INTERFACES
+// =========================
+
 export interface User {
     id?: number;
     username: string;
@@ -46,6 +50,22 @@ export interface UserList {
     role?: string;
 }
 
+export interface RegisterCredentials {
+    username: string;
+    email: string;
+    password: string;
+    displayname?: string;
+    role?: string;
+    avatar?: string;
+    secret?: string;
+    tf_one?: string;
+    tf_two?: string;
+    tf_three?: string;
+    tf_four?: string;
+    tf_five?: string;
+    tf_six?: string;
+}
+
 export interface ApiErrorResponse {
     error: string;
 }
@@ -55,22 +75,17 @@ export interface LoginCredentials {
     password: string;
 }
 
+// =========================
+//   AUTH INTERFACES
+// =========================
+
+
 export interface AuthResponse {
     message?: string;
     error?: string;
     requireTwoFactor?: boolean;
     userId?: number;
     username?: string;
-}
-
-export interface PasswordResetRequest {
-    email: string;
-}
-
-export interface PasswordResetConfirm {
-    password: string;
-    confirmPassword: string;
-    token: string;
 }
 
 export interface QRResponse {
@@ -110,16 +125,37 @@ export interface AuthTokens {
     username?: string;
 }
 
-export interface TwoFactorVerificationRequest {
-    userId: number;
-    code: string;
-}
-
-export interface TwoFactorResponse {
-    qr: string;
-    secret: string;
-}
-
+// do we need this????
 export interface GoogleLoginBody {
     token: string;
+}
+
+// =========================
+//   AVATAR INTERFACES
+// =========================
+
+export interface ShapeOptions {
+    fill?: string;
+    stroke?: string;
+    strokeWidth?: number;
+    opacity?: number;
+    rotate?: number;
+}
+
+export interface TextVisualizationOptions {
+    width: number;
+    height: number;
+    backgroundColor?: string;
+    useShapes?: boolean;
+    maxShapes?: number;
+    colorPalette?: string[];
+    showText?: boolean;
+    textColor?: string;
+    fontSize?: number;
+    fontFamily?: string;
+}
+
+export interface PatternResult {
+    pattern: string;
+    rect: string;
 }

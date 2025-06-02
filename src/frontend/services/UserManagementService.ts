@@ -1,6 +1,6 @@
 import { generateTextVisualization } from "../../utils/Avatar.js"
 import Router from '../../utils/Router.js';
-import { User, ApiErrorResponse, LoginCredentials, AuthResponse, PasswordResetRequest, PasswordResetConfirm, QRResponse } from "../../interfaces/userInterfaces.js";
+import { User, ApiErrorResponse, LoginCredentials, AuthResponse, QRResponse } from "../../interfaces/userManagementInterfaces.js";
 import UserService from "./UserService.js";
 import Toggle from "../components/Toggle.js"
 export default class UserManagementService {

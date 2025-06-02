@@ -1,6 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import { UserList } from '../../interfaces/userInterfaces.js';
+import { UserList } from '../../interfaces/userManagementInterfaces.js';
 import Modal from '../components/Modal.js';
 import UserService from '../services/UserService.js';
 
