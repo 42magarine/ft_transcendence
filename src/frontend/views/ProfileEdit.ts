@@ -31,7 +31,7 @@ export default class ProfileEdit extends AbstractView
 		const profileEditCard = await  new Card().renderCard(
         {
 			formId: 'edit-profile-form',
-            title: `Edit Profile: ${userData.displayname}`,
+            title: `Edit Profile: ${userData.name}`,
             contentBlocks:
             [
                 {
@@ -45,9 +45,9 @@ export default class ProfileEdit extends AbstractView
                     type: 'input',
                     props:
                     {
-                        name: 'displayname',
-                        placeholder: 'Display Name',
-                        value: userData.displayname
+                        name: 'name',
+                        placeholder: 'Name',
+                        value: userData.name
                     }
                 },
                 {

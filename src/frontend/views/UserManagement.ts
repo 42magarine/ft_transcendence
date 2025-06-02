@@ -23,7 +23,7 @@ export default class UserManagement extends AbstractView {
                             props: {
                                 inputs: [
                                     {
-                                        name: 'displayname',
+                                        name: 'name',
                                         label: 'Name',
                                         placeholder: 'Name'
                                     },
@@ -76,7 +76,7 @@ export default class UserManagement extends AbstractView {
                                 layout: 'stack',
                                 align: 'left'
                             }
-                        },                        
+                        },
                         {
                             type: 'buttongroup',
                             props:
@@ -112,7 +112,7 @@ export default class UserManagement extends AbstractView {
                                 data: users,
                                 columns: [
                                     { key: 'id', label: 'ID' },
-                                    { key: 'displayname', label: 'Name' },
+                                    { key: 'name', label: 'Name' },
                                     { key: 'username', label: 'Username' },
                                     { key: 'email', label: 'Email' },
                                     { key: 'emailVerified', label: 'Verified' },
@@ -130,7 +130,7 @@ export default class UserManagement extends AbstractView {
                                     {
                                         type: 'label',
                                         props: {
-                                            text: `${user.displayname}`,
+                                            text: `${user.name}`,
                                             htmlFor: `user-${user.id}-name`
                                         }
                                     },
@@ -182,7 +182,7 @@ export default class UserManagement extends AbstractView {
                                                     onClick: `handleDeleteUser(${user.id})`,
                                                     type: 'delete',
                                                 }
-                                            ]                                            
+                                            ]
                                         }
                                     }
                                 ]

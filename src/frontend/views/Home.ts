@@ -17,7 +17,7 @@ export default class Home extends AbstractView
         const homeCard = await new Card().renderCard(
         {
             title: currentUser
-                ? `Hello ${currentUser.displayname}, this is Transcendence, please don't delete this card, it is for testing purpose!`
+                ? `Hello ${currentUser.name}, this is Transcendence, please don't delete this card, it is for testing purpose!`
                 : 'Welcome to Transcendence!',
             formId: 'test-form',
             contentBlocks:
@@ -50,7 +50,7 @@ export default class Home extends AbstractView
                         className: 'input input-bordered'
                     }
                 },
-        
+
                 // EMAIL + PASSWORD INPUT with confirm
                 {
                     type: 'input',
@@ -71,7 +71,7 @@ export default class Home extends AbstractView
                         withConfirm: true
                     }
                 },
-        
+
                 // HIDDEN + FILE + NUMBER INPUT
                 {
                     type: 'input',
@@ -103,7 +103,7 @@ export default class Home extends AbstractView
                         step: 1
                     }
                 },
-        
+
                 // SELECT INPUT
                 {
                     type: 'input',
@@ -129,7 +129,7 @@ export default class Home extends AbstractView
                         ]
                     }
                 },
-        
+
                 // TOGGLE
                 {
                     type: 'toggle',
@@ -151,7 +151,7 @@ export default class Home extends AbstractView
                         readonly: true
                     }
                 },
-        
+
                 // STAT BLOCK
                 {
                     type: 'stat',
@@ -170,7 +170,7 @@ export default class Home extends AbstractView
                         className: 'text-green-300'
                     }
                 },
-        
+
                 // TOOLBAR with JavaScript actions
                 {
                     type: 'toolbar',
@@ -189,7 +189,7 @@ export default class Home extends AbstractView
                         ]
                     }
                 },
-        
+
                 // MATCHUP (2 buttons as players)
                 {
                     type: 'matchup',
@@ -219,7 +219,7 @@ export default class Home extends AbstractView
                         }
                     }
                 },
-        
+
                 // INPUTGROUP (compact multiple fields)
                 {
                     type: 'inputgroup',
@@ -243,7 +243,7 @@ export default class Home extends AbstractView
                         ]
                     }
                 },
-        
+
                 // BUTTONGROUP (buttons + toggles inline)
                 {
                     type: 'buttongroup',
@@ -280,7 +280,7 @@ export default class Home extends AbstractView
                         className: 'mb-2'
                     }
                 },
-        
+
                 // BUTTON: Standalone
                 {
                     type: 'button',
@@ -288,11 +288,11 @@ export default class Home extends AbstractView
                     {
                         id: 'downloadBtn',
                         text: 'Download PDF',
-                        className: 'btn btn-outline', 
+                        className: 'btn btn-outline',
                         color: 'red'
                     }
                 },
-        
+
                 // BUTTON with icon and alignment
                 {
                     type: 'button',
@@ -303,7 +303,7 @@ export default class Home extends AbstractView
                         align: 'center'
                     }
                 },
-        
+
                 // HTML Block (custom raw HTML)
                 {
                     type: 'html',
@@ -366,10 +366,10 @@ export default class Home extends AbstractView
                         align: 'left',
                         className: 'mt-4'
                     }
-                }                
+                }
             ]
         });
-        
+
         return this.render(`${homeCard}`);
     }
 }

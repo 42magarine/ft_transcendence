@@ -11,7 +11,7 @@ export interface User {
     id?: number;
     username: string;
     email: string;
-    displayname?: string;
+    name?: string;
     password?: string;
     role?: string;
     avatar?: string;
@@ -41,7 +41,7 @@ export interface UserList {
     id?: number;
     username: string;
     email: string;
-    displayname?: string;
+    name?: string;
     password?: string;
     role?: string;
 }
@@ -79,12 +79,14 @@ export interface QRResponse {
 }
 
 export interface RegisterCredentials {
+    name: string;
     username: string;
     email: string;
     password: string;
-    displayname?: string;
     role?: string;
     avatar?: string;
+    emailVerified?: boolean;
+    twoFAEnabled?: boolean;
     secret?: string;
     tf_one?: string;
     tf_two?: string;
@@ -92,6 +94,7 @@ export interface RegisterCredentials {
     tf_four?: string;
     tf_five?: string;
     tf_six?: string;
+    googleSignIn?: boolean;
 }
 
 export interface JWTPayload {

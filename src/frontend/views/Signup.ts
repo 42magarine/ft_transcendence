@@ -31,7 +31,7 @@ export default class Signup extends AbstractView
 					type: 'input',
 					props:
 					{
-						name: 'displayname',
+						name: 'name',
 						type: 'text',
 						placeholder: 'Name'
 					}
@@ -85,7 +85,7 @@ export default class Signup extends AbstractView
 				{
 					type: 'twofactor',
 					props: {}
-				},					
+				},
 				{
 					type: 'signup-footer',
 					props: {}

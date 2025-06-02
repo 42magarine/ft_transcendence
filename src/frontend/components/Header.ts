@@ -29,7 +29,7 @@ export default class Header extends AbstractView
 				href: '/signup'
 			}
 		];
-		
+
 		if (currentUser != null) {
 			if (currentUser.role === 'admin' || currentUser.role === 'master') {
 				buttonSet = [
@@ -81,7 +81,7 @@ export default class Header extends AbstractView
 				];
 			}
 		}
-		
+
 
 		let buttonGroupHtml = '';
 		if (!noMenu.includes(location.pathname))
@@ -118,7 +118,7 @@ export default class Header extends AbstractView
 				<div class="dropdown-head">
 					<a router href="/users/${currentUser.id}">
 						<div class="dropdown-name">
-							${currentUser.displayname}
+							${currentUser.name}
 						</div>
 						<div class="dropdown-img">
 							${dropDownAvatar}

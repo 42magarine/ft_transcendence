@@ -152,7 +152,7 @@ export interface User {
     id?: number;
     username: string;
     email: string;
-    displayname?: string;
+    name?: string;
     role?: string;
     hasClickedStart?: boolean;
     isJoined?: boolean;

@@ -340,7 +340,6 @@ export class UserController {
     async verifyEmail(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
         try {
             const { token } = request.params;
-
             if (!token) {
                 return reply.code(400).send({ error: 'Verification token is required' });
             }
@@ -352,8 +351,7 @@ export class UserController {
         }
         catch (error) {
             console.error('Email verification error:', error);
-            const message = error instanceof Error ? error.message : 'Invalid verification token';
-            return reply.code(400).send({ error: message });
+            return reply.code(400).send({ error: 'Invalid verification token' });
         }
     }
 
@@ -396,7 +394,6 @@ export class UserController {
         try {
             // Handle multipart form data
             if (request.isMultipart()) {
-
                 const userData: RegisterCredentials & {
                     avatar?: string,
                     secret?: string,
@@ -407,10 +404,10 @@ export class UserController {
                     tf_five?: string,
                     tf_six?: string
                 } = {
+                    name: "",
                     username: "",
                     email: "",
-                    password: "",
-                    displayname: "",
+                    password: ""
                 };
 
                 let avatarData = null;
@@ -419,12 +416,12 @@ export class UserController {
                 const parts = request.parts();
 
                 for await (const part of parts) {
-
                     if (part.type === 'file' && part.fieldname === 'avatar') {
                         try {
                             const result = await saveAvatar(part);
                             avatarData = result.publicPath;
-                        } catch (error) {
+                        }
+                        catch (error) {
                             console.error("Error saving avatar:", error);
                             return reply.code(400).send({ error: 'Failed to save avatar file' });
                         }
@@ -438,19 +435,12 @@ export class UserController {
                     userData.avatar = avatarData;
                 }
 
-
                 if (!userData.username || !userData.email || !userData.password) {
                     return reply.code(400).send({ error: 'Missing required fields' });
                 }
 
-                let requestingUserRole: string | undefined;
-
-                if (userData.role === 'master') {
-                    return reply.code(403).send({ error: 'Master user can only be created through environment variables' });
-                }
-
                 // Register user with 2FA data included
-                await this._userService.register(userData, requestingUserRole);
+                await this._userService.register(userData);
 
                 return reply.code(201).send({
                     message: "Registration successful. Please check your email to verify your account.",
@@ -459,8 +449,6 @@ export class UserController {
                 });
             }
             else {
-                console.log("Processing JSON request");
-
                 const userData = request.body as RegisterCredentials & {
                     secret?: string,
                     tf_one?: string,
@@ -471,14 +459,8 @@ export class UserController {
                     tf_six?: string
                 };
 
-                let requestingUserRole: string | undefined;
-
-                if (userData && userData.role === 'master') {
-                    return reply.code(403).send({ error: 'Master user can only be created through environment variables' });
-                }
-
                 // Register user with 2FA data
-                await this._userService.register(userData, requestingUserRole);
+                await this._userService.register(userData);
 
                 return reply.code(201).send({
                     message: "Registration successful. Please check your email to verify your account.",

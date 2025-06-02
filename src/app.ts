@@ -142,8 +142,8 @@ async function createMasterUser(): Promise<void> {
         const masterUser = userRepo.create({
             email: masterEmail,
             username: 'MASTER',
+            name: 'MASTER',
             password: hashedPassword,
-            displayname: 'MASTER',
             role: 'master',
             emailVerified: true
         });

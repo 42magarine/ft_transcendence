@@ -43,15 +43,15 @@ export default class Settings extends AbstractView
                     props:
                     {
                         htmlFor:
-                        'displayName',
-                        text: 'Display Name'
+                        'Name',
+                        text: 'Name'
                     }
                 },
                 {
                     type: 'input',
                     props:
                     {
-                        name: 'displayName',
+                        name: 'Name',
                         type: "text",
                         placeholder: 'John Doe'
                     }

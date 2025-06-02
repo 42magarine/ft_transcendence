@@ -51,8 +51,8 @@ export default class UserManagementService {
                 formData.append('email', userData.email);
                 formData.append('password', userData.password || '');
 
-                if (userData.displayname) {
-                    formData.append('displayname', userData.displayname);
+                if (userData.name) {
+                    formData.append('name', userData.name);
                 }
 
                 if (userData.role) {
@@ -328,7 +328,7 @@ export default class UserManagementService {
 
                     const userData: User = {
                         avatar: formData.get('avatar') as string,
-                        displayname: formData.get('displayname') as string,
+                        name: formData.get('name') as string,
                         username: formData.get('username') as string,
                         email: formData.get('email') as string,
                         password: formData.get('password') as string,
@@ -614,7 +614,7 @@ export default class UserManagementService {
                     }
 
                     const userData: User = {
-                        displayname: formData.get('displayname') as string,
+                        name: formData.get('name') as string,
                         username: formData.get('username') as string,
                         email: formData.get('email') as string,
                         password: password,

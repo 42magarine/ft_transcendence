@@ -12,10 +12,10 @@ export class UserModel {
     username!: string;
 
     @Column()
-    password!: string;
+    name!: string;
 
     @Column()
-    displayname!: string;
+    password!: string;
 
     @Column({ default: 'user' })
     role!: string;

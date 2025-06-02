@@ -29,7 +29,7 @@ export default class Profile extends AbstractView
                         type: 'heading',
                         props:
                         {
-                            text: `Profile: ${userData.displayname}`,
+                            text: `Profile: ${userData.name}`,
                             level: 1,
                             className: 'text-2xl font-bold text-center mb-4'
                         }
@@ -41,7 +41,7 @@ export default class Profile extends AbstractView
                             className: 'flex flex-col items-center gap-2 mt-4',
                             html: `
                                 <div>${profileImageSvg}</div>
-                                <h2>${userData.displayname}</h2>
+                                <h2>${userData.name}</h2>
                                 <p class="text-muted">@${userData.username}</p>
                             `
                         }
@@ -50,8 +50,8 @@ export default class Profile extends AbstractView
                         type: 'stat',
                         props:
                         {
-                            label: 'Display Name',
-                            value: userData.displayname ?? ''
+                            label: 'Name',
+                            value: userData.name ?? ''
                         }
                     },
                     {
@@ -101,7 +101,7 @@ export default class Profile extends AbstractView
                             ]
                         }
                     }
-                ]                
+                ]
 			});
 			return this.render(profileCard);
 		}
@@ -128,7 +128,7 @@ export default class Profile extends AbstractView
                             html: 'User not found or error loading user data.'
                         }
                     }
-                ]                
+                ]
 			});
 			return this.render(errorCard);
 		}

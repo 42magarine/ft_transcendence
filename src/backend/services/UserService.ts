@@ -40,40 +40,38 @@ export class UserService {
 
     async createUser(userData: RegisterCredentials & { password: string, avatar?: string }): Promise<UserModel> {
         try {
-            // Check if user already exists by email
             const existingUser = await this.findUserByEmail(userData.email);
             if (existingUser) {
                 throw new Error('Email already exists');
             }
 
-            // Always set role to 'user'
-            userData.role = 'user';
-
-            // Generate verification token for email verification
-            const verificationToken = this.emailService.generateToken();
+            let user: RegisterCredentials;
 
             // Create user with verification token and emailVerified=false
-            const user = this.userRepo.create({
-                ...userData,
-                emailVerified: false,
-                verificationToken: verificationToken
-            });
+            if (!userData.emailVerified) {
+                const verificationToken = this.emailService.generateToken();
 
-            const savedUser = await this.userRepo.save(user);
-
-            // Send verification email
-            try {
                 await this.emailService.sendVerificationEmail(
                     userData.email,
-                    verificationToken,
-                    userData.username
+                    userData.username,
+                    verificationToken
                 );
+
+                user = this.userRepo.create({
+                    ...userData,
+                    role: 'user',
+                    emailVerified: false,
+                    verificationToken: verificationToken
+                });
             }
-            catch (error) {
-                console.error('Failed to send verification email:', error);
-                // Continue with user creation even if email fails
+            else {
+                user = this.userRepo.create({
+                    ...userData,
+                    role: 'user',
+                });
             }
 
+            const savedUser = await this.userRepo.save(user);
             return savedUser;
         }
         catch (error) {
@@ -147,10 +145,7 @@ export class UserService {
 
     // Verify user email with token
     async verifyEmail(token: string): Promise<boolean> {
-        const user = await this.userRepo.findOne({
-            where: { verificationToken: token }
-        });
-
+        const user = await this.userRepo.findOne({ where: { verificationToken: token } });
         if (!user) {
             throw new Error('Invalid verification token');
         }
@@ -264,7 +259,7 @@ export class UserService {
     }
 
     // for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
-    async register(credentials: RegisterCredentials & { avatar?: string, secret?: string }, requestingUserRole?: string) {
+    async register(credentials: RegisterCredentials & { avatar?: string, secret?: string }) {
         const hashedPW = await hashPW(credentials.password);
 
         // Create user data with potential 2FA settings
@@ -347,7 +342,7 @@ export class UserService {
         if (!user) {
             // Create a new user if not found
             const username = payload.name ?? payload.email;
-            const displayname = username;
+            const name = username;
             const avatar = payload.picture ?? '';
             const password = "null";  // todo
 
@@ -355,7 +350,7 @@ export class UserService {
                 username,
                 email: payload.email,
                 password,
-                displayname,
+                name,
                 role: 'user',
                 avatar
             });
