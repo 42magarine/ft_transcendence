@@ -6,7 +6,6 @@ export interface User {
     password?: string;
     role?: string;
     avatar?: string;
-    emailVerified?: boolean;
     tf_one?: string;
     tf_two?: string;
     tf_three?: string;
@@ -14,7 +13,8 @@ export interface User {
     tf_five?: string;
     tf_six?: string;
     secret?: string;
-    twoFAEnabled?: string;
+    twoFAEnabled?: boolean;
+    emailVerified?: boolean;
     listAvatar?: string;
     googleSignIn?: boolean;
     status: 'online' | 'offline';

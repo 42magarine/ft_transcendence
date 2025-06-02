@@ -318,40 +318,40 @@ export default class UserManagementService {
         this.setupTwoFactorForm();
     }
 
-    private setupCreateForm(): void {
-        const createForm = document.getElementById('create-form') as HTMLFormElement | null;
-        if (createForm) {
-            createForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
+    // private setupCreateForm(): void {
+    //     const createForm = document.getElementById('create-form') as HTMLFormElement | null;
+    //     if (createForm) {
+    //         createForm.addEventListener('submit', async (e) => {
+    //             e.preventDefault();
 
-                try {
-                    const formData = new FormData(createForm);
+    //             try {
+    //                 const formData = new FormData(createForm);
 
-                    const userData: User = {
-                        avatar: formData.get('avatar') as string,
-                        displayname: formData.get('displayname') as string,
-                        username: formData.get('username') as string,
-                        email: formData.get('email') as string,
-                        password: formData.get('password') as string,
-                        role: formData.get('role') as string,
-                        emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
-                        twoFAEnabled: formData.get('twoFAEnabled') as string,
-                        status: 'offline'
+    //                 const userData: User = {
+    //                     avatar: formData.get('avatar') as string,
+    //                     displayname: formData.get('displayname') as string,
+    //                     username: formData.get('username') as string,
+    //                     email: formData.get('email') as string,
+    //                     password: formData.get('password') as string,
+    //                     role: formData.get('role') as string,
+    //                     emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
+    //                     twoFAEnabled: formData.get('twoFAEnabled') as string,
+    //                     status: 'offline'
 
-                    };
+    //                 };
 
 
-                    const result = await this.registerUser(userData);
-                    createForm.reset();
+    //                 const result = await this.registerUser(userData);
+    //                 createForm.reset();
 
-                } catch (error) {
-                    console.error('Failed to register user:', error);
-                }
-            });
-            const toggle = new Toggle();
-            toggle.mountToggle('emailVerified');
-        }
-    }
+    //             } catch (error) {
+    //                 console.error('Failed to register user:', error);
+    //             }
+    //         });
+    //         const toggle = new Toggle();
+    //         toggle.mountToggle('emailVerified');
+    //     }
+    // }
 
     private setupDeleteButtons(): void {
         const deleteButtons = document.querySelectorAll('.delete-user') as NodeListOf<HTMLElement>;

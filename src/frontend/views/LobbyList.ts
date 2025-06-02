@@ -38,6 +38,7 @@ export default class LobbyList extends AbstractView {
                     props: {
                         id: 'createLobbyBtn',
                         text: 'Create Lobby',
+                        icon: 'plus-circle',
                         type: 'button',
                         className: 'btn btn-primary'
                     },
@@ -99,6 +100,7 @@ export default class LobbyList extends AbstractView {
                                 {
                                     id: 'joinLobbyBtn',
                                     text: 'Join Lobby',
+                                    icon: 'door-open',
                                     className: 'btn btn-primary',
                                     dataAttributes: {
                                         'lobby-id': lobby.lobbyId

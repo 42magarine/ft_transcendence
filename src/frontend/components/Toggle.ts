@@ -15,14 +15,14 @@ export default class Toggle extends AbstractView
 				<label class="label block mb-1" for="${id}">${label}</label>
 				<div id="${id}-toggle-group" class="flex gap-4">
 					<button type="button" id="${id}-yes"
-						class="toggle-btn px-4 py-1 rounded-full border text-sm font-semibold ${checked ? 'active bg-green-500 text-white' : ''}"
+						class="toggle-btn px-4 py-1 rounded-full border border-black text-sm font-semibold ${checked ? 'active bg-green-500 text-white' : ''}"
 						${readonly ? 'disabled' : ''}>
-						Yes
+						<i class="fas fa-check"></i>
 					</button>
 					<button type="button" id="${id}-no"
-						class="toggle-btn px-4 py-1 rounded-full border text-sm font-semibold ${!checked ? 'active bg-red-500 text-white' : ''}"
+						class="toggle-btn px-4 py-1 rounded-full border border-black  text-sm font-semibold ${!checked ? 'active bg-red-500 text-white' : ''}"
 						${readonly ? 'disabled' : ''}>
-						No
+					<i class="fas fa-times"></i>
 					</button>
 					${!readonly ? `<input type="hidden" id="${id}" name="${name}" value="${checked ? 'true' : 'false'}" />` : ''}
 				</div>

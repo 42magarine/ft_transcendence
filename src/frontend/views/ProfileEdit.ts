@@ -42,15 +42,27 @@ export default class ProfileEdit extends AbstractView {
 								value: user?.email ?? ''
 							},
 							{
+								id: 'password',
 								name: 'password',
 								type: 'password',
 								label: 'New Password',
-								placeholder: 'Leave blank to keep current password',
-								withConfirm: true
+								placeholder: 'Leave blank to keep current password'
 							}
 						]
 					}
 				},
+				// 👇 Hidden confirm password row
+				{
+					type: 'input',
+					props: {
+						id: 'password-confirm-row',
+						name: 'passwordConfirm',
+						type: 'password',
+						label: 'Confirm New Password',
+						placeholder: 'Repeat your new password',
+						className: 'hidden'
+					}
+				},				
 				{ type: 'separator' },
 				{
 					type: 'buttongroup',
@@ -59,7 +71,8 @@ export default class ProfileEdit extends AbstractView {
 						align: 'left',
 						buttons: [
 							{
-								id: `submit-profile-btn-${userId}`,  // ✅ Unique submit button ID
+								id: `submit-profile-btn-${userId}`,
+								type: 'submit',
 								text: 'Update Profile',
 								color: 'green',
 								className: 'w-full'
@@ -92,7 +105,7 @@ export default class ProfileEdit extends AbstractView {
 	onMounted(): void {
 		const userId = this.params.get('id');
 		if (userId) {
-			UserService.attachUpdateHandler(`submit-profile-btn-${userId}`, `edit_profile_form/${userId}`, userId);
+			UserService.attachProfileFormHandlers(`edit_profile_form/${userId}`, userId);
 		}
 	}
 }

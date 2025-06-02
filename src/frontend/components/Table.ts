@@ -42,7 +42,7 @@ export default class Table extends AbstractView
                 ths.push(`<th class="px-4 py-2 text-left font-semibold" ${colspanAttr}>${col.label}</th>`);
             }
 
-            headerHtml = `<thead class="sticky top-0 bg-black/70 z-10 backdrop-blur-md">
+            headerHtml = `<thead class="sticky top-0bg-blue-900 z-8 backdrop-blur-md">
                 <tr>${ths.join('')}</tr>
             </thead>`;
         }
