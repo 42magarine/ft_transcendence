@@ -22,11 +22,7 @@ export default class LobbyListService {
                 this.resolveLobbyDataPromises(this.lobbyData);
                 break;
             case 'lobbyCreated':
-                console.warn("lobbyCreated recv")
-                console.log(data.lobbyId)
-                console.log(data.owner)
-                console.log(data.playerNumber)
-                if (window.currentUser && data.owner != window.currentUser.id && window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies') {
+                if (window.currentUser && data.owner != window.currentUser.id && window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
                     Router.update()
                 }
                 if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
@@ -45,7 +41,9 @@ export default class LobbyListService {
                 break;
             case 'leftLobby':
                 console.log("leftLobby recv")
-                Router.update()
+                if (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
+                    Router.update()
+                }
                 break;
         }
     }
