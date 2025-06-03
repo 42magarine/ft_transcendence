@@ -117,8 +117,6 @@ async function initSocket(): Promise<void> {
 async function giveMeBitches() {
     const currentUser = await UserService.getCurrentUser();
     window.currentUser = currentUser;
-    console.log("window.currentUser = currentUser")
-    console.log(currentUser)
     if (!currentUser) {
         if (window.ft_socket) {
             if (window.ft_socket.readyState === WebSocket.OPEN ||
@@ -155,32 +153,27 @@ async function beerPlease() {
     else {
         if (!window.messageHandler) {
             window.messageHandler = new MessageHandlerService();
-            window.lobbyListService = window.lobbyListService || new LobbyListService();
-            window.lobbyService = window.lobbyService || new LobbyService();
-
-            if (window.lobbyListService) window.lobbyListService.init();
-            // if (window.lobbyService && window.messageHandler) {
-            //     window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
-            // }
         }
-        else {
-            if (window.lobbyListService) {
-                window.lobbyListService.init();
-            }
-            if (window.lobbyService) {
-                // lobbyService.init might also need to be called if it manages UI specific to its views.
-                // window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
-            }
+        if (!window.lobbyListService) {
+            window.lobbyListService = new LobbyListService();
+            window.lobbyListService.init();
+        }
+        if (!window.lobbyService) {
+            window.lobbyService = new LobbyService();
         }
     }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
     beerPlease();
+    console.log('WebSocket status:', window.ft_socket?.readyState);
+    console.log('WebSocket:', window.ft_socket);
 });
 
 document.addEventListener('RouterContentLoaded', async () => {
     beerPlease();
+    console.log('WebSocket status:', window.ft_socket?.readyState);
+    console.log('WebSocket:', window.ft_socket);
 });
 
 /**

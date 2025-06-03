@@ -74,7 +74,6 @@ export default class MessageHandlerService {
     }
 
     public async requestLobbyState(lobbyId: string) {
-        console.log("requestLobbyState")
         const msg: IClientMessage = {
             type: 'getLobbyState',
             lobbyId

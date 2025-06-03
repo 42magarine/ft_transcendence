@@ -30,7 +30,6 @@ export default class LobbyService {
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        //console.log("frontend msg received: " + data.type);
 
         switch (data.type) {
             case 'lobbyState':

@@ -23,15 +23,15 @@ export default class LobbyListService {
                 break;
             case 'lobbyCreated':
                 console.warn("lobbyCreated recv")
+                console.log(data.lobbyId)
+                console.log(data.owner)
+                console.log(data.playerNumber)
                 if (window.currentUser && data.owner != window.currentUser.id && window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies') {
                     Router.update()
                 }
                 if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
                     Router.redirect(`/lobby/${data.lobbyId}`);
-                }
-                else {
-                    console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
                 }
                 break;
             case 'joinedLobby':
@@ -43,18 +43,27 @@ export default class LobbyListService {
                     console.error("LobbyListService: lobbyId missing for joinedLobby", data);
                 }
                 break;
+            case 'leftLobby':
+                console.log("leftLobby recv")
+                Router.update()
+                break;
         }
     }
 
     public init(): void {
+        console.log('LobbyListService.init() called, isInitialized:', this.isInitialized);
+
         if (!window.ft_socket) {
             console.warn("LobbyListService init: ft_socket not available.");
             return;
         }
 
         if (!this.isInitialized) {
+            console.log('Adding message event listener for the first time');
             window.ft_socket.addEventListener('message', this.handleSocketMessage);
             this.isInitialized = true;
+        } else {
+            console.log('LobbyListService already initialized, skipping event listener setup');
         }
 
         this.setupCreateLobbyButtonListener();
@@ -90,9 +99,6 @@ export default class LobbyListService {
                 console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
                 return;
             }
-
-            console.log("BIER!!!!")
-            console.log(window.currentUser)
             if (window.currentUser) {
                 if (window.messageHandler && window.currentUser.id) {
                     try {

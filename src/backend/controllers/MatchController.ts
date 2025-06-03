@@ -49,7 +49,6 @@ export class MatchController {
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
         if (connection.readyState === WebSocket.OPEN) {
-            console.log("sendMessage (backend->frontend): ", data)
             connection.send(JSON.stringify(data));
         }
     }
@@ -64,7 +63,6 @@ export class MatchController {
         }
 
         const player = this._clients.get(connection);
-        console.log("backend msg received: " + data.type)
         switch (data.type) {
             case "joinLobby":
                 this.handleJoinLobby(connection, data.userId!, data.lobbyId!)
@@ -123,49 +121,27 @@ export class MatchController {
     }
 
     private broadcastToAll(data: IServerMessage): void {
-        for (const [connection] of this._clients.entries()) {
+        console.log(`Broadcasting to all clients. Total clients: ${this._clients.size}`);
+        console.log('Message to broadcast:', data);
+
+        let sentCount = 0;
+        for (const [connection, player] of this._clients.entries()) {
+            console.log(`Client ${sentCount + 1}: readyState=${connection.readyState}, player=${player?.userId || 'no player'}`);
+
             if (connection.readyState === WebSocket.OPEN) {
                 this.sendMessage(connection, data);
+                sentCount++;
+                console.log(`Message sent to client ${sentCount}`);
+            } else {
+                console.log(`Skipping client due to readyState: ${connection.readyState}`);
             }
         }
+        console.log(`Total messages sent: ${sentCount}`);
     }
 
-    private async broadcastLobbyListToAll() {
-        const openMatchModels = await this._matchService.getOpenLobbies();
-
-        const openLobbies = openMatchModels.map(Lobby => {
-            const activeLobby = Array.from(this._lobbies.values()).find(l =>
-                l.getGameId() === Lobby.matchModelId
-            );
-
-            if (activeLobby) {
-                return activeLobby.getLobbyState();
-            }
-
-            return {
-                id: Lobby.matchModelId.toString(),
-                lobbyId: Lobby.lobbyId,
-                name: `Lobby ${Lobby.matchModelId}`,
-                creatorId: Lobby.player1.id,
-                maxPlayers: Lobby.maxPlayers,
-                currentPlayers: Lobby.lobbyParticipants?.length,
-                createdAt: Lobby.createdAt,
-                lobbyType: 'game' as const,
-                isStarted: false,
-            }
-        });
-
-        // Broadcast to ALL connected clients
-        for (const [connection] of this._clients.entries()) {
-            if (connection.readyState === WebSocket.OPEN) {
-                this.sendMessage(connection, {
-                    type: "lobbyList",
-                    lobbies: openLobbies
-                });
-            }
-        }
-    }
     private async handleCreateLobby(connection: WebSocket, userId: number) {
+        console.log(`handleCreateLobby called for userId: ${userId}`);
+        console.log(`Current clients count: ${this._clients.size}`);
         const lobbyId = randomUUID();
 
         const lobby = new MatchLobby(
@@ -180,20 +156,15 @@ export class MatchController {
         if (player) {
             this._clients.set(connection, player);
 
-            this.sendMessage(connection, {
+            console.log(`After adding player, clients count: ${this._clients.size}`);
+            console.log("About to broadcast lobbyCreated");
+
+            this.broadcastToAll({
                 type: "lobbyCreated",
                 lobbyId: lobbyId,
                 owner: userId,
                 playerNumber: player._playerNumber
             });
-
-            this.broadcastToAll({
-                type: "lobbyCreated",
-                lobbyId: lobbyId,
-                creatorId: userId
-            });
-
-            await this.broadcastLobbyListToAll();
         }
     }
 
@@ -253,20 +224,14 @@ export class MatchController {
         }
 
         try {
-            // Spieler aus Lobby + DB entfernen
             await lobby.removePlayer(player);
-
-            // Spieler aus _clients Map entfernen
-            this._clients.delete(connection);
-
+            this._clients.set(connection, null);
             if (lobby.isEmpty()) {
                 this._lobbies.delete(lobbyId);
-
-                // Match aus DB löschen
                 await this._matchService.deleteMatchByLobbyId(lobbyId);
             }
 
-            this.sendMessage(connection, {
+            this.broadcastToAll({
                 type: "leftLobby"
             });
         }
