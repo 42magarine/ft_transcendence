@@ -1,5 +1,4 @@
 import { IClientMessage } from '../../interfaces/interfaces.js';
-import UserService from './UserService.js';
 
 export default class MessageHandlerService {
     private async safeSend(msg: IClientMessage) {

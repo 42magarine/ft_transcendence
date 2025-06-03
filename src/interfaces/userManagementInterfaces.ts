@@ -7,9 +7,7 @@ declare module 'fastify' {
     }
 }
 
-// =========================
-//   USER INTERFACES
-// =========================
+// USER INTERFACES
 
 export interface User {
     id?: number;
@@ -75,10 +73,7 @@ export interface LoginCredentials {
     password: string;
 }
 
-// =========================
-//   AUTH INTERFACES
-// =========================
-
+// AUTH INTERFACES
 
 export interface AuthResponse {
     message?: string;
@@ -125,14 +120,11 @@ export interface AuthTokens {
     username?: string;
 }
 
-// do we need this????
 export interface GoogleLoginBody {
     token: string;
 }
 
-// =========================
-//   AVATAR INTERFACES
-// =========================
+// AVATAR INTERFACES
 
 export interface ShapeOptions {
     fill?: string;

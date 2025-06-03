@@ -267,7 +267,6 @@ export class MatchController {
                 createdAt: Lobby.createdAt,
                 lobbyType: 'game' as const,
                 isStarted: false,
-
                 //lobbyPlayers -> lobbyParticipants ???
             }
         })
@@ -340,7 +339,6 @@ export class MatchController {
         lobby.startGame();
     }
 
-
     private handleMovePaddle(connection: WebSocket, player: Player, direction: IPaddleDirection): void {
         if (!player.lobbyId) {
             this.sendMessage(connection, {
@@ -357,7 +355,8 @@ export class MatchController {
                 playerNumber: player._playerNumber,
                 direction: direction
             });
-        } else {
+        }
+        else {
             console.error(`Lobby ${player.lobbyId} not found for player ${player.id} during movePaddle.`);
             this.sendMessage(connection, { type: "error", message: "Internal server error: Lobby not found." });
         }

@@ -4,7 +4,6 @@ import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState } from "../../interfaces/interfaces.js";
 import { PongGame } from "../gamelogic/Pong.js";
-import user from "../../routes/user.js";
 
 export class MatchLobby {
     private _game: PongGame;
@@ -149,7 +148,8 @@ export class MatchLobby {
         player._isReady = isReady;
         if (isReady) {
             this._readyPlayers.add(playerId)
-        } else {
+        }
+        else {
             this._readyPlayers.delete(playerId);
         }
 
@@ -221,7 +221,6 @@ export class MatchLobby {
             isStarted: this._gameStarted
         };
     }
-
 
     public getPlayerStates(): IPlayerState[] {
         return Array.from(this._players.values()).map(p => ({

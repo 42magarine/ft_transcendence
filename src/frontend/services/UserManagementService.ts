@@ -33,7 +33,8 @@ export default class UserManagementService {
                         const errorData = await verifyResponse.json() as ApiErrorResponse;
                         throw new Error(errorData.error || 'Two-factor code verification failed');
                     }
-                } catch (error) {
+                }
+                catch (error) {
                     userData.secret = undefined;
                     userData.tf_one = undefined;
                     userData.tf_two = undefined;
@@ -62,21 +63,27 @@ export default class UserManagementService {
                 if (userData.tf_one) {
                     formData.append('tf_one', userData.tf_one);
                 }
+
                 if (userData.tf_two) {
                     formData.append('tf_two', userData.tf_two);
                 }
+
                 if (userData.tf_three) {
                     formData.append('tf_three', userData.tf_three);
                 }
+
                 if (userData.tf_four) {
                     formData.append('tf_four', userData.tf_four);
                 }
+
                 if (userData.tf_five) {
                     formData.append('tf_five', userData.tf_five);
                 }
+
                 if (userData.tf_six) {
                     formData.append('tf_six', userData.tf_six);
                 }
+
                 if (userData.secret) {
                     formData.append('secret', userData.secret);
                 }
@@ -95,7 +102,8 @@ export default class UserManagementService {
 
                 Router.update();
                 return await response.text();
-            } else {
+            }
+            else {
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: {
@@ -112,7 +120,8 @@ export default class UserManagementService {
                 Router.update();
                 return await response.text();
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Registration error:', error);
             throw error;
         }
@@ -146,7 +155,8 @@ export default class UserManagementService {
             Router.redirect('/');
 
             return result;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Login error:', error);
             throw error;
         }
@@ -194,7 +204,8 @@ export default class UserManagementService {
             Router.redirect('/');
 
             return result;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Two-factor verification error:', error);
             throw error;
         }
@@ -211,7 +222,8 @@ export default class UserManagementService {
             });
 
             return await response.json() as AuthResponse;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Password reset request error:', error);
             throw error;
         }
@@ -233,7 +245,8 @@ export default class UserManagementService {
             }
 
             return await response.json() as AuthResponse;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Password reset error:', error);
             throw error;
         }
@@ -250,7 +263,8 @@ export default class UserManagementService {
             });
 
             return await response.json() as AuthResponse;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Resend verification error:', error);
             throw error;
         }
@@ -266,7 +280,8 @@ export default class UserManagementService {
             }
 
             Router.redirect('/');
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Logout error:', error);
             throw error;
         }
@@ -282,7 +297,8 @@ export default class UserManagementService {
             }
 
             return true;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Token verification error:', error);
             throw error;
         }
@@ -298,7 +314,8 @@ export default class UserManagementService {
                 const data = await response.json();
                 throw new Error(data.error || 'Email verification failed');
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Email verification error:', error);
             throw error;
         }
@@ -336,14 +353,13 @@ export default class UserManagementService {
                         emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
                         twoFAEnabled: formData.get('twoFAEnabled') as string,
                         status: 'offline'
-
                     };
-
 
                     const result = await this.registerUser(userData);
                     createForm.reset();
 
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to register user:', error);
                 }
             });
@@ -400,7 +416,8 @@ export default class UserManagementService {
                     await this.login(credentials);
                     loginForm.reset();
 
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to login:', error);
                     const errorMessage = document.createElement('div');
                     errorMessage.className = 'mt-4 text-red-500';
@@ -432,7 +449,8 @@ export default class UserManagementService {
 
                             try {
                                 const result = await this.resendVerificationEmail(username);
-                            } catch (error) {
+                            }
+                            catch (error) {
                                 console.error('Failed to resend verification:', error);
                             }
                         });
@@ -485,8 +503,8 @@ export default class UserManagementService {
 
                     await this.verifyTwoFactor(parseInt(userId), code);
 
-
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Two-factor verification failed:', error);
                 }
             });
@@ -524,11 +542,13 @@ export default class UserManagementService {
                                 qrDisplay.innerHTML = qrImg;
                                 secHidden.value = qr_response.secret
                             }
-                        } catch (error) {
+                        }
+                        catch (error) {
                             console.error('Failed to fetch users:', error);
                             return [];
                         }
-                    } else {
+                    }
+                    else {
                         twoFactorInterface?.classList.remove('active')
                         qrDisplay.innerHTML = '';
                         secHidden.value = ''
@@ -583,7 +603,8 @@ export default class UserManagementService {
                         };
 
                         reader.readAsDataURL(file);
-                    } else if (usernameInput) {
+                    }
+                    else if (usernameInput) {
                         const inputElement = usernameInput as HTMLInputElement;
                         const seed = inputElement.value;
 
@@ -634,14 +655,16 @@ export default class UserManagementService {
 
                     if (avatarFile && avatarFile.size > 0) {
                         result = await this.registerUser(userData, avatarFile);
-                    } else {
+                    }
+                    else {
                         result = await this.registerUser(userData);
                     }
 
                     signupForm.reset();
                     Router.redirect('/login');
 
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to register user:', error);
                 }
             });
@@ -665,7 +688,8 @@ export default class UserManagementService {
                     const result = await this.requestPasswordReset(email);
                     alert(result.message || 'If your email exists in our system, you will receive a password reset link.');
                     passwordResetForm.reset();
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to request password reset:', error);
                 }
             });
@@ -706,7 +730,8 @@ export default class UserManagementService {
                     resetForm.reset();
 
                     Router.redirect('/login');
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to reset password:', error);
                 }
             });
@@ -729,7 +754,8 @@ export default class UserManagementService {
                 try {
                     const response = await this.resendVerificationEmail(email as string);
                     alert(response.message || 'If your account exists, a verification email has been sent.');
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Error resending verification email:', error);
                 }
             });
@@ -745,7 +771,8 @@ export default class UserManagementService {
                 try {
                     await this.logout();
                     Router.redirect('/login');
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to logout:', error);
                 }
             });
@@ -771,7 +798,8 @@ export default class UserManagementService {
             if (success) {
                 Router.redirect('/login?verified=true');
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error verifying email:', error);
 
             const cardContainer = document.querySelector('.space-y-8');
@@ -877,7 +905,8 @@ export default class UserManagementService {
             });
 
             return response.ok;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error updating profile:', error);
             throw error;
         }
@@ -924,5 +953,4 @@ export default class UserManagementService {
             });
         }
     }
-
 }

@@ -4,7 +4,6 @@ import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';
 import UserService from '../frontend/services/UserService.js';
 
-
 // User click <a href="/lobby/123" router>
 //          ↓
 // Router intercepts click → matches route `/lobby/:id`
@@ -14,7 +13,6 @@ import UserService from '../frontend/services/UserService.js';
 // LobbyView uses LobbyService to fetch data
 //          ↓
 // LobbyView renders data to HTML via getHtml()
-
 
 export default class Router {
     private routes: Route[] = [];
@@ -70,11 +68,13 @@ export default class Router {
     public static update(): void {
         if (Router.instance) {
             Router.instance.update();
-        } else {
+        }
+        else {
             const globalRouter = (window as any).router;
             if (globalRouter && typeof globalRouter.update === 'function') {
                 globalRouter.update();
-            } else {
+            }
+            else {
                 console.error('Router.update() was called, but there is no active Router instance');
             }
         }
@@ -90,7 +90,8 @@ export default class Router {
         // Replace state instead of pushing if specified
         if (options.replace) {
             window.history.replaceState(null, '', url);
-        } else {
+        }
+        else {
             window.history.pushState(null, '', url);
         }
 
@@ -105,11 +106,13 @@ export default class Router {
     public static redirect(url: string, options: { replace?: boolean } = {}): Promise<void> {
         if (Router.instance) {
             return Router.instance.redirect(url, options);
-        } else {
+        }
+        else {
             const globalRouter = (window as any).router;
             if (globalRouter && typeof globalRouter.redirect === 'function') {
                 return globalRouter.redirect(url, options);
-            } else {
+            }
+            else {
                 console.error('Router.redirect() was called, but there is no active Router instance');
                 return Promise.resolve();
             }
@@ -129,7 +132,8 @@ export default class Router {
             await this.currentView.afterRender();
 
             this.dispatchRouterContentLoaded(true);
-        } finally {
+        }
+        finally {
             appElement.classList.remove('loading');
         }
     }
@@ -186,7 +190,8 @@ export default class Router {
                         isMatch: true,
                         params: params
                     };
-                } else {
+                }
+                else {
                     return {
                         isMatch: false
                     };
@@ -212,8 +217,13 @@ export default class Router {
      * 'master' > 'admin' > 'user'
      */
     private hasRoleAccess(requiredRole: string, userRole: string): boolean {
-        if (!requiredRole) return true; // No role required
-        if (!userRole) return false; // No user role but role required
+        if (!requiredRole) {
+            return true; // No role required
+        }
+
+        if (!userRole) {
+            return false; // No user role but role required
+        }
 
         // Special roles like 'user_id' and 'logged_out' should be handled separately
         if (requiredRole === 'user_id' || requiredRole === 'logged_out') {
@@ -221,7 +231,9 @@ export default class Router {
         }
 
         // Direct match
-        if (requiredRole === userRole) return true;
+        if (requiredRole === userRole) {
+            return true;
+        }
 
         // Check hierarchy: master > admin > user
         const userRoleIndex = Router.ROLE_HIERARCHY.indexOf(userRole);
@@ -260,7 +272,8 @@ export default class Router {
                     isMatch: true,
                     params: {}
                 };
-            } else {
+            }
+            else {
                 const appElement = document.getElementById('app');
                 if (appElement) {
                     appElement.innerHTML = '<h1>404 - Page Not Found</h1>';

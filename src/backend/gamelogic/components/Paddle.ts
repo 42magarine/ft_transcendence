@@ -1,8 +1,4 @@
-import {
-    PADDLE_WIDTH,
-    PADDLE_HEIGHT,
-    PADDLE_MOVE_SPEED,
-} from "../../../types/constants.js";
+import { PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_MOVE_SPEED } from "../../../types/constants.js";
 
 export class Paddle {
     private _x: number;
@@ -24,7 +20,6 @@ export class Paddle {
         this._y += this._movespeed;
     }
 
-    // Getters
     public get x(): number {
         return this._x;
     }
@@ -45,7 +40,6 @@ export class Paddle {
         return this._movespeed;
     }
 
-    // Setters
     public set x(value: number) {
         this._x = value;
     }

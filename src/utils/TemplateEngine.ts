@@ -30,7 +30,8 @@ export class TemplateEngine {
 
                 let includeTemplate = await response.text();
                 processedTemplate = processedTemplate.replace(fullMatch, includeTemplate);
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error processing include ${src}:`, error);
                 processedTemplate = processedTemplate.replace(fullMatch, `<!-- Error loading include ${src} -->`);
             }
@@ -97,11 +98,13 @@ export class TemplateEngine {
                         const expr = expressionValue.slice(1, -1); // Remove outer {}
                         const evalFn = new Function(...Object.keys(data), `return ${expr};`);
                         props[propName] = evalFn(...Object.values(data));
-                    } catch (error) {
+                    }
+                    catch (error) {
                         console.error(`Error evaluating prop expression "${expressionValue}":`, error);
                         props[propName] = undefined;
                     }
-                } else {
+                }
+                else {
                     props[propName] = doubleQuotedValue || singleQuotedValue || true;
                 }
             }
@@ -126,7 +129,8 @@ export class TemplateEngine {
                 const conditionFn = new Function(...Object.keys(data), `return ${condition};`);
                 const result = conditionFn(...Object.values(data));
                 return result ? content : '';
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error evaluating condition "${condition}":`, error);
                 return `<!-- Error in condition: ${condition} -->`;
             }
@@ -149,7 +153,8 @@ export class TemplateEngine {
                     const loopData = { ...data, [itemVar]: item };
                     return this.processTemplate(content, loopData);
                 }).join('');
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error processing for loop "${itemsExpr} as ${itemVar}":`, error);
                 return `<!-- Error in for loop: ${itemsExpr} as ${itemVar} -->`;
             }
@@ -164,7 +169,8 @@ export class TemplateEngine {
                 const propFn = new Function(...Object.keys(data), `return ${propExpr};`);
                 const value = propFn(...Object.values(data));
                 return value !== undefined && value !== null ? String(value) : '';
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error evaluating property "${propExpr}":`, error);
                 return `<!-- Error in property: ${propExpr} -->`;
             }

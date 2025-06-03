@@ -1,5 +1,3 @@
-
-// views
 import Home from './views/Home.js';
 import Pong from './views/Pong.js';
 import Lobby from './views/Lobby.js';

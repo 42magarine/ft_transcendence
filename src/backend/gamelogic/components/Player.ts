@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { UserService } from "../../services/UserService.js";
+
 export class Player {
     public _playerNumber: number;
     public _userId: number;
@@ -19,12 +19,6 @@ export class Player {
         this._name = name;
         this._joinedAt = new Date();
     }
-
-    // public sendMessage(data: object): void {
-    //     if (this._connection.readyState === WebSocket.OPEN) {
-    //         this._connection.send(JSON.stringify(data));
-    //     }
-    // }
 
     public get id(): number {
         return this._playerNumber;

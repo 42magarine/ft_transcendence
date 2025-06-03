@@ -35,7 +35,9 @@ export class PongGame {
     }
 
     public startGameLoop(broadcast: (data: IServerMessage) => void): void {
-        if (this._running) return;
+        if (this._running) {
+            return;
+        }
 
         this._running = true;
         this._paused = false;
@@ -121,7 +123,8 @@ export class PongGame {
                 const overlapY = ballY - paddleCenterY;
                 this._ball.revX();
                 this._ball.speedY += overlapY * 0.05;
-            } else if (this.isColliding(this._ball, this._paddle2)) {
+            }
+            else if (this.isColliding(this._ball, this._paddle2)) {
                 const paddleCenterY = this._paddle2.y + this._paddle2.height / 2;
                 const overlapY = ballY - paddleCenterY;
                 this._ball.revX();
@@ -137,7 +140,8 @@ export class PongGame {
                     this.resetGame();
                 }
                 break;
-            } else if (ballX > this._width) {
+            }
+            else if (ballX > this._width) {
                 this._score1++;
                 if (this._score1 >= this._scoreLimit) {
                     this.endGame(1)
@@ -164,7 +168,8 @@ export class PongGame {
 
         if (direction === "up" && paddle.y > 0) {
             paddle.moveUp();
-        } else if (direction === "down" && paddle.y + paddle.height < this._height) {
+        }
+        else if (direction === "down" && paddle.y + paddle.height < this._height) {
             paddle.moveDown();
         }
     }
@@ -216,7 +221,6 @@ export class PongGame {
         };
     }
 
-    // Getters/Setters
     public get score1(): number {
         return this._score1;
     }

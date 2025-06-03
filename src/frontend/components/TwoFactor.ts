@@ -1,6 +1,4 @@
-// File: components/TwoFactor.js
-export default async function renderTwoFactor()
-{
+export default async function renderTwoFactor() {
     const Input = (await import('./Input.js')).default;
     const tfInputs = await new Input().renderNumericGroup(6, 'tf');
 

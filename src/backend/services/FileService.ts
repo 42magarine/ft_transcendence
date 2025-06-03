@@ -1,4 +1,3 @@
-// import { FastifyRequest } from "fastify";
 import { createWriteStream, unlink } from "fs";
 import { mkdir } from "fs/promises";
 import { join, extname } from "path";

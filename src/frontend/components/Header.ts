@@ -3,100 +3,97 @@ import Button from './Button.js';
 import UserService from '../services/UserService.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 
-export default class Header extends AbstractView
-{
-	constructor(params: URLSearchParams = new URLSearchParams(window.location.search))
-	{
-		super(params);
-	}
+export default class Header extends AbstractView {
+    constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
+        super(params);
+    }
 
-	async getHtml(): Promise<string>
-	{
-		const noMenu = ['/login', '/signup', '/two-factor'];
+    async getHtml(): Promise<string> {
+        const noMenu = ['/login', '/signup', '/two-factor'];
 
-		const currentUser = await UserService.getCurrentUser();
-		let buttonSet = [
-			{
-				id: 'login-btn',
-				text: 'Login',
-				icon: 'right-to-bracket',
-				href: '/login'
-			},
-			{
-				id: 'signup-btn',
-				text: 'Signup',
-				icon: 'user-plus',
-				href: '/signup'
-			}
-		];
+        const currentUser = await UserService.getCurrentUser();
+        let buttonSet = [
+            {
+                id: 'login-btn',
+                text: 'Login',
+                icon: 'right-to-bracket',
+                href: '/login'
+            },
+            {
+                id: 'signup-btn',
+                text: 'Signup',
+                icon: 'user-plus',
+                href: '/signup'
+            }
+        ];
 
-		if (currentUser != null) {
-			if (currentUser.role === 'admin' || currentUser.role === 'master') {
-				buttonSet = [
-					{
-						id: 'friends-btn',
-						text: 'Friends List',
-						icon: 'user-group',
-						href: '/friends',
-					},
-					{
-						id: 'user-management-btn',
-						text: 'User Management',
-						icon: 'users',
-						href: '/user-mangement'
-					},
-					{
-						id: 'localpong-btn',
-						text: 'Local Pong',
-						icon: 'table-tennis-paddle-ball',
-						href: '/localpong'
-					},
-					{
-						id: 'lobby-list-btn',
-						text: 'Lobby List',
-						icon: 'list',
-						href: '/lobbylist'
-					}
-				];
-			} else {
-				buttonSet = [
-					{
-						id: 'friends-btn',
-						text: 'Friends List',
-						icon: 'user-group',
-						href: '/friends',
-					},
-					{
-						id: 'localpong-btn',
-						text: 'Local Pong',
-						icon: 'table-tennis-paddle-ball',
-						href: '/localpong'
-					},
-					{
-						id: 'lobby-list-btn',
-						text: 'Lobby List',
-						icon: 'list',
-						href: '/lobbylist'
-					}
-				];
-			}
-		}
+        if (currentUser != null) {
+            if (currentUser.role === 'admin' || currentUser.role === 'master') {
+                buttonSet = [
+                    {
+                        id: 'friends-btn',
+                        text: 'Friends List',
+                        icon: 'user-group',
+                        href: '/friends',
+                    },
+                    {
+                        id: 'user-management-btn',
+                        text: 'User Management',
+                        icon: 'users',
+                        href: '/user-mangement'
+                    },
+                    {
+                        id: 'localpong-btn',
+                        text: 'Local Pong',
+                        icon: 'table-tennis-paddle-ball',
+                        href: '/localpong'
+                    },
+                    {
+                        id: 'lobby-list-btn',
+                        text: 'Lobby List',
+                        icon: 'list',
+                        href: '/lobbylist'
+                    }
+                ];
+            }
+            else {
+                buttonSet = [
+                    {
+                        id: 'friends-btn',
+                        text: 'Friends List',
+                        icon: 'user-group',
+                        href: '/friends',
+                    },
+                    {
+                        id: 'localpong-btn',
+                        text: 'Local Pong',
+                        icon: 'table-tennis-paddle-ball',
+                        href: '/localpong'
+                    },
+                    {
+                        id: 'lobby-list-btn',
+                        text: 'Lobby List',
+                        icon: 'list',
+                        href: '/lobbylist'
+                    }
+                ];
+            }
+        }
 
 
-		let buttonGroupHtml = '';
-		if (!noMenu.includes(location.pathname))
-		{
-			const button = new Button();
-			buttonGroupHtml = await button.renderButtonGroup(
-			{
-				layout: 'group',
-				align: 'right',
-				className: 'no-wrap',
-				buttons: buttonSet
-			});
-		}
-		let baseUrl = window.location.protocol + "//" + window.location.host;
-		let languageDropDown = `<div class="dropdown">
+        let buttonGroupHtml = '';
+        if (!noMenu.includes(location.pathname)) {
+            const button = new Button();
+            buttonGroupHtml = await button.renderButtonGroup(
+                {
+                    layout: 'group',
+                    align: 'right',
+                    className: 'no-wrap',
+                    buttons: buttonSet
+                });
+        }
+        let baseUrl = window.location.protocol + "//" + window.location.host;
+        let languageDropDown = `<div class="dropdown">
 				<div class="dropdown-head">
 					<img class="flag active" data-lang="en_EN" src="${baseUrl}/dist/assets/flags/en_EN.svg" />
 				</div>
@@ -111,10 +108,10 @@ export default class Header extends AbstractView
 			</div>
 			`
 
-		let userDropDown = ""
-		if (currentUser) {
-			let dropDownAvatar = generateProfileImage(currentUser, 20, 20);
-			userDropDown = `<div class="dropdown">
+        let userDropDown = ""
+        if (currentUser) {
+            let dropDownAvatar = generateProfileImage(currentUser, 20, 20);
+            userDropDown = `<div class="dropdown">
 				<div class="dropdown-head">
 					<a router href="/users/${currentUser.id}">
 						<div class="dropdown-name">
@@ -135,10 +132,10 @@ export default class Header extends AbstractView
 				</div>
 			</div>
 			`
-		}
+        }
 
-		//{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-red btn-sm' }
-		return super.render(`
+        //{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-red btn-sm' }
+        return super.render(`
 			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">
 				<a router href="/" class="hover:underline">Transcendence</a>
@@ -154,5 +151,5 @@ export default class Header extends AbstractView
 				</div>
 			</header>
 		`);
-	}
+    }
 }

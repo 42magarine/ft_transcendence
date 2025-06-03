@@ -1,8 +1,5 @@
-// LobbyListService.ts
-
 import Router from '../../utils/Router.js';
 import UserService from '../services/UserService.js';
-import { User } from '../../interfaces/userManagementInterfaces.js';
 import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
 
 export default class LobbyListService {
@@ -28,7 +25,8 @@ export default class LobbyListService {
                 if (data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
                     Router.redirect(`/lobby/${data.lobbyId}`);
-                } else {
+                }
+                else {
                     console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
                 }
                 break;

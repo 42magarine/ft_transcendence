@@ -52,7 +52,6 @@ export default class UserService {
         }
     }
 
-
     static async getUserById(userId: number): Promise<User | null> {
         try {
             const response = await fetch(`/api/users/${userId}`);
@@ -213,7 +212,8 @@ export default class UserService {
                     username: user.username,
                     status: Math.random() > 0.5 ? 'online' : 'offline'
                 }));
-        } catch (error) {
+        }
+        catch (error) {
             console.error('[UserService] Failed to fetch friends:', error);
             return [];
         }
@@ -231,7 +231,8 @@ export default class UserService {
             if (!response.ok) throw new Error(result.message || 'Add failed');
             console.log('[UserService] Friend added:', result);
             return true;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('[UserService] Failed to add friend:', error);
             return false;
         }
@@ -246,7 +247,8 @@ export default class UserService {
             if (!response.ok) throw new Error(await response.text());
             console.log('[UserService] Friend removed:', id);
             return true;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('[UserService] Failed to remove friend:', error);
             return false;
         }
@@ -284,7 +286,8 @@ export default class UserService {
                         feedback.classList.add('text-green-500');
                     }
                     setTimeout(() => location.reload(), 1000);
-                } else {
+                }
+                else {
                     if (feedback) {
                         feedback.textContent = 'Failed to add friend.';
                         feedback.classList.remove('hidden');
@@ -319,10 +322,14 @@ export default class UserService {
         const confirmBtn = document.getElementById('confirm-remove-btn');
         if (confirmBtn) {
             confirmBtn.addEventListener('click', async () => {
-                if (selectedFriendId === null) return;
+                if (selectedFriendId === null) {
+                    return;
+                }
 
                 const success = await UserService.removeFriendById(selectedFriendId);
-                if (success) location.reload();
+                if (success) {
+                    location.reload();
+                }
                 else {
                     const modal = document.getElementById('confirm-remove-modal');
                     if (modal) modal.classList.add('hidden');

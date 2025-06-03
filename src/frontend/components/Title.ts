@@ -1,21 +1,17 @@
 import AbstractView from '../../utils/AbstractView.js';
 import { TitleProps } from '../../interfaces/componentInterfaces.js';
 
-export default class Title extends AbstractView
-{
+export default class Title extends AbstractView {
     private titleText: string;
     private subtitleText?: string;
 
-    constructor({ title, subtitle }: TitleProps)
-    {
+    constructor({ title, subtitle }: TitleProps) {
         super();
         this.titleText = title;
         this.subtitleText = subtitle;
     }
 
-    async getHtml(): Promise<string>
-    {
-
+    async getHtml(): Promise<string> {
         return this.render(`
 			<section class="w-full text-center pt-24 pb-16 px-4 mb-12">
 				<div class="space-y-6">

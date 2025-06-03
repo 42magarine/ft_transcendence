@@ -3,7 +3,6 @@ import Card from '../components/Card.js';
 import Router from '../../utils/Router.js';
 import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
 
-
 export default class Lobby extends AbstractView {
     private lobbyId: string;
 
@@ -43,7 +42,6 @@ export default class Lobby extends AbstractView {
         // }
         // }
 
-        console.log("penis");
         const lobbyCard = await new Card().renderCard(
             {
                 title: `Lobby ${this.lobbyId}`,

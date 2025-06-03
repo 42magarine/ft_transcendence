@@ -3,49 +3,49 @@ import Button from './Button.js';
 import { ButtonProps, ModalProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Modal extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-	}
+    constructor(params: URLSearchParams = new URLSearchParams()) {
+        super(params);
+    }
 
-	private async renderFooter(footer: string, footerButtons: ButtonProps[]): Promise<string> {
-		let footerHtml = footer;
+    private async renderFooter(footer: string, footerButtons: ButtonProps[]): Promise<string> {
+        let footerHtml = footer;
 
-		if (footerButtons.length > 0) {
-			const buttonRenderer = new Button();
-			const buttonGroupHtml = await buttonRenderer.renderButtonGroup({
-				buttons: footerButtons,
-				align: 'right',
-				layout: 'group'
-			});
-			footerHtml += `<div class="mt-4">${buttonGroupHtml}</div>`;
-		}
+        if (footerButtons.length > 0) {
+            const buttonRenderer = new Button();
+            const buttonGroupHtml = await buttonRenderer.renderButtonGroup({
+                buttons: footerButtons,
+                align: 'right',
+                layout: 'group'
+            });
+            footerHtml += `<div class="mt-4">${buttonGroupHtml}</div>`;
+        }
 
-		return footerHtml ? `<div class="modal-footer mt-4">${footerHtml}</div>` : '';
-	}
+        return footerHtml ? `<div class="modal-footer mt-4">${footerHtml}</div>` : '';
+    }
 
-	private renderCloseButton(id: string): string {
-		return `
+    private renderCloseButton(id: string): string {
+        return `
 			<button
 				class="absolute top-3 right-3 text-gray-400 hover:text-gray-200 text-xl font-bold"
 				aria-label="Close modal"
 				onclick="document.getElementById('${id}').classList.add('hidden')"
 			>&times;</button>
 		`;
-	}
+    }
 
-	async renderModal({
-		id,
-		title = '',
-		content,
-		footer = '',
-		footerButtons = [],
-		showCloseButton = true,
-		closableOnOutsideClick = true,
-	}: ModalProps): Promise<string> {
-		const closableAttr = closableOnOutsideClick ? `data-close-on-outside="true"` : '';
-		const footerHtml = await this.renderFooter(footer, footerButtons);
+    async renderModal({
+        id,
+        title = '',
+        content,
+        footer = '',
+        footerButtons = [],
+        showCloseButton = true,
+        closableOnOutsideClick = true,
+    }: ModalProps): Promise<string> {
+        const closableAttr = closableOnOutsideClick ? `data-close-on-outside="true"` : '';
+        const footerHtml = await this.renderFooter(footer, footerButtons);
 
-		return this.render(`
+        return this.render(`
 			<div
 				id="${id}"
 				class="fixed inset-0 z-50 bg-black/50 flex justify-center items-center hidden"
@@ -68,22 +68,22 @@ export default class Modal extends AbstractView {
 				</div>
 			</div>
 		`);
-	}
+    }
 
-	async getHtml(): Promise<string> {
-		return this.renderModal({
-			id: 'default-modal',
-			title: 'Example Modal',
-			content: '<p>This is a default modal.</p>',
-			footerButtons: [
-				{
-					id: 'close-btn',
-					text: 'Close',
-					className: 'btn btn-secondary',
-					onClick: `document.getElementById('default-modal').classList.add('hidden')`
-				}
-			],
-			closableOnOutsideClick: true
-		});
-	}
+    async getHtml(): Promise<string> {
+        return this.renderModal({
+            id: 'default-modal',
+            title: 'Example Modal',
+            content: '<p>This is a default modal.</p>',
+            footerButtons: [
+                {
+                    id: 'close-btn',
+                    text: 'Close',
+                    className: 'btn btn-secondary',
+                    onClick: `document.getElementById('default-modal').classList.add('hidden')`
+                }
+            ],
+            closableOnOutsideClick: true
+        });
+    }
 }

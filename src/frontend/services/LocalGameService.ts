@@ -1,4 +1,3 @@
-// core/LocalGameService.ts
 import type { IGameState, IBallState } from "../../interfaces/interfaces.js";
 import LocalGameLogic from "./GameLogic.js";
 
@@ -13,9 +12,7 @@ class LocalGameService {
 
     constructor() { }
 
-    // ---------------------------
     // Initialization
-    // ---------------------------
 
     public onCanvasReady(): void {
         if (this.initialized) return;
@@ -47,9 +44,7 @@ class LocalGameService {
         this.gameLogic.updatePaddleSize(paddleHeight, 20);
     }
 
-    // ---------------------------
     // DOM Event Listeners
-    // ---------------------------
 
     private setupButtonListeners(): void {
         const startBtn = document.getElementById('startGameButton');
@@ -124,9 +119,7 @@ class LocalGameService {
         }
     }
 
-    // ---------------------------
     // Game Loop
-    // ---------------------------
 
     private gameLoop(): void {
         if (this.gameLogic) {
@@ -144,9 +137,7 @@ class LocalGameService {
         requestAnimationFrame(this.gameLoop.bind(this));
     }
 
-    // ---------------------------
     // Setter Delegates
-    // ---------------------------
 
     public updatePaddleSpeed(speed: number): void {
         this.paddleSpeed = speed;
@@ -180,9 +171,7 @@ class LocalGameService {
         if (this.gameLogic) this.gameLogic.updateWinScore(score);
     }
 
-    // ---------------------------
     // Getter Methods
-    // ---------------------------
 
     public getGameState(): IGameState | null {
         return this.gameLogic?.state || null;

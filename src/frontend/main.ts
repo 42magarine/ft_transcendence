@@ -1,6 +1,4 @@
-// ====================
-// 🌐 ROUTES & SERVICES
-// ====================
+// ROUTES & SERVICES
 import routes from './routeInit.js';
 import './services/LanguageService.js';
 import LobbyListService from './services/LobbyListService.js';
@@ -9,38 +7,27 @@ import MessageHandlerService from './services/MessageHandlerService.js';
 import UserManagementService from './services/UserManagementService.js';
 import UserService from './services/UserService.js';
 
-// ===============
-// 🔧 GLOBAL UTILS
-// ===============
+// GLOBAL UTILS
 import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
 import { TemplateEngine } from '../utils/TemplateEngine.js';
 
-// =================
-// 🧩 UI COMPONENTS
-// =================
+// UI COMPONENTS
 import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
 
-// =========================
-// 🧠 GLOBAL TEMPLATE ENGINE
-// =========================
+// GLOBAL TEMPLATE ENGINE
 const globalTemplateEngine = new TemplateEngine();
 globalTemplateEngine.registerComponent('Card', Card);
 globalTemplateEngine.registerComponent('Button', Button);
 
-// =====================
-// 🧩 GLOBAL SINGLETONS
-// =====================
+// GLOBAL SINGLETONS
 window.userService = new UserService();
 window.userManagementService = new UserManagementService();
 
-// ==============================
-// 📦 FOOTER + HEADER RENDERING
-// ==============================
-
+// FOOTER + HEADER RENDERING
 async function renderFooter(): Promise<void> {
     const footer = new Footer();
     const footerHtml = await footer.renderWithProps({
@@ -52,22 +39,21 @@ async function renderFooter(): Promise<void> {
         ]
     });
     const footerElement = document.getElementById('footer-root');
-    if (footerElement)
+    if (footerElement) {
         footerElement.innerHTML = footerHtml;
+    }
 }
 
 async function renderHeader(): Promise<void> {
     const header = new Header(new URLSearchParams(window.location.search));
     const headerHtml = await header.getHtml();
     const headerElement = document.getElementById('header-root');
-    if (headerElement)
+    if (headerElement) {
         headerElement.innerHTML = headerHtml;
+    }
 }
 
-// =======================
-// 🌐 SOCKET INITIALIZATION
-// =======================
-
+// SOCKET INITIALIZATION
 function webSocketWrapper(socket: WebSocket): Promise<void> {
     return new Promise((resolve, reject) => {
         if (socket.readyState === WebSocket.OPEN) {
@@ -109,10 +95,7 @@ async function initSocket(): Promise<void> {
     }
 }
 
-// =======================
-// ⚡ ROUTER EVENT HANDLING
-// =======================
-
+// ROUTER EVENT HANDLING
 document.addEventListener('RouterContentLoaded', async () => {
     console.log("RouterContentLoaded event triggered.");
     const currentUser = await UserService.getCurrentUser();
@@ -129,11 +112,6 @@ document.addEventListener('RouterContentLoaded', async () => {
             if (window.lobbyService && typeof window.lobbyService.destroy === 'function') {
                 window.lobbyService.destroy();
             }
-            // window.ft_socket = undefined;
-            // window.socketReady = undefined;
-            // window.messageHandler = undefined;
-            // window.lobbyListService = undefined;
-            // window.lobbyService = undefined;
         }
         return;
     }
@@ -144,7 +122,8 @@ document.addEventListener('RouterContentLoaded', async () => {
         try {
             await window.socketReady;
             console.log("RouterContentLoaded: Socket and services initialized via initSocket().");
-        } catch (error) {
+        }
+        catch (error) {
             console.error("RouterContentLoaded: Failed to initialize socket via initSocket():", error);
         }
     }
@@ -182,31 +161,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     await router.render();
 });
 
-// =======================
-// 🧭 ROUTER INSTANCE
-// =======================
-
+// ROUTER INSTANCE
 const router = new Router(routes);
 (window as any).router = router;
 
-// =======================
-// 🚀 DOM RENDER ON LOAD
-// =======================
-
+// DOM RENDER ON LOAD
 document.addEventListener('DOMContentLoaded', async () => {
     await renderHeader();
     await renderFooter();
     await router.render();
 });
 
-// ============================
-// 🔐 GOOGLE LOGIN HANDLER
-// ============================
-
+// GOOGLE LOGIN HANDLER
 (window as any).handleGoogleLogin = async function (response: any) {
     try {
         await window.userManagementService.loginWithGoogle(response.credential);
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Google login failed:', error);
         throw error;
     }

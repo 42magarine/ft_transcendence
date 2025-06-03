@@ -1,4 +1,3 @@
-// core/LocalGameLogic.ts
 import type { IGameState, IBallState } from "../../interfaces/interfaces.js";
 
 export class LocalGameLogic {
@@ -27,9 +26,7 @@ export class LocalGameLogic {
         };
     }
 
-    // --------------------------
     // Countdown and Game Control
-    // --------------------------
 
     public async startCountdown(callback: () => void = () => { }): Promise<void> {
         this.countdownActive = true;
@@ -69,9 +66,7 @@ export class LocalGameLogic {
         this.state.paused = paused;
     }
 
-    // --------------------------
     // Main Game Loop (Logic & Draw)
-    // --------------------------
 
     public update(): void {
         if (this.state.paused || this.state.gameIsOver || this.countdownActive) return;
@@ -89,7 +84,8 @@ export class LocalGameLogic {
             ball.y >= paddle1.y &&
             ball.y <= paddle1.y + paddle1.height) {
             ball.speedX *= -1;
-        } else if (ball.x + ball.radius >= paddle2.x &&
+        }
+        else if (ball.x + ball.radius >= paddle2.x &&
             ball.y >= paddle2.y &&
             ball.y <= paddle2.y + paddle2.height) {
             ball.speedX *= -1;
@@ -98,7 +94,8 @@ export class LocalGameLogic {
         if (ball.x < 0) {
             this.state.score2++;
             this.resetBall();
-        } else if (ball.x > this.canvas.width) {
+        }
+        else if (ball.x > this.canvas.width) {
             this.state.score1++;
             this.resetBall();
         }
@@ -149,9 +146,7 @@ export class LocalGameLogic {
         }
     }
 
-    // --------------------------
     // Ball Control
-    // --------------------------
 
     public resetBall(): void {
         const ball = this.state.ball;
@@ -172,9 +167,7 @@ export class LocalGameLogic {
         this.state.ball.radius = size;
     }
 
-    // --------------------------
     // Paddle Control
-    // --------------------------
 
     public movePaddle(player: 1 | 2, direction: "up" | "down"): void {
         const paddle = player === 1 ? this.state.paddle1 : this.state.paddle2;
@@ -193,9 +186,7 @@ export class LocalGameLogic {
         this.state.paddle2.width = width;
     }
 
-    // --------------------------
     // Game Settings
-    // --------------------------
 
     public updateWinScore(score: number): void {
         this.winScore = score;

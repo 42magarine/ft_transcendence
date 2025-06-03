@@ -1,6 +1,4 @@
-// =========================
-// 🎨 BUTTON INTERFACES
-// =========================
+// BUTTON INTERFACES
 
 export type ButtonAlign = 'left' | 'center' | 'right';
 
@@ -42,9 +40,7 @@ export interface ButtonGroupProps {
     inputs?: InputProps[];
 }
 
-// =========================
-// 🧾 INPUT INTERFACES
-// =========================
+// INPUT INTERFACES
 
 export interface InputField {
     id?: string;
@@ -59,15 +55,15 @@ export interface InputField {
     withConfirm?: boolean;
     label?: string;
     type?:
-        | 'text'
-        | 'email'
-        | 'password'
-        | 'select'
-        | 'hidden'
-        | 'display'
-        | 'file'
-        | 'checkbox'
-        | 'number';
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'select'
+    | 'hidden'
+    | 'display'
+    | 'file'
+    | 'checkbox'
+    | 'number';
 }
 
 export interface InputProps {
@@ -82,19 +78,17 @@ export interface InputProps {
 }
 
 export interface SliderProps {
-	id: string;
-	label: string;
-	min: number;
-	max: number;
-	step?: number;
-	value?: number;
-	onInput?: string;
-	className?: string;
+    id: string;
+    label: string;
+    min: number;
+    max: number;
+    step?: number;
+    value?: number;
+    onInput?: string;
+    className?: string;
 }
 
-// =========================
-// 🗂️ CARD + GROUP INTERFACES
-// =========================
+// CARD + GROUP INTERFACES
 
 export interface CardButton {
     text: string;
@@ -118,15 +112,15 @@ export interface CardProps {
     data?: Record<string, any>;
     table?: TableProps;
     position?:
-        | 'center'
-        | 'top'
-        | 'bottom'
-        | 'left'
-        | 'right'
-        | 'top-left'
-        | 'top-right'
-        | 'bottom-left'
-        | 'bottom-right';
+    | 'center'
+    | 'top'
+    | 'bottom'
+    | 'left'
+    | 'right'
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right';
 }
 
 export interface CardGroupProps {
@@ -136,9 +130,7 @@ export interface CardGroupProps {
     data?: Record<string, any>;
 }
 
-// =========================
-// 🧱 CONTENT BLOCKS
-// =========================
+// CONTENT BLOCKS
 
 export type ContentBlock =
     | { type: 'input'; props: InputField }
@@ -160,9 +152,7 @@ export type ContentBlock =
     | { type: 'twofactor'; props: { length?: number; namePrefix?: string } }
     | { type: 'signup-footer'; props?: {} };
 
-// =========================
-// 📋 FORM / LABEL / TOGGLE
-// =========================
+// FORM / LABEL / TOGGLE
 
 export interface LabelProps {
     htmlFor: string;
@@ -179,9 +169,7 @@ export interface ToggleProps {
     readonly?: boolean;
 }
 
-// =========================
-// 📊 TABLE + STATS
-// =========================
+// TABLE + STATS
 
 export interface TableColumn {
     key: string;
@@ -204,9 +192,7 @@ export interface StatProps {
     className?: string;
 }
 
-// =========================
-// 🧾 TEXT / TYPOGRAPHY
-// =========================
+// TEXT / TYPOGRAPHY
 
 export interface TitleProps {
     title: string;      // Main title
@@ -225,9 +211,7 @@ export interface ParagraphProps {
     className?: string;
 }
 
-// =========================
-// 📦 CONTAINERS / SPECIALS
-// =========================
+// CONTAINERS / SPECIALS
 
 export interface ContainerProps {
     html: string;
@@ -239,9 +223,7 @@ export interface MatchupProps {
     player2: ContentBlock;
 }
 
-// =========================
-// 🪟 MODAL INTERFACE
-// =========================
+// MODAL INTERFACE
 
 export interface ModalProps {
     id: string;
@@ -253,9 +235,7 @@ export interface ModalProps {
     closableOnOutsideClick?: boolean;
 }
 
-// =========================
-// 🔧 TOOLBAR INTERFACE
-// =========================
+// TOOLBAR INTERFACE
 
 interface ToolbarButton {
     text: string;

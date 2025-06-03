@@ -76,9 +76,7 @@ export interface IPlayerState {
     isReady: boolean;
 }
 
-// =========================
 // MESSAGE INTERFACES
-// =========================
 
 export interface IClientMessage {
     type: string;
@@ -90,7 +88,6 @@ export interface IClientMessage {
     message?: string;
     [key: string]: any;
 }
-
 
 export interface IServerMessage {
     type: string;

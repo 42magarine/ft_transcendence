@@ -1,15 +1,12 @@
 import AbstractView from '../../utils/AbstractView.js';
 import { StatProps } from '../../interfaces/componentInterfaces.js';
 
-export default class Stat extends AbstractView
-{
-    constructor(params: URLSearchParams = new URLSearchParams())
-    {
+export default class Stat extends AbstractView {
+    constructor(params: URLSearchParams = new URLSearchParams()) {
         super(params);
     }
 
-    async renderStat({ label, value, className = '' }: StatProps): Promise<string>
-    {
+    async renderStat({ label, value, className = '' }: StatProps): Promise<string> {
         return this.render(`
       <div class="text-center p-4 rounded-lg shadow-md ${className}">
         <div class="text-lg font-semibold">${label}</div>
@@ -18,8 +15,7 @@ export default class Stat extends AbstractView
     `);
     }
 
-    async getHtml(): Promise<string>
-    {
+    async getHtml(): Promise<string> {
         return this.render(`
       <div class="text-center p-4 rounded-lg shadow-md">
         <div class="text-lg font-semibold">Label</div>

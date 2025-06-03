@@ -40,7 +40,8 @@ export class EmailService {
                 html: options.html,
             });
             console.log(`Email sent to ${options.to}`);
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error sending email:', error);
             throw new Error('Failed to send email');
         }
