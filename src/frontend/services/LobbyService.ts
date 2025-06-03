@@ -17,9 +17,6 @@ export default class LobbyService {
         } else {
             console.error("[LobbyService] window.ft_socket is not initialized when LobbyService is constructed.");
         }
-
-
-        //console.log('[LobbyService] Core dependencies initialized. Listening to global socket.');
     }
 
     private getCurrentLobbyIdFromUrl(): string {

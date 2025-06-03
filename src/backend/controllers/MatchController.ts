@@ -224,16 +224,12 @@ export class MatchController {
         }
 
         try {
-            // Spieler aus Lobby + DB entfernen
             await lobby.removePlayer(player);
 
-            // Spieler aus _clients Map entfernen
-            this._clients.delete(connection);
+            this._clients.set(connection, null);
 
             if (lobby.isEmpty()) {
                 this._lobbies.delete(lobbyId);
-
-                // Match aus DB löschen
                 await this._matchService.deleteMatchByLobbyId(lobbyId);
             }
 
