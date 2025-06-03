@@ -5,7 +5,7 @@ import UserService from '../services/UserService.js';
 export default class ProfileEdit extends AbstractView {
 	constructor(params: URLSearchParams) {
 		super(params);
-	}	
+	}
 
 	async getHtml(): Promise<string> {
 		const userId = Number(this.params.get('id'));
@@ -62,7 +62,7 @@ export default class ProfileEdit extends AbstractView {
 						placeholder: 'Repeat your new password',
 						className: 'hidden'
 					}
-				},				
+				},
 				{ type: 'separator' },
 				{
 					type: 'buttongroup',
@@ -105,7 +105,7 @@ export default class ProfileEdit extends AbstractView {
 	onMounted(): void {
 		const userId = this.params.get('id');
 		if (userId) {
-			UserService.attachProfileFormHandlers(`edit_profile_form/${userId}`, userId);
+			//UserService.attachProfileFormHandlers(`edit_profile_form/${userId}`, userId);
 		}
 	}
 }

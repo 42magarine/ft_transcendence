@@ -45,7 +45,7 @@ export async function handleUserFormSubmit({
                 status: 'offline',
                 emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
                 twoFAEnabled: (document.getElementById('twoFAEnabled') as HTMLInputElement)?.value === 'true',
-            };            
+            };
 
 			// If password and confirmation are provided, ensure they match
 			const confirmPassword = formData.get('passwordConfirm') as string;
@@ -73,14 +73,14 @@ export async function handleUserFormSubmit({
                         if (val !== undefined && val !== null) {
                             uploadData.append(key, String(val));  // ✅ converts boolean to string
                         }
-                    });                    
+                    });
 					uploadData.append('avatar', avatarFile);
 
 					// Register with avatar
-					await UserService.registerUser(userData, avatarFile);
+					//await UserService.registerUser(userData, avatarFile);
 				} else {
 					// Register without avatar
-					await UserService.registerUser(userData);
+					//await UserService.registerUser(userData);
 				}
 				result = true;
 			}

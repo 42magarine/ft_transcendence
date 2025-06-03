@@ -10,7 +10,7 @@ export default class UserManagementService {
         this.initialize();
     }
 
-    async registerUser(userData: User, avatarFile?: File): Promise<string> {
+    static async registerUser(userData: User, avatarFile?: File): Promise<string> {
         console.log("Registering user with data:", userData);
         try {
             if (userData.secret &&
@@ -633,11 +633,12 @@ export default class UserManagementService {
                     const avatarFile = formData.get('avatar') as File;
                     let result;
 
-                    if (avatarFile && avatarFile.size > 0) {
-                        result = await this.registerUser(userData, avatarFile);
+                   if (avatarFile && avatarFile.size > 0) {
+                        result = await UserManagementService.registerUser(userData, avatarFile);
                     } else {
-                        result = await this.registerUser(userData);
+                        result = await UserManagementService.registerUser(userData);
                     }
+
 
                     signupForm.reset();
                     Router.redirect('/login');
@@ -884,10 +885,14 @@ export default class UserManagementService {
         }
     }
 
+        async setupCreateForm()
+            {
+
+            }
     public async setupUserManagementView(): Promise<void> {
         const toggle = new Toggle();
         toggle.mountToggle('emailVerified');
-    
+
         // Inject modal manually into DOM
         const modalContainer = document.createElement('div');
         modalContainer.innerHTML = await new Modal().renderModal({
@@ -912,11 +917,11 @@ export default class UserManagementService {
             ],
             closableOnOutsideClick: true
         });
-    
+
         document.body.appendChild(modalContainer); // Append modal to end of body
-    
+
         let selectedUserId: string | null = null;
-    
+
         const deleteButtons = document.querySelectorAll('button[id^="delete-user-"]');
         deleteButtons.forEach((btn) => {
             btn.addEventListener('click', () => {
@@ -928,11 +933,11 @@ export default class UserManagementService {
                 }
             });
         });
-    
+
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const modal = document.getElementById('confirm-delete-modal');
-    
+
         if (confirmDeleteBtn && modal) {
             confirmDeleteBtn.addEventListener('click', async () => {
                 if (selectedUserId) {
@@ -949,7 +954,7 @@ export default class UserManagementService {
                 }
             });
         }
-    
+
         if (cancelDeleteBtn && modal) {
             cancelDeleteBtn.addEventListener('click', () => {
                 modal.classList.add('hidden');

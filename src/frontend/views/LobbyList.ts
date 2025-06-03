@@ -81,17 +81,17 @@ export default class LobbyList extends AbstractView {
                                 }
                             },
                             {
-                                type: 'stat',
+                                type: 'label',
                                 props: {
-                                    label: '',
-                                    value: `${lobby.currentPlayers} / ${lobby.maxPlayers}`
+                                    htmlFor: '',
+                                    text: `${lobby.currentPlayers} / ${lobby.maxPlayers}`
                                 }
                             },
                             {
-                                type: 'stat',
+                                type: 'label',
                                 props: {
-                                    label: '',
-                                    value: lobby.isStarted ? 'Started' : 'Waiting'
+                                    htmlFor: '',
+                                    text: lobby.isStarted ? 'Started' : 'Waiting'
                                 }
                             },
                             {

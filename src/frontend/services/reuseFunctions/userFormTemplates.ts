@@ -1,6 +1,6 @@
 // File: frontend/services/reuseFunctions/userFormTemplates.ts
-
-import { User } from '../../interfaces/userInterfaces.js';
+import UserService from '../UserService.js';
+import { User } from '../../../interfaces/userInterfaces.js';
 
 // Extracts common fields from a form and returns a base User object
 export function extractUserDataFromForm(form: HTMLFormElement): User {
