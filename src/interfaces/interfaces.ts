@@ -17,6 +17,7 @@ export interface Route {
 
 declare global {
     interface Window {
+        currentUser: User | null;
         ft_socket?: WebSocket;
         socketReady: Promise<void>;
         messageHandler: MessageHandlerService;

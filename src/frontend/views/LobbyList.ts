@@ -11,10 +11,10 @@ export default class LobbyList extends AbstractView {
         let lobbies: ILobbyState[] = [];
         lobbies = await window.lobbyListService.getLobbies();
 
-        console.debug('[LobbyList] Fetched lobbies:', lobbies);
+        //console.debug('[LobbyList] Fetched lobbies:', lobbies);
 
         if (!Array.isArray(lobbies) || lobbies.length === 0) {
-            console.warn('[LobbyList] No lobbies found or invalid format.');
+            //console.warn('[LobbyList] No lobbies found or invalid format.');
         }
 
         // console.log(lobbies);

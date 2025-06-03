@@ -19,7 +19,7 @@ export default class LobbyService {
         }
 
 
-        console.log('[LobbyService] Core dependencies initialized. Listening to global socket.');
+        //console.log('[LobbyService] Core dependencies initialized. Listening to global socket.');
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -30,7 +30,7 @@ export default class LobbyService {
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        console.log("frontend msg received: " + data.type);
+        //console.log("frontend msg received: " + data.type);
 
         switch (data.type) {
             case 'lobbyState':
@@ -126,6 +126,6 @@ export default class LobbyService {
         }
         document.body.removeEventListener('click', this.handleLobbyPageClick);
 
-        console.log('[LobbyService] Destroyed. No longer listening to global socket.');
+        //console.log('[LobbyService] Destroyed. No longer listening to global socket.');
     }
 }

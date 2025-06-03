@@ -22,7 +22,11 @@ export default class LobbyListService {
                 this.resolveLobbyDataPromises(this.lobbyData);
                 break;
             case 'lobbyCreated':
-                if (data.lobbyId && window.messageHandler) {
+                console.warn("lobbyCreated recv")
+                if (window.currentUser && data.owner != window.currentUser.id && window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies') {
+                    Router.update()
+                }
+                if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
                     Router.redirect(`/lobby/${data.lobbyId}`);
                 }
@@ -31,7 +35,7 @@ export default class LobbyListService {
                 }
                 break;
             case 'joinedLobby':
-                console.log("backend->frontend joinedLobby")
+                console.log("joinedLobby recv")
                 if (data.lobbyId) {
                     Router.redirect(`/lobby/${data.lobbyId}`);
                 }
@@ -82,20 +86,24 @@ export default class LobbyListService {
         if (button) {
             e.preventDefault();
 
-            const user = await UserService.getCurrentUser();
-            if (!user) {
+            if (!window.currentUser) {
                 console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
                 return;
             }
 
-            if (window.messageHandler) {
-                try {
-                    await window.messageHandler.createLobby(user.id!);
-                }
-                catch (error) {
-                    console.error("LobbyListService: Error calling createLobby:", error);
+            console.log("BIER!!!!")
+            console.log(window.currentUser)
+            if (window.currentUser) {
+                if (window.messageHandler && window.currentUser.id) {
+                    try {
+                        await window.messageHandler.createLobby(window.currentUser.id);
+                    }
+                    catch (error) {
+                        console.error("LobbyListService: Error calling createLobby:", error);
+                    }
                 }
             }
+
             else {
                 console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
             }

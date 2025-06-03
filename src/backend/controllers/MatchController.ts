@@ -122,6 +122,49 @@ export class MatchController {
         }
     }
 
+    private broadcastToAll(data: IServerMessage): void {
+        for (const [connection] of this._clients.entries()) {
+            if (connection.readyState === WebSocket.OPEN) {
+                this.sendMessage(connection, data);
+            }
+        }
+    }
+
+    private async broadcastLobbyListToAll() {
+        const openMatchModels = await this._matchService.getOpenLobbies();
+
+        const openLobbies = openMatchModels.map(Lobby => {
+            const activeLobby = Array.from(this._lobbies.values()).find(l =>
+                l.getGameId() === Lobby.matchModelId
+            );
+
+            if (activeLobby) {
+                return activeLobby.getLobbyState();
+            }
+
+            return {
+                id: Lobby.matchModelId.toString(),
+                lobbyId: Lobby.lobbyId,
+                name: `Lobby ${Lobby.matchModelId}`,
+                creatorId: Lobby.player1.id,
+                maxPlayers: Lobby.maxPlayers,
+                currentPlayers: Lobby.lobbyParticipants?.length,
+                createdAt: Lobby.createdAt,
+                lobbyType: 'game' as const,
+                isStarted: false,
+            }
+        });
+
+        // Broadcast to ALL connected clients
+        for (const [connection] of this._clients.entries()) {
+            if (connection.readyState === WebSocket.OPEN) {
+                this.sendMessage(connection, {
+                    type: "lobbyList",
+                    lobbies: openLobbies
+                });
+            }
+        }
+    }
     private async handleCreateLobby(connection: WebSocket, userId: number) {
         const lobbyId = randomUUID();
 
@@ -135,14 +178,22 @@ export class MatchController {
 
         const player = await lobby.addPlayer(connection, userId);
         if (player) {
-
             this._clients.set(connection, player);
 
             this.sendMessage(connection, {
                 type: "lobbyCreated",
                 lobbyId: lobbyId,
+                owner: userId,
                 playerNumber: player._playerNumber
             });
+
+            this.broadcastToAll({
+                type: "lobbyCreated",
+                lobbyId: lobbyId,
+                creatorId: userId
+            });
+
+            await this.broadcastLobbyListToAll();
         }
     }
 
