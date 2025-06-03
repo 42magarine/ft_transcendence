@@ -6,28 +6,24 @@ export default class UserService {
             const response = await fetch('/api/users/me', {
                 method: 'GET',
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
+                headers: { 'Content-Type': 'application/json' }
             });
 
-            if (response.status === 401) {
-                return null;
-            }
-
             if (!response.ok) {
-                const errorData = await response.json() as ApiErrorResponse;
-                throw new Error(errorData.error || 'Failed to fetch current user');
+                if (response.status === 401) {
+                    // Nur bei echten Auth-Fehlern (expired token)
+                    // Hier refresh token logic?
+                    return null;
+                }
+                throw new Error('Failed to fetch current user');
             }
 
             const responseText = await response.text();
-
             if (responseText.trim() === 'null') {
                 return null;
             }
 
             const userData = JSON.parse(responseText) as User;
-
             return userData;
         }
         catch (error) {
