@@ -1,5 +1,4 @@
 import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
-import MessageHandlerService from './MessageHandlerService.js';
 import UserService from './UserService.js';
 
 export default class LobbyService {
@@ -30,11 +29,12 @@ export default class LobbyService {
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        console.log("frontend msg received: " + data.type);
+        // console.log("frontend msg received: " + data.type); //<<-- debugging
 
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby) {
+                    console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),

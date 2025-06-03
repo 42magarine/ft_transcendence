@@ -22,29 +22,15 @@ export default class Lobby extends AbstractView {
     async getHtml(): Promise<string> {
         let lobby: ILobbyState
 
-        // TODO fuer Jonathan:
-        //
-        // Hier die daten mit getLobbyState() in den view ziehen.
-        // alles fuer player sollte jetzt da drin sein. Siehe getLobbyState() im backend!!
-        //
-        //
-        // LobbyService ueberarbeiten und in schoen und nutzlosen code raus und sinnvollen code rein!!
-        // danke <3
-
         if (window.lobbyService)
         {
-            console.log("1: window.lobbyService exists");
             lobby = await window.lobbyService.getLobbyState();
-            console.log("2: getLobbyState call successful");
             if (lobby.lobbyPlayers) {
-                console.log("3: lobby.lobbyPlayers exists");
                 if (lobby.lobbyPlayers[0]) {
-                    console.log("4: lobby.lobbyPlayers[0]:" + lobby.lobbyPlayers[0]);
                     this.player1 = lobby.lobbyPlayers[0];
                 }
                 if (lobby.lobbyPlayers[1]) {
                     this.player2 = lobby.lobbyPlayers[1];
-                    console.log("5: lobby.lobbyPlayers[1]:" + lobby.lobbyPlayers[1]);
                 }
             }
         }

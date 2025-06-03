@@ -10,7 +10,7 @@ export class MatchLobby {
     private _gameId!: number;
     private _saveScoreInterval: NodeJS.Timeout | null = null;
     private _lobbyId: string;
-    private _players: Map<number, Player>;
+    public  _players: Map<number, Player>;
     private _broadcast: (lobbyId: string, data: IServerMessage) => void;
     private _maxPlayers: number;
     private _gameStarted: boolean = false;
