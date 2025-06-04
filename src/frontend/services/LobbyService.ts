@@ -27,7 +27,7 @@ export default class LobbyService {
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-
+        console.log("frontend received:" + data.type)
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby) {
@@ -40,7 +40,6 @@ export default class LobbyService {
 
                     if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
                         this.lobbyState = receivedLobbyInfo;
-                        this.resolveLobbyDataPromises(receivedLobbyInfo);
                     }
                 }
             case 'playerJoined':
@@ -54,7 +53,6 @@ export default class LobbyService {
 
                     if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
                         this.lobbyState = receivedLobbyInfo;
-                        this.resolveLobbyDataPromises(receivedLobbyInfo);
                         Router.update();
                     }
                 }
@@ -69,8 +67,8 @@ export default class LobbyService {
                     };
 
                     if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
+                        console.log("penis")
                         this.lobbyState = receivedLobbyInfo;
-                        this.resolveLobbyDataPromises(receivedLobbyInfo);
                         Router.update();
                     }
                 }
@@ -86,7 +84,6 @@ export default class LobbyService {
 
                     if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
                         this.lobbyState = receivedLobbyInfo;
-                        this.resolveLobbyDataPromises(receivedLobbyInfo);
                         Router.update();
                     }
                 }
@@ -125,43 +122,9 @@ export default class LobbyService {
         const leaveBtn = target.closest('#leaveBtn');
         if (leaveBtn) {
             e.preventDefault();
-            if (window.messageHandler && currentLobbyId) {
-                window.messageHandler.leaveLobby(this.lobbyState.lobbyId);
-            }
+            Router.redirect(`/lobbylist`);
             return;
         }
-    }
-
-    private resolveLobbyDataPromises(lobbies: ILobbyState): void {
-        this.lobbyDataResolvers.forEach(resolve => resolve(lobbies));
-        this.lobbyDataResolvers = [];
-    }
-
-    public async getLobbyState(): Promise<ILobbyState> {
-        const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-
-        if (!window.messageHandler) {
-            console.warn("LobbyService getLobbyState: window.messageHandler not found.");
-            return Promise.resolve(this.lobbyState);
-        }
-        if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-            console.warn("LobbyService getLobbyState: window.ft_socket not open.");
-            return Promise.resolve(this.lobbyState);
-        }
-
-        const promise = new Promise<ILobbyState>((resolve) => {
-            this.lobbyDataResolvers.push(resolve);
-        });
-
-        try {
-            await window.socketReady;
-            await window.messageHandler.requestLobbyState(currentUrlLobbyId);
-        } catch (error) {
-            console.error("LobbyService getLobbyState: Error during socket readiness or requesting list:", error);
-            this.resolveLobbyDataPromises(this.lobbyState);
-        }
-
-        return promise;
     }
 
     public getLobby(): ILobbyState {

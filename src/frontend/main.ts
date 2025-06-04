@@ -166,14 +166,14 @@ async function beerPlease() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     beerPlease();
-    console.log('WebSocket status:', window.ft_socket?.readyState);
-    console.log('WebSocket:', window.ft_socket);
+    // console.log('WebSocket status:', window.ft_socket?.readyState);
+    // console.log('WebSocket:', window.ft_socket);
 });
 
 document.addEventListener('RouterContentLoaded', async () => {
     beerPlease();
-    console.log('WebSocket status:', window.ft_socket?.readyState);
-    console.log('WebSocket:', window.ft_socket);
+    // console.log('WebSocket status:', window.ft_socket?.readyState);
+    // console.log('WebSocket:', window.ft_socket);
 });
 
 /**

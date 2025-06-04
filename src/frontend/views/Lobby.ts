@@ -7,7 +7,7 @@ export default class Lobby extends AbstractView {
     private lobbyId: string;
     private lobby!: ILobbyState;
     private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isReady: false };
-    private player2: IPlayerState = { userName: 'Opponent', playerNumber: 2, userId: 2, isReady: false };
+    private player2: IPlayerState = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
 
     constructor(params: URLSearchParams) {
         super();
@@ -29,18 +29,6 @@ export default class Lobby extends AbstractView {
                 this.player2 = this.lobby.lobbyPlayers[1];
             }
         }
-        // let lobby: ILobbyState
-        // if (window.lobbyService) {
-        //     lobby = await window.lobbyService.getLobbyState();
-        //     if (lobby.lobbyPlayers) {
-        //         if (lobby.lobbyPlayers[0]) {
-        //             this.player1 = lobby.lobbyPlayers[0];
-        //         }
-        //         if (lobby.lobbyPlayers[1]) {
-        //             this.player2 = lobby.lobbyPlayers[1];
-        //         }
-        //     }
-        // }
 
         const lobbyCard = await new Card().renderCard(
             {
@@ -71,7 +59,7 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player2',
-                                        text: (this.player2.userName || 'Waiting for Opponent...'),
+                                        text: this.player2.userName,
                                         className:
                                             `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
