@@ -28,7 +28,7 @@ export default class Header extends AbstractView {
         ];
 
         if (currentUser != null) {
-            if (currentUser.role === 'admin' || currentUser.role === 'master') {
+            if (currentUser.role === 'master') {
                 buttonSet = [
                     {
                         id: 'friends-btn',
@@ -53,6 +53,12 @@ export default class Header extends AbstractView {
                         text: 'Lobby List',
                         icon: 'list',
                         href: '/lobbylist'
+                    },
+                    {
+                        id: 'tournament-list-btn',
+                        text: 'Tournament List',
+                        icon: 'list',
+                        href: '/tournamentlist'
                     }
                 ];
             }
@@ -75,6 +81,12 @@ export default class Header extends AbstractView {
                         text: 'Lobby List',
                         icon: 'list',
                         href: '/lobbylist'
+                    },
+                    {
+                        id: 'tournament-list-btn',
+                        text: 'Tournament List',
+                        icon: 'list',
+                        href: '/tournamentlist'
                     }
                 ];
             }

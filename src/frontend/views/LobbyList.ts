@@ -9,7 +9,7 @@ export default class LobbyList extends AbstractView {
 
     async getHtml(): Promise<string> {
         let lobbies: ILobbyState[] = [];
-        lobbies = await window.lobbyListService.getLobbies();
+        lobbies = await window.lobbyListService!.getLobbies();
         lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
 
         //console.debug('[LobbyList] Fetched lobbies:', lobbies);
