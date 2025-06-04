@@ -50,9 +50,8 @@ export default class LobbyList extends AbstractView {
                         height: '400px',
                         data: lobbies,
                         columns: [
-                            { key: 'name', label: 'Lobby' },
                             { key: 'id', label: 'ID' },
-                            { key: 'creatorID', label: 'Creator' },
+                            { key: 'creatorId', label: 'Creator' },
                             { key: 'players', label: 'Players' },
                             { key: 'status', label: 'Status' },
                             { key: 'actions', label: 'Actions' }
@@ -62,21 +61,14 @@ export default class LobbyList extends AbstractView {
                                 type: 'label',
                                 props: {
                                     htmlFor: '',
-                                    text: `${lobby.name}`
+                                    text: `${lobby.lobbyId}`
                                 }
                             },
                             {
                                 type: 'label',
                                 props: {
                                     htmlFor: '',
-                                    text: `${lobby.id}`
-                                }
-                            },
-                            {
-                                type: 'label',
-                                props: {
-                                    htmlFor: '',
-                                    text: `${lobby.id}`
+                                    text: `${lobby.creatorId}`
                                 }
                             },
                             {

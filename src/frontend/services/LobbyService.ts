@@ -1,47 +1,24 @@
 import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
-import MessageHandlerService from './MessageHandlerService.js';
 import UserService from './UserService.js';
 
 export default class LobbyService {
     private lobbyState!: ILobbyState;
-    private socket?: WebSocket;
-    private messageHandler: MessageHandlerService;
-    private userService: UserService; // Now required in constructor
     private lobbyDataResolvers: ((lobby: ILobbyState) => void)[] = [];
 
     constructor() {
-        this.messageHandler = window.messageHandler;
-        this.userService = window.userService;
 
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
         this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
         this.setupUIEventListeners();
 
-        console.log('[LobbyService] Core dependencies initialized.');
-    }
-
-    public connectSocket(socket: WebSocket): void {
-        if (this.socket === socket && this.socket.readyState === WebSocket.OPEN) {
-            return;
+        if (window.ft_socket) {
+            window.ft_socket.addEventListener('message', this.handleSocketMessage);
+        } else {
+            console.error("[LobbyService] window.ft_socket is not initialized when LobbyService is constructed.");
         }
 
-        if (this.socket) {
-            this.socket.removeEventListener('message', this.handleSocketMessage);
-        }
 
-        this.socket = socket;
-        this.socket.addEventListener('message', this.handleSocketMessage);
-    }
-
-    /**
-     * Disconnects the current WebSocket from the service.
-     */
-    public disconnectSocket(): void {
-        if (this.socket) {
-            this.socket.removeEventListener('message', this.handleSocketMessage);
-            this.socket = undefined;
-            console.log('[LobbyService] Socket disconnected.');
-        }
+        console.log('[LobbyService] Core dependencies initialized. Listening to global socket.');
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -52,24 +29,24 @@ export default class LobbyService {
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        console.log("frontend msg received: " + data.type)
+        // console.log("frontend msg received: " + data.type); //<<-- debugging
+
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby) {
+                    console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
                         lobbyPlayers: data.lobby.lobbyPlayers || []
                     };
 
-                    // Update general cache if it's the current lobby
                     if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
                         this.lobbyState = receivedLobbyInfo;
-                        // console.log(`[LobbyService] Main lobbyState for ${currentUrlLobbyId} updated.`);
+                        this.resolveLobbyDataPromises(receivedLobbyInfo);
                     }
                 }
                 break;
-            // ... other cases
             default:
                 break;
         }
@@ -88,25 +65,24 @@ export default class LobbyService {
         const startGameBtn = target.closest('#startGameBtn');
         if (startGameBtn) {
             e.preventDefault();
-            // messageHandler and userService are now guaranteed to be available
-            if (!currentLobbyId) { // Still check currentLobbyId
+            if (!currentLobbyId) {
                 console.warn("[LobbyService] Cannot start game: current lobby ID not found.");
                 return;
             }
-            const currentUser = await UserService.getCurrentUser(); // Assuming this is a static method
+            const currentUser = await UserService.getCurrentUser();
             if (!currentUser || !currentUser.id) {
                 console.warn("[LobbyService] Cannot start game: current user not found.");
                 return;
             }
-            this.messageHandler.markReady(currentLobbyId, currentUser.id);
+            window.messageHandler.markReady(currentLobbyId, currentUser.id);
             return;
         }
 
         const leaveBtn = target.closest('#leaveBtn');
         if (leaveBtn) {
             e.preventDefault();
-            if (this.messageHandler && currentLobbyId) {
-                this.messageHandler.leaveLobby(currentLobbyId);
+            if (window.messageHandler && currentLobbyId) {
+                window.messageHandler.leaveLobby(currentLobbyId);
             }
             return;
         }
@@ -121,11 +97,11 @@ export default class LobbyService {
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
 
         if (!window.messageHandler) {
-            console.warn("LobbyListService getLobbies: messageHandler not found.");
+            console.warn("LobbyService getLobbyState: window.messageHandler not found.");
             return Promise.resolve(this.lobbyState);
         }
         if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-            console.warn("LobbyListService getLobbies: WebSocket not open.");
+            console.warn("LobbyService getLobbyState: window.ft_socket not open.");
             return Promise.resolve(this.lobbyState);
         }
 
@@ -136,23 +112,20 @@ export default class LobbyService {
         try {
             await window.socketReady;
             await window.messageHandler.requestLobbyState(currentUrlLobbyId);
-        }
-        catch (error) {
-            console.error("LobbyListService getLobbies: Error during socket readiness or requesting list:", error);
+        } catch (error) {
+            console.error("LobbyService getLobbyState: Error during socket readiness or requesting list:", error);
             this.resolveLobbyDataPromises(this.lobbyState);
         }
 
         return promise;
     }
 
-
     public destroy(): void {
-        this.disconnectSocket(); // Use the dedicated disconnect method
+        if (window.ft_socket) {
+            window.ft_socket.removeEventListener('message', this.handleSocketMessage);
+        }
         document.body.removeEventListener('click', this.handleLobbyPageClick);
 
-        // No need to nullify messageHandler and userService, as they are constructor-injected
-        // and their lifecycle is managed by whatever created LobbyService.
-
-        console.log('[LobbyService] Destroyed.');
+        console.log('[LobbyService] Destroyed. No longer listening to global socket.');
     }
 }
