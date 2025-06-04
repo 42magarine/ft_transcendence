@@ -10,7 +10,6 @@ export default class UserManagementService {
     }
 
     async registerUser(userData: User, avatarFile?: File): Promise<string> {
-        console.log("Registering user with data:", userData);
         try {
             if (userData.secret &&
                 userData.tf_one && userData.tf_two && userData.tf_three &&

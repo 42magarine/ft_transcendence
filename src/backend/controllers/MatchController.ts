@@ -177,7 +177,7 @@ export class MatchController {
             console.log("handleCreateLobby: lobbyState sent")
             this.broadcastToLobby(lobbyId, {
                 type: "lobbyState",
-                lobby:lobby.getLobbyState()
+                lobby: lobby.getLobbyState()
             });
 
         }
@@ -199,14 +199,15 @@ export class MatchController {
         if (player) {
             this._clients.set(connection, player);
 
-            this.sendMessage(connection, {
+            this.broadcastToAll({
                 type: "joinedLobby",
                 lobbyId: lobbyId,
+                owner: userId,
                 // playerNumber: player._playerNumber //prob don't need this since websocket is unique to client anyways
             });
             this.broadcastToLobby(lobbyId, {
                 type: "playerJoined",
-                lobby:lobby.getLobbyState()
+                lobby: lobby.getLobbyState()
             });
         }
         else {
@@ -245,7 +246,7 @@ export class MatchController {
 
             this.broadcastToLobby(lobbyId, {
                 type: "playerLeft",
-                lobby:lobby.getLobbyState()
+                lobby: lobby.getLobbyState()
             });
         }
         catch (error) {
@@ -262,7 +263,7 @@ export class MatchController {
 
         this.broadcastToLobby(lobbyId, {
             type: "lobbyState",
-            lobby:lobby.getLobbyState()
+            lobby: lobby.getLobbyState()
         });
     }
 
@@ -311,7 +312,7 @@ export class MatchController {
 
         this.broadcastToLobby(player.lobbyId, {
             type: "playerReady",
-            lobby:lobby.getLobbyState()
+            lobby: lobby.getLobbyState()
         });
 
     }

@@ -22,7 +22,10 @@ export default class LobbyListService {
                 this.resolveLobbyDataPromises(this.lobbyData);
                 break;
             case 'lobbyCreated':
-                if (window.currentUser && data.owner != window.currentUser.id && window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
+                console.warn("lobbyCreated recv")
+                console.log(window.currentUser)
+                console.log(data.owner)
+                if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
                     Router.update()
                 }
                 if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
@@ -31,16 +34,20 @@ export default class LobbyListService {
                 }
                 break;
             case 'joinedLobby':
-                console.log("joinedLobby recv")
-                if (data.lobbyId) {
-                    Router.redirect(`/lobby/${data.lobbyId}`);
+                console.warn("joinedLobby recv")
+                console.log(window.currentUser)
+                console.log(data.owner)
+                if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
+                    window.messageHandler.requestLobbyList();
+                    Router.update()
                 }
-                else {
-                    console.error("LobbyListService: lobbyId missing for joinedLobby", data);
+                if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
+                    window.messageHandler.requestLobbyList();
+                    Router.redirect(`/lobby/${data.lobbyId}`);
                 }
                 break;
             case 'leftLobby':
-                console.log("leftLobby recv")
+                console.warn("leftLobby recv")
                 if (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
                     Router.update()
                 }
@@ -49,7 +56,7 @@ export default class LobbyListService {
     }
 
     public init(): void {
-        console.log('LobbyListService.init() called, isInitialized:', this.isInitialized);
+        //console.log('LobbyListService.init() called, isInitialized:', this.isInitialized);
 
         if (!window.ft_socket) {
             console.warn("LobbyListService init: ft_socket not available.");
@@ -57,11 +64,11 @@ export default class LobbyListService {
         }
 
         if (!this.isInitialized) {
-            console.log('Adding message event listener for the first time');
+            //console.log('Adding message event listener for the first time');
             window.ft_socket.addEventListener('message', this.handleSocketMessage);
             this.isInitialized = true;
         } else {
-            console.log('LobbyListService already initialized, skipping event listener setup');
+            //console.log('LobbyListService already initialized, skipping event listener setup');
         }
 
         this.setupCreateLobbyButtonListener();
@@ -87,6 +94,7 @@ export default class LobbyListService {
     }
 
     private async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
+        console.log("handleCreateLobbyClick")
         const target = e.target as HTMLElement;
         const button = target.closest('#createLobbyBtn');
 

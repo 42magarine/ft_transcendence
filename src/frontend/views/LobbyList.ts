@@ -10,6 +10,7 @@ export default class LobbyList extends AbstractView {
     async getHtml(): Promise<string> {
         let lobbies: ILobbyState[] = [];
         lobbies = await window.lobbyListService.getLobbies();
+        lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
 
         //console.debug('[LobbyList] Fetched lobbies:', lobbies);
 
@@ -89,9 +90,9 @@ export default class LobbyList extends AbstractView {
                                 type: 'button',
                                 props:
                                 {
-                                    id: 'joinLobbyBtn',
+                                    id: ((lobby.currentPlayers == lobby.maxPlayers) ? "" : "joinLobbyBtn"),
                                     text: 'Join Lobby',
-                                    className: 'btn btn-primary',
+                                    className: 'btn btn-primary ' + ((lobby.currentPlayers == lobby.maxPlayers) ? "disabled" : ""),
                                     dataAttributes: {
                                         'lobby-id': lobby.lobbyId
                                     }
