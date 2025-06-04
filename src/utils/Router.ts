@@ -294,9 +294,11 @@ export default class Router {
     }
 
     public async render(): Promise<void> {
+        //alert("Router render")
         // Execute onLeave hook for current route before navigation
         const canLeave = await this.executeOnLeave();
         if (!canLeave) {
+            //alert("return canLeave")
             return; // Navigation cancelled by onLeave hook
         }
 
@@ -306,6 +308,7 @@ export default class Router {
         // Map routes to potential matches with params
         const potentialMatches = this.routes.map(route => {
             const matchResult = this.matchRoute(route);
+            this.dispatchRouterContentLoaded();
             return {
                 route: route,
                 isMatch: matchResult.isMatch,
@@ -330,6 +333,7 @@ export default class Router {
                 if (appElement) {
                     appElement.innerHTML = '<h1>404 - Page Not Found</h1>';
                 }
+                //alert("return no match")
                 return;
             }
         }
@@ -339,6 +343,7 @@ export default class Router {
             // Special case: logged_out routes should only be accessible when not logged in
             if (match.route.role === 'logged_out') {
                 if (currentUser) {
+                    //alert("redirect logged_out")
                     return this.redirect('/', { replace: true });
                 }
             }
@@ -346,17 +351,21 @@ export default class Router {
             else if (match.route.role === 'user_id') {
                 const routeUserId = match.params.id;
                 if (!currentUser) {
+                    //alert("redirect user_id")
                     return this.redirect('/login', { replace: true });
                 }
                 else if (currentUser.role == "user" && routeUserId && String(currentUser.id) !== String(routeUserId)) {
+                    //alert("redirect user_id 2")
                     return this.redirect('/', { replace: true });
                 }
             }
             // Standard role check (user, admin, master)
             else if (!currentUser) {
+                //alert("redirect login")
                 return this.redirect('/login', { replace: true });
             }
             else if (currentUser.role && !this.hasRoleAccess(match.route.role, currentUser.role)) {
+                //alert("redirect login")
                 return this.redirect('/', { replace: true });
             }
         }
@@ -384,6 +393,7 @@ export default class Router {
         const canEnter = await this.executeOnEnter(match.route, match.params, view);
         if (!canEnter) {
             view.destroy?.(); // Clean up view if it has a destroy method
+            //alert("return executeOnEnter")
             return; // Navigation cancelled by onEnter hook
         }
 

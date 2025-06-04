@@ -27,33 +27,33 @@ export interface Route {
     onLeave?: (context: RouteHookContext) => Promise<boolean | void>;
 }
 
-// declare global {
-//     interface Window {
-//         currentUser: User | null;
-//         ft_socket?: WebSocket;
-//         socketReady: Promise<void>;
-//         messageHandler: MessageHandlerService;
-//         lobbyListService: LobbyListService;
-//         lobbyService: LobbyService;
-//         userService: UserService;
-//         userManagementService: UserManagementService;
-//     }
-// }
-
 declare global {
     interface Window {
-        ft_socket: WebSocket;
-        currentUser?: User | null;
-        lobbyListService?: LobbyListService;
-        lobbyService?: LobbyService;
-        tournamentListService?: TournamentListService;
-        //   tournamentService?: TournamentService;
+        currentUser: User | null;
+        ft_socket?: WebSocket;
+        socketReady: Promise<void>;
+        messageHandler: MessageHandlerService;
+        lobbyListService: LobbyListService;
+        lobbyService: LobbyService;
         userService: UserService;
         userManagementService: UserManagementService;
-        messageHandler?: MessageHandlerService;
-        router?: Router;
     }
 }
+
+// declare global {
+//     interface Window {
+//         ft_socket: WebSocket;
+//         currentUser?: User | null;
+//         lobbyListService?: LobbyListService;
+//         lobbyService?: LobbyService;
+//         tournamentListService?: TournamentListService;
+//         //   tournamentService?: TournamentService;
+//         userService: UserService;
+//         userManagementService: UserManagementService;
+//         messageHandler?: MessageHandlerService;
+//         router?: Router;
+//     }
+// }
 
 export { };
 

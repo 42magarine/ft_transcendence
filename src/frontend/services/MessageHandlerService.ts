@@ -4,16 +4,16 @@ export default class MessageHandlerService {
     private readyState: Map<number, boolean> = new Map();
 
     private async safeSend(msg: IClientMessage) {
-        // if (!window.socketReady) {
-        //     console.error('MessageHandlerService: window.socketReady promise does not exist.');
-        //     throw new Error('Socket readiness promise not available. Cannot send message.');
-        // }
+        if (!window.socketReady) {
+            console.error('MessageHandlerService: window.socketReady promise does not exist.');
+            throw new Error('Socket readiness promise not available. Cannot send message.');
+        }
 
-        // await window.socketReady;
-        // if (!window.ft_socket) {
-        //     console.error('MessageHandlerService: window.ft_socket is undefined.');
-        //     throw new Error('WebSocket instance not available. Cannot send message.');
-        // }
+        await window.socketReady;
+        if (!window.ft_socket) {
+            console.error('MessageHandlerService: window.ft_socket is undefined.');
+            throw new Error('WebSocket instance not available. Cannot send message.');
+        }
 
         if (window.ft_socket.readyState !== WebSocket.OPEN) {
             const errorMessage = `WebSocket is not open. Current state: ${window.ft_socket.readyState}. Message not sent.`;

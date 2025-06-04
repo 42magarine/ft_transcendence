@@ -11,7 +11,6 @@ export default class LobbyListService {
         this.handleCreateLobbyClick = this.handleCreateLobbyClick.bind(this);
         this.handleJoinLobbyClick = this.handleJoinLobbyClick.bind(this);
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
-        this.init();
     }
 
     private handleSocketMessage(event: MessageEvent<string>): void {
@@ -39,7 +38,7 @@ export default class LobbyListService {
                 console.log(window.currentUser)
                 console.log(data.owner)
                 if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
-                    window.messageHandler.requestLobbyList();
+                    window.messageHandler!.requestLobbyList();
                     Router.update()
                 }
                 if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
@@ -57,23 +56,16 @@ export default class LobbyListService {
     }
 
     public init(): void {
-        //console.log('LobbyListService.init() called, isInitialized:', this.isInitialized);
-
-        if (!window.ft_socket) {
-            console.warn("LobbyListService init: ft_socket not available.");
-            return;
-        }
-
         if (!this.isInitialized) {
-            //console.log('Adding message event listener for the first time');
+            if (!window.ft_socket) {
+                console.warn("LobbyListService init: ft_socket not available.");
+                return;
+            }
             window.ft_socket.addEventListener('message', this.handleSocketMessage);
+            this.setupCreateLobbyButtonListener();
+            this.setupJoinLobbyButtonListener();
             this.isInitialized = true;
-        } else {
-            //console.log('LobbyListService already initialized, skipping event listener setup');
         }
-
-        this.setupCreateLobbyButtonListener();
-        this.setupJoinLobbyButtonListener();
     }
 
     private setupCreateLobbyButtonListener(): void {
@@ -82,8 +74,10 @@ export default class LobbyListService {
             return;
         }
 
-        document.body.removeEventListener('click', this.handleCreateLobbyClick);
-        document.body.addEventListener('click', this.handleCreateLobbyClick);
+        const button = document.getElementById('#createLobbyBtn');
+        if (button) {
+            button.addEventListener('click', this.handleCreateLobbyClick);
+        }
     }
 
     private setupJoinLobbyButtonListener(): void {
@@ -91,71 +85,65 @@ export default class LobbyListService {
             console.warn("TournamentListService: ft_socket not available.");
             return;
         }
-
-        document.body.removeEventListener('click', this.handleJoinLobbyClick);
-        document.body.addEventListener('click', this.handleJoinLobbyClick);
+        const jLButton: NodeListOf<Element> = document.querySelectorAll('.joinLobbyBtn');
+        jLButton.forEach((jlb: Element) => {
+            jlb.addEventListener('click', this.handleJoinLobbyClick);
+        });
     }
 
     private async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
         console.log("handleCreateLobbyClick")
-        const target = e.target as HTMLElement;
-        const button = target.closest('#createLobbyBtn');
+        e.preventDefault();
 
-        if (button) {
-            e.preventDefault();
-
-            if (!window.currentUser) {
-                console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
-                return;
-            }
-            if (window.currentUser) {
-                if (window.messageHandler && window.currentUser.id) {
-                    try {
-                        await window.messageHandler.createLobby(window.currentUser.id);
-                    }
-                    catch (error) {
-                        console.error("LobbyListService: Error calling createLobby:", error);
-                    }
+        if (!window.currentUser) {
+            console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
+            return;
+        }
+        if (window.currentUser) {
+            if (window.messageHandler && window.currentUser.id) {
+                try {
+                    await window.messageHandler.createLobby(window.currentUser.id);
+                }
+                catch (error) {
+                    console.error("LobbyListService: Error calling createLobby:", error);
                 }
             }
+        }
 
-            else {
-                console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
-            }
+        else {
+            console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
         }
     }
 
-    private async handleJoinLobbyClick(e: MouseEvent): Promise<void> {
+    private handleJoinLobbyClick = async (e: Event) => {
+        console.log("handleJoinLobbyClick")
+        e.preventDefault();
         const target = e.target as HTMLElement;
-        const button = target.closest<HTMLAnchorElement>('#joinLobbyBtn');
+        const lobbyId = target.getAttribute('data-lobby-id');
+        console.log("handleJoinLobbyClick ", lobbyId)
+        if (!lobbyId) {
+            console.error("LobbyListService: joinLobbyBtn clicked, but 'data-lobby-id' attribute is missing.");
+            return;
+        }
 
-        if (button) {
-            e.preventDefault();
+        const user = await UserService.getCurrentUser();
+        if (!user) {
+            console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
+            return;
+        }
 
-            const lobbyId = button.getAttribute('data-lobby-id');
-            if (!lobbyId) {
-                console.error("LobbyListService: joinLobbyBtn clicked, but 'data-lobby-id' attribute is missing.");
-                return;
+        if (window.messageHandler) {
+            try {
+                await window.messageHandler.joinLobby(lobbyId, user.id!);
             }
-
-            const user = await UserService.getCurrentUser();
-            if (!user) {
-                console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
-                return;
-            }
-
-            if (window.messageHandler) {
-                try {
-                    await window.messageHandler.joinLobby(lobbyId, user.id!);
-                }
-                catch (error) {
-                    console.error(`LobbyListService: Error calling joinLobby for lobby ${lobbyId} and user ${user.id}:`, error);
-                }
-            }
-            else {
-                console.warn("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
+            catch (error) {
+                console.error(`LobbyListService: Error calling joinLobby for lobby ${lobbyId} and user ${user.id}:`, error);
             }
         }
+        else {
+            console.warn("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
+        }
+
     }
 
     private resolveLobbyDataPromises(lobbies: ILobbyState[]): void {

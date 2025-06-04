@@ -90,9 +90,8 @@ export default class LobbyList extends AbstractView {
                                 type: 'button',
                                 props:
                                 {
-                                    id: ((lobby.currentPlayers == lobby.maxPlayers) ? "" : "joinLobbyBtn"),
                                     text: 'Join Lobby',
-                                    className: 'btn btn-primary ' + ((lobby.currentPlayers == lobby.maxPlayers) ? "disabled" : ""),
+                                    className: 'joinLobbyBtn btn btn-primary ' + ((lobby.currentPlayers == lobby.maxPlayers) ? "disabled" : ""),
                                     dataAttributes: {
                                         'lobby-id': lobby.lobbyId
                                     }

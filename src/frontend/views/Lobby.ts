@@ -23,7 +23,7 @@ export default class Lobby extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        this.lobby = window.lobbyService.getLobby();
+        this.lobby = window.lobbyService!.getLobby();
         if (this.lobby.lobbyPlayers) {
             this.player1 = { userName: 'Waiting for Opponent...', playerNumber: 1, userId: 1, isReady: false };
             this.player2 = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };

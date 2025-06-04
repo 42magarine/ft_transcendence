@@ -5,12 +5,12 @@ import UserService from './UserService.js';
 export default class LobbyService {
     private lobbyState!: ILobbyState;
     private lobbyDataResolvers: ((lobby: ILobbyState) => void)[] = [];
+    private isInitialized = false;
 
     constructor() {
 
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
         this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
-        this.setupUIEventListeners();
 
         if (window.ft_socket) {
             window.ft_socket.addEventListener('message', this.handleSocketMessage);
@@ -93,12 +93,15 @@ export default class LobbyService {
         }
     }
 
-    private setupUIEventListeners(): void {
-        document.body.removeEventListener('click', this.handleLobbyPageClick);
-        document.body.addEventListener('click', this.handleLobbyPageClick);
+    public init(): void {
+        if (!this.isInitialized) {
+            document.body.addEventListener('click', this.handleLobbyPageClick);
+            this.isInitialized = true;
+        }
     }
 
     private async handleLobbyPageClick(e: MouseEvent): Promise<void> {
+        console.log("handleLobbyPageClick")
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
         if (!currentLobbyId || !window.location.pathname.startsWith("/lobby/")) return;
 
