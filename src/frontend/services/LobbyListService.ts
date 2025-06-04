@@ -22,16 +22,16 @@ export default class LobbyListService {
                 this.resolveLobbyDataPromises(this.lobbyData);
                 break;
             case 'lobbyCreated':
-                if (data.lobbyId && window.messageHandler) {
+                if (window.currentUser && data.owner != window.currentUser.id && window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
+                    Router.update()
+                }
+                if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
                     Router.redirect(`/lobby/${data.lobbyId}`);
                 }
-                else {
-                    console.error("LobbyListService: lobbyId or messageHandler missing for lobbyCreated", data, window.messageHandler);
-                }
                 break;
             case 'joinedLobby':
-                console.log("backend->frontend joinedLobby")
+                console.log("joinedLobby recv")
                 if (data.lobbyId) {
                     Router.redirect(`/lobby/${data.lobbyId}`);
                 }
@@ -39,18 +39,29 @@ export default class LobbyListService {
                     console.error("LobbyListService: lobbyId missing for joinedLobby", data);
                 }
                 break;
+            case 'leftLobby':
+                console.log("leftLobby recv")
+                if (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
+                    Router.update()
+                }
+                break;
         }
     }
 
     public init(): void {
+        console.log('LobbyListService.init() called, isInitialized:', this.isInitialized);
+
         if (!window.ft_socket) {
             console.warn("LobbyListService init: ft_socket not available.");
             return;
         }
 
         if (!this.isInitialized) {
+            console.log('Adding message event listener for the first time');
             window.ft_socket.addEventListener('message', this.handleSocketMessage);
             this.isInitialized = true;
+        } else {
+            console.log('LobbyListService already initialized, skipping event listener setup');
         }
 
         this.setupCreateLobbyButtonListener();
@@ -82,20 +93,21 @@ export default class LobbyListService {
         if (button) {
             e.preventDefault();
 
-            const user = await UserService.getCurrentUser();
-            if (!user) {
+            if (!window.currentUser) {
                 console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
                 return;
             }
-
-            if (window.messageHandler) {
-                try {
-                    await window.messageHandler.createLobby(user.id!);
-                }
-                catch (error) {
-                    console.error("LobbyListService: Error calling createLobby:", error);
+            if (window.currentUser) {
+                if (window.messageHandler && window.currentUser.id) {
+                    try {
+                        await window.messageHandler.createLobby(window.currentUser.id);
+                    }
+                    catch (error) {
+                        console.error("LobbyListService: Error calling createLobby:", error);
+                    }
                 }
             }
+
             else {
                 console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
             }

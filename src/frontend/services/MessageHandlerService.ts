@@ -2,7 +2,7 @@ import { IClientMessage } from '../../interfaces/interfaces.js';
 
 export default class MessageHandlerService {
     private async safeSend(msg: IClientMessage) {
-        console.log("safeSend (frontend->backend): ", msg)
+        //console.log("safeSend (frontend->backend): ", msg)
 
         if (!window.socketReady) {
             console.error('MessageHandlerService: window.socketReady promise does not exist.');
@@ -74,7 +74,6 @@ export default class MessageHandlerService {
     }
 
     public async requestLobbyState(lobbyId: string) {
-        console.log("requestLobbyState")
         const msg: IClientMessage = {
             type: 'getLobbyState',
             lobbyId

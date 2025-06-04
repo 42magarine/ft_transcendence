@@ -99,7 +99,6 @@ export class PongGame {
     private endGame(winner: number): void {
         // Call a callback, emit event, or flag the game state
         this._gameIsOver = true;
-        console.log(`Player ${winner} wins!`);
         // Optionally notify controller or set state for frontend sync
     }
 

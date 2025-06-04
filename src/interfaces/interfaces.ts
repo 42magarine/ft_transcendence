@@ -5,6 +5,13 @@ import type UserService from '../frontend/services/UserService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
 import AbstractView from "../utils/AbstractView.js";
 
+export interface RouteHookContext {
+    route: Route;
+    params: Record<string, string>;
+    view: AbstractView;
+    path: string;
+}
+
 export interface Route {
     path: string | RegExp;
     view: new (params: URLSearchParams) => AbstractView;
@@ -13,10 +20,13 @@ export interface Route {
         description?: string;
     };
     role?: string;
+    onEnter?: (context: RouteHookContext) => Promise<boolean | void>;
+    onLeave?: (context: RouteHookContext) => Promise<boolean | void>;
 }
 
 declare global {
     interface Window {
+        currentUser: User | null;
         ft_socket?: WebSocket;
         socketReady: Promise<void>;
         messageHandler: MessageHandlerService;

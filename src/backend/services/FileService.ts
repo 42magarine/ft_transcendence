@@ -68,7 +68,6 @@ export async function deleteAvatar(avatarPath: string): Promise<boolean> {
                 console.error(`Error deleting file ${filepath}:`, err);
                 resolve(false);
             } else {
-                console.log(`Successfully deleted file ${filepath}`);
                 resolve(true);
             }
         });

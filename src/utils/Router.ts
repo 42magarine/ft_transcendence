@@ -17,6 +17,8 @@ import UserService from '../frontend/services/UserService.js';
 export default class Router {
     private routes: Route[] = [];
     private currentView: AbstractView | null = null;
+    private currentRoute: Route | null = null;
+    private currentParams: Record<string, string> = {};
     private static instance: Router | null = null;
     // Define the role hierarchy - higher index means more privileges
     private static ROLE_HIERARCHY = ['user', 'admin', 'master'];
@@ -247,7 +249,57 @@ export default class Router {
         return hasAccess;
     }
 
+    /**
+     * Execute onLeave hook for the current route
+     */
+    private async executeOnLeave(): Promise<boolean> {
+        // Only execute onLeave if we have both a current route and current view
+        if (this.currentRoute?.onLeave && this.currentView) {
+            try {
+                const result = await this.currentRoute.onLeave({
+                    route: this.currentRoute,
+                    params: this.currentParams,
+                    view: this.currentView,
+                    path: location.pathname
+                });
+                return result !== false;
+            } catch (error) {
+                console.error('Error in onLeave hook:', error);
+                return true;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Execute onEnter hook for a route
+     */
+    private async executeOnEnter(route: Route, params: Record<string, string>, view: AbstractView): Promise<boolean> {
+        if (route.onEnter) {
+            try {
+                const result = await route.onEnter({
+                    route,
+                    params,
+                    view,
+                    path: location.pathname
+                });
+                // If onEnter returns false, prevent navigation
+                return result !== false;
+            } catch (error) {
+                console.error('Error in onEnter hook:', error);
+                return true; // Continue navigation on error
+            }
+        }
+        return true;
+    }
+
     public async render(): Promise<void> {
+        // Execute onLeave hook for current route before navigation
+        const canLeave = await this.executeOnLeave();
+        if (!canLeave) {
+            return; // Navigation cancelled by onLeave hook
+        }
+
         // Get current user for role checking
         const currentUser = await UserService.getCurrentUser();
 
@@ -328,6 +380,13 @@ export default class Router {
         // Create view with all parameters
         const view = new match.route.view(allParams);
 
+        // Execute onEnter hook before rendering
+        const canEnter = await this.executeOnEnter(match.route, match.params, view);
+        if (!canEnter) {
+            view.destroy?.(); // Clean up view if it has a destroy method
+            return; // Navigation cancelled by onEnter hook
+        }
+
         const headerHtml = await new Header().getHtml();
         document.getElementById('header-root')!.innerHTML = headerHtml;
 
@@ -347,6 +406,9 @@ export default class Router {
             this.currentView.destroy();
         }
 
+        // Update current route state
+        this.currentRoute = match.route;
+        this.currentParams = match.params;
         this.currentView = view;
 
         const appElement = document.getElementById('app');

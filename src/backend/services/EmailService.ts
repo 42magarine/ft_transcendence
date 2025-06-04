@@ -39,7 +39,6 @@ export class EmailService {
                 text: options.text,
                 html: options.html,
             });
-            console.log(`Email sent to ${options.to}`);
         }
         catch (error) {
             console.error('Error sending email:', error);

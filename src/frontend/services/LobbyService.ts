@@ -16,9 +16,6 @@ export default class LobbyService {
         } else {
             console.error("[LobbyService] window.ft_socket is not initialized when LobbyService is constructed.");
         }
-
-
-        console.log('[LobbyService] Core dependencies initialized. Listening to global socket.');
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -29,7 +26,6 @@ export default class LobbyService {
     private handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        // console.log("frontend msg received: " + data.type); //<<-- debugging
 
         switch (data.type) {
             case 'lobbyState':
@@ -126,6 +122,6 @@ export default class LobbyService {
         }
         document.body.removeEventListener('click', this.handleLobbyPageClick);
 
-        console.log('[LobbyService] Destroyed. No longer listening to global socket.');
+        //console.log('[LobbyService] Destroyed. No longer listening to global socket.');
     }
 }

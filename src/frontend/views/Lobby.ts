@@ -22,8 +22,7 @@ export default class Lobby extends AbstractView {
     async getHtml(): Promise<string> {
         let lobby: ILobbyState
 
-        if (window.lobbyService)
-        {
+        if (window.lobbyService) {
             lobby = await window.lobbyService.getLobbyState();
             if (lobby.lobbyPlayers) {
                 if (lobby.lobbyPlayers[0]) {
