@@ -136,13 +136,6 @@ export class LanguageService {
 
         this.isInitialized = true;
         this.loadTranslations();
-
-        const routerContentLoadedHandler = () => {
-            LanguageService.setupLangSelect();
-            document.removeEventListener('RouterContentLoaded', routerContentLoadedHandler);
-        };
-
-        document.addEventListener('RouterContentLoaded', routerContentLoadedHandler);
     }
 }
 

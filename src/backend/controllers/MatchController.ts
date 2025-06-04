@@ -90,7 +90,11 @@ export class MatchController {
                 this.handleGetLobbyState(connection, data.lobbyId!);
                 break;
             default:
-                throw Error("Backend: invalid message type received");
+                this.sendMessage(connection, {
+                    type: "error",
+                    message: "not yet implemented"
+                });
+                // throw Error("Backend: invalid message type received");
         }
     }
 

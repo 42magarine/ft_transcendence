@@ -1,8 +1,11 @@
 import type MessageHandlerService from '../frontend/services/MessageHandlerService.js';
 import type LobbyListService from '../frontend/services/LobbyListService.js';
 import type LobbyService from '../frontend/services/LobbyService.js';
+import type TournamentListService from '../frontend/services/TournamentListService.js';
+// import type TournamentService from '../frontend/services/TournamentService.js';
 import type UserService from '../frontend/services/UserService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
+import type Router from '../utils/Router.js';
 import AbstractView from "../utils/AbstractView.js";
 
 export interface RouteHookContext {
@@ -24,16 +27,31 @@ export interface Route {
     onLeave?: (context: RouteHookContext) => Promise<boolean | void>;
 }
 
+// declare global {
+//     interface Window {
+//         currentUser: User | null;
+//         ft_socket?: WebSocket;
+//         socketReady: Promise<void>;
+//         messageHandler: MessageHandlerService;
+//         lobbyListService: LobbyListService;
+//         lobbyService: LobbyService;
+//         userService: UserService;
+//         userManagementService: UserManagementService;
+//     }
+// }
+
 declare global {
     interface Window {
-        currentUser: User | null;
-        ft_socket?: WebSocket;
-        socketReady: Promise<void>;
-        messageHandler: MessageHandlerService;
-        lobbyListService: LobbyListService;
-        lobbyService: LobbyService;
+        ft_socket: WebSocket;
+        currentUser?: User | null;
+        lobbyListService?: LobbyListService;
+        lobbyService?: LobbyService;
+        tournamentListService?: TournamentListService;
+        //   tournamentService?: TournamentService;
         userService: UserService;
         userManagementService: UserManagementService;
+        messageHandler?: MessageHandlerService;
+        router?: Router;
     }
 }
 

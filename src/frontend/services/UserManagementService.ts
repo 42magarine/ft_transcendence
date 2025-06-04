@@ -830,7 +830,7 @@ export default class UserManagementService {
         }
     }
 
-    private twoFactorNumberActions(): void {
+    public twoFactorNumberActions(): void {
         const numericInputs = document.querySelectorAll('.tf_numeric') as NodeListOf<HTMLInputElement>;
 
         numericInputs.forEach((input, index) => {
@@ -876,7 +876,7 @@ export default class UserManagementService {
         });
     }
 
-    private initializeGoogleScript() {
+    public initializeGoogleScript() {
         const script = document.createElement('script');
         script.src = 'https://accounts.google.com/gsi/client';
         script.async = true;
@@ -886,12 +886,6 @@ export default class UserManagementService {
     }
 
     initialize(): void {
-        document.addEventListener('RouterContentLoaded', () => {
-            this.setupEventListeners();
-            this.twoFactorNumberActions();
-            this.setupUserManagementView();
-            this.initializeGoogleScript();
-        });
     }
 
     async updateProfile(userId: string, payload: Record<string, any>): Promise<boolean> {

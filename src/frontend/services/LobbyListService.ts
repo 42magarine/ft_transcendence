@@ -11,6 +11,7 @@ export default class LobbyListService {
         this.handleCreateLobbyClick = this.handleCreateLobbyClick.bind(this);
         this.handleJoinLobbyClick = this.handleJoinLobbyClick.bind(this);
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
+        this.init();
     }
 
     private handleSocketMessage(event: MessageEvent<string>): void {
@@ -69,21 +70,23 @@ export default class LobbyListService {
     }
 
     private setupCreateLobbyButtonListener(): void {
-        window.socketReady?.then(() => {
-            document.body.removeEventListener('click', this.handleCreateLobbyClick);
-            document.body.addEventListener('click', this.handleCreateLobbyClick);
-        }).catch(error => {
-            console.error("LobbyListService: waiting for socketReady to setup create lobby button listener:", error);
-        });
+        if (!window.ft_socket) {
+            console.warn("TournamentListService: ft_socket not available.");
+            return;
+        }
+
+        document.body.removeEventListener('click', this.handleCreateLobbyClick);
+        document.body.addEventListener('click', this.handleCreateLobbyClick);
     }
 
     private setupJoinLobbyButtonListener(): void {
-        window.socketReady?.then(() => {
-            document.body.removeEventListener('click', this.handleJoinLobbyClick);
-            document.body.addEventListener('click', this.handleJoinLobbyClick);
-        }).catch(error => {
-            console.error("LobbyListService: waiting for socketReady to setup join lobby button listener:", error);
-        });
+        if (!window.ft_socket) {
+            console.warn("TournamentListService: ft_socket not available.");
+            return;
+        }
+
+        document.body.removeEventListener('click', this.handleJoinLobbyClick);
+        document.body.addEventListener('click', this.handleJoinLobbyClick);
     }
 
     private async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
@@ -167,9 +170,9 @@ export default class LobbyListService {
         });
 
         try {
-            await window.socketReady;
             await window.messageHandler.requestLobbyList();
-        } catch (error) {
+        }
+        catch (error) {
             console.error("LobbyListService getLobbies: Error during socket readiness or requesting list:", error);
             this.resolveLobbyDataPromises(this.lobbyData);
         }

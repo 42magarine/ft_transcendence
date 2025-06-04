@@ -70,7 +70,7 @@ export default class LobbyService {
                 console.warn("[LobbyService] Cannot start game: current user not found.");
                 return;
             }
-            window.messageHandler.markReady(currentLobbyId, currentUser.id);
+            window.messageHandler!.markReady(currentLobbyId, currentUser.id);
             return;
         }
 
@@ -106,9 +106,9 @@ export default class LobbyService {
         });
 
         try {
-            await window.socketReady;
             await window.messageHandler.requestLobbyState(currentUrlLobbyId);
-        } catch (error) {
+        }
+        catch (error) {
             console.error("LobbyService getLobbyState: Error during socket readiness or requesting list:", error);
             this.resolveLobbyDataPromises(this.lobbyState);
         }
@@ -122,6 +122,6 @@ export default class LobbyService {
         }
         document.body.removeEventListener('click', this.handleLobbyPageClick);
 
-        //console.log('[LobbyService] Destroyed. No longer listening to global socket.');
+        console.log('[LobbyService] Destroyed. No longer listening to global socket.');
     }
 }
