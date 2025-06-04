@@ -11,7 +11,6 @@ export class MatchLobby {
     private _saveScoreInterval: NodeJS.Timeout | null = null;
     private _lobbyId: string;
     public _players: Map<number, Player>;
-    private _broadcast: (lobbyId: string, data: IServerMessage) => void;
     private _maxPlayers: number;
     private _gameStarted: boolean = false;
     private _lobbyName: string;
@@ -22,7 +21,6 @@ export class MatchLobby {
     private _matchService: MatchService;
 
     constructor(lobbyId: string,
-        broadcast: (lobbyId: string, data: IServerMessage) => void,
         matchService: MatchService,
         options?: {
             name?: string,
@@ -30,7 +28,6 @@ export class MatchLobby {
             lobbyType?: 'game' | 'tournament'
         }) {
         this._lobbyId = lobbyId;
-        this._broadcast = broadcast;
         this._matchService = matchService!;
         this._players = new Map<number, Player>();
         this._maxPlayers = options?.maxPlayers || 2;
@@ -74,21 +71,9 @@ export class MatchLobby {
             const player = new Player(connection, playerNumber, userId, this._lobbyId, user.username);
             // add player to this._players (type: map)
             this._players.set(playerNumber, player);
-
             // add player to this._game.player1 or player2 (type: PongGame)
             this._game.setPlayer(playerNumber, player);
-
             // console.log(`Player ${player._playerNumber} (userId: ${player.userId}) join lobby ${this._lobbyId}`);
-
-            this._broadcast(this._lobbyId, {
-                type: "playerJoined",
-                // playerCount: this._players.size, <--- do we need this here?
-                playerNumber: playerNumber,
-                userId: player.userId,
-                userName: player._name,
-                isReady: player._isReady
-            });
-
             return player;
         }
         catch (error) {
@@ -111,25 +96,12 @@ export class MatchLobby {
 
             // console.log(`Player ${player._playerNumber} (userId: ${player.userId}) left lobby ${this._lobbyId}`);
 
-            this._broadcast(this._lobbyId, {
-                type: "playerDisconnected",
-                playerNumber: player._playerNumber,
-                userId: player.userId,
-                playerCount: this._players.size
-            });
-
             // Wenn Creator verlässt, neuen Creator bestimmen
             if (this._creatorId === player.userId && this._players.size > 0) {
                 const nextPlayer = this._players.values().next().value;
 
                 if (nextPlayer && nextPlayer.userId) {
                     this._creatorId = nextPlayer.userId;
-
-                    this._broadcast(this._lobbyId, {
-                        type: "newCreator",
-                        creatorId: this._creatorId,
-                        creatorPlayerId: nextPlayer.id
-                    });
                 }
             }
         }
@@ -152,33 +124,9 @@ export class MatchLobby {
         else {
             this._readyPlayers.delete(playerId);
         }
-
-        this._broadcast(this._lobbyId, {
-            type: "playerReady",
-            playerNumber: playerId,
-            ready: isReady,
-            readyCount: this._readyPlayers.size
-        })
-
-        this.checkAllPlayersReady();
     }
 
-    public checkAllPlayersReady() {
-        const minPlayers = this._lobbyType === 'game' ? 2 : this._maxPlayers;
 
-        if (this._players.size < minPlayers) {
-            return false;
-        }
-
-        const allReady = this._readyPlayers.size === this._players.size;
-
-        if (allReady) {
-            this._broadcast(this._lobbyId, {
-                type: "allPlayersReady"
-            })
-        }
-        return allReady;
-    }
 
     public isFull(): boolean {
         return this._players.size >= this._maxPlayers;
@@ -254,12 +202,14 @@ export class MatchLobby {
                     this.handleGameWin(winningPlayerId, state.score1, state.score2)
                 }
             }
-            this._broadcast(this._lobbyId, data)
+            // dont broadcast here! need to move to controller later
+            // this._broadcast(this._lobbyId, data)
         })
-
-        this._broadcast(this._lobbyId, {
-            type: "gameStarted"
-        })
+        // dont broadcast here! need to move to controller later
+        // change to broadcastToLobby and redirect to game in frontend
+        // this._broadcast(this._lobbyId, {
+        //     type: "gameStarted"
+        // })
 
         if (this._matchService) {
             const player1 = this._players.get(1);
@@ -313,14 +263,15 @@ export class MatchLobby {
             game.endedAt = new Date()
             await this._matchService.matchRepo.save(game);
         }
-
-        this._broadcast(this._lobbyId, {
-            type: "gameOver",
-            winnerId: winningPlayerId,
-            winningUserId: winningPlayer.userId,
-            player1Score,
-            player2Score
-        })
+        // dont broadcast here! need to move to controller later
+        // handle bool gameOver via gamestate
+        // this._broadcast(this._lobbyId, {
+        //     type: "gameOver",
+        //     winnerId: winningPlayerId,
+        //     winningUserId: winningPlayer.userId,
+        //     player1Score,
+        //     player2Score
+        // })
     }
 
     public async stopGame() {
@@ -348,8 +299,10 @@ export class MatchLobby {
             })
         }
 
-        this._broadcast(this._lobbyId, {
-            type: "gameStopped"
-        })
+        // dont broadcast here! need to move to controller later
+        // handle bool gamestopped via gamestate
+        // this._broadcast(this._lobbyId, {
+        //     type: "gameStopped"
+        // })
     }
 }
