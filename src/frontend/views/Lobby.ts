@@ -22,15 +22,6 @@ export default class Lobby extends AbstractView {
     async getHtml(): Promise<string> {
         let lobby: ILobbyState
 
-        // TODO fuer Jonathan:
-        //
-        // Hier die daten mit getLobbyState() in den view ziehen.
-        // alles fuer player sollte jetzt da drin sein. Siehe getLobbyState() im backend!!
-        //
-        //
-        // LobbyService ueberarbeiten und in schoen und nutzlosen code raus und sinnvollen code rein!!
-        // danke <3
-
         if (window.lobbyService) {
             lobby = await window.lobbyService.getLobbyState();
             if (lobby.lobbyPlayers) {

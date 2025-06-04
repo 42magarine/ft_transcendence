@@ -190,6 +190,7 @@ export class MatchController {
         if (player) {
             this._clients.set(connection, player);
 
+
             this.sendMessage(connection, {
                 type: "joinedLobby",
                 lobbyId: lobbyId,
@@ -281,7 +282,7 @@ export class MatchController {
                 name: `Lobby ${Lobby.matchModelId}`,
                 creatorId: Lobby.player1.id,
                 maxPlayers: Lobby.maxPlayers,
-                currentPlayers: Lobby.lobbyParticipants?.length,
+                currentPlayers: this._lobbies.get(Lobby.lobbyId)!._players.size,
                 createdAt: Lobby.createdAt,
                 lobbyType: 'game' as const,
                 isStarted: false,

@@ -1,5 +1,4 @@
 import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
-import MessageHandlerService from './MessageHandlerService.js';
 import UserService from './UserService.js';
 
 export default class LobbyService {
@@ -31,6 +30,7 @@ export default class LobbyService {
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby) {
+                    console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
