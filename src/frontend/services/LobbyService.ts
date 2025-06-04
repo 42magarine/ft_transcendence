@@ -1,4 +1,5 @@
 import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
+import Router from '../../utils/Router.js';
 import UserService from './UserService.js';
 
 export default class LobbyService {
@@ -42,6 +43,53 @@ export default class LobbyService {
                         this.resolveLobbyDataPromises(receivedLobbyInfo);
                     }
                 }
+            case 'playerJoined':
+                if (data.lobby) {
+                    console.log(data.lobby)
+                    const receivedLobbyInfo: ILobbyState = {
+                        ...data.lobby,
+                        createdAt: new Date(data.lobby.createdAt),
+                        lobbyPlayers: data.lobby.lobbyPlayers || []
+                    };
+
+                    if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
+                        this.lobbyState = receivedLobbyInfo;
+                        this.resolveLobbyDataPromises(receivedLobbyInfo);
+                        Router.update();
+                    }
+                }
+                break;
+            case 'playerLeft':
+                if (data.lobby) {
+                    console.log(data.lobby)
+                    const receivedLobbyInfo: ILobbyState = {
+                        ...data.lobby,
+                        createdAt: new Date(data.lobby.createdAt),
+                        lobbyPlayers: data.lobby.lobbyPlayers || []
+                    };
+
+                    if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
+                        this.lobbyState = receivedLobbyInfo;
+                        this.resolveLobbyDataPromises(receivedLobbyInfo);
+                        Router.update();
+                    }
+                }
+                break;
+            case 'playerReady':
+                if (data.lobby) {
+                    console.log(data.lobby)
+                    const receivedLobbyInfo: ILobbyState = {
+                        ...data.lobby,
+                        createdAt: new Date(data.lobby.createdAt),
+                        lobbyPlayers: data.lobby.lobbyPlayers || []
+                    };
+
+                    if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
+                        this.lobbyState = receivedLobbyInfo;
+                        this.resolveLobbyDataPromises(receivedLobbyInfo);
+                        Router.update();
+                    }
+                }
                 break;
             default:
                 break;
@@ -78,7 +126,7 @@ export default class LobbyService {
         if (leaveBtn) {
             e.preventDefault();
             if (window.messageHandler && currentLobbyId) {
-                window.messageHandler.leaveLobby(currentLobbyId);
+                window.messageHandler.leaveLobby(this.lobbyState.lobbyId);
             }
             return;
         }
@@ -114,6 +162,10 @@ export default class LobbyService {
         }
 
         return promise;
+    }
+
+    public getLobby(): ILobbyState {
+        return this.lobbyState;
     }
 
     public destroy(): void {
