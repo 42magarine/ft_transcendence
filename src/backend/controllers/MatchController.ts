@@ -49,6 +49,7 @@ export class MatchController {
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
         if (connection.readyState === WebSocket.OPEN) {
+            // console.log("sendMessage (backend->frontend): ", data)
             connection.send(JSON.stringify(data));
         }
     }
@@ -227,6 +228,8 @@ export class MatchController {
         try {
             await lobby.removePlayer(player);
 
+            // Spieler aus _clients Map entfernen
+            // this._clients.delete(connection);
             this._clients.set(connection, null);
 
             if (lobby.isEmpty()) {

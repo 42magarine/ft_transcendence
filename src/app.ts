@@ -175,8 +175,7 @@ const start = async (): Promise<void> => {
         console.log('Server running at http://localhost:3000');
     }
     catch (error) {
-        console.log("app.ts - catch(error) in start()")
-        fastify.log.error(error);
+        console.error("Startup error:", error);
         process.exit(1);
     }
 };

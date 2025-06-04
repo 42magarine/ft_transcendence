@@ -2,15 +2,12 @@ import { IClientMessage } from '../../interfaces/interfaces.js';
 
 export default class MessageHandlerService {
     private async safeSend(msg: IClientMessage) {
-        //console.log("safeSend (frontend->backend): ", msg)
-
         if (!window.socketReady) {
             console.error('MessageHandlerService: window.socketReady promise does not exist.');
             throw new Error('Socket readiness promise not available. Cannot send message.');
         }
 
         await window.socketReady;
-
         if (!window.ft_socket) {
             console.error('MessageHandlerService: window.ft_socket is undefined.');
             throw new Error('WebSocket instance not available. Cannot send message.');
@@ -21,6 +18,7 @@ export default class MessageHandlerService {
             console.warn(`MessageHandlerService: ${errorMessage}`, msg);
             throw new Error(errorMessage);
         }
+        // console.log("safeSend (frontend->backend): ", msg)
         window.ft_socket.send(JSON.stringify(msg));
     }
 
