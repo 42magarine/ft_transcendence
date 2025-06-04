@@ -19,6 +19,7 @@ export class UserController {
             }
 
             const { password, resetPasswordToken, resetPasswordExpires, verificationToken, ...userData } = user;
+
             return reply.code(200).send(userData);
         }
         catch (error) {
