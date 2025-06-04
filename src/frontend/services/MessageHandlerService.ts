@@ -1,6 +1,8 @@
 import { IClientMessage } from '../../interfaces/interfaces.js';
 
 export default class MessageHandlerService {
+    private readyState: Map<number, boolean> = new Map();
+
     private async safeSend(msg: IClientMessage) {
         if (!window.socketReady) {
             console.error('MessageHandlerService: window.socketReady promise does not exist.');
@@ -48,11 +50,17 @@ export default class MessageHandlerService {
     }
 
     public async markReady(lobbyId: string, userId: number) {
+        const current = this.readyState.get(userId) ?? false;
+        const next = !current;
+        this.readyState.set(userId, next);
+
         const msg: IClientMessage = {
             type: 'ready',
             userId,
             lobbyId,
+            ready: next,
         };
+
         await this.safeSend(msg);
     }
 

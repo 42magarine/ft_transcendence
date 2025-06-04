@@ -50,7 +50,8 @@ export default class Lobby extends AbstractView {
                                     {
                                         id: 'player1',
                                         text: this.player1.userName,
-                                        className: `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
+                                        className:
+                                            `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 },
                                 player2:
