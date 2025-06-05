@@ -214,3 +214,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         throw error;
     }
 };
+
+// 🌐 Allow modals to close on outside click
+(window as any).handleModalOutsideClick = function (event: MouseEvent, modalId: string) {
+	const modal = document.getElementById(modalId);
+	if (!modal) return;
+
+	const isInside = (event.target as HTMLElement).closest('.modal-content, .modal-footer, .modal-header');
+	if (!isInside) {
+		modal.classList.add('hidden');
+	}
+};

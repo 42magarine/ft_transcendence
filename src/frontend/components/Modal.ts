@@ -50,27 +50,23 @@ export default class Modal extends AbstractView {
 				id="${id}"
 				class="fixed inset-0 z-50 bg-black/50 flex justify-center items-center hidden"
 				${closableAttr}
-				onclick="handleModalOutsideClick(event, '${id}')"
+				onclick="window.handleModalOutsideClick(event, '${id}')"
 			>
 				<div
 					class="dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
 					onclick="event.stopPropagation();"
 				>
 					${showCloseButton ? this.renderCloseButton(id) : ''}
-
 					${title ? `<h2 class="text-2xl font-semibold mb-4">${title}</h2>` : ''}
-
 					<div class="modal-content text-base leading-relaxed text-gray-700 dark:text-gray-300 mb-4">
 						${content}
 					</div>
-
 					${footerHtml}
 				</div>
 			</div>
 		`);
 	}
 
-	// 🔴 Delete User Modal
 	async renderDeleteModal({
 		id,
 		userId,
@@ -114,7 +110,6 @@ export default class Modal extends AbstractView {
 		});
 	}
 
-	// 🟢 Delete Friend Modal
 	async renderRemoveFriendModal({
 		id,
 		friendId,
@@ -158,14 +153,6 @@ export default class Modal extends AbstractView {
 		});
 	}
 
-	async mountDeleteModal(modalId: string): Promise<void> {
-		const modal = document.getElementById(modalId);
-		if (!modal) throw new Error(`Modal with ID ${modalId} not found`);
-	
-		modal.classList.add('open'); // or 'show', depending on your CSS
-	}
-	
-	// ℹ️ Info-only Modal (no buttons, dismiss on outside click)
 	async renderInfoModal({
 		id,
 		title = 'Notice',
@@ -174,8 +161,7 @@ export default class Modal extends AbstractView {
 		id: string;
 		title?: string;
 		message?: string;
-	}): Promise<void>
-	{
+	}): Promise<void> {
 		const modalHtml = await this.renderModal({
 			id,
 			title,
@@ -188,6 +174,14 @@ export default class Modal extends AbstractView {
 		const container = document.createElement('div');
 		container.innerHTML = modalHtml;
 		document.body.appendChild(container);
+
+		document.getElementById(id)?.classList.remove('hidden');
+	}
+
+	async mountDeleteModal(modalId: string): Promise<void> {
+		const modal = document.getElementById(modalId);
+		if (!modal) throw new Error(`Modal with ID ${modalId} not found`);
+		modal.classList.remove('hidden');
 	}
 
 	async getHtml(): Promise<string> {
