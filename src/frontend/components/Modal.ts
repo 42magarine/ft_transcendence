@@ -165,6 +165,31 @@ export default class Modal extends AbstractView {
 		modal.classList.add('open'); // or 'show', depending on your CSS
 	}
 	
+	// ℹ️ Info-only Modal (no buttons, dismiss on outside click)
+	async renderInfoModal({
+		id,
+		title = 'Notice',
+		message = 'Something important you should know.'
+	}: {
+		id: string;
+		title?: string;
+		message?: string;
+	}): Promise<void>
+	{
+		const modalHtml = await this.renderModal({
+			id,
+			title,
+			content: `<p class="text-yellow-300">${message}</p>`,
+			footerButtons: [],
+			closableOnOutsideClick: true,
+			showCloseButton: false
+		});
+
+		const container = document.createElement('div');
+		container.innerHTML = modalHtml;
+		document.body.appendChild(container);
+	}
+
 	async getHtml(): Promise<string> {
 		return this.renderModal({
 			id: 'default-modal',

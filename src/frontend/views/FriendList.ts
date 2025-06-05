@@ -1,7 +1,7 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import { FriendList } from '../../interfaces/userManagementInterfaces.js';
-import UserService from '../services/UserService.js';
+import FriendService from '../services/FriendService.js';
 import Modal from '../components/Modal.js'
 
 export default class Friends extends AbstractView {
@@ -10,7 +10,7 @@ export default class Friends extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        const friends: FriendList[] = await UserService.getFriends?.() ?? [];
+        const friends: FriendList[] = await FriendService.getFriends?.() ?? [];
 
         const friendsCard = await new Card().renderCard({
             title: 'Friends',
@@ -139,7 +139,7 @@ export default class Friends extends AbstractView {
             closableOnOutsideClick: true
         });
         const html = await this.render(`${friendsCard}${deleteModal}`);
-        setTimeout(() => UserService.attachFriendHandlers(), 0);
+        setTimeout(() => FriendService.attachFriendHandlers(), 0);
         return html;
     }
 }
