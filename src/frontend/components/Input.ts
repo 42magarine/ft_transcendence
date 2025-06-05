@@ -33,11 +33,11 @@ export default class Input extends AbstractView {
         let confirmInput = '';
         if (withConfirm && type === 'password') {
             confirmInput = `
-				<div class="detail-row hidden" id="${id}-confirm-row">
-					<label class="label">Confirm Password:</label>
-					<input class="input" type="password" name="${name}Confirm" placeholder="Repeat ${placeholder}" />
-				</div>
-			`;
+                <div class="detail-row hidden" id="${id}-confirm-row">
+                    <label class="label">Confirm Password:</label>
+                    <input class="input" type="password" name="passwordConfirm" placeholder="Repeat ${placeholder}" />
+                </div>
+            `;
         }
 
         // Auto-bind show/hide logic after render

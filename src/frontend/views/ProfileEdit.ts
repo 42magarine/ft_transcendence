@@ -169,8 +169,6 @@ export default class ProfileEdit extends AbstractView {
                     confirmPasswordRow.style.display = 'block';
                 } else {
                     confirmPasswordRow.style.display = 'none';
-                    const confirmInput = confirmPasswordRow.querySelector('input[name="passwordConfirm"]') as HTMLInputElement;
-                    if (confirmInput) confirmInput.value = '';
                 }
             });
         }
@@ -180,7 +178,7 @@ export default class ProfileEdit extends AbstractView {
     
             const formData = new FormData(form);
             const payload: any = Object.fromEntries(formData.entries());
-    
+            delete payload.passwordConfirm;
             payload.emailVerified = (formData.get('emailVerified') === 'true');
     
             // Handle avatar separately

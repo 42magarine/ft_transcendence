@@ -97,6 +97,7 @@ export default class UserManagementService {
                 });
 
                 if (!response.ok) {
+                    console.log(response);
                     const errorData = await response.json() as ApiErrorResponse;
                     throw new Error(errorData.error || 'Registration failed');
                 }
@@ -114,6 +115,7 @@ export default class UserManagementService {
                 });
 
                 if (!response.ok) {
+                    console.log(response);
                     const errorData = await response.json() as ApiErrorResponse;
                     throw new Error(errorData.error || 'Registration failed');
                 }

@@ -1,7 +1,7 @@
 import UserService from '../services/UserService.js';
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-
+import Router from '../../utils/Router.js';
 export default class Home extends AbstractView {
     constructor() {
         super();
@@ -9,8 +9,11 @@ export default class Home extends AbstractView {
 
     async getHtml(): Promise<string> {
         const currentUser = await UserService.getCurrentUser();
-
         // Card to demonstrate all available content block types
+        if (!currentUser) {
+            Router.redirect('/login');
+            return ''; // Prevent further rendering
+        }
         const homeCard = await new Card().renderCard(
             {
                 title: currentUser
