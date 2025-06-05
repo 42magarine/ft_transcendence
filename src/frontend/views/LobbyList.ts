@@ -4,13 +4,18 @@ import { ILobbyState } from '../../interfaces/interfaces.js';
 
 export default class LobbyList extends AbstractView {
     constructor() {
+        console.log("constructor LobbyList")
         super();
+        this.initEvents = this.setupEvents.bind(this);
+        this.destroyEvents = this.cleanupEvents.bind(this);
     }
 
     async getHtml(): Promise<string> {
         let lobbies: ILobbyState[] = [];
-        lobbies = await window.lobbyListService!.getLobbies();
-        lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
+        if (window.lobbyListService && window.lobbyListService.getLobbies) {
+            lobbies = await window.lobbyListService.getLobbies();
+            lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
+        }
 
         //console.debug('[LobbyList] Fetched lobbies:', lobbies);
 
@@ -104,5 +109,38 @@ export default class LobbyList extends AbstractView {
         });
 
         return this.render(`${lobbyListCard}`);
+    }
+
+
+    private setupEvents(): void {
+        console.log('[LobbyList] Setting up events');
+
+        if (!window.ft_socket) {
+            console.warn('[LobbyList] Socket not ready');
+            return;
+        }
+
+
+        // Button Listeners einrichten
+        if (window.lobbyListService?.setupCreateLobbyButtonListener) {
+            window.lobbyListService.setupCreateLobbyButtonListener();
+        }
+
+        if (window.lobbyListService?.setupJoinLobbyButtonListener) {
+            window.lobbyListService.setupJoinLobbyButtonListener();
+        }
+    }
+
+    private cleanupEvents(): void {
+        console.log('[LobbyList] Cleaning up events');
+
+        if (window.ft_socket && window.lobbyListService?.handleSocketMessage) {
+            window.ft_socket.removeEventListener('message', window.lobbyListService.handleSocketMessage);
+        }
+
+        if (window.lobbyListService) {
+            document.body.removeEventListener('click', window.lobbyListService.handleCreateLobbyClick);
+            document.body.removeEventListener('click', window.lobbyListService.handleJoinLobbyClick);
+        }
     }
 }

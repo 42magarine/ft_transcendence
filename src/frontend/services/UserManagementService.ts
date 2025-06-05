@@ -401,6 +401,7 @@ export default class UserManagementService {
     }
 
     private setupLoginForm(): void {
+        console.log("setupLoginForm")
         const loginForm = document.getElementById('login-form') as HTMLFormElement | null;
         if (loginForm) {
             loginForm.addEventListener('submit', async (e) => {

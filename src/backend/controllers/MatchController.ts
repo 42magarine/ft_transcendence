@@ -87,7 +87,7 @@ export class MatchController {
                     type: "error",
                     message: "not yet implemented"
                 });
-                // throw Error("Backend: invalid message type received");
+            // throw Error("Backend: invalid message type received");
         }
     }
 
@@ -110,7 +110,7 @@ export class MatchController {
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
         if (connection.readyState === WebSocket.OPEN) {
-            // console.log("sendMessage (backend->frontend): ", data)
+            console.log("sendMessage (backend->frontend): ", data)
             connection.send(JSON.stringify(data));
         }
     }
@@ -272,6 +272,7 @@ export class MatchController {
     }
 
     private async handleGetLobbyList(connection: WebSocket) {
+        console.log("handleGetLobbyList")
         const openMatchModels = await this._matchService.getOpenLobbies();
 
         const openLobbies = openMatchModels.map(Lobby => {

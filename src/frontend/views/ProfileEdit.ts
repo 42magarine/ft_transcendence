@@ -168,9 +168,4 @@ export default class ProfileEdit extends AbstractView {
             });
         return this.render(`${profileEditCard}`);
     }
-
-    async mount(): Promise<void> {
-        UserService.attachProfileFormHandlers('edit-profile-form', this.userId);
-        UserService.attachDeleteHandler('delete-user-btn', 'confirm-delete-modal', 'confirm-delete-btn', this.userId);
-    }
 }

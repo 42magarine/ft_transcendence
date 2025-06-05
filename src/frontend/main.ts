@@ -97,10 +97,15 @@ async function initSocket(): Promise<void> {
 
         await readyPromise;
 
-        manageSocketDepServices();
         window.messageHandler = new MessageHandlerService();
         window.lobbyListService = new LobbyListService();
         window.lobbyService = new LobbyService();
+        if (window.ft_socket) {
+            window.ft_socket.addEventListener('message', function (messageEvent) {
+                window.lobbyListService.handleSocketMessage(messageEvent)
+                window.lobbyService.handleSocketMessage(messageEvent)
+            })
+        }
     }
     catch (error) {
         console.error('WebSocket connection error:', error);
@@ -111,8 +116,7 @@ async function initSocket(): Promise<void> {
 // =======================
 // ⚡ ROUTER EVENT HANDLING
 // =======================
-
-async function manageSocketDepServices() {
+async function socketUpdateOnSession() {
     const currentUser = await UserService.getCurrentUser();
     window.currentUser = currentUser;
     if (!currentUser) {
@@ -121,24 +125,9 @@ async function manageSocketDepServices() {
                 window.ft_socket.readyState === WebSocket.CONNECTING) {
                 window.ft_socket.close(1000, 'User logged out');
             }
-            if (window.lobbyListService && typeof window.lobbyListService.destroy === 'function') {
-                window.lobbyListService.destroy();
-            }
-            if (window.lobbyService && typeof window.lobbyService.destroy === 'function') {
-                window.lobbyService.destroy();
-            }
-            // window.ft_socket = undefined;
-            // window.socketReady = undefined;
-            // window.messageHandler = undefined;
-            // window.lobbyListService = undefined;
-            // window.lobbyService = undefined;
         }
         return;
     }
-}
-
-async function establishLogic() {
-    manageSocketDepServices();
 
     if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
         initSocket();
@@ -148,21 +137,10 @@ async function establishLogic() {
             console.error("RouterContentLoaded: Failed to initialize socket via initSocket():", error);
         }
     }
-    else {
-        if (!window.messageHandler) {
-            window.messageHandler = new MessageHandlerService();
-        }
-        if (!window.lobbyListService) {
-            window.lobbyListService = new LobbyListService();
-        }
-        if (!window.lobbyService) {
-            window.lobbyService = new LobbyService();
-        }
-    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await establishLogic();
+    await socketUpdateOnSession();
     //console.warn('WebSocket status:', window.ft_socket?.readyState);
     //console.warn('WebSocket:', window.ft_socket);
     await renderHeader();
@@ -171,13 +149,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener('RouterContentLoaded', async () => {
-    await establishLogic();
-    if (window.lobbyListService) {
-        window.lobbyListService.init();
-    }
-    if (window.lobbyService) {
-        window.lobbyService.init();
-    }
+    await socketUpdateOnSession();
+    window.userManagementService.setupEventListeners();
+    window.userManagementService.twoFactorNumberActions();
+    window.userManagementService.setupUserManagementView();
+    window.userManagementService.initializeGoogleScript();
 });
 
 // =======================
@@ -186,16 +162,6 @@ document.addEventListener('RouterContentLoaded', async () => {
 
 const router = new Router(routes);
 (window as any).router = router;
-
-// =======================
-// 🚀 DOM RENDER ON LOAD
-// =======================
-
-document.addEventListener('DOMContentLoaded', async () => {
-    await renderHeader();
-    await renderFooter();
-    await router.render();
-});
 
 // ============================
 // 🔐 GOOGLE LOGIN HANDLER

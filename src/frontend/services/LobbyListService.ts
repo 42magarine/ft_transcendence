@@ -10,14 +10,17 @@ export default class LobbyListService {
     constructor() {
         this.handleCreateLobbyClick = this.handleCreateLobbyClick.bind(this);
         this.handleJoinLobbyClick = this.handleJoinLobbyClick.bind(this);
-        this.handleSocketMessage = this.handleSocketMessage.bind(this);
     }
 
-    private handleSocketMessage(event: MessageEvent<string>): void {
+    public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
+
+        console.log("LobbyListService");
+        console.log(data);
 
         switch (data.type) {
             case 'lobbyList':
+                console.log("case  lobbyList")
                 this.lobbyData = data.lobbies || [];
                 this.resolveLobbyDataPromises(this.lobbyData);
                 break;
@@ -55,32 +58,14 @@ export default class LobbyListService {
         }
     }
 
-    public init(): void {
-        if (!this.isInitialized) {
-            if (!window.ft_socket) {
-                console.warn("LobbyListService init: ft_socket not available.");
-                return;
-            }
-            window.ft_socket.addEventListener('message', this.handleSocketMessage);
-            this.setupCreateLobbyButtonListener();
-            this.setupJoinLobbyButtonListener();
-            this.isInitialized = true;
-        }
-    }
-
-    private setupCreateLobbyButtonListener(): void {
-        if (!window.ft_socket) {
-            console.warn("TournamentListService: ft_socket not available.");
-            return;
-        }
-
-        const button = document.getElementById('#createLobbyBtn');
+    public setupCreateLobbyButtonListener(): void {
+        const button = document.getElementById('createLobbyBtn');
         if (button) {
             button.addEventListener('click', this.handleCreateLobbyClick);
         }
     }
 
-    private setupJoinLobbyButtonListener(): void {
+    public setupJoinLobbyButtonListener(): void {
         if (!window.ft_socket) {
             console.warn("TournamentListService: ft_socket not available.");
             return;
@@ -91,7 +76,7 @@ export default class LobbyListService {
         });
     }
 
-    private async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
+    public async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
         console.log("handleCreateLobbyClick")
         e.preventDefault();
 
@@ -115,7 +100,7 @@ export default class LobbyListService {
         }
     }
 
-    private handleJoinLobbyClick = async (e: Event) => {
+    public handleJoinLobbyClick = async (e: Event) => {
         console.log("handleJoinLobbyClick")
         e.preventDefault();
         const target = e.target as HTMLElement;
@@ -174,15 +159,5 @@ export default class LobbyListService {
         }
 
         return promise;
-    }
-
-    public destroy(): void {
-        if (window.ft_socket) {
-            window.ft_socket.removeEventListener('message', this.handleSocketMessage);
-        }
-        document.body.removeEventListener('click', this.handleCreateLobbyClick);
-        document.body.removeEventListener('click', this.handleJoinLobbyClick);
-        this.isInitialized = false;
-        console.log("LobbyListService: Destroyed listeners.");
     }
 }

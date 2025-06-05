@@ -101,4 +101,16 @@ export default class Lobby extends AbstractView {
             });
         return this.render(`${lobbyCard}`);
     }
+    // public static initEvents(): void {
+    //     console.log('[LobbyView] init');
+    //     document.body.addEventListener('click', window.lobbyService.handleLobbyPageClick);
+    // }
+
+    // public static destroyEvents(): void {
+    //     console.log('[LobbyView] destroy');
+    //     if (window.ft_socket) {
+    //         window.ft_socket.removeEventListener('message', window.lobbyService.handleSocketMessage);
+    //     }
+    //     document.body.removeEventListener('click', window.lobbyService.handleLobbyPageClick);
+    // }
 }

@@ -4,23 +4,13 @@ import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';
 import UserService from '../frontend/services/UserService.js';
 
-// User click <a href="/lobby/123" router>
-//          ↓
-// Router intercepts click → matches route `/lobby/:id`
-//          ↓
-// Creates new LobbyView(params: { id: 123 })
-//          ↓
-// LobbyView uses LobbyService to fetch data
-//          ↓
-// LobbyView renders data to HTML via getHtml()
-
 export default class Router {
     private routes: Route[] = [];
     private currentView: AbstractView | null = null;
     private currentRoute: Route | null = null;
     private currentParams: Record<string, string> = {};
     private static instance: Router | null = null;
-    // Define the role hierarchy - higher index means more privileges
+
     private static ROLE_HIERARCHY = ['user', 'admin', 'master'];
 
     constructor(routes: Route[]) {
@@ -47,21 +37,8 @@ export default class Router {
         window.addEventListener('popstate', () => {
             this.render();
         });
-
-        document.addEventListener('DataUpdateEvent', ((e: CustomEvent) => {
-            this.renderCurrentView(e.detail);
-        }) as EventListener);
     }
 
-    public static triggerDataUpdate(detail: any = {}): void {
-        const dataUpdateEvent = new CustomEvent('DataUpdateEvent', {
-            bubbles: true,
-            cancelable: true,
-            detail
-        });
-
-        document.dispatchEvent(dataUpdateEvent);
-    }
 
     public update(): void {
         this.renderCurrentView();
@@ -131,6 +108,9 @@ export default class Router {
 
         try {
             appElement.innerHTML = await this.currentView.getHtml();
+            if (this.currentView.initEvents) {
+                this.currentView.initEvents()
+            }
             await this.currentView.afterRender();
 
             this.dispatchRouterContentLoaded(true);
@@ -255,6 +235,9 @@ export default class Router {
     private async executeOnLeave(): Promise<boolean> {
         // Only execute onLeave if we have both a current route and current view
         if (this.currentRoute?.onLeave && this.currentView) {
+            if (this.currentView.destroyEvents) {
+                this.currentView.destroyEvents()
+            }
             try {
                 const result = await this.currentRoute.onLeave({
                     route: this.currentRoute,
@@ -308,7 +291,6 @@ export default class Router {
         // Map routes to potential matches with params
         const potentialMatches = this.routes.map(route => {
             const matchResult = this.matchRoute(route);
-            this.dispatchRouterContentLoaded();
             return {
                 route: route,
                 isMatch: matchResult.isMatch,
@@ -426,8 +408,10 @@ export default class Router {
 
         appElement.innerHTML = await view.getHtml();
         await view.afterRender();
-        await view.mount();
 
+        if (view.initEvents) {
+            view.initEvents()
+        }
         this.dispatchRouterContentLoaded();
     }
 

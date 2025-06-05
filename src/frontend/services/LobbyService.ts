@@ -11,12 +11,6 @@ export default class LobbyService {
 
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
         this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
-
-        if (window.ft_socket) {
-            window.ft_socket.addEventListener('message', this.handleSocketMessage);
-        } else {
-            console.error("[LobbyService] window.ft_socket is not initialized when LobbyService is constructed.");
-        }
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -24,10 +18,9 @@ export default class LobbyService {
         return match?.[1] || '';
     }
 
-    private handleSocketMessage(event: MessageEvent<string>): void {
+    public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        console.log("frontend received:" + data.type)
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby) {
@@ -67,7 +60,6 @@ export default class LobbyService {
                     };
 
                     if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
-                        console.log("penis")
                         this.lobbyState = receivedLobbyInfo;
                         Router.update();
                     }
@@ -93,14 +85,7 @@ export default class LobbyService {
         }
     }
 
-    public init(): void {
-        if (!this.isInitialized) {
-            document.body.addEventListener('click', this.handleLobbyPageClick);
-            this.isInitialized = true;
-        }
-    }
-
-    private async handleLobbyPageClick(e: MouseEvent): Promise<void> {
+    public async handleLobbyPageClick(e: MouseEvent): Promise<void> {
         console.log("handleLobbyPageClick")
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
         if (!currentLobbyId || !window.location.pathname.startsWith("/lobby/")) return;
@@ -132,14 +117,5 @@ export default class LobbyService {
 
     public getLobby(): ILobbyState {
         return this.lobbyState;
-    }
-
-    public destroy(): void {
-        if (window.ft_socket) {
-            window.ft_socket.removeEventListener('message', this.handleSocketMessage);
-        }
-        document.body.removeEventListener('click', this.handleLobbyPageClick);
-
-        console.log('[LobbyService] Destroyed. No longer listening to global socket.');
     }
 }
