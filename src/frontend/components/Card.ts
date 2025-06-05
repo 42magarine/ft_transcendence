@@ -43,11 +43,11 @@ export default class Card extends AbstractView {
                 const Table = (await import('./Table.js')).default;
                 return await new Table().renderTable(block.props);
             }
-            
+
             case 'inputgroup': {
                 const Input = (await import('./Input.js')).default;
                 return await new Input().renderInputGroup(block.props.inputs);
-            }            
+            }
 
             case 'button': {
                 const Button = (await import('./Button.js')).default;
@@ -58,7 +58,7 @@ export default class Card extends AbstractView {
                 const Button = (await import('./Button.js')).default;
                 return await new Button().renderButtonGroup(block.props);
             }
-            
+
             case 'slider': {
                 const Slider = (await import('./Slider.js')).default;
                 return await new Slider().renderSlider(block.props);
@@ -87,18 +87,23 @@ export default class Card extends AbstractView {
             case 'matchup': {
                 const renderMatchup = (await import('./Matchup.js')).default;
                 return await renderMatchup(block.props, this.renderContentBlock.bind(this));
-            }            
+            }
 
             case 'twofactor': {
                 const renderTwoFactor = (await import('./TwoFactor.js')).default;
                 return renderTwoFactor();
             }
-            
+
             case 'signup-footer': {
                 const renderSignupFooter = (await import('./SignupFooter.js')).default;
                 return renderSignupFooter();
             }
 
+            case 'avatar': {
+                const renderAvatar = (await import('./Avatar.js')).default;
+                return renderAvatar(block.props);
+            }
+            
             case 'html': {
                 return block.props.html;
             }

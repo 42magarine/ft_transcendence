@@ -1,35 +1,35 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import { FriendList } from '../../interfaces/userInterfaces.js';
+import { FriendList } from '../../interfaces/userManagementInterfaces.js';
 import UserService from '../services/UserService.js';
 import Modal from '../components/Modal.js'
 
 export default class Friends extends AbstractView {
-	constructor() {
-		super();
-	}
+    constructor() {
+        super();
+    }
 
-	async getHtml(): Promise<string> {
-		const friends: FriendList[] = await UserService.getFriends?.() ?? [];
+    async getHtml(): Promise<string> {
+        const friends: FriendList[] = await UserService.getFriends?.() ?? [];
 
-		const friendsCard = await new Card().renderCard({
-			title: 'Friends',
-			formId: 'friend-form',
-			contentBlocks: [
-				{
-					type: 'inputgroup',
-					props: {
-						inputs: [
-							{
-								id: 'friend-username',
-								name: 'username',
-								label: 'Username',
-								placeholder: 'Search for a friend...'
-							}
-						]
-					}
-				},
-				{
+        const friendsCard = await new Card().renderCard({
+            title: 'Friends',
+            formId: 'friend-form',
+            contentBlocks: [
+                {
+                    type: 'inputgroup',
+                    props: {
+                        inputs: [
+                            {
+                                id: 'friend-username',
+                                name: 'username',
+                                label: 'Username',
+                                placeholder: 'Search for a friend...'
+                            }
+                        ]
+                    }
+                },
+                {
                     type: 'buttongroup',
                     props: {
                         buttons: [
@@ -44,7 +44,14 @@ export default class Friends extends AbstractView {
                         layout: 'stack',
                         align: 'left'
                     }
-                },                
+                },
+                {
+                    type: 'label',
+                    props: {
+                        htmlFor: 'dummy-id',
+                        text: ' '
+                    }
+                },
                 {
                     type: 'label',
                     props: {
@@ -53,61 +60,61 @@ export default class Friends extends AbstractView {
                         text: '',
                         className: 'text-sm text-red-500 hidden'
                     }
-                },                
-				{
-					type: 'table',
-					props: {
-						id: 'friends-list',
-						title: 'Your Friends',
-						height: '300px',
-						data: friends,
-						columns: [
-							{ key: 'id', label: 'ID' },
-							{ key: 'username', label: 'Username' },
-							{ key: 'status', label: 'Status' },
-							{ key: 'actions', label: 'Actions' }
-						],
-						rowLayout: (friend) => [
-							{
-								type: 'label',
-								props: {
-									text: `${friend.id}`,
-									htmlFor: `friend-${friend.id}-id`
-								}
-							},
-							{
-								type: 'label',
-								props: {
-									text: `${friend.username}`,
-									htmlFor: `friend-${friend.id}-username`
-								}
-							},
-							{
-								type: 'label',
-								props: {
-									text: friend.status === 'online' ? '🟢 Online' : '🔘 Offline',
-									htmlFor: `friend-${friend.id}-status`
-								}
-							},
-							{
-								type: 'buttongroup',
-								props: {
-									buttons: [
-										{
-											id: `remove-friend-${friend.id}`,
-											icon: 'user-minus',
-											text: 'Remove',
-											type: 'button'
-										}
-									]
-								}
-							}
-						]
-					}
-				},
-                
-			]
-		});
+                },
+                {
+                    type: 'table',
+                    props: {
+                        id: 'friends-list',
+                        title: 'Your Friends',
+                        height: '300px',
+                        data: friends,
+                        columns: [
+                            { key: 'id', label: 'ID' },
+                            { key: 'username', label: 'Username' },
+                            { key: 'status', label: 'Status' },
+                            { key: 'actions', label: 'Actions' }
+                        ],
+                        rowLayout: (friend) => [
+                            {
+                                type: 'label',
+                                props: {
+                                    text: `${friend.id}`,
+                                    htmlFor: `friend-${friend.id}-id`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: `${friend.username}`,
+                                    htmlFor: `friend-${friend.id}-username`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: friend.status === 'online' ? '🟢 Online' : '🔘 Offline',
+                                    htmlFor: `friend-${friend.id}-status`
+                                }
+                            },
+                            {
+                                type: 'buttongroup',
+                                props: {
+                                    buttons: [
+                                        {
+                                            id: `remove-friend-${friend.id}`,
+                                            icon: 'user-minus',
+                                            text: 'Remove',
+                                            type: 'button'
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+
+            ]
+        });
 
         const deleteModal = await new Modal().renderModal({
             id: 'confirm-remove-modal',
@@ -134,5 +141,5 @@ export default class Friends extends AbstractView {
         const html = await this.render(`${friendsCard}${deleteModal}`);
         setTimeout(() => UserService.attachFriendHandlers(), 0);
         return html;
-	}
+    }
 }

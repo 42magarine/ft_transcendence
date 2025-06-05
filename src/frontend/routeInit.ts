@@ -1,5 +1,3 @@
-
-// views
 import Home from './views/Home.js';
 import Pong from './views/Pong.js';
 import Lobby from './views/Lobby.js';
@@ -15,8 +13,9 @@ import TwoFactorLogin from './views/TwoFactorLogin.js';
 import LobbyList from './views/LobbyList.js';
 import PongLocal from './views/PongLocal.js';
 import Friends from './views/FriendList.js';
+import { Route, RouteHookContext } from '../interfaces/interfaces.js';
 
-const routes = [
+const routes: Route[] = [
     {
         path: '/',
         view: Home,
@@ -41,6 +40,10 @@ const routes = [
         metadata: {
             title: 'Transcendence - Lobby',
             description: 'Welcome to Pong'
+        },
+        onLeave: async ({ route, params, view, path }: RouteHookContext): Promise<boolean | void> => {
+            window.messageHandler.leaveLobby(params.id);
+            return true;
         }
     },
     {

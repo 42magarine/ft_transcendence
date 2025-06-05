@@ -169,14 +169,22 @@ export type ContentBlock =
     | { type: 'paragraph'; props: ParagraphProps }
     | { type: 'container'; props: ContainerProps }
     | { type: 'twofactor'; props: { length?: number; namePrefix?: string } }
-    | { type: 'signup-footer'; props?: {} };
+    | { type: 'signup-footer'; props?: {} }
+    | { type: 'avatar'; props: AvatarProps } ;
 
 // =========================
 // 📋 FORM / LABEL / TOGGLE
 // =========================
 
+export interface AvatarProps {
+    src: string; // image url or base64/svg string
+    alt?: string;
+    size?: number;
+    className?: string;
+}
+
 export interface LabelProps {
-    htmlFor: string;
+    htmlFor?: string;
     text?: string;
     id?: string;
     className?: string;

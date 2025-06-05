@@ -2,12 +2,12 @@ import AbstractView from '../../utils/AbstractView.js';
 import { ToolbarProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Toolbar extends AbstractView {
-	constructor(params: URLSearchParams = new URLSearchParams()) {
-		super(params);
-	}
+    constructor(params: URLSearchParams = new URLSearchParams()) {
+        super(params);
+    }
 
-	async renderToolbar({ buttons, className = '' }: ToolbarProps): Promise<string> {
-		const buttonHtml = buttons.map((btn) => `
+    async renderToolbar({ buttons, className = '' }: ToolbarProps): Promise<string> {
+        const buttonHtml = buttons.map((btn) => `
 			<button
 				${btn.id ? `id="${btn.id}"` : ''}
 				class="btn btn-sm btn-secondary ${btn.className || ''}"
@@ -17,23 +17,23 @@ export default class Toolbar extends AbstractView {
 			</button>
 		`).join('\n');
 
-		return this.render(
-			`<div class="toolbar flex gap-2 justify-end ${className}">
+        return this.render(
+            `<div class="toolbar flex gap-2 justify-end ${className}">
 				${buttonHtml}
 			</div>`
-		);
-	}
+        );
+    }
 
-	async renderBlock(props: ToolbarProps): Promise<string> {
-		return this.renderToolbar(props);
-	}
+    async renderBlock(props: ToolbarProps): Promise<string> {
+        return this.renderToolbar(props);
+    }
 
-	async getHtml(): Promise<string> {
-		return await this.renderToolbar({
-			buttons: [
-				{ text: 'Cancel', onClick: `console.log('Cancel')` },
-				{ text: 'Save', onClick: `console.log('Save')`, className: 'btn-primary' },
-			]
-		});
-	}
+    async getHtml(): Promise<string> {
+        return await this.renderToolbar({
+            buttons: [
+                { text: 'Cancel', onClick: `console.log('Cancel')` },
+                { text: 'Save', onClick: `console.log('Save')`, className: 'btn-primary' },
+            ]
+        });
+    }
 }

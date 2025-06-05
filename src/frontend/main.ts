@@ -6,13 +6,12 @@ import './services/LanguageService.js';
 import LobbyListService from './services/LobbyListService.js';
 import LobbyService from './services/LobbyService.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
-import UserMangementService from './services/UserManagementService.js';
+import UserManagementService from './services/UserManagementService.js';
 import UserService from './services/UserService.js';
 
 // ===============
 // 🔧 GLOBAL UTILS
 // ===============
-import '../utils/table.js';
 import '../utils/TemplateEngine.js';
 import Router from '../utils/Router.js';
 import { TemplateEngine } from '../utils/TemplateEngine.js';
@@ -36,7 +35,7 @@ globalTemplateEngine.registerComponent('Button', Button);
 // 🧩 GLOBAL SINGLETONS
 // =====================
 window.userService = new UserService();
-window.userManagementService = new UserMangementService();
+window.userManagementService = new UserManagementService();
 
 // ==============================
 // 📦 FOOTER + HEADER RENDERING
@@ -73,51 +72,52 @@ function webSocketWrapper(socket: WebSocket): Promise<void> {
     return new Promise((resolve, reject) => {
         if (socket.readyState === WebSocket.OPEN) {
             resolve();
-        } else {
+        }
+        else {
             socket.addEventListener('open', () => resolve(), { once: true });
             socket.addEventListener('error', (event) => {
                 console.error('WebSocket error event:', event);
                 reject(new Error('WebSocket connection failed'));
-            }, { once: true });
+            },
+                { once: true }
+            );
         }
     });
 }
 
-function initSocket(): void {
+async function initSocket(): Promise<void> {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    let socket = new WebSocket(`${wsProtocol}//${window.location.host}/api/game/wss`);
+    const socket = new WebSocket(`${wsProtocol}//${window.location.host}/api/game/wss`);
 
     window.ft_socket = socket;
 
-    window.socketReady = webSocketWrapper(socket)
-        .then(() => {
-            window.lobbyListService = new LobbyListService();
-            window.lobbyService = new LobbyService();
-            window.messageHandler = new (MessageHandlerService as any)(socket, window.socketReady, window.userService);
+    try {
+        const readyPromise = webSocketWrapper(socket);
+        window.socketReady = readyPromise;
 
-            if (window.lobbyListService && window.socketReady) {
-                window.lobbyListService.init();
-            }
-            if (window.lobbyService && window.messageHandler) {
-                window.lobbyService.init(socket, window.messageHandler, window.userService);
-            }
-        })
-        .catch((err) => {
-            console.error('WebSocket connection error:', err);
-            throw err;
-        });
+        await readyPromise;
+
+        giveMeBitches();
+        window.messageHandler = new MessageHandlerService();
+        window.lobbyListService = new LobbyListService();
+        window.lobbyService = new LobbyService();
+
+        window.lobbyListService.init();
+    }
+    catch (error) {
+        console.error('WebSocket connection error:', error);
+        throw error;
+    }
 }
-
 
 // =======================
 // ⚡ ROUTER EVENT HANDLING
 // =======================
 
-document.addEventListener('RouterContentLoaded', async () => {
-    console.log("RouterContentLoaded event triggered.");
+async function giveMeBitches() {
     const currentUser = await UserService.getCurrentUser();
+    window.currentUser = currentUser;
     if (!currentUser) {
-        console.log("No user found, ensuring socket is closed.");
         if (window.ft_socket) {
             if (window.ft_socket.readyState === WebSocket.OPEN ||
                 window.ft_socket.readyState === WebSocket.CONNECTING) {
@@ -129,46 +129,51 @@ document.addEventListener('RouterContentLoaded', async () => {
             if (window.lobbyService && typeof window.lobbyService.destroy === 'function') {
                 window.lobbyService.destroy();
             }
-            window.ft_socket = undefined;
-            window.socketReady = undefined;
-            window.messageHandler = undefined;
+            // window.ft_socket = undefined;
+            // window.socketReady = undefined;
+            // window.messageHandler = undefined;
             // window.lobbyListService = undefined;
-            window.lobbyService = undefined;
+            // window.lobbyService = undefined;
         }
         return;
     }
+}
+
+async function beerPlease() {
+    giveMeBitches();
 
     if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-        console.warn("RouterContentLoaded: Socket not ready or not open. Calling initSocket().");
         initSocket();
         try {
             await window.socketReady;
-            console.log("RouterContentLoaded: Socket and services initialized via initSocket().");
         } catch (error) {
             console.error("RouterContentLoaded: Failed to initialize socket via initSocket():", error);
         }
-    } else {
-        console.log("RouterContentLoaded: Socket is already ready.");
+    }
+    else {
         if (!window.messageHandler) {
-            window.lobbyListService = window.lobbyListService || new LobbyListService();
-            window.lobbyService = window.lobbyService || new LobbyService();
             window.messageHandler = new MessageHandlerService();
-
-            if (window.lobbyListService) window.lobbyListService.init();
-            if (window.lobbyService && window.messageHandler) {
-                window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
-            }
-        } else {
-            if (window.lobbyListService) {
-                console.log("RouterContentLoaded: Socket and messageHandler ready. Re-initializing LobbyListService UI components.");
-                window.lobbyListService.init();
-            }
-            if (window.lobbyService) {
-                // lobbyService.init might also need to be called if it manages UI specific to its views.
-                // window.lobbyService.init(window.ft_socket, window.messageHandler, window.userService);
-            }
+        }
+        if (!window.lobbyListService) {
+            window.lobbyListService = new LobbyListService();
+            window.lobbyListService.init();
+        }
+        if (!window.lobbyService) {
+            window.lobbyService = new LobbyService();
         }
     }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    beerPlease();
+    // console.log('WebSocket status:', window.ft_socket?.readyState);
+    // console.log('WebSocket:', window.ft_socket);
+});
+
+document.addEventListener('RouterContentLoaded', async () => {
+    beerPlease();
+    // console.log('WebSocket status:', window.ft_socket?.readyState);
+    // console.log('WebSocket:', window.ft_socket);
 });
 
 /**

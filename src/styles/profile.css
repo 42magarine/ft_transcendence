@@ -15,13 +15,8 @@
   }
 
   .detail-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    margin-top: 1rem;
+	@apply flex justify-between py-2 border-b border-gray-200;
   }
-  
 
   .label {
 	@apply font-bold text-gray-600;

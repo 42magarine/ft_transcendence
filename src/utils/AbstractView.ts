@@ -32,7 +32,8 @@ export default abstract class AbstractView {
         const metaDescription = document.querySelector('meta[name="description"]');
         if (metaDescription) {
             metaDescription.setAttribute('content', description);
-        } else if (description) {
+        }
+        else if (description) {
             const meta = document.createElement('meta');
             meta.name = 'description';
             meta.content = description;

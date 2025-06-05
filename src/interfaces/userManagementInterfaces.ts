@@ -1,11 +1,23 @@
+declare module 'fastify' {
+    interface FastifyRequest {
+        user?: {
+            id: number;
+            role: string;
+        }
+    }
+}
+
+// USER INTERFACES
+
 export interface User {
     id?: number;
     username: string;
     email: string;
-    displayname?: string;
+    name?: string;
     password?: string;
     role?: string;
     avatar?: string;
+    emailVerified?: boolean;
     tf_one?: string;
     tf_two?: string;
     tf_three?: string;
@@ -13,17 +25,16 @@ export interface User {
     tf_five?: string;
     tf_six?: string;
     secret?: string;
-    twoFAEnabled?: boolean;
-    emailVerified?: boolean;
+    twoFAEnabled?: string;
     listAvatar?: string;
     googleSignIn?: boolean;
     status: 'online' | 'offline';
 }
 
 export interface FriendList {
-	id?: number;
-	username: string;
-	status: 'online' | 'offline';
+    id?: number;
+    username: string;
+    status: 'online' | 'offline';
 }
 
 export interface UserList {
@@ -32,41 +43,9 @@ export interface UserList {
     id?: number;
     username: string;
     email: string;
-    displayname?: string;
+    name?: string;
     password?: string;
     role?: string;
-}
-
-export interface ApiErrorResponse {
-    error: string;
-}
-
-export interface LoginCredentials {
-    email: string;
-    password: string;
-}
-
-export interface AuthResponse {
-    message?: string;
-    error?: string;
-    requireTwoFactor?: boolean;
-    userId?: number;
-    username?: string;
-}
-
-export interface PasswordResetRequest {
-    email: string;
-}
-
-export interface PasswordResetConfirm {
-    password: string;
-    confirmPassword: string;
-    token: string;
-}
-
-export interface QRResponse {
-    secret: string,
-    qr: string
 }
 
 export interface RegisterCredentials {
@@ -85,9 +64,51 @@ export interface RegisterCredentials {
     tf_six?: string;
 }
 
-export interface JWTPayload {
-    userID: string;
+export interface ApiErrorResponse {
+    error: string;
+}
+
+export interface LoginCredentials {
     email: string;
+    password: string;
+}
+
+// AUTH INTERFACES
+
+export interface AuthResponse {
+    message?: string;
+    error?: string;
+    requireTwoFactor?: boolean;
+    userId?: number;
+    username?: string;
+}
+
+export interface QRResponse {
+    secret: string,
+    qr: string
+}
+
+export interface RegisterCredentials {
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    role?: string;
+    avatar?: string;
+    emailVerified?: boolean;
+    twoFAEnabled?: boolean;
+    secret?: string;
+    tf_one?: string;
+    tf_two?: string;
+    tf_three?: string;
+    tf_four?: string;
+    tf_five?: string;
+    tf_six?: string;
+    googleSignIn?: boolean;
+}
+
+export interface JWTPayload {
+    userId: string;
     role: string;
 }
 
@@ -99,23 +120,34 @@ export interface AuthTokens {
     username?: string;
 }
 
-export interface TwoFactorVerificationRequest {
-    userId: number;
-    code: string;
-}
-
-export interface TwoFactorResponse {
-    qr: string;
-    secret: string;
-}
-
 export interface GoogleLoginBody {
     token: string;
 }
 
-// Available roles as enum for type safety
-export enum UserRole {
-    USER = 'user',
-    ADMIN = 'admin',
-    MASTER = 'master'
+// AVATAR INTERFACES
+
+export interface ShapeOptions {
+    fill?: string;
+    stroke?: string;
+    strokeWidth?: number;
+    opacity?: number;
+    rotate?: number;
+}
+
+export interface TextVisualizationOptions {
+    width: number;
+    height: number;
+    backgroundColor?: string;
+    useShapes?: boolean;
+    maxShapes?: number;
+    colorPalette?: string[];
+    showText?: boolean;
+    textColor?: string;
+    fontSize?: number;
+    fontFamily?: string;
+}
+
+export interface PatternResult {
+    pattern: string;
+    rect: string;
 }

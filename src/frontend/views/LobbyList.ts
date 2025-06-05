@@ -1,6 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import { LobbyInfo } from '../../interfaces/interfaces.js';
+import { ILobbyState } from '../../interfaces/interfaces.js';
 
 export default class LobbyList extends AbstractView {
     constructor() {
@@ -8,13 +8,13 @@ export default class LobbyList extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        let lobbies: LobbyInfo[] = [];
+        let lobbies: ILobbyState[] = [];
         lobbies = await window.lobbyListService.getLobbies();
 
-        console.debug('[LobbyList] Fetched lobbies:', lobbies);
+        //console.debug('[LobbyList] Fetched lobbies:', lobbies);
 
         if (!Array.isArray(lobbies) || lobbies.length === 0) {
-            console.warn('[LobbyList] No lobbies found or invalid format.');
+            //console.warn('[LobbyList] No lobbies found or invalid format.');
         }
 
         // console.log(lobbies);
@@ -38,7 +38,6 @@ export default class LobbyList extends AbstractView {
                     props: {
                         id: 'createLobbyBtn',
                         text: 'Create Lobby',
-                        icon: 'plus-circle',
                         type: 'button',
                         className: 'btn btn-primary'
                     },
@@ -51,9 +50,8 @@ export default class LobbyList extends AbstractView {
                         height: '400px',
                         data: lobbies,
                         columns: [
-                            { key: 'name', label: 'Lobby' },
                             { key: 'id', label: 'ID' },
-                            { key: 'creatorID', label: 'Creator' },
+                            { key: 'creatorId', label: 'Creator' },
                             { key: 'players', label: 'Players' },
                             { key: 'status', label: 'Status' },
                             { key: 'actions', label: 'Actions' }
@@ -63,35 +61,28 @@ export default class LobbyList extends AbstractView {
                                 type: 'label',
                                 props: {
                                     htmlFor: '',
-                                    text: `${lobby.name}`
+                                    text: `${lobby.lobbyId}`
                                 }
                             },
                             {
                                 type: 'label',
                                 props: {
                                     htmlFor: '',
-                                    text: `${lobby.id}`
+                                    text: `${lobby.creatorId}`
                                 }
                             },
                             {
-                                type: 'label',
+                                type: 'stat',
                                 props: {
-                                    htmlFor: '',
-                                    text: `${lobby.id}`
+                                    label: '',
+                                    value: `${lobby.currentPlayers} / ${lobby.maxPlayers}`
                                 }
                             },
                             {
-                                type: 'label',
+                                type: 'stat',
                                 props: {
-                                    htmlFor: '',
-                                    text: `${lobby.currentPlayers} / ${lobby.maxPlayers}`
-                                }
-                            },
-                            {
-                                type: 'label',
-                                props: {
-                                    htmlFor: '',
-                                    text: lobby.isStarted ? 'Started' : 'Waiting'
+                                    label: '',
+                                    value: lobby.isStarted ? 'Started' : 'Waiting'
                                 }
                             },
                             {
@@ -100,7 +91,6 @@ export default class LobbyList extends AbstractView {
                                 {
                                     id: 'joinLobbyBtn',
                                     text: 'Join Lobby',
-                                    icon: 'door-open',
                                     className: 'btn btn-primary',
                                     dataAttributes: {
                                         'lobby-id': lobby.lobbyId

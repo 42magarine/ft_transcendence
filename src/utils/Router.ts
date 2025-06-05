@@ -4,7 +4,6 @@ import Header from '../frontend/components/Header.js';
 import Footer from '../frontend/components/Footer.js';
 import UserService from '../frontend/services/UserService.js';
 
-
 // User click <a href="/lobby/123" router>
 //          ↓
 // Router intercepts click → matches route `/lobby/:id`
@@ -15,10 +14,11 @@ import UserService from '../frontend/services/UserService.js';
 //          ↓
 // LobbyView renders data to HTML via getHtml()
 
-
 export default class Router {
     private routes: Route[] = [];
     private currentView: AbstractView | null = null;
+    private currentRoute: Route | null = null;
+    private currentParams: Record<string, string> = {};
     private static instance: Router | null = null;
     // Define the role hierarchy - higher index means more privileges
     private static ROLE_HIERARCHY = ['user', 'admin', 'master'];
@@ -70,11 +70,13 @@ export default class Router {
     public static update(): void {
         if (Router.instance) {
             Router.instance.update();
-        } else {
+        }
+        else {
             const globalRouter = (window as any).router;
             if (globalRouter && typeof globalRouter.update === 'function') {
                 globalRouter.update();
-            } else {
+            }
+            else {
                 console.error('Router.update() was called, but there is no active Router instance');
             }
         }
@@ -90,7 +92,8 @@ export default class Router {
         // Replace state instead of pushing if specified
         if (options.replace) {
             window.history.replaceState(null, '', url);
-        } else {
+        }
+        else {
             window.history.pushState(null, '', url);
         }
 
@@ -105,11 +108,13 @@ export default class Router {
     public static redirect(url: string, options: { replace?: boolean } = {}): Promise<void> {
         if (Router.instance) {
             return Router.instance.redirect(url, options);
-        } else {
+        }
+        else {
             const globalRouter = (window as any).router;
             if (globalRouter && typeof globalRouter.redirect === 'function') {
                 return globalRouter.redirect(url, options);
-            } else {
+            }
+            else {
                 console.error('Router.redirect() was called, but there is no active Router instance');
                 return Promise.resolve();
             }
@@ -129,7 +134,8 @@ export default class Router {
             await this.currentView.afterRender();
 
             this.dispatchRouterContentLoaded(true);
-        } finally {
+        }
+        finally {
             appElement.classList.remove('loading');
         }
     }
@@ -186,7 +192,8 @@ export default class Router {
                         isMatch: true,
                         params: params
                     };
-                } else {
+                }
+                else {
                     return {
                         isMatch: false
                     };
@@ -212,8 +219,13 @@ export default class Router {
      * 'master' > 'admin' > 'user'
      */
     private hasRoleAccess(requiredRole: string, userRole: string): boolean {
-        if (!requiredRole) return true; // No role required
-        if (!userRole) return false; // No user role but role required
+        if (!requiredRole) {
+            return true; // No role required
+        }
+
+        if (!userRole) {
+            return false; // No user role but role required
+        }
 
         // Special roles like 'user_id' and 'logged_out' should be handled separately
         if (requiredRole === 'user_id' || requiredRole === 'logged_out') {
@@ -221,7 +233,9 @@ export default class Router {
         }
 
         // Direct match
-        if (requiredRole === userRole) return true;
+        if (requiredRole === userRole) {
+            return true;
+        }
 
         // Check hierarchy: master > admin > user
         const userRoleIndex = Router.ROLE_HIERARCHY.indexOf(userRole);
@@ -235,7 +249,57 @@ export default class Router {
         return hasAccess;
     }
 
+    /**
+     * Execute onLeave hook for the current route
+     */
+    private async executeOnLeave(): Promise<boolean> {
+        // Only execute onLeave if we have both a current route and current view
+        if (this.currentRoute?.onLeave && this.currentView) {
+            try {
+                const result = await this.currentRoute.onLeave({
+                    route: this.currentRoute,
+                    params: this.currentParams,
+                    view: this.currentView,
+                    path: location.pathname
+                });
+                return result !== false;
+            } catch (error) {
+                console.error('Error in onLeave hook:', error);
+                return true;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Execute onEnter hook for a route
+     */
+    private async executeOnEnter(route: Route, params: Record<string, string>, view: AbstractView): Promise<boolean> {
+        if (route.onEnter) {
+            try {
+                const result = await route.onEnter({
+                    route,
+                    params,
+                    view,
+                    path: location.pathname
+                });
+                // If onEnter returns false, prevent navigation
+                return result !== false;
+            } catch (error) {
+                console.error('Error in onEnter hook:', error);
+                return true; // Continue navigation on error
+            }
+        }
+        return true;
+    }
+
     public async render(): Promise<void> {
+        // Execute onLeave hook for current route before navigation
+        const canLeave = await this.executeOnLeave();
+        if (!canLeave) {
+            return; // Navigation cancelled by onLeave hook
+        }
+
         // Get current user for role checking
         const currentUser = await UserService.getCurrentUser();
 
@@ -260,7 +324,8 @@ export default class Router {
                     isMatch: true,
                     params: {}
                 };
-            } else {
+            }
+            else {
                 const appElement = document.getElementById('app');
                 if (appElement) {
                     appElement.innerHTML = '<h1>404 - Page Not Found</h1>';
@@ -315,6 +380,13 @@ export default class Router {
         // Create view with all parameters
         const view = new match.route.view(allParams);
 
+        // Execute onEnter hook before rendering
+        const canEnter = await this.executeOnEnter(match.route, match.params, view);
+        if (!canEnter) {
+            view.destroy?.(); // Clean up view if it has a destroy method
+            return; // Navigation cancelled by onEnter hook
+        }
+
         const headerHtml = await new Header().getHtml();
         document.getElementById('header-root')!.innerHTML = headerHtml;
 
@@ -334,6 +406,9 @@ export default class Router {
             this.currentView.destroy();
         }
 
+        // Update current route state
+        this.currentRoute = match.route;
+        this.currentParams = match.params;
         this.currentView = view;
 
         const appElement = document.getElementById('app');

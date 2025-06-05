@@ -1,4 +1,4 @@
-import { ShapeOptions, TextVisualizationOptions, PatternResult } from "../interfaces/avatarInterfaces.js"
+import { ShapeOptions, TextVisualizationOptions, PatternResult } from "../interfaces/userManagementInterfaces.js"
 
 function getColorFromString(text: string, index: number = 0): string {
     // Generate a deterministic color based on the string and index
@@ -324,15 +324,20 @@ function getShapeForChar(char: string, x: number, y: number, size: number, color
 
     if ('aeiou'.includes(char.toLowerCase())) {
         return generateCircle(x, y, size / 2, options);
-    } else if ('bcdfg'.includes(char.toLowerCase())) {
+    }
+    else if ('bcdfg'.includes(char.toLowerCase())) {
         return generateRect(x - size / 2, y - size / 2, size, size, options);
-    } else if ('hjklm'.includes(char.toLowerCase())) {
+    }
+    else if ('hjklm'.includes(char.toLowerCase())) {
         return generateTriangle(x, y, size, options);
-    } else if ('npqrs'.includes(char.toLowerCase())) {
+    }
+    else if ('npqrs'.includes(char.toLowerCase())) {
         return generateStar(x, y, size, 5, options);
-    } else if ('tuvwxyz'.includes(char.toLowerCase())) {
+    }
+    else if ('tuvwxyz'.includes(char.toLowerCase())) {
         return generateStar(x, y, size, 6, options);
-    } else if ('0123456789'.includes(char)) {
+    }
+    else if ('0123456789'.includes(char)) {
         return `<rect
 		x="${x - size / 2}"
 		y="${y - size / 2}"
@@ -344,7 +349,8 @@ function getShapeForChar(char: string, x: number, y: number, size: number, color
 		opacity="${options.opacity}"
 		transform="rotate(${options.rotate} ${x} ${y})"
 	  />`;
-    } else {
+    }
+    else {
         const specialShape = `<g transform="translate(${x - size / 2}, ${y - size / 2}) scale(${size / 100})">
 		<path d="M50,10 L90,50 L50,90 L10,50 Z" fill="${fill}" opacity="${options.opacity}" transform="rotate(${options.rotate} 50 50)" />
 	  </g>`;
@@ -396,7 +402,8 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
     // Advanced visualizations for longer text
     if (text.length > 10 && (hasNumbers || hasSpecialChars)) {
         svg += generateMandala(width / 2, height / 2, Math.min(width, height) * 0.4, text, colors);
-    } else if (text.length > 5) {
+    }
+    else if (text.length > 5) {
         // Spiral turns based on text length
         const spiralTurns = 2 + (textHash % 4); // Between 2 and 5 turns
         svg += generateSpiral(width / 2, height / 2, Math.min(width, height) * 0.4, spiralTurns, {
@@ -426,7 +433,8 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
                 // For short text, arrange in a line
                 x = width * (i + 1) / (shapesCount + 1);
                 y = height * 0.4;
-            } else {
+            }
+            else {
                 // For longer text, arrange in a spiral or circular pattern
                 const angle = (i / shapesCount) * Math.PI * 2;
                 const radius = height * 0.3 * (0.5 + (i % 3) * 0.15);

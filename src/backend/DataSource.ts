@@ -14,5 +14,11 @@ export const AppDataSource = new DataSource({
 });
 
 export const initDataSource = async () => {
-    await AppDataSource.initialize();
-}
+    try {
+        await AppDataSource.initialize();
+    }
+    catch (error) {
+        console.error("Failed to initialize data source:", error);
+        throw error;
+    }
+};

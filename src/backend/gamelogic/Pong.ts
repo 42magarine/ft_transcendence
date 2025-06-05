@@ -2,7 +2,7 @@ import { Ball } from "../gamelogic/components/Ball.js";
 import { Paddle } from "../gamelogic/components/Paddle.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState, IPaddleDirection } from "../../interfaces/interfaces.js";
-import { ServerMessage } from "../../interfaces/interfaces.js";
+import { IServerMessage } from "../../interfaces/interfaces.js";
 import { GAME_WIDTH, GAME_HEIGHT, STEPS, SCORE_LIMIT } from "../../types/constants.js";
 import { MatchService } from "../services/MatchService.js";
 
@@ -34,8 +34,10 @@ export class PongGame {
         this._gameService = gameService;
     }
 
-    public startGameLoop(broadcast: (data: ServerMessage) => void): void {
-        if (this._running) return;
+    public startGameLoop(broadcast: (data: IServerMessage) => void): void {
+        if (this._running) {
+            return;
+        }
 
         this._running = true;
         this._paused = false;
@@ -97,16 +99,7 @@ export class PongGame {
     private endGame(winner: number): void {
         // Call a callback, emit event, or flag the game state
         this._gameIsOver = true;
-        console.log(`Player ${winner} wins!`);
         // Optionally notify controller or set state for frontend sync
-    }
-
-    public pauseGame(): void {
-        this._paused = true;
-    }
-
-    public resumeGame(): void {
-        this._paused = false;
     }
 
     public update(): void {
@@ -129,7 +122,8 @@ export class PongGame {
                 const overlapY = ballY - paddleCenterY;
                 this._ball.revX();
                 this._ball.speedY += overlapY * 0.05;
-            } else if (this.isColliding(this._ball, this._paddle2)) {
+            }
+            else if (this.isColliding(this._ball, this._paddle2)) {
                 const paddleCenterY = this._paddle2.y + this._paddle2.height / 2;
                 const overlapY = ballY - paddleCenterY;
                 this._ball.revX();
@@ -145,7 +139,8 @@ export class PongGame {
                     this.resetGame();
                 }
                 break;
-            } else if (ballX > this._width) {
+            }
+            else if (ballX > this._width) {
                 this._score1++;
                 if (this._score1 >= this._scoreLimit) {
                     this.endGame(1)
@@ -172,7 +167,8 @@ export class PongGame {
 
         if (direction === "up" && paddle.y > 0) {
             paddle.moveUp();
-        } else if (direction === "down" && paddle.y + paddle.height < this._height) {
+        }
+        else if (direction === "down" && paddle.y + paddle.height < this._height) {
             paddle.moveDown();
         }
     }
@@ -186,12 +182,23 @@ export class PongGame {
         }
     }
 
+    public removePlayer(playerNumber: number): void {
+        if (playerNumber === 1) {
+            this._player1 = null;
+        }
+        else if (playerNumber === 2) {
+            this._player2 = null;
+        }
+    }
+
     public getState(): IGameState {
         return {
             ball: {
                 x: this._ball.x,
                 y: this._ball.y,
-                radius: this._ball.radius
+                radius: this._ball.radius,
+                speedX: this._ball.speedX,
+                speedY: this._ball.speedY
             },
             paddle1: {
                 x: this._paddle1.x,
@@ -213,7 +220,6 @@ export class PongGame {
         };
     }
 
-    // Getters/Setters
     public get score1(): number {
         return this._score1;
     }

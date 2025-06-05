@@ -35,8 +35,6 @@ export class Ball {
         this._speedY *= randomYDirection;
     }
 
-    // Getters and Setters
-
     public get x(): number {
         return this._x;
     }

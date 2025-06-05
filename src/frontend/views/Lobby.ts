@@ -1,97 +1,98 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import type { CardProps } from '../../interfaces/componentInterfaces.js';
 import Router from '../../utils/Router.js';
-import {
-    LobbyParticipant,
-    LobbyDataWithParticipants,
-    PlayerDisplayState
-} from '../../interfaces/interfaces.js';
+import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
 
-export default class Lobby extends AbstractView
-{
+export default class Lobby extends AbstractView {
     private lobbyId: string;
+    private lobby!: ILobbyState;
+    private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isReady: false };
+    private player2: IPlayerState = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
 
-    private currentPlayerDisplay: PlayerDisplayState = { username: 'You', isJoined: false, isReady: false };
-    private opponentPlayerDisplay: PlayerDisplayState = { username: 'Opponent', isJoined: false, isReady: false };
-
-    constructor(params: URLSearchParams)
-    {
+    constructor(params: URLSearchParams) {
         super();
         this.lobbyId = params.get('id') || '';
-        if (!this.lobbyId)
-        {
+        if (!this.lobbyId) {
             console.error("Lobby ID is missing!");
             Router.redirect('/lobbylist');
         }
         this.setTitle(`Lobby ${this.lobbyId}`);
     }
 
-    async getHtml(): Promise<string>
-    {
-    
+    async getHtml(): Promise<string> {
+        this.lobby = window.lobbyService.getLobby();
+        if (this.lobby.lobbyPlayers) {
+            if (this.lobby.lobbyPlayers[0]) {
+                this.player1 = this.lobby.lobbyPlayers[0];
+            }
+            if (this.lobby.lobbyPlayers[1]) {
+                this.player2 = this.lobby.lobbyPlayers[1];
+            }
+        }
+
         const lobbyCard = await new Card().renderCard(
-        {
-            title: `Lobby ${this.lobbyId}`,
-            contentBlocks:
-            [
-                {
-                    type: 'separator',
-                },
-                // Matchup buttons
-                {
-                    type: 'matchup',
-                    props:
-                    {
-                        player1: {
-                            type: 'button',
-                            props: {
-                                id: 'player1',
-                                text: this.currentPlayerDisplay.username,
-                                color: this.currentPlayerDisplay.isReady
-                                    ? 'green'
-                                    : (this.currentPlayerDisplay.isJoined ? 'yellow' : 'primary')
+            {
+                title: `Lobby ${this.lobbyId}`,
+                contentBlocks:
+                    [
+                        {
+                            type: 'separator',
+                        },
+                        // Matchup buttons
+                        {
+                            type: 'matchup',
+                            props:
+                            {
+                                player1:
+                                {
+                                    type: 'button',
+                                    props:
+                                    {
+                                        id: 'player1',
+                                        text: this.player1.userName,
+                                        className: `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
+                                    }
+                                },
+                                player2:
+                                {
+                                    type: 'button',
+                                    props:
+                                    {
+                                        id: 'player2',
+                                        text: this.player2.userName,
+                                        className:
+                                            `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
+                                    }
+                                }
                             }
                         },
-                        player2: {
-                            type: 'button',
-                            props: {
-                                id: 'player2',
-                                text: this.opponentPlayerDisplay.isJoined
-                                    ? (this.opponentPlayerDisplay.username || 'Opponent')
-                                    : 'Waiting for Opponent...',
-                                color: this.opponentPlayerDisplay.isReady
-                                    ? 'green'
-                                    : (this.opponentPlayerDisplay.isJoined ? 'yellow' : 'primary')
+                        {
+                            type: 'separator',
+                        },
+                        // Action buttons
+                        {
+                            type: 'buttongroup',
+                            props:
+                            {
+                                buttons:
+                                    [
+                                        {
+                                            id: 'startGameBtn',
+                                            text: 'Click when Ready',
+                                            className: 'btn btn-primary',
+                                            type: 'button'
+                                        },
+                                        {
+                                            id: 'leaveBtn',
+                                            text: 'Leave Lobby',
+                                            type: 'button',
+                                            href: '/lobbylist'
+                                        }
+                                    ],
                             }
                         }
-                    }                    
-                },
-                {
-                    type: 'separator',
-                },
-                // Action buttons
-                {
-                    type: 'buttongroup',
-                    props:
-                    {
-                        buttons:
-                        [
-                            {
-                                id: 'startGameBtn',
-                                text: 'Click when Ready',
-                            },
-                            {
-                                id: 'leaveBtn',
-                                text: 'Leave Lobby',
-                                href: '/lobbylist',
-                                color : 'red'
-                            }
-                        ],
-                    }
-                }
-            ]
-        });
+                    ]
+            });
         return this.render(`${lobbyCard}`);
     }
 }

@@ -1,6 +1,4 @@
-// File: components/SignupFooter.js
-export default function renderSignupFooter()
-{
+export default function renderSignupFooter() {
     return `
         <p>Already have an account? <a router href="/login">log in</a></p>
         <div class="flex justify-center pt-2">

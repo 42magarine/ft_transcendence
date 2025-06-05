@@ -1,16 +1,15 @@
 import { generateTextVisualization } from "../../utils/Avatar.js"
 import Router from '../../utils/Router.js';
-import { User, ApiErrorResponse, LoginCredentials, AuthResponse, PasswordResetRequest, PasswordResetConfirm, QRResponse } from "../../interfaces/userInterfaces.js";
+import { User, ApiErrorResponse, LoginCredentials, AuthResponse, QRResponse } from "../../interfaces/userManagementInterfaces.js";
 import UserService from "./UserService.js";
 import Toggle from "../components/Toggle.js"
-import Modal from '../components/Modal.js';
-
 export default class UserManagementService {
+
     constructor() {
         this.initialize();
     }
 
-    static async registerUser(userData: User, avatarFile?: File): Promise<string> {
+    async registerUser(userData: User, avatarFile?: File): Promise<string> {
         console.log("Registering user with data:", userData);
         try {
             if (userData.secret &&
@@ -34,7 +33,8 @@ export default class UserManagementService {
                         const errorData = await verifyResponse.json() as ApiErrorResponse;
                         throw new Error(errorData.error || 'Two-factor code verification failed');
                     }
-                } catch (error) {
+                }
+                catch (error) {
                     userData.secret = undefined;
                     userData.tf_one = undefined;
                     userData.tf_two = undefined;
@@ -52,8 +52,8 @@ export default class UserManagementService {
                 formData.append('email', userData.email);
                 formData.append('password', userData.password || '');
 
-                if (userData.displayname) {
-                    formData.append('displayname', userData.displayname);
+                if (userData.name) {
+                    formData.append('name', userData.name);
                 }
 
                 if (userData.role) {
@@ -63,21 +63,27 @@ export default class UserManagementService {
                 if (userData.tf_one) {
                     formData.append('tf_one', userData.tf_one);
                 }
+
                 if (userData.tf_two) {
                     formData.append('tf_two', userData.tf_two);
                 }
+
                 if (userData.tf_three) {
                     formData.append('tf_three', userData.tf_three);
                 }
+
                 if (userData.tf_four) {
                     formData.append('tf_four', userData.tf_four);
                 }
+
                 if (userData.tf_five) {
                     formData.append('tf_five', userData.tf_five);
                 }
+
                 if (userData.tf_six) {
                     formData.append('tf_six', userData.tf_six);
                 }
+
                 if (userData.secret) {
                     formData.append('secret', userData.secret);
                 }
@@ -96,7 +102,8 @@ export default class UserManagementService {
 
                 Router.update();
                 return await response.text();
-            } else {
+            }
+            else {
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: {
@@ -113,7 +120,8 @@ export default class UserManagementService {
                 Router.update();
                 return await response.text();
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Registration error:', error);
             throw error;
         }
@@ -147,7 +155,8 @@ export default class UserManagementService {
             Router.redirect('/');
 
             return result;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Login error:', error);
             throw error;
         }
@@ -172,35 +181,6 @@ export default class UserManagementService {
         return result;
     }
 
-    async verifyTwoFactor(userId: number, code: string): Promise<AuthResponse> {
-        try {
-            const response = await fetch('/api/users/verify-two-factor', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId, code }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json() as ApiErrorResponse;
-                throw new Error(errorData.error || 'Two-factor verification failed');
-            }
-
-            const result = await response.json() as AuthResponse;
-
-            sessionStorage.removeItem('pendingUserId');
-            sessionStorage.removeItem('pendingUsername');
-            Router.update();
-            Router.redirect('/');
-
-            return result;
-        } catch (error) {
-            console.error('Two-factor verification error:', error);
-            throw error;
-        }
-    }
-
     async requestPasswordReset(email: string): Promise<AuthResponse> {
         try {
             const response = await fetch('/api/request-password-reset', {
@@ -212,7 +192,8 @@ export default class UserManagementService {
             });
 
             return await response.json() as AuthResponse;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Password reset request error:', error);
             throw error;
         }
@@ -234,7 +215,8 @@ export default class UserManagementService {
             }
 
             return await response.json() as AuthResponse;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Password reset error:', error);
             throw error;
         }
@@ -251,7 +233,8 @@ export default class UserManagementService {
             });
 
             return await response.json() as AuthResponse;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Resend verification error:', error);
             throw error;
         }
@@ -267,7 +250,8 @@ export default class UserManagementService {
             }
 
             Router.redirect('/');
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Logout error:', error);
             throw error;
         }
@@ -283,7 +267,8 @@ export default class UserManagementService {
             }
 
             return true;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Token verification error:', error);
             throw error;
         }
@@ -299,7 +284,8 @@ export default class UserManagementService {
                 const data = await response.json();
                 throw new Error(data.error || 'Email verification failed');
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Email verification error:', error);
             throw error;
         }
@@ -318,40 +304,39 @@ export default class UserManagementService {
         this.setupTwoFactorForm();
     }
 
-    // private setupCreateForm(): void {
-    //     const createForm = document.getElementById('create-form') as HTMLFormElement | null;
-    //     if (createForm) {
-    //         createForm.addEventListener('submit', async (e) => {
-    //             e.preventDefault();
+    private setupCreateForm(): void {
+        const createForm = document.getElementById('create-form') as HTMLFormElement | null;
+        if (createForm) {
+            createForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-    //             try {
-    //                 const formData = new FormData(createForm);
+                try {
+                    const formData = new FormData(createForm);
 
-    //                 const userData: User = {
-    //                     avatar: formData.get('avatar') as string,
-    //                     displayname: formData.get('displayname') as string,
-    //                     username: formData.get('username') as string,
-    //                     email: formData.get('email') as string,
-    //                     password: formData.get('password') as string,
-    //                     role: formData.get('role') as string,
-    //                     emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
-    //                     twoFAEnabled: formData.get('twoFAEnabled') as string,
-    //                     status: 'offline'
+                    const userData: User = {
+                        avatar: formData.get('avatar') as string,
+                        name: formData.get('name') as string,
+                        username: formData.get('username') as string,
+                        email: formData.get('email') as string,
+                        password: formData.get('password') as string,
+                        role: formData.get('role') as string,
+                        emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
+                        twoFAEnabled: formData.get('twoFAEnabled') as string,
+                        status: 'offline'
+                    };
 
-    //                 };
+                    const result = await this.registerUser(userData);
+                    createForm.reset();
 
-
-    //                 const result = await this.registerUser(userData);
-    //                 createForm.reset();
-
-    //             } catch (error) {
-    //                 console.error('Failed to register user:', error);
-    //             }
-    //         });
-    //         const toggle = new Toggle();
-    //         toggle.mountToggle('emailVerified');
-    //     }
-    // }
+                }
+                catch (error) {
+                    console.error('Failed to register user:', error);
+                }
+            });
+            const toggle = new Toggle();
+            toggle.mountToggle('emailVerified');
+        }
+    }
 
     private setupDeleteButtons(): void {
         const deleteButtons = document.querySelectorAll('.delete-user') as NodeListOf<HTMLElement>;
@@ -375,7 +360,7 @@ export default class UserManagementService {
 
                 if (confirm('Are you sure you want to delete this user?')) {
                     try {
-                        await UserService.deleteUser(parseInt(userId, 10));
+                        await UserService.deleteUser(parseInt(userId));
                         Router.update();
                     }
                     catch (error) {
@@ -401,7 +386,8 @@ export default class UserManagementService {
                     await this.login(credentials);
                     loginForm.reset();
 
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to login:', error);
                     const errorMessage = document.createElement('div');
                     errorMessage.className = 'mt-4 text-red-500';
@@ -433,7 +419,8 @@ export default class UserManagementService {
 
                             try {
                                 const result = await this.resendVerificationEmail(username);
-                            } catch (error) {
+                            }
+                            catch (error) {
                                 console.error('Failed to resend verification:', error);
                             }
                         });
@@ -484,10 +471,10 @@ export default class UserManagementService {
                         return;
                     }
 
-                    await this.verifyTwoFactor(parseInt(userId, 10), code);
+                    //await this.verifyTwoFactor(parseInt(userId), code);
 
-
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Two-factor verification failed:', error);
                 }
             });
@@ -525,11 +512,13 @@ export default class UserManagementService {
                                 qrDisplay.innerHTML = qrImg;
                                 secHidden.value = qr_response.secret
                             }
-                        } catch (error) {
+                        }
+                        catch (error) {
                             console.error('Failed to fetch users:', error);
                             return [];
                         }
-                    } else {
+                    }
+                    else {
                         twoFactorInterface?.classList.remove('active')
                         qrDisplay.innerHTML = '';
                         secHidden.value = ''
@@ -584,7 +573,8 @@ export default class UserManagementService {
                         };
 
                         reader.readAsDataURL(file);
-                    } else if (usernameInput) {
+                    }
+                    else if (usernameInput) {
                         const inputElement = usernameInput as HTMLInputElement;
                         const seed = inputElement.value;
 
@@ -615,7 +605,7 @@ export default class UserManagementService {
                     }
 
                     const userData: User = {
-                        displayname: formData.get('displayname') as string,
+                        name: formData.get('name') as string,
                         username: formData.get('username') as string,
                         email: formData.get('email') as string,
                         password: password,
@@ -633,17 +623,18 @@ export default class UserManagementService {
                     const avatarFile = formData.get('avatar') as File;
                     let result;
 
-                   if (avatarFile && avatarFile.size > 0) {
-                        result = await UserManagementService.registerUser(userData, avatarFile);
-                    } else {
-                        result = await UserManagementService.registerUser(userData);
+                    if (avatarFile && avatarFile.size > 0) {
+                        result = await this.registerUser(userData, avatarFile);
                     }
-
+                    else {
+                        result = await this.registerUser(userData);
+                    }
 
                     signupForm.reset();
                     Router.redirect('/login');
 
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to register user:', error);
                 }
             });
@@ -667,7 +658,8 @@ export default class UserManagementService {
                     const result = await this.requestPasswordReset(email);
                     alert(result.message || 'If your email exists in our system, you will receive a password reset link.');
                     passwordResetForm.reset();
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to request password reset:', error);
                 }
             });
@@ -708,7 +700,8 @@ export default class UserManagementService {
                     resetForm.reset();
 
                     Router.redirect('/login');
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to reset password:', error);
                 }
             });
@@ -731,7 +724,8 @@ export default class UserManagementService {
                 try {
                     const response = await this.resendVerificationEmail(email as string);
                     alert(response.message || 'If your account exists, a verification email has been sent.');
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Error resending verification email:', error);
                 }
             });
@@ -747,7 +741,8 @@ export default class UserManagementService {
                 try {
                     await this.logout();
                     Router.redirect('/login');
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Failed to logout:', error);
                 }
             });
@@ -773,7 +768,8 @@ export default class UserManagementService {
             if (success) {
                 Router.redirect('/login?verified=true');
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error verifying email:', error);
 
             const cardContainer = document.querySelector('.space-y-8');
@@ -879,86 +875,51 @@ export default class UserManagementService {
             });
 
             return response.ok;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error updating profile:', error);
             throw error;
         }
     }
 
-        async setupCreateForm()
-            {
-
-            }
-    public async setupUserManagementView(): Promise<void> {
+    public setupUserManagementView(): void {
         const toggle = new Toggle();
         toggle.mountToggle('emailVerified');
 
-        // Inject modal manually into DOM
-        const modalContainer = document.createElement('div');
-        modalContainer.innerHTML = await new Modal().renderModal({
-            id: 'confirm-delete-modal',
-            title: 'Confirm Deletion',
-            content: `
-                <p>Are you sure you want to delete this user?<br>
-                <strong>This action cannot be undone.</strong></p>
-            `,
-            footerButtons: [
-                {
-                    id: 'cancel-delete-btn',
-                    text: 'Cancel',
-                    className: 'btn btn-secondary',
-                    onClick: `document.getElementById('confirm-delete-modal').classList.add('hidden')`
-                },
-                {
-                    id: 'confirm-delete-btn',
-                    text: 'Yes, Delete',
-                    className: 'btn btn-red'
-                }
-            ],
-            closableOnOutsideClick: true
-        });
-
-        document.body.appendChild(modalContainer); // Append modal to end of body
-
+        const deleteButtons = document.querySelectorAll('.delete-user');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const modal = document.getElementById('confirm-delete-modal');
         let selectedUserId: string | null = null;
 
-        const deleteButtons = document.querySelectorAll('button[id^="delete-user-"]');
         deleteButtons.forEach((btn) => {
             btn.addEventListener('click', () => {
-                const match = btn.id.match(/^delete-user-(\d+)$/);
-                if (match) {
-                    selectedUserId = match[1];
-                    const modal = document.getElementById('confirm-delete-modal');
-                    if (modal) modal.classList.remove('hidden');
+                selectedUserId = btn.getAttribute('data-user');
+                if (modal) {
+                    modal.classList.remove('hidden');
                 }
             });
         });
-
-        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-        const modal = document.getElementById('confirm-delete-modal');
 
         if (confirmDeleteBtn && modal) {
             confirmDeleteBtn.addEventListener('click', async () => {
                 if (selectedUserId) {
                     try {
                         const success = await UserService.deleteUser(Number(selectedUserId));
-                        if (success) window.location.reload();
-                        else console.error('Failed to delete user');
-                    } catch (err) {
-                        console.error('Delete failed:', err);
-                    } finally {
+                        if (success) {
+                            window.location.reload();
+                        }
+                        else {
+                            console.error('Failed to delete user');
+                        }
+                    }
+                    catch (error) {
+                        console.error('Delete failed:', error);
+                    }
+                    finally {
                         modal.classList.add('hidden');
                         selectedUserId = null;
                     }
                 }
-            });
-        }
-
-        if (cancelDeleteBtn && modal) {
-            cancelDeleteBtn.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                selectedUserId = null;
             });
         }
     }

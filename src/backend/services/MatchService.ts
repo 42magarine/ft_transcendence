@@ -17,7 +17,7 @@ export class MatchService {
         })
     }
 
-    public async getMatchLobbyById(lobbyId: string) {
+    async getMatchLobbyById(lobbyId: string) {
         return await this.matchRepo.findOne({
             where: { lobbyId },
             relations: ['player1', 'player2', 'winner', 'lobbyParticipants']
@@ -58,12 +58,15 @@ export class MatchService {
         return await this.matchRepo.remove(match);
     }
 
-    async deleteMatchByLobbyId(lobbyId: string) {
-        const match = await this.getMatchLobbyById(lobbyId)
-        if (!match) {
-            throw new Error("lobby not in MatchModels!!!")
+    async deleteMatchByLobbyId(lobbyId: string): Promise<boolean> {
+        try {
+            const result = await this.matchRepo.delete({ lobbyId });
+            return result.affected ? result.affected > 0 : false;
         }
-        return await this.matchRepo.remove(match);
+        catch (error) {
+            console.error("Error deleting match:", error);
+            return false;
+        }
     }
 
     //table join search for finding a matchmodel by using the user/playerId (this should be the same btw!!!)
@@ -131,6 +134,42 @@ export class MatchService {
         // match.status = "waiting_for_ready";
 
         return await this.matchRepo.save(match);
+    }
+
+    async removePlayerFromMatch(lobbyId: string, userId: number): Promise<boolean> {
+        try {
+            const match = await this.getMatchLobbyById(lobbyId);
+            if (!match) {
+                throw new Error("Match not found");
+            }
+
+            // Prüfen welcher Spieler entfernt werden soll
+            if (match.player1?.id === userId) {
+                // Wenn Player1 verlässt und Player2 existiert, Player2 zu Player1 machen
+                if (match.player2) {
+                    match.player1 = match.player2;
+                    match.player2 = null;
+                }
+                else {
+                    // Wenn nur Player1 da war, Match löschen
+                    await this.matchRepo.delete({ lobbyId });
+                    return true;
+                }
+            }
+            else if (match.player2?.id === userId) {
+                match.player2 = null;
+            }
+            else {
+                throw new Error("Player not found in this match");
+            }
+
+            await this.matchRepo.save(match);
+            return true;
+        }
+        catch (error) {
+            console.error("Error removing player from match:", error);
+            return false;
+        }
     }
 
     //function that should return score values / playerInfo of specified Match!

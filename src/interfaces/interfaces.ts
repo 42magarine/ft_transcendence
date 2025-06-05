@@ -2,8 +2,15 @@ import type MessageHandlerService from '../frontend/services/MessageHandlerServi
 import type LobbyListService from '../frontend/services/LobbyListService.js';
 import type LobbyService from '../frontend/services/LobbyService.js';
 import type UserService from '../frontend/services/UserService.js';
-import type UserMangementService from '../frontend/services/UserManagementService.js';
+import type UserManagementService from '../frontend/services/UserManagementService.js';
 import AbstractView from "../utils/AbstractView.js";
+
+export interface RouteHookContext {
+    route: Route;
+    params: Record<string, string>;
+    view: AbstractView;
+    path: string;
+}
 
 export interface Route {
     path: string | RegExp;
@@ -13,44 +20,40 @@ export interface Route {
         description?: string;
     };
     role?: string;
+    onEnter?: (context: RouteHookContext) => Promise<boolean | void>;
+    onLeave?: (context: RouteHookContext) => Promise<boolean | void>;
 }
-
 
 declare global {
-	interface Window {
-		ft_socket?: WebSocket;
-		socketReady?: Promise<void>;
-		messageHandler?: MessageHandlerService;
-		lobbyListService: LobbyListService;
-		lobbyService?: LobbyService;
-		userService: UserService;
-		userManagementService: UserMangementService;
-	}
+    interface Window {
+        currentUser: User | null;
+        ft_socket?: WebSocket;
+        socketReady: Promise<void>;
+        messageHandler: MessageHandlerService;
+        lobbyListService: LobbyListService;
+        lobbyService: LobbyService;
+        userService: UserService;
+        userManagementService: UserManagementService;
+    }
 }
 
-export {};
-
-export interface BallStateWithVelocity {
-	x: number;
-	y: number;
-	radius: number;
-	velocityX: number;
-	velocityY: number;
-}
+export { };
 
 export type IPaddleDirection = 'up' | 'down';
-
-export interface IBallState {
-    x: number;
-    y: number;
-    radius: number;
-}
 
 export interface IPaddleState {
     x: number;
     y: number;
     width: number;
     height: number;
+}
+
+export interface IBallState {
+    x: number;
+    y: number;
+    radius: number;
+    speedX: number;
+    speedY: number;
 }
 
 export interface IGameState {
@@ -64,53 +67,28 @@ export interface IGameState {
     gameIsOver: boolean;
 }
 
-export interface LobbyInfo {
-    id: string;
+export interface ILobbyState {
     lobbyId: string;
     name: string;
     creatorId: number | undefined;
     maxPlayers: number;
     currentPlayers: number;
     createdAt: Date;
+    lobbyPlayers?: IPlayerState[];
     lobbyType: "game" | "tournament"
     isStarted: boolean;
 }
 
-export interface PlayerInfo {
-    id: number;
-    username: string;
-    score: number;
+export interface IPlayerState {
+    playerNumber: number;
+    userId: number;
+    userName: string;
+    isReady: boolean;
 }
 
-export interface GameResult {
-    id: number;
-    player1: PlayerInfo;
-    player2: PlayerInfo;
-    winner: string;
-    date: Date;
-}
+// MESSAGE INTERFACES
 
-export interface GameHistoryResponse {
-    id: number;
-    player2: string;
-    playerScore: number;
-    opponentScore: number;
-    result: string;
-    date: Date;
-}
-
-declare module 'fastify'
-{
-    interface FastifyRequest {
-        user?:
-        {
-            id: number;
-            role: string;
-        }
-    }
-}
-
-export interface ClientMessage {
+export interface IClientMessage {
     type: string;
     userId?: number;
     targetUserId?: number;
@@ -121,28 +99,7 @@ export interface ClientMessage {
     [key: string]: any;
 }
 
-export interface GameActionMessage extends ClientMessage {
-    type: "gameAction";
-    action?: string;
-}
-
-export interface ReadyMessage extends ClientMessage {
-    ready: boolean;
-}
-
-export interface joinLobbyMessage extends ClientMessage {
-    type: "joinLobby";
-}
-
-export interface createLobbyMessage extends ClientMessage {
-    type: "createLobby";
-}
-
-export interface leaveLobbyMessage extends ClientMessage {
-    type: "leaveLobby";
-}
-
-export interface ServerMessage {
+export interface IServerMessage {
     type: string;
     message?: string;
     playerNumber?: number;
@@ -151,39 +108,17 @@ export interface ServerMessage {
     userId?: number;
     direction?: IPaddleDirection;
     timestamp?: string;
-    lobbies?: LobbyInfo[]
+    lobbies?: ILobbyState[]
     [key: string]: any;
-}
-
-export interface GameStateMessage extends ServerMessage {
-    type: "gameState";
-    gameState: IGameState;
 }
 
 export interface User {
     id?: number;
     username: string;
     email: string;
-    displayname?: string;
+    name?: string;
     role?: string;
     hasClickedStart?: boolean;
     isJoined?: boolean;
     isCreator?: boolean;
-}
-
-export interface PlayerDisplayState extends Partial<LobbyParticipant> {
-    isCreator?: boolean;
-    isJoined?: boolean;
-}
-
-export interface LobbyParticipant extends User {
-    isReady: boolean; // Essential for the UI
-    // isCreator can be derived by comparing id with lobbyData.creatorId
-}
-
-// This is what LobbyService should ideally provide for currentLobbyData
-// when Lobby.ts needs to render the view.
-export interface LobbyDataWithParticipants extends LobbyInfo {
-    // LobbyInfo is your existing interface
-    participants: LobbyParticipant[]; // THE CRUCIAL ADDITION
 }

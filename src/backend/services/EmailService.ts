@@ -15,7 +15,7 @@ export class EmailService {
         // Create transporter using environment variables
         this.transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
-            port: parseInt(process.env.EMAIL_PORT || '587', 10),
+            port: parseInt(process.env.EMAIL_PORT || '587'),
             secure: process.env.EMAIL_PORT === '465', // true for 465, false for other ports
             auth: {
                 user: process.env.EMAIL_USER,
@@ -39,8 +39,8 @@ export class EmailService {
                 text: options.text,
                 html: options.html,
             });
-            console.log(`Email sent to ${options.to}`);
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error sending email:', error);
             throw new Error('Failed to send email');
         }

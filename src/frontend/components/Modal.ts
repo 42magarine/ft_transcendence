@@ -1,6 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
-import { ButtonProps, ModalProps } from '../../interfaces/componentInterfaces.js';
+import type { ButtonProps, ModalProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Modal extends AbstractView {
 	constructor(params: URLSearchParams = new URLSearchParams()) {
@@ -40,7 +40,7 @@ export default class Modal extends AbstractView {
 		footer = '',
 		footerButtons = [],
 		showCloseButton = true,
-		closableOnOutsideClick = true,
+		closableOnOutsideClick = true
 	}: ModalProps): Promise<string> {
 		const closableAttr = closableOnOutsideClick ? `data-close-on-outside="true"` : '';
 		const footerHtml = await this.renderFooter(footer, footerButtons);
@@ -53,7 +53,7 @@ export default class Modal extends AbstractView {
 				onclick="handleModalOutsideClick(event, '${id}')"
 			>
 				<div
-					class=" dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
+					class="dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
 					onclick="event.stopPropagation();"
 				>
 					${showCloseButton ? this.renderCloseButton(id) : ''}
@@ -70,6 +70,101 @@ export default class Modal extends AbstractView {
 		`);
 	}
 
+	// 🔴 Delete User Modal
+	async renderDeleteModal({
+		id,
+		userId,
+		onConfirm
+	}: {
+		id: string;
+		userId: string;
+		onConfirm: () => Promise<void>;
+	}): Promise<void> {
+		const modalHtml = await this.renderModal({
+			id,
+			title: 'Confirm Deletion',
+			content: `<p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>`,
+			footerButtons: [
+				{
+					id: 'cancel-delete-btn',
+					text: 'Cancel',
+					className: 'btn btn-secondary',
+					onClick: `document.getElementById('${id}').classList.add('hidden')`
+				},
+				{
+					id: 'confirm-delete-btn',
+					text: 'Yes, Delete',
+					className: 'btn btn-red'
+				}
+			],
+			closableOnOutsideClick: true
+		});
+
+		const container = document.createElement('div');
+		container.innerHTML = modalHtml;
+		document.body.appendChild(container);
+
+		document.getElementById('confirm-delete-btn')?.addEventListener('click', async () => {
+			await onConfirm();
+			document.getElementById(id)?.classList.add('hidden');
+		});
+
+		document.getElementById('cancel-delete-btn')?.addEventListener('click', () => {
+			document.getElementById(id)?.classList.add('hidden');
+		});
+	}
+
+	// 🟢 Delete Friend Modal
+	async renderRemoveFriendModal({
+		id,
+		friendId,
+		onConfirm
+	}: {
+		id: string;
+		friendId: number;
+		onConfirm: () => Promise<void>;
+	}): Promise<void> {
+		const modalHtml = await this.renderModal({
+			id,
+			title: 'Remove Friend',
+			content: `<p>Do you really want to remove this friend?<br><strong>This action cannot be undone.</strong></p>`,
+			footerButtons: [
+				{
+					id: 'cancel-remove-btn',
+					text: 'Cancel',
+					className: 'btn btn-secondary',
+					onClick: `document.getElementById('${id}').classList.add('hidden')`
+				},
+				{
+					id: 'confirm-remove-btn',
+					text: 'Remove',
+					className: 'btn btn-red'
+				}
+			],
+			closableOnOutsideClick: true
+		});
+
+		const container = document.createElement('div');
+		container.innerHTML = modalHtml;
+		document.body.appendChild(container);
+
+		document.getElementById('confirm-remove-btn')?.addEventListener('click', async () => {
+			await onConfirm();
+			document.getElementById(id)?.classList.add('hidden');
+		});
+
+		document.getElementById('cancel-remove-btn')?.addEventListener('click', () => {
+			document.getElementById(id)?.classList.add('hidden');
+		});
+	}
+
+	async mountDeleteModal(modalId: string): Promise<void> {
+		const modal = document.getElementById(modalId);
+		if (!modal) throw new Error(`Modal with ID ${modalId} not found`);
+	
+		modal.classList.add('open'); // or 'show', depending on your CSS
+	}
+	
 	async getHtml(): Promise<string> {
 		return this.renderModal({
 			id: 'default-modal',

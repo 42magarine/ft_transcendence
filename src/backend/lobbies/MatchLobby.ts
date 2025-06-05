@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { LobbyInfo, ServerMessage } from "../../interfaces/interfaces.js";
+import { ILobbyState, IPlayerState, IServerMessage } from "../../interfaces/interfaces.js";
 import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState } from "../../interfaces/interfaces.js";
@@ -10,8 +10,7 @@ export class MatchLobby {
     private _gameId!: number;
     private _saveScoreInterval: NodeJS.Timeout | null = null;
     private _lobbyId: string;
-    private _players: Map<number, Player>;
-    private _broadcast: (lobbyId: string, data: ServerMessage) => void;
+    public _players: Map<number, Player>;
     private _maxPlayers: number;
     private _gameStarted: boolean = false;
     private _lobbyName: string;
@@ -22,7 +21,6 @@ export class MatchLobby {
     private _matchService: MatchService;
 
     constructor(lobbyId: string,
-        broadcast: (lobbyId: string, data: ServerMessage) => void,
         matchService: MatchService,
         options?: {
             name?: string,
@@ -30,7 +28,6 @@ export class MatchLobby {
             lobbyType?: 'game' | 'tournament'
         }) {
         this._lobbyId = lobbyId;
-        this._broadcast = broadcast;
         this._matchService = matchService!;
         this._players = new Map<number, Player>();
         this._maxPlayers = options?.maxPlayers || 2;
@@ -39,24 +36,6 @@ export class MatchLobby {
         this._lobbyType = options?.lobbyType || 'game';
         this._game = new PongGame(matchService);
     }
-
-    // on player removed pause game! -> also need to update users and stuff maybe!!
-    private onPlayerRemoved(player: Player): void {
-        if (this._game.isRunning && !this._game.isPaused) {
-            this._game.pauseGame();
-        }
-    }
-
-    //update lobby participants more for tournament
-    // private async updateLobbyParticipants() {
-    //     if (this._dbGame && this._gameId) {
-    //         for (const player of this._players.values()) {
-    //             if (player.userId) {
-    //                 await this._matchService!.addLobbyParticipant(this._gameId, player.userId)
-    //             }
-    //         }
-    //     }
-    // }
 
     public getGameState(): IGameState {
         return this._game.getState();
@@ -85,25 +64,16 @@ export class MatchLobby {
                     return null;
                 }
             }
-
-            const player = new Player(connection, playerNumber, userId);
-
+            const user = await this._matchService.userService.findUserById(userId);
+            if (!user) {
+                return null;
+            }
+            const player = new Player(connection, playerNumber, userId, this._lobbyId, user.username);
             // add player to this._players (type: map)
             this._players.set(playerNumber, player);
-
             // add player to this._game.player1 or player2 (type: PongGame)
-            this._game.setPlayer(player._playerNumber, player);
-
-            this._broadcast(this._lobbyId, {
-                type: "playerJoined",
-                playerCount: this._players.size,
-                playerInfo: {
-                    playerNumber: playerNumber,
-                    userId: player.userId,
-                    isReady: player._isReady
-                }
-            });
-
+            this._game.setPlayer(playerNumber, player);
+            // console.log(`Player ${player._playerNumber} (userId: ${player.userId}) join lobby ${this._lobbyId}`);
             return player;
         }
         catch (error) {
@@ -112,30 +82,32 @@ export class MatchLobby {
         }
     }
 
-    public removePlayer(player: Player): void {
-        this._players.delete(player.id);
-        this._readyPlayers.delete(player.id);
-        this.onPlayerRemoved(player);
+    public async removePlayer(player: Player): Promise<void> {
+        try {
+            // Spieler aus DB entfernen
+            await this._matchService.removePlayerFromMatch(this._lobbyId, player.userId);
 
-        console.log(`Player ${player.id} disconnected`);
+            // Spieler aus Maps entfernen
+            this._players.delete(player._playerNumber);
+            this._readyPlayers.delete(player._playerNumber);
 
-        this._broadcast(this._lobbyId, {
-            type: "playerDisconnected",
-            id: player.id,
-            playerCount: this._players.size
-        });
+            // Spieler aus PongGame entfernen
+            this._game.removePlayer(player._playerNumber);
 
-        if (this._creatorId === player.userId && this._players.size > 0) {
-            const nextPlayer = this._players.values().next().value;
+            // console.log(`Player ${player._playerNumber} (userId: ${player.userId}) left lobby ${this._lobbyId}`);
 
-            if (nextPlayer && nextPlayer.userId) {
-                this._creatorId = nextPlayer.userId;
-                this._broadcast(this._lobbyId, {
-                    type: "newCreator",
-                    creatorId: this._creatorId,
-                    creatorPlayerId: nextPlayer.id
-                })
+            // Wenn Creator verlässt, neuen Creator bestimmen
+            if (this._creatorId === player.userId && this._players.size > 0) {
+                const nextPlayer = this._players.values().next().value;
+
+                if (nextPlayer && nextPlayer.userId) {
+                    this._creatorId = nextPlayer.userId;
+                }
             }
+        }
+        catch (error) {
+            console.error("Error removing player from lobby:", error);
+            throw error;
         }
     }
 
@@ -148,36 +120,13 @@ export class MatchLobby {
         player._isReady = isReady;
         if (isReady) {
             this._readyPlayers.add(playerId)
-        } else {
+        }
+        else {
             this._readyPlayers.delete(playerId);
         }
-
-        this._broadcast(this._lobbyId, {
-            type: "playerReady",
-            playerNumber: playerId,
-            ready: isReady,
-            readyCount: this._readyPlayers.size
-        })
-
-        this.checkAllPlayersReady();
     }
 
-    public checkAllPlayersReady() {
-        const minPlayers = this._lobbyType === 'game' ? 2 : this._maxPlayers;
 
-        if (this._players.size < minPlayers) {
-            return false;
-        }
-
-        const allReady = this._readyPlayers.size === this._players.size;
-
-        if (allReady) {
-            this._broadcast(this._lobbyId, {
-                type: "allPlayersReady"
-            })
-        }
-        return allReady;
-    }
 
     public isFull(): boolean {
         return this._players.size >= this._maxPlayers;
@@ -207,9 +156,8 @@ export class MatchLobby {
         return this._lobbyId;
     }
 
-    public getLobbyInfo(): LobbyInfo {
+    public getLobbyState(): ILobbyState {
         return {
-            id: this._lobbyId,   // Id vs LobbyId ???
             lobbyId: this._lobbyId,
             name: this._lobbyName,
             creatorId: this._creatorId!,
@@ -217,22 +165,22 @@ export class MatchLobby {
             currentPlayers: this._players.size,
             createdAt: this._createdAt,
             lobbyType: this._lobbyType,
+            lobbyPlayers: this.getPlayerStates(),
             isStarted: this._gameStarted
         };
     }
 
-    //get list of players for lobbyview or smthing idk??
-    public getPlayerList() {
+    public getPlayerStates(): IPlayerState[] {
         return Array.from(this._players.values()).map(p => ({
             playerNumber: p._playerNumber,
-            userId: p.userId,
+            userId: p._userId,
+            userName: p._name,
             isReady: p._isReady
         }));
     }
 
     /* GAME LOGIC FROM HERE */
 
-    //START GAME
     public async startGame() {
         if (this._players.size < 2 || this._gameStarted) {
             return;
@@ -254,12 +202,14 @@ export class MatchLobby {
                     this.handleGameWin(winningPlayerId, state.score1, state.score2)
                 }
             }
-            this._broadcast(this._lobbyId, data)
+            // dont broadcast here! need to move to controller later
+            // this._broadcast(this._lobbyId, data)
         })
-
-        this._broadcast(this._lobbyId, {
-            type: "gameStarted"
-        })
+        // dont broadcast here! need to move to controller later
+        // change to broadcastToLobby and redirect to game in frontend
+        // this._broadcast(this._lobbyId, {
+        //     type: "gameStarted"
+        // })
 
         if (this._matchService) {
             const player1 = this._players.get(1);
@@ -267,13 +217,13 @@ export class MatchLobby {
 
             if (player1?.userId && player2?.userId) {
                 // if (this._dbGame) {
-                    const player2User = await this._matchService.userService.findUserById(player2.userId);
-                    if (player2User) {
-                        // this._dbGame.player2 = player2User;
-                    }
-                    // this._dbGame.status = 'ongoing'
-                    // this._dbGame.startedAt = new Date()
-                    // await this._matchService.saveMatch(this._dbGame)
+                const player2User = await this._matchService.userService.findUserById(player2.userId);
+                if (player2User) {
+                    // this._dbGame.player2 = player2User;
+                }
+                // this._dbGame.status = 'ongoing'
+                // this._dbGame.startedAt = new Date()
+                // await this._matchService.saveMatch(this._dbGame)
                 // }
                 this._saveScoreInterval = setInterval(() => {
                     this.saveCurrentScore();
@@ -292,7 +242,6 @@ export class MatchLobby {
         await this._matchService.updateScore(this._gameId, state.score1, state.score2, 0)
     }
 
-    //check for win and actually save winner in case of win!!
     private async handleGameWin(winningPlayerId: number, player1Score: number, player2Score: number) {
         this.stopGame();
 
@@ -314,60 +263,17 @@ export class MatchLobby {
             game.endedAt = new Date()
             await this._matchService.matchRepo.save(game);
         }
-
-        this._broadcast(this._lobbyId, {
-            type: "gameOver",
-            winnerId: winningPlayerId,
-            winningUserId: winningPlayer.userId,
-            player1Score,
-            player2Score
-        })
+        // dont broadcast here! need to move to controller later
+        // handle bool gameOver via gamestate
+        // this._broadcast(this._lobbyId, {
+        //     type: "gameOver",
+        //     winnerId: winningPlayerId,
+        //     winningUserId: winningPlayer.userId,
+        //     player1Score,
+        //     player2Score
+        // })
     }
 
-    //resume game... duh
-    public resumeGame() {
-        if (this._game.isPaused) {
-            this._game.resumeGame()
-
-            if (this._gameId && this._matchService) {
-                this._matchService.getMatchById(this._gameId).then(game => {
-                    if (game) {
-                        game.status = 'ongoing',
-                            this._matchService.matchRepo.save(game);
-                    }
-                })
-            }
-
-            this._broadcast(this._lobbyId, {
-                type: "gameResumed"
-            })
-        }
-    }
-
-    // are you stupid?
-    public pauseGame() {
-        if (!this._gameStarted || this._game.isPaused) {
-            return;
-        }
-
-        this._game.pauseGame();
-        this.saveCurrentScore();
-
-        if (this._gameId && this._matchService) {
-            this._matchService.getMatchById(this._gameId).then(game => {
-                if (game) {
-                    game.status = 'paused',
-                        this._matchService.matchRepo.save(game);
-                }
-            })
-        }
-
-        this._broadcast(this._lobbyId, {
-            type: "gamePaused"
-        })
-    }
-
-    // no srsly, who reads this???
     public async stopGame() {
         if (!this._gameStarted) {
             return;
@@ -393,8 +299,10 @@ export class MatchLobby {
             })
         }
 
-        this._broadcast(this._lobbyId, {
-            type: "gameStopped"
-        })
+        // dont broadcast here! need to move to controller later
+        // handle bool gamestopped via gamestate
+        // this._broadcast(this._lobbyId, {
+        //     type: "gameStopped"
+        // })
     }
 }
