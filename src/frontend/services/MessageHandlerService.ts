@@ -1,4 +1,4 @@
-import { IClientMessage, IPlayerState } from '../../interfaces/interfaces.js';
+import { IClientMessage, IPaddleDirection, IPlayerState } from '../../interfaces/interfaces.js';
 
 export default class MessageHandlerService {
     private readyState: Map<number, boolean> = new Map();
@@ -59,6 +59,14 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
+    public async movePaddle(userId: number, direction: IPaddleDirection) {
+        const msg: IClientMessage = {
+            type: 'movePaddle',
+            userId
+        };
+        await this.safeSend(msg);
+    }
+
     public async markReady(lobbyId: string, userId: number) {
         const current = this.readyState.get(userId) ?? false;
         const next = !current;
@@ -97,11 +105,11 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async requestGameState(lobbyId: string) {
-        const msg: IClientMessage = {
-            type: 'getGameState',
-            lobbyId
-        };
-        await this.safeSend(msg);
-    }
+    // public async requestGameState(lobbyId: string) {
+    //     const msg: IClientMessage = {
+    //         type: 'getGameState',
+    //         lobbyId
+    //     };
+    //     await this.safeSend(msg);
+    // }
 }

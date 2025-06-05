@@ -27,41 +27,6 @@ export default class Pong extends AbstractView {
                         `
                             }
                         },
-                        {
-                            type: 'separator',
-                        },
-                        {
-                            type: 'buttongroup',
-                            props:
-                            {
-                                layout: 'group',
-                                align: 'center',
-                                buttons:
-                                    [
-                                        {
-                                            id: 'pauseGameButton',
-                                            text: 'Pause',
-                                            className: 'btn btn-primary'
-                                        },
-                                        {
-                                            id: 'resumeGameButton',
-                                            text: 'Resume',
-                                            className: 'btn btn-primary'
-                                        },
-                                        {
-                                            id: 'resetGameButton',
-                                            text: 'Reset',
-                                            className: 'btn btn-primary'
-                                        },
-                                        {
-                                            id: 'lobbyGameButton',
-                                            text: 'Back to Lobby',
-                                            className: 'btn btn-primary',
-                                            href: `/lobby/${this.lobbyId}`
-                                        }
-                                    ]
-                            }
-                        }
                     ]
             });
         return this.render(`${gameCard}`);

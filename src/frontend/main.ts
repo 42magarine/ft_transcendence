@@ -23,6 +23,7 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
+import PongService from './services/PongService.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -101,7 +102,7 @@ async function initSocket(): Promise<void> {
         window.messageHandler = new MessageHandlerService();
         window.lobbyListService = new LobbyListService();
         window.lobbyService = new LobbyService();
-
+        window.pongService = new PongService();
         window.lobbyListService.init();
     }
     catch (error) {
@@ -160,6 +161,9 @@ async function beerPlease() {
         }
         if (!window.lobbyService) {
             window.lobbyService = new LobbyService();
+        }
+        if (!window.pongService) {
+            window.pongService = new PongService();
         }
     }
 }

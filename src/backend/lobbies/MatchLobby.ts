@@ -182,10 +182,6 @@ export class MatchLobby {
     /* GAME LOGIC FROM HERE */
 
     public async startGame() {
-        if (this._players.size < 2 || this._gameStarted) {
-            return;
-        }
-
         this._gameStarted = true;
         this._game.resetScores();
         this._game.resetGame();
@@ -202,14 +198,7 @@ export class MatchLobby {
                     this.handleGameWin(winningPlayerId, state.score1, state.score2)
                 }
             }
-            // dont broadcast here! need to move to controller later
-            // this._broadcast(this._lobbyId, data)
         })
-        // dont broadcast here! need to move to controller later
-        // change to broadcastToLobby and redirect to game in frontend
-        // this._broadcast(this._lobbyId, {
-        //     type: "gameStarted"
-        // })
 
         if (this._matchService) {
             const player1 = this._players.get(1);

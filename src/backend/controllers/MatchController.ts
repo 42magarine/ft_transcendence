@@ -85,8 +85,9 @@ export class MatchController {
             case "getLobbyState":
                 this.handleGetLobbyState(data.lobbyId!);
                 break;
-            case "getGameState":
-                this.handleGetGameState(data.lobbyId!);
+            // case "getGameState":
+            //     this.handleGetGameState(data.lobbyId!);
+            //     break;
             default:
                 throw Error("Backend: invalid message type received");
         }
@@ -300,19 +301,19 @@ export class MatchController {
         this.sendMessage(connection, { type: "lobbyList", lobbies: openLobbies });
     }
 
-    private handleGetGameState(lobbyId: string) {
+    // private handleGetGameState(lobbyId: string) {
 
-        const lobby = this._lobbies.get(lobbyId) as MatchLobby;
-        if (!lobby) {
-            console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
-            return;
-        }
-        this.broadcastToLobby(lobbyId, {
-            type: "gameState",
-            lobbyId,
-            gameState: lobby.getGameState()
-        });
-    }
+    //     const lobby = this._lobbies.get(lobbyId) as MatchLobby;
+    //     if (!lobby) {
+    //         console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
+    //         return;
+    //     }
+    //     this.broadcastToLobby(lobbyId, {
+    //         type: "gameState",
+    //         lobbyId,
+    //         gameState: lobby.getGameState()
+    //     });
+    // }
 
     /* GAME LOGIC FUNCTIONS FROM HERE */
     private handlePlayerReady(player: Player, isReady: boolean) {
@@ -360,7 +361,11 @@ export class MatchController {
             return;
         }
         lobby.startGame();
-        //implement broadcasts here
+        this.broadcastToLobby(lobbyId, {
+            type: "gameStarted",
+            lobbyId,
+            gameState: lobby.getGameState()
+        });
     }
 
     private handleMovePaddle(player: Player, direction: IPaddleDirection): void {
