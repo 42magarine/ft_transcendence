@@ -1,10 +1,11 @@
-import { IServerMessage, ILobbyState, IGameState } from '../../interfaces/interfaces.js';
+import { IServerMessage, ILobbyState, IGameState, IPlayerState } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
 import UserService from './UserService.js';
 
 export default class PongService {
     private gameState!: IGameState;
-
+    private player1!: IPlayerState;
+    private player2!: IPlayerState;
     constructor() {
 
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
@@ -18,7 +19,7 @@ export default class PongService {
     }
 
     private getCurrentLobbyIdFromUrl(): string {
-        const match = window.location.pathname.match(/\/lobby\/([^/]+)/);
+        const match = window.location.pathname.match(/\/pong\/([^/]+)/);
         return match?.[1] || '';
     }
 
@@ -28,9 +29,23 @@ export default class PongService {
         console.log("frontend received:" + data.type)
         switch (data.type) {
             case 'gameState':
+                if (data.lobbyId === currentUrlLobbyId) {
+                    this.gameState = data.gameState;
+                    // Router.update(); ?
+                }
                 break;
 
             case 'gameJoined':
+                if (data.lobbyId === currentUrlLobbyId) {
+                    this.gameState = data.gameState;
+                    this.player1 = data.player1;
+                    this.player2 = data.player2;
+                    //countdown
+                    // Router.update(); ?
+                    window.messageHandler.startGame(currentUrlLobbyId);
+                }
+                break;
+            case 'gameStarted':
                 break;
             default:
                 break;
@@ -43,6 +58,14 @@ export default class PongService {
 
     public getLobby(): IGameState {
         return this.gameState;
+    }
+
+    public getPlayer1(): IPlayerState {
+        return this.player1;
+    }
+
+    public getPlayer2(): IPlayerState {
+        return this.player1;
     }
 
     public destroy(): void {

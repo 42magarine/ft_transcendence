@@ -1,4 +1,4 @@
-import { IClientMessage } from '../../interfaces/interfaces.js';
+import { IClientMessage, IPlayerState } from '../../interfaces/interfaces.js';
 
 export default class MessageHandlerService {
     private readyState: Map<number, boolean> = new Map();
@@ -41,9 +41,11 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async joinGame(lobbyId: string) {
+    public async joinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
         const msg: IClientMessage = {
             type: 'joinGame',
+            player1,
+            player2,
             lobbyId,
         };
         await this.safeSend(msg);
@@ -90,6 +92,14 @@ export default class MessageHandlerService {
     public async requestLobbyState(lobbyId: string) {
         const msg: IClientMessage = {
             type: 'getLobbyState',
+            lobbyId
+        };
+        await this.safeSend(msg);
+    }
+
+    public async requestGameState(lobbyId: string) {
+        const msg: IClientMessage = {
+            type: 'getGameState',
             lobbyId
         };
         await this.safeSend(msg);

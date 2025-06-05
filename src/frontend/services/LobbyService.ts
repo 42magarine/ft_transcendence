@@ -87,7 +87,7 @@ export default class LobbyService {
                     if (this.lobbyState) {
                         if (this.lobbyState.lobbyPlayers) {
                             if (this.lobbyState.lobbyPlayers[0].isReady && this.lobbyState.lobbyPlayers[1].isReady) {
-                                window.messageHandler.joinGame(this.lobbyState.lobbyId);
+                                window.messageHandler.joinGame(this.lobbyState.lobbyId, this.lobbyState.lobbyPlayers[0], this.lobbyState.lobbyPlayers[1]);
                                 Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
                             }
                         }

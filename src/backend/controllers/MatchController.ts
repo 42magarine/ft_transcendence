@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { randomUUID } from "crypto";
-import { IClientMessage, IServerMessage, IPaddleDirection } from "../../interfaces/interfaces.js";
+import { IClientMessage, IServerMessage, IPaddleDirection, IPlayerState } from "../../interfaces/interfaces.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
@@ -74,7 +74,7 @@ export class MatchController {
                 this.handlePlayerReady(player!, data.ready)
                 break;
             case "joinGame":
-                this.handleJoinGame(data.lobbyId!);
+                this.handleJoinGame(data.lobbyId!, data.player1, data.player2);
                 break;
             case "startGame":
                 this.handleStartGame(data.lobbyId!);
@@ -85,6 +85,8 @@ export class MatchController {
             case "getLobbyState":
                 this.handleGetLobbyState(data.lobbyId!);
                 break;
+            case "getGameState":
+                this.handleGetGameState(data.lobbyId!);
             default:
                 throw Error("Backend: invalid message type received");
         }
@@ -298,6 +300,20 @@ export class MatchController {
         this.sendMessage(connection, { type: "lobbyList", lobbies: openLobbies });
     }
 
+    private handleGetGameState(lobbyId: string) {
+
+        const lobby = this._lobbies.get(lobbyId) as MatchLobby;
+        if (!lobby) {
+            console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
+            return;
+        }
+        this.broadcastToLobby(lobbyId, {
+            type: "gameState",
+            lobbyId,
+            gameState: lobby.getGameState()
+        });
+    }
+
     /* GAME LOGIC FUNCTIONS FROM HERE */
     private handlePlayerReady(player: Player, isReady: boolean) {
         if (!player || !player.lobbyId) {
@@ -319,7 +335,7 @@ export class MatchController {
 
     }
 
-    private handleJoinGame(lobbyId: string) {
+    private handleJoinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
 
         const lobby = this._lobbies.get(lobbyId) as MatchLobby;
         if (!lobby) {
@@ -328,7 +344,11 @@ export class MatchController {
         }
         //removeLobby logic here
         this.broadcastToLobby(lobbyId, {
-            type: "gameJoined"
+            type: "gameJoined",
+            lobbyId,
+            player1,
+            player2,
+            gameState: lobby.getGameState()
         });
     }
 
