@@ -41,6 +41,14 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
+    public async joinGame(lobbyId: string) {
+        const msg: IClientMessage = {
+            type: 'joinGame',
+            lobbyId,
+        };
+        await this.safeSend(msg);
+    }
+
     public async startGame(lobbyId: string) {
         const msg: IClientMessage = {
             type: 'startGame',

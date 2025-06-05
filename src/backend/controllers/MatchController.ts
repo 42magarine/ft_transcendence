@@ -73,8 +73,11 @@ export class MatchController {
             case "ready":
                 this.handlePlayerReady(player!, data.ready)
                 break;
+            case "joinGame":
+                this.handleJoinGame(data.lobbyId!);
+                break;
             case "startGame":
-                this.handleStartGame(connection, player!);
+                this.handleStartGame(data.lobbyId!);
                 break;
             case "getLobbyList":
                 this.handleGetLobbyList(connection);
@@ -316,13 +319,22 @@ export class MatchController {
 
     }
 
-    private handleStartGame(connection: WebSocket, player: Player) {
-        if (!player || !player.lobbyId) {
-            console.error("Matchcontroller - handleStartGame(): Couldn't find Player / Player not in Lobby");
+    private handleJoinGame(lobbyId: string) {
+
+        const lobby = this._lobbies.get(lobbyId) as MatchLobby;
+        if (!lobby) {
+            console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
             return;
         }
+        //removeLobby logic here
+        this.broadcastToLobby(lobbyId, {
+            type: "gameJoined"
+        });
+    }
 
-        const lobby = this._lobbies.get(player.lobbyId) as MatchLobby;
+    private handleStartGame(lobbyId: string) {
+
+        const lobby = this._lobbies.get(lobbyId) as MatchLobby;
         if (!lobby) {
             console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
             return;

@@ -4,7 +4,6 @@ import UserService from './UserService.js';
 
 export default class LobbyService {
     private lobbyState!: ILobbyState;
-    private lobbyDataResolvers: ((lobby: ILobbyState) => void)[] = [];
 
     constructor() {
 
@@ -67,7 +66,6 @@ export default class LobbyService {
                     };
 
                     if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
-                        console.log("penis")
                         this.lobbyState = receivedLobbyInfo;
                         Router.update();
                     }
@@ -86,7 +84,18 @@ export default class LobbyService {
                         this.lobbyState = receivedLobbyInfo;
                         Router.update();
                     }
+                    if (this.lobbyState) {
+                        if (this.lobbyState.lobbyPlayers) {
+                            if (this.lobbyState.lobbyPlayers[0].isReady && this.lobbyState.lobbyPlayers[1].isReady) {
+                                window.messageHandler.joinGame(this.lobbyState.lobbyId);
+                                Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
+                            }
+                        }
+                    }
                 }
+                break;
+            case 'gameJoined':
+                // Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
                 break;
             default:
                 break;
