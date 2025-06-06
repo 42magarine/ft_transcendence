@@ -23,8 +23,11 @@ export class PongGame {
     private _player1: Player | null = null;
     private _player2: Player | null = null;
     private _gameService?: MatchService;
+    private _broadcast: (data: IServerMessage) => void;
 
-    constructor(gameService?: MatchService) {
+    constructor(broadcast: (data: IServerMessage) => void,
+        gameService?: MatchService,
+    ) {
         this._width = GAME_WIDTH;
         this._height = GAME_HEIGHT;
         this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
@@ -32,9 +35,10 @@ export class PongGame {
         this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
         this._scoreLimit = SCORE_LIMIT;
         this._gameService = gameService;
+        this._broadcast = broadcast;
     }
 
-    public startGameLoop(broadcast: (data: IServerMessage) => void): void {
+    public startGameLoop(): void {
         if (this._running) {
             return;
         }
@@ -46,7 +50,7 @@ export class PongGame {
             if (this._paused) return;
 
             this.update();
-            broadcast({
+            this._broadcast({
                 type: "gameUpdate",
                 state: this.getState()
             });

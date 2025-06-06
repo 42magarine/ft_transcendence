@@ -4,6 +4,7 @@ import type LobbyService from '../frontend/services/LobbyService.js';
 import type TournamentListService from '../frontend/services/TournamentListService.js';
 import type TournamentService from '../frontend/services/TournamentService.js';
 import type UserService from '../frontend/services/UserService.js';
+import PongService from '../frontend/services/PongService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
 import AbstractView from "../utils/AbstractView.js";
 

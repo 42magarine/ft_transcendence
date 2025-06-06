@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { randomUUID } from "crypto";
-import { IClientMessage, IServerMessage, IPaddleDirection } from "../../interfaces/interfaces.js";
+import { IClientMessage, IServerMessage, IPaddleDirection, IPlayerState } from "../../interfaces/interfaces.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
@@ -23,7 +23,8 @@ export class MatchController {
         for (const lobbyData of openLobbies) {
             const lobby = new MatchLobby(
                 lobbyData.lobbyId,
-                this._matchService
+                this._matchService,
+                this.broadcastToLobby.bind(this, lobbyData.lobbyId)
             );
             this._lobbies.set(lobbyData.lobbyId, lobby);
         }
@@ -73,8 +74,11 @@ export class MatchController {
             case "ready":
                 this.handlePlayerReady(player!, data.ready)
                 break;
+            case "joinGame":
+                this.handleJoinGame(data.lobbyId!, data.player1, data.player2);
+                break;
             case "startGame":
-                this.handleStartGame(connection, player!);
+                this.handleStartGame(data.lobbyId!);
                 break;
             case "getLobbyList":
                 this.handleGetLobbyList(connection);
@@ -135,9 +139,7 @@ export class MatchController {
     }
 
     private broadcastToLobby(lobbyId: string, data: IServerMessage): void {
-        // console.log(`Broadcasting to lobby ${lobbyId}`);
 
-        let sentCount = 0;
         for (const [connection, player] of this._clients.entries()) {
             if (
                 connection.readyState === WebSocket.OPEN &&
@@ -145,12 +147,8 @@ export class MatchController {
                 player._lobbyId === lobbyId
             ) {
                 this.sendMessage(connection, data);
-                sentCount++;
-                // console.log(`Message sent to player ${player._userId} in lobby ${lobbyId}`);
             }
         }
-
-        // console.log(`Total messages sent to lobby ${lobbyId}: ${sentCount}`);
     }
 
     private async handleCreateLobby(connection: WebSocket, userId: number) {
@@ -160,7 +158,8 @@ export class MatchController {
 
         const lobby = new MatchLobby(
             lobbyId,
-            this._matchService
+            this._matchService,
+            this.broadcastToLobby.bind(this, lobbyId)
         );
 
         this._lobbies.set(lobbyId, lobby);
@@ -233,16 +232,17 @@ export class MatchController {
         }
 
         try {
-            await lobby.removePlayer(player);
+            // COMMENT BACK IN!!
+            // await lobby.removePlayer(player);
 
-            // Spieler aus _clients Map entfernen
-            // this._clients.delete(connection);
-            this._clients.set(connection, null);
+            // // Spieler aus _clients Map entfernen
+            // // this._clients.delete(connection);
+            // this._clients.set(connection, null);
 
-            if (lobby.isEmpty()) {
-                this._lobbies.delete(lobbyId);
-                await this._matchService.deleteMatchByLobbyId(lobbyId);
-            }
+            // if (lobby.isEmpty()) {
+            //     this._lobbies.delete(lobbyId);
+            //     await this._matchService.deleteMatchByLobbyId(lobbyId);
+            // }
 
             this.broadcastToAll({
                 type: "leftLobby"
@@ -322,19 +322,31 @@ export class MatchController {
 
     }
 
-    private handleStartGame(connection: WebSocket, player: Player) {
-        if (!player || !player.lobbyId) {
-            console.error("Matchcontroller - handleStartGame(): Couldn't find Player / Player not in Lobby");
+    private handleJoinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
+
+        const lobby = this._lobbies.get(lobbyId) as MatchLobby;
+        if (!lobby) {
+            console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
             return;
         }
+        //removeLobby logic here
+        this.broadcastToLobby(lobbyId, {
+            type: "gameJoined",
+            lobbyId,
+            player1,
+            player2,
+            gameState: lobby.getGameState()
+        });
+    }
 
-        const lobby = this._lobbies.get(player.lobbyId) as MatchLobby;
+    private handleStartGame(lobbyId: string) {
+
+        const lobby = this._lobbies.get(lobbyId) as MatchLobby;
         if (!lobby) {
             console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
             return;
         }
         lobby.startGame();
-        //implement broadcasts here
     }
 
     private handleMovePaddle(player: Player, direction: IPaddleDirection): void {

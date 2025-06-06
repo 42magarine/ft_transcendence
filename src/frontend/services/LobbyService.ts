@@ -4,8 +4,6 @@ import UserService from './UserService.js';
 
 export default class LobbyService {
     private lobbyState!: ILobbyState;
-    private lobbyDataResolvers: ((lobby: ILobbyState) => void)[] = [];
-    private isInitialized = false;
 
     private getCurrentLobbyIdFromUrl(): string {
         const match = window.location.pathname.match(/\/lobby\/([^/]+)/);
@@ -72,40 +70,52 @@ export default class LobbyService {
                         this.lobbyState = receivedLobbyInfo;
                         Router.update();
                     }
+                    if (this.lobbyState) {
+                        if (this.lobbyState.lobbyPlayers) {
+                            if (this.lobbyState.lobbyPlayers[0].isReady && this.lobbyState.lobbyPlayers[1].isReady) {
+                                window.messageHandler.joinGame(this.lobbyState.lobbyId, this.lobbyState.lobbyPlayers[0], this.lobbyState.lobbyPlayers[1]);
+                                Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
+                            }
+                        }
+                    }
                 }
+                break;
+            case 'gameJoined':
+                // Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
                 break;
             default:
                 break;
         }
     }
 
-    public async handleLobbyPageClick(e: MouseEvent): Promise<void> {
+    public setupEventListener(): void {
+        const startButton = document.getElementById('startGameBtn');
+        if (startButton) {
+            startButton.addEventListener('click', this.handleStartGameClick);
+        }
+
+        const leaveButton = document.getElementById('leaveBtn');
+        if (leaveButton) {
+            leaveButton.addEventListener('click', this.handleLeaveLobbyClick);
+        }
+    }
+
+    public handleStartGameClick = async (e: MouseEvent): Promise<void> => {
+        e.preventDefault();
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
-        if (!currentLobbyId || !window.location.pathname.startsWith("/lobby/")) return;
-
-        const target = e.target as HTMLElement;
-        const startGameBtn = target.closest('#startGameBtn');
-        if (startGameBtn) {
-            e.preventDefault();
-            if (!currentLobbyId) {
-                console.warn("[LobbyService] Cannot start game: current lobby ID not found.");
-                return;
-            }
-            const currentUser = await UserService.getCurrentUser();
-            if (!currentUser || !currentUser.id) {
-                console.warn("[LobbyService] Cannot start game: current user not found.");
-                return;
-            }
-            window.messageHandler!.markReady(currentLobbyId, currentUser.id);
+        if (!currentLobbyId) {
+            console.warn("[LobbyService] Cannot start game: current lobby ID not found.");
             return;
         }
 
-        const leaveBtn = target.closest('#leaveBtn');
-        if (leaveBtn) {
-            e.preventDefault();
-            Router.redirect(`/lobbylist`);
-            return;
-        }
+        window.messageHandler!.markReady(this.lobbyState.lobbyId, window.currentUser!.id!);
+        return;
+    }
+
+    public handleLeaveLobbyClick = async (e: MouseEvent): Promise<void> => {
+        e.preventDefault();
+        Router.redirect(`/lobbylist`);
+        return;
     }
 
     public getLobby(): ILobbyState {
