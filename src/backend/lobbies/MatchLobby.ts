@@ -53,7 +53,11 @@ export class MatchLobby {
             return null;
         }
 
-        const playerNumber = this._players.size + 1;
+        // FIXED: Find next available slot instead of using size + 1
+        const playerNumber = this.getNextAvailableSlot();
+        if (playerNumber === null) {
+            return null;
+        }
 
         try {
             // add player to DB via MatchService (type: DB)
@@ -99,6 +103,9 @@ export class MatchLobby {
 
             // console.log(`Player ${player._playerNumber} (userId: ${player.userId}) left lobby ${this._lobbyId}`);
 
+            // ADDED: Reposition remaining players
+            this.repositionPlayers();
+
             // Wenn Creator verlässt, neuen Creator bestimmen
             if (this._creatorId === player.userId && this._players.size > 0) {
                 const nextPlayer = this._players.values().next().value;
@@ -112,6 +119,49 @@ export class MatchLobby {
             console.error("Error removing player from lobby:", error);
             throw error;
         }
+    }
+
+    // ADDED: Find next available slot (1 or 2)
+    private getNextAvailableSlot(): number | null {
+        for (let i = 1; i <= this._maxPlayers; i++) {
+            if (!this._players.has(i)) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    // ADDED: Reposition players to fill slots 1, 2 without gaps
+    private repositionPlayers(): void {
+        if (this._players.size === 0) {
+            return;
+        }
+
+        // Get all players and sort by userId for consistency
+        const playersArray = Array.from(this._players.values()).sort((a, b) => a.userId - b.userId);
+
+        // Clear maps
+        this._players.clear();
+        this._readyPlayers.clear();
+
+        // Reassign with consecutive player numbers
+        playersArray.forEach((player, index) => {
+            const newPlayerNumber = index + 1;
+            const oldPlayerNumber = player._playerNumber;
+
+            // Update player number
+            player._playerNumber = newPlayerNumber;
+
+            // Re-add to maps
+            this._players.set(newPlayerNumber, player);
+            if (player._isReady) {
+                this._readyPlayers.add(newPlayerNumber);
+            }
+
+            // Update in game
+            this._game.removePlayer(oldPlayerNumber);
+            this._game.setPlayer(newPlayerNumber, player);
+        });
     }
 
     public setPlayerReady(playerId: number, isReady: boolean) {
@@ -128,8 +178,6 @@ export class MatchLobby {
             this._readyPlayers.delete(playerId);
         }
     }
-
-
 
     public isFull(): boolean {
         return this._players.size >= this._maxPlayers;
@@ -174,12 +222,15 @@ export class MatchLobby {
     }
 
     public getPlayerStates(): IPlayerState[] {
-        return Array.from(this._players.values()).map(p => ({
-            playerNumber: p._playerNumber,
-            userId: p._userId,
-            userName: p._name,
-            isReady: p._isReady
-        }));
+        // FIXED: Sort by playerNumber for consistent frontend display
+        return Array.from(this._players.values())
+            .sort((a, b) => a._playerNumber - b._playerNumber)
+            .map(p => ({
+                playerNumber: p._playerNumber,
+                userId: p._userId,
+                userName: p._name,
+                isReady: p._isReady
+            }));
     }
 
     /* GAME LOGIC FROM HERE */

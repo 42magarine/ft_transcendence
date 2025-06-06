@@ -1,4 +1,6 @@
+// MessageHandlerService.ts - Fixed version with userId for leave lobby
 import { IClientMessage, IPaddleDirection, IPlayerState } from '../../interfaces/interfaces.js';
+import UserService from './UserService.js';
 
 export default class MessageHandlerService {
     private readyState: Map<number, boolean> = new Map();
@@ -21,7 +23,7 @@ export default class MessageHandlerService {
             throw new Error(errorMessage);
         }
 
-        console.log("safeSend (frontend->backend): ", msg);
+        console.warn("safeSend (frontend->backend): ", msg);
         window.ft_socket.send(JSON.stringify(msg));
     }
 
@@ -63,7 +65,8 @@ export default class MessageHandlerService {
     public async movePaddle(userId: number, direction: IPaddleDirection) {
         const msg: IClientMessage = {
             type: 'movePaddle',
-            userId
+            userId,
+            direction
         };
         await this.safeSend(msg);
     }
@@ -84,9 +87,17 @@ export default class MessageHandlerService {
     }
 
     public async leaveLobby(lobbyId: string) {
+        // Get current user for the leave request
+        const currentUser = await UserService.getCurrentUser();
+        if (!currentUser || !currentUser.id) {
+            console.error('MessageHandlerService: Cannot leave lobby - no current user found');
+            throw new Error('Cannot leave lobby - user not authenticated');
+        }
+
         const msg: IClientMessage = {
             type: 'leaveLobby',
-            lobbyId
+            lobbyId,
+            userId: currentUser.id
         };
         await this.safeSend(msg);
     }
