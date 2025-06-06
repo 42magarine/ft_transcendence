@@ -49,10 +49,10 @@ export default class PongService {
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
         console.log("frontend received: " + data.type);
 
-        if (data.lobbyId !== currentUrlLobbyId) {
-            console.log(`[PongService] Ignoring message for lobby ${data.lobbyId}, current is ${currentUrlLobbyId}`);
-            return;
-        }
+        // if (data.lobbyId !== currentUrlLobbyId) {
+        //     console.log(`[PongService] Ignoring message for lobby ${data.lobbyId}, current is ${currentUrlLobbyId}`);
+        //     return;
+        // }
 
         switch (data.type) {
             case 'gameJoined':
@@ -71,7 +71,7 @@ export default class PongService {
                 } else {
                     console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
                 }
-
+                //countdown here?
                 this.draw();
                 if (window.messageHandler && currentUrlLobbyId) {
                     window.messageHandler.startGame(currentUrlLobbyId);
@@ -81,10 +81,6 @@ export default class PongService {
             case 'gameUpdate':
                 this.gameState = data.gameState!;
                 this.draw();
-                break;
-
-            case 'gameStarted':
-                console.log("[PongService] Game started message received.");
                 break;
 
             default:
@@ -137,8 +133,13 @@ export default class PongService {
     }
 
     private draw(): void {
-        if (!this.ctx || !this.gameState) {
-            console.warn("[PongService] Draw called but context or gameState is not ready.");
+        if (!this.ctx) {
+            console.warn("[PongService] Draw called but context is not ready.");
+            return;
+        }
+
+        if (!this.gameState) {
+            console.warn("[PongService] Draw called but gameState is not ready.");
             return;
         }
 

@@ -23,7 +23,8 @@ export class MatchController {
         for (const lobbyData of openLobbies) {
             const lobby = new MatchLobby(
                 lobbyData.lobbyId,
-                this._matchService
+                this._matchService,
+                this.broadcastToLobby.bind(this, lobbyData.lobbyId)
             );
             this._lobbies.set(lobbyData.lobbyId, lobby);
         }
@@ -85,9 +86,6 @@ export class MatchController {
             case "getLobbyState":
                 this.handleGetLobbyState(data.lobbyId!);
                 break;
-            // case "getGameState":
-            //     this.handleGetGameState(data.lobbyId!);
-            //     break;
             default:
                 throw Error("Backend: invalid message type received");
         }
@@ -137,9 +135,7 @@ export class MatchController {
     }
 
     private broadcastToLobby(lobbyId: string, data: IServerMessage): void {
-        // console.log(`Broadcasting to lobby ${lobbyId}`);
 
-        let sentCount = 0;
         for (const [connection, player] of this._clients.entries()) {
             if (
                 connection.readyState === WebSocket.OPEN &&
@@ -147,12 +143,8 @@ export class MatchController {
                 player._lobbyId === lobbyId
             ) {
                 this.sendMessage(connection, data);
-                sentCount++;
-                // console.log(`Message sent to player ${player._userId} in lobby ${lobbyId}`);
             }
         }
-
-        // console.log(`Total messages sent to lobby ${lobbyId}: ${sentCount}`);
     }
 
     private async handleCreateLobby(connection: WebSocket, userId: number) {
@@ -162,7 +154,8 @@ export class MatchController {
 
         const lobby = new MatchLobby(
             lobbyId,
-            this._matchService
+            this._matchService,
+            this.broadcastToLobby.bind(this, lobbyId)
         );
 
         this._lobbies.set(lobbyId, lobby);
@@ -234,16 +227,17 @@ export class MatchController {
         }
 
         try {
-            await lobby.removePlayer(player);
+            // COMMENT BACK IN!!
+            // await lobby.removePlayer(player);
 
-            // Spieler aus _clients Map entfernen
-            // this._clients.delete(connection);
-            this._clients.set(connection, null);
+            // // Spieler aus _clients Map entfernen
+            // // this._clients.delete(connection);
+            // this._clients.set(connection, null);
 
-            if (lobby.isEmpty()) {
-                this._lobbies.delete(lobbyId);
-                await this._matchService.deleteMatchByLobbyId(lobbyId);
-            }
+            // if (lobby.isEmpty()) {
+            //     this._lobbies.delete(lobbyId);
+            //     await this._matchService.deleteMatchByLobbyId(lobbyId);
+            // }
 
             this.broadcastToAll({
                 type: "leftLobby"
@@ -301,20 +295,6 @@ export class MatchController {
         this.sendMessage(connection, { type: "lobbyList", lobbies: openLobbies });
     }
 
-    // private handleGetGameState(lobbyId: string) {
-
-    //     const lobby = this._lobbies.get(lobbyId) as MatchLobby;
-    //     if (!lobby) {
-    //         console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
-    //         return;
-    //     }
-    //     this.broadcastToLobby(lobbyId, {
-    //         type: "gameState",
-    //         lobbyId,
-    //         gameState: lobby.getGameState()
-    //     });
-    // }
-
     /* GAME LOGIC FUNCTIONS FROM HERE */
     private handlePlayerReady(player: Player, isReady: boolean) {
         if (!player || !player.lobbyId) {
@@ -361,11 +341,6 @@ export class MatchController {
             return;
         }
         lobby.startGame();
-        this.broadcastToLobby(lobbyId, {
-            type: "gameStarted",
-            lobbyId,
-            gameState: lobby.getGameState()
-        });
     }
 
     private handleMovePaddle(player: Player, direction: IPaddleDirection): void {

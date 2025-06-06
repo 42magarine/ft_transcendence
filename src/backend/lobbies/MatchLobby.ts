@@ -19,9 +19,11 @@ export class MatchLobby {
     private _readyPlayers: Set<number> = new Set();
     private _creatorId!: number;
     private _matchService: MatchService;
+    private _broadcast: (data: IServerMessage) => void;
 
     constructor(lobbyId: string,
         matchService: MatchService,
+        broadcast: (data: IServerMessage) => void,
         options?: {
             name?: string,
             maxPlayers?: number,
@@ -34,7 +36,8 @@ export class MatchLobby {
         this._lobbyName = options?.name || `Lobby ${(lobbyId || '000000').substring(0, 6)}`;
         this._createdAt = new Date();
         this._lobbyType = options?.lobbyType || 'game';
-        this._game = new PongGame(matchService);
+        this._broadcast = broadcast;
+        this._game = new PongGame(broadcast, matchService);
     }
 
     public getGameState(): IGameState {
@@ -186,19 +189,16 @@ export class MatchLobby {
         this._game.resetScores();
         this._game.resetGame();
 
-        this._game.startGameLoop((data) => {
+        this._game.startGameLoop()
 
-            if (data.type === "gameUpdate") {
-                const state = data.state;
+        const state = this.getGameState();
 
-                if (state.score1 >= this._game._scoreLimit || state.score2 >= this._game._scoreLimit) {
-                    const winningPlayerId = state.score1 >= this._game._scoreLimit ? 1 : 2;
-                    const winningPlayer = this._players.get(winningPlayerId);
+        if (state.score1 >= this._game._scoreLimit || state.score2 >= this._game._scoreLimit) {
+            const winningPlayerId = state.score1 >= this._game._scoreLimit ? 1 : 2;
+            const winningPlayer = this._players.get(winningPlayerId);
 
-                    this.handleGameWin(winningPlayerId, state.score1, state.score2)
-                }
-            }
-        })
+            this.handleGameWin(winningPlayerId, state.score1, state.score2)
+        }
 
         if (this._matchService) {
             const player1 = this._players.get(1);
