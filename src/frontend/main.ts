@@ -23,6 +23,8 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
+import TournamentListService from './services/TournamentListService.js';
+import TournamentService from './services/TournamentService.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -40,7 +42,6 @@ window.userManagementService = new UserManagementService();
 // ==============================
 // 📦 FOOTER + HEADER RENDERING
 // ==============================
-
 async function renderFooter(): Promise<void> {
     const footer = new Footer();
     const footerHtml = await footer.renderWithProps({
@@ -67,7 +68,6 @@ async function renderHeader(): Promise<void> {
 // =======================
 // 🌐 SOCKET INITIALIZATION
 // =======================
-
 function webSocketWrapper(socket: WebSocket): Promise<void> {
     return new Promise((resolve, reject) => {
         if (socket.readyState === WebSocket.OPEN) {
@@ -97,11 +97,20 @@ async function initSocket(): Promise<void> {
 
         await readyPromise;
 
-        giveMeBitches();
         window.messageHandler = new MessageHandlerService();
         window.lobbyListService = new LobbyListService();
         window.lobbyService = new LobbyService();
-        window.lobbyListService.init();
+        window.tournamentListService = new TournamentListService();
+        window.tournamentService = new TournamentService();
+
+        if (window.ft_socket) {
+            window.ft_socket.addEventListener('message', function (messageEvent) {
+                window.lobbyListService.handleSocketMessage(messageEvent);
+                window.lobbyService.handleSocketMessage(messageEvent);
+                window.tournamentListService.handleSocketMessage(messageEvent);
+                window.tournamentService.handleSocketMessage(messageEvent);
+            })
+        }
     }
     catch (error) {
         console.error('WebSocket connection error:', error);
@@ -109,11 +118,7 @@ async function initSocket(): Promise<void> {
     }
 }
 
-// =======================
-// ⚡ ROUTER EVENT HANDLING
-// =======================
-
-async function giveMeBitches() {
+async function socketUpdateOnSession() {
     const currentUser = await UserService.getCurrentUser();
     window.currentUser = currentUser;
     if (!currentUser) {
@@ -122,93 +127,50 @@ async function giveMeBitches() {
                 window.ft_socket.readyState === WebSocket.CONNECTING) {
                 window.ft_socket.close(1000, 'User logged out');
             }
-            if (window.lobbyListService && typeof window.lobbyListService.destroy === 'function') {
-                window.lobbyListService.destroy();
-            }
-            if (window.lobbyService && typeof window.lobbyService.destroy === 'function') {
-                window.lobbyService.destroy();
-            }
-            // window.ft_socket = undefined;
-            // window.socketReady = undefined;
-            // window.messageHandler = undefined;
-            // window.lobbyListService = undefined;
-            // window.lobbyService = undefined;
         }
         return;
     }
-}
-
-async function beerPlease() {
-    giveMeBitches();
 
     if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
         initSocket();
         try {
             await window.socketReady;
-        } catch (error) {
+        }
+        catch (error) {
             console.error("RouterContentLoaded: Failed to initialize socket via initSocket():", error);
-        }
-    }
-    else {
-        if (!window.messageHandler) {
-            window.messageHandler = new MessageHandlerService();
-        }
-        if (!window.lobbyListService) {
-            window.lobbyListService = new LobbyListService();
-            window.lobbyListService.init();
-        }
-        if (!window.lobbyService) {
-            window.lobbyService = new LobbyService();
         }
     }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    beerPlease();
-    // console.log('WebSocket status:', window.ft_socket?.readyState);
-    // console.log('WebSocket:', window.ft_socket);
-});
-
-document.addEventListener('RouterContentLoaded', async () => {
-    beerPlease();
-    // console.log('WebSocket status:', window.ft_socket?.readyState);
-    // console.log('WebSocket:', window.ft_socket);
-});
-
-/**
- * Initial render and background setup on first load
- */
-document.addEventListener('DOMContentLoaded', async () => {
+    await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();
     await router.render();
+});
+
+document.addEventListener('RouterContentLoaded', async () => {
+    await socketUpdateOnSession();
+    window.userManagementService.setupEventListeners();
+    window.userManagementService.twoFactorNumberActions();
+    window.userManagementService.setupUserManagementView();
+    window.userManagementService.initializeGoogleScript();
 });
 
 // =======================
 // 🧭 ROUTER INSTANCE
 // =======================
-
 const router = new Router(routes);
 (window as any).router = router;
-
-// =======================
-// 🚀 DOM RENDER ON LOAD
-// =======================
-
-document.addEventListener('DOMContentLoaded', async () => {
-    await renderHeader();
-    await renderFooter();
-    await router.render();
-});
 
 // ============================
 // 🔐 GOOGLE LOGIN HANDLER
 // ============================
-
 (window as any).handleGoogleLogin = async function (response: any) {
     try {
         await window.userManagementService.loginWithGoogle(response.credential);
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Google login failed:', error);
         throw error;
     }

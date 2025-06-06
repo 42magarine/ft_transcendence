@@ -20,7 +20,8 @@ export default class MessageHandlerService {
             console.warn(`MessageHandlerService: ${errorMessage}`, msg);
             throw new Error(errorMessage);
         }
-        // console.log("safeSend (frontend->backend): ", msg)
+
+        console.log("safeSend (frontend->backend): ", msg);
         window.ft_socket.send(JSON.stringify(msg));
     }
 
@@ -105,11 +106,18 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    // public async requestGameState(lobbyId: string) {
-    //     const msg: IClientMessage = {
-    //         type: 'getGameState',
-    //         lobbyId
-    //     };
-    //     await this.safeSend(msg);
-    // }
+    public async getTournamentList() {
+        const msg: IClientMessage = {
+            type: 'getTournamentList',
+        };
+        await this.safeSend(msg);
+    }
+
+    public async createTournament(userId: number) {
+        const msg: IClientMessage = {
+            type: 'createTournament',
+            userId
+        };
+        await this.safeSend(msg);
+    }
 }

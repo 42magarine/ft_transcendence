@@ -1,6 +1,8 @@
 import type MessageHandlerService from '../frontend/services/MessageHandlerService.js';
 import type LobbyListService from '../frontend/services/LobbyListService.js';
 import type LobbyService from '../frontend/services/LobbyService.js';
+import type TournamentListService from '../frontend/services/TournamentListService.js';
+import type TournamentService from '../frontend/services/TournamentService.js';
 import type UserService from '../frontend/services/UserService.js';
 import PongService from '../frontend/services/PongService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
@@ -33,7 +35,8 @@ declare global {
         messageHandler: MessageHandlerService;
         lobbyListService: LobbyListService;
         lobbyService: LobbyService;
-        pongService: PongService;
+        tournamentService: TournamentService;
+        tournamentListService: TournamentListService;
         userService: UserService;
         userManagementService: UserManagementService;
     }

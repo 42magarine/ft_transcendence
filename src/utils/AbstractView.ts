@@ -1,12 +1,13 @@
 import { TemplateEngine } from "./TemplateEngine.js"
 
 export default abstract class AbstractView {
-    async mount(): Promise<void> { }
     protected params: URLSearchParams;
     protected title?: string;
     protected description: string;
     protected templateEngine: TemplateEngine;
     protected props: Record<string, any>;
+    public initEvents: (() => void) | null = null;
+    public destroyEvents: (() => void) | null = null;
 
     constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
         this.params = params;
