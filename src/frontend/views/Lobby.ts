@@ -108,15 +108,17 @@ export default class Lobby extends AbstractView {
 
     private setupEvents(): void {
         console.log('[LobbyView] setupEvents()');
+        if (window.lobbyService?.setupEventListener) {
+            window.lobbyService.setupEventListener();
+        }
 
-        document.body.addEventListener('click', window.lobbyService.handleLobbyPageClick);
     }
 
     private cleanupEvents(): void {
         console.log('[LobbyView] cleanupEvents()');
 
         if (window.lobbyService) {
-            document.body.removeEventListener('click', window.lobbyService.handleLobbyPageClick);
+            document.body.removeEventListener('click', window.lobbyService.setupEventListener);
         }
     }
 
