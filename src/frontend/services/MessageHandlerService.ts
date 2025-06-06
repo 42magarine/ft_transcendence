@@ -1,6 +1,8 @@
 import { IClientMessage } from '../../interfaces/interfaces.js';
 
 export default class MessageHandlerService {
+    private readyState: Map<number, boolean> = new Map();
+
     private async safeSend(msg: IClientMessage) {
         if (!window.socketReady) {
             console.error('MessageHandlerService: window.socketReady promise does not exist.');
@@ -18,7 +20,8 @@ export default class MessageHandlerService {
             console.warn(`MessageHandlerService: ${errorMessage}`, msg);
             throw new Error(errorMessage);
         }
-        // console.log("safeSend (frontend->backend): ", msg)
+
+        console.log("safeSend (frontend->backend): ", msg);
         window.ft_socket.send(JSON.stringify(msg));
     }
 
@@ -48,11 +51,17 @@ export default class MessageHandlerService {
     }
 
     public async markReady(lobbyId: string, userId: number) {
+        const current = this.readyState.get(userId) ?? false;
+        const next = !current;
+        this.readyState.set(userId, next);
+
         const msg: IClientMessage = {
             type: 'ready',
             userId,
             lobbyId,
+            ready: next,
         };
+
         await this.safeSend(msg);
     }
 
@@ -75,6 +84,21 @@ export default class MessageHandlerService {
         const msg: IClientMessage = {
             type: 'getLobbyState',
             lobbyId
+        };
+        await this.safeSend(msg);
+    }
+
+    public async getTournamentList() {
+        const msg: IClientMessage = {
+            type: 'getTournamentList',
+        };
+        await this.safeSend(msg);
+    }
+
+    public async createTournament(userId: number) {
+        const msg: IClientMessage = {
+            type: 'createTournament',
+            userId
         };
         await this.safeSend(msg);
     }

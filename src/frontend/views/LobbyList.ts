@@ -5,30 +5,17 @@ import { ILobbyState } from '../../interfaces/interfaces.js';
 export default class LobbyList extends AbstractView {
     constructor() {
         super();
+
+        this.initEvents = this.setupEvents.bind(this);
+        this.destroyEvents = this.cleanupEvents.bind(this);
     }
 
     async getHtml(): Promise<string> {
         let lobbies: ILobbyState[] = [];
-        lobbies = await window.lobbyListService.getLobbies();
-
-        //console.debug('[LobbyList] Fetched lobbies:', lobbies);
-
-        if (!Array.isArray(lobbies) || lobbies.length === 0) {
-            //console.warn('[LobbyList] No lobbies found or invalid format.');
+        if (window.lobbyListService && window.lobbyListService.getLobbies) {
+            lobbies = await window.lobbyListService.getLobbies();
+            lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
         }
-
-        // console.log(lobbies);
-        // lobbies.forEach((lobby, i) => {
-        //     console.log(`[Lobby ${i}]`, {
-        //         name: lobby.name,
-        //         id: lobby.id,
-        //         lobbyId: lobby.lobbyId,
-        //         creatorId: lobby.creatorId,
-        //         currentPlayers: lobby.currentPlayers,
-        //         maxPlayers: lobby.maxPlayers,
-        //         isStarted: lobby.isStarted,
-        //     });
-        // });
 
         const lobbyListCard = await new Card().renderCard({
             title: 'Available Lobbies',
@@ -89,9 +76,8 @@ export default class LobbyList extends AbstractView {
                                 type: 'button',
                                 props:
                                 {
-                                    id: 'joinLobbyBtn',
                                     text: 'Join Lobby',
-                                    className: 'btn btn-primary',
+                                    className: 'joinLobbyBtn btn btn-primary ' + ((lobby.currentPlayers == lobby.maxPlayers) ? "disabled" : ""),
                                     dataAttributes: {
                                         'lobby-id': lobby.lobbyId
                                     }
@@ -104,5 +90,26 @@ export default class LobbyList extends AbstractView {
         });
 
         return this.render(`${lobbyListCard}`);
+    }
+
+    private setupEvents(): void {
+        console.log('[LobbyList] setupEvents()');
+
+        if (window.lobbyListService?.setupCreateLobbyButtonListener) {
+            window.lobbyListService.setupCreateLobbyButtonListener();
+        }
+
+        if (window.lobbyListService?.setupJoinLobbyButtonListener) {
+            window.lobbyListService.setupJoinLobbyButtonListener();
+        }
+    }
+
+    private cleanupEvents(): void {
+        console.log('[LobbyList] cleanupEvents()');
+
+        if (window.lobbyListService) {
+            document.body.removeEventListener('click', window.lobbyListService.handleCreateLobbyClick);
+            document.body.removeEventListener('click', window.lobbyListService.handleJoinLobbyClick);
+        }
     }
 }

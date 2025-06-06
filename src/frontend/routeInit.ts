@@ -1,6 +1,8 @@
 import Home from './views/Home.js';
 import Pong from './views/Pong.js';
+import LobbyList from './views/LobbyList.js';
 import Lobby from './views/Lobby.js';
+import TournamentList from './views/TournamentList.js';
 import Tournament from './views/Tournament.js';
 import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
@@ -10,7 +12,6 @@ import Settings from './views/Settings.js';
 import Signup from './views/Signup.js';
 import PasswordReset from './views/PasswordReset.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
-import LobbyList from './views/LobbyList.js';
 import PongLocal from './views/PongLocal.js';
 import Friends from './views/FriendList.js';
 import { Route, RouteHookContext } from '../interfaces/interfaces.js';
@@ -42,14 +43,14 @@ const routes: Route[] = [
             description: 'Welcome to Pong'
         },
         onLeave: async ({ route, params, view, path }: RouteHookContext): Promise<boolean | void> => {
-            window.messageHandler.leaveLobby(params.id);
+            window.messageHandler!.leaveLobby(params.id);
             return true;
         }
     },
     {
-        path: '/tournament/:id',
+        path: '/tournamentlist',
         role: 'user',
-        view: Tournament,
+        view: TournamentList,
         metadata: {
             title: 'Transcendence - Tournament',
             description: 'Welcome to Pong'

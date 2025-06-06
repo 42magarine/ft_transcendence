@@ -83,7 +83,11 @@ export class MatchController {
                 this.handleGetLobbyState(data.lobbyId!);
                 break;
             default:
-                throw Error("Backend: invalid message type received");
+                this.sendMessage(connection, {
+                    type: "error",
+                    message: "not yet implemented"
+                });
+            // throw Error("Backend: invalid message type received");
         }
     }
 
@@ -106,7 +110,7 @@ export class MatchController {
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
         if (connection.readyState === WebSocket.OPEN) {
-            // console.log("sendMessage (backend->frontend): ", data)
+            console.log("sendMessage (backend->frontend): ", data)
             connection.send(JSON.stringify(data));
         }
     }
@@ -177,7 +181,7 @@ export class MatchController {
             console.log("handleCreateLobby: lobbyState sent")
             this.broadcastToLobby(lobbyId, {
                 type: "lobbyState",
-                lobby:lobby.getLobbyState()
+                lobby: lobby.getLobbyState()
             });
 
         }
@@ -199,14 +203,15 @@ export class MatchController {
         if (player) {
             this._clients.set(connection, player);
 
-            this.sendMessage(connection, {
+            this.broadcastToAll({
                 type: "joinedLobby",
                 lobbyId: lobbyId,
+                owner: userId,
                 // playerNumber: player._playerNumber //prob don't need this since websocket is unique to client anyways
             });
             this.broadcastToLobby(lobbyId, {
                 type: "playerJoined",
-                lobby:lobby.getLobbyState()
+                lobby: lobby.getLobbyState()
             });
         }
         else {
@@ -245,7 +250,7 @@ export class MatchController {
 
             this.broadcastToLobby(lobbyId, {
                 type: "playerLeft",
-                lobby:lobby.getLobbyState()
+                lobby: lobby.getLobbyState()
             });
         }
         catch (error) {
@@ -262,11 +267,12 @@ export class MatchController {
 
         this.broadcastToLobby(lobbyId, {
             type: "lobbyState",
-            lobby:lobby.getLobbyState()
+            lobby: lobby.getLobbyState()
         });
     }
 
     private async handleGetLobbyList(connection: WebSocket) {
+        console.log("handleGetLobbyList")
         const openMatchModels = await this._matchService.getOpenLobbies();
 
         const openLobbies = openMatchModels.map(Lobby => {
@@ -311,7 +317,7 @@ export class MatchController {
 
         this.broadcastToLobby(player.lobbyId, {
             type: "playerReady",
-            lobby:lobby.getLobbyState()
+            lobby: lobby.getLobbyState()
         });
 
     }

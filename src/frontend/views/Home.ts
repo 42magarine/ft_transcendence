@@ -369,4 +369,5 @@ export default class Home extends AbstractView {
 
         return this.render(`${homeCard}`);
     }
+
 }
