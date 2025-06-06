@@ -8,8 +8,8 @@ export default class LobbyService {
     private isInitialized = false;
 
     constructor() {
-        this.handleSocketMessage = this.handleSocketMessage.bind(this);
-        this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
+        // this.handleSocketMessage = this.handleSocketMessage.bind(this);
+        // this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
     }
 
     private getCurrentLobbyIdFromUrl(): string {

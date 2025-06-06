@@ -2,10 +2,9 @@ import type MessageHandlerService from '../frontend/services/MessageHandlerServi
 import type LobbyListService from '../frontend/services/LobbyListService.js';
 import type LobbyService from '../frontend/services/LobbyService.js';
 import type TournamentListService from '../frontend/services/TournamentListService.js';
-// import type TournamentService from '../frontend/services/TournamentService.js';
+import type TournamentService from '../frontend/services/TournamentService.js';
 import type UserService from '../frontend/services/UserService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
-import type Router from '../utils/Router.js';
 import AbstractView from "../utils/AbstractView.js";
 
 export interface RouteHookContext {
@@ -35,25 +34,12 @@ declare global {
         messageHandler: MessageHandlerService;
         lobbyListService: LobbyListService;
         lobbyService: LobbyService;
+        tournamentService: TournamentService;
+        tournamentListService: TournamentListService;
         userService: UserService;
         userManagementService: UserManagementService;
     }
 }
-
-// declare global {
-//     interface Window {
-//         ft_socket: WebSocket;
-//         currentUser?: User | null;
-//         lobbyListService?: LobbyListService;
-//         lobbyService?: LobbyService;
-//         tournamentListService?: TournamentListService;
-//         //   tournamentService?: TournamentService;
-//         userService: UserService;
-//         userManagementService: UserManagementService;
-//         messageHandler?: MessageHandlerService;
-//         router?: Router;
-//     }
-// }
 
 export { };
 

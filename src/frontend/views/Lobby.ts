@@ -115,10 +115,6 @@ export default class Lobby extends AbstractView {
     private cleanupEvents(): void {
         console.log('[LobbyView] cleanupEvents()');
 
-        // if (window.ft_socket) {
-        //     window.ft_socket.removeEventListener('message', window.lobbyService.handleSocketMessage);
-        // }
-
         if (window.lobbyService) {
             document.body.removeEventListener('click', window.lobbyService.handleLobbyPageClick);
         }

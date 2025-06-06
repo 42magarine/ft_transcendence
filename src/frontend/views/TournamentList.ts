@@ -4,6 +4,9 @@ import Card from '../components/Card.js';
 export default class TournamentList extends AbstractView {
     constructor() {
         super();
+
+        this.initEvents = this.setupEvents.bind(this);
+        this.destroyEvents = this.cleanupEvents.bind(this);
     }
 
     async getHtml(): Promise<string> {
@@ -22,5 +25,19 @@ export default class TournamentList extends AbstractView {
             ]
         });
         return this.render(`${tournamentListCard}`);
+    }
+
+    private setupEvents(): void {
+        console.log('[TournamentList] setupEvents()');
+
+        window.tournamentListService.setupEventListener();
+    }
+
+    private cleanupEvents(): void {
+        console.log('[TournamentList] cleanupEvents()');
+
+        if (window.tournamentListService) {
+            document.body.removeEventListener('click', window.tournamentListService.setupEventListener);
+        }
     }
 }

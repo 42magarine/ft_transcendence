@@ -6,24 +6,14 @@ export default class TournamentListService {
     private currentTournamentRequest: Promise<ITournamentState[]> | null = null;
     private tournamentDataResolver: ((tournaments: ITournamentState[]) => void) | null = null;
 
-    public setupEventListeners = (): void => {
-        if (!window.ft_socket) {
-            console.warn("TournamentListService: ft_socket not available.");
-            return;
+    public setupEventListener(): void {
+        const createTournamentBtn = document.getElementById('createTournamentBtn');
+        if (createTournamentBtn) {
+            createTournamentBtn.addEventListener('click', this.handleCreateTournamentClick);
         }
-
-        // Socket message listener
-        window.ft_socket.addEventListener('message', this.handleSocketMessage);
-
-        // Button listeners
-            const createTournamentBtn = document.getElementById('createTournamentBtn');
-            if (createTournamentBtn) {
-                createTournamentBtn.removeEventListener('click', this.handleCreateTournamentClick);
-                createTournamentBtn.addEventListener('click', this.handleCreateTournamentClick);
-            }
     }
 
-    private handleSocketMessage = (event: MessageEvent<string>): void => {
+    public handleSocketMessage = (event: MessageEvent<string>): void => {
         const data: IServerMessage = JSON.parse(event.data);
 
         switch (data.type) {
@@ -122,19 +112,5 @@ export default class TournamentListService {
         catch (error) {
             console.error("TournamentListService: Error creating tournament:", error);
         }
-    }
-
-    public destroy = (): void => {
-        if (window.ft_socket) {
-            window.ft_socket.removeEventListener('message', this.handleSocketMessage);
-        }
-
-        const createTournamentBtn = document.getElementById('createTournamentBtn');
-        if (createTournamentBtn) {
-            createTournamentBtn.removeEventListener('click', this.handleCreateTournamentClick);
-        }
-
-        this.currentTournamentRequest = null;
-        this.tournamentDataResolver = null;
     }
 }

@@ -23,6 +23,8 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
+import TournamentListService from './services/TournamentListService.js';
+import TournamentService from './services/TournamentService.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -98,11 +100,15 @@ async function initSocket(): Promise<void> {
         window.messageHandler = new MessageHandlerService();
         window.lobbyListService = new LobbyListService();
         window.lobbyService = new LobbyService();
+        window.tournamentListService = new TournamentListService();
+        window.tournamentService = new TournamentService();
 
         if (window.ft_socket) {
             window.ft_socket.addEventListener('message', function (messageEvent) {
-                window.lobbyListService.handleSocketMessage(messageEvent)
-                window.lobbyService.handleSocketMessage(messageEvent)
+                window.lobbyListService.handleSocketMessage(messageEvent);
+                window.lobbyService.handleSocketMessage(messageEvent);
+                window.tournamentListService.handleSocketMessage(messageEvent);
+                window.tournamentService.handleSocketMessage(messageEvent);
             })
         }
     }
@@ -112,9 +118,6 @@ async function initSocket(): Promise<void> {
     }
 }
 
-// =======================
-// ⚡ ROUTER EVENT HANDLING
-// =======================
 async function socketUpdateOnSession() {
     const currentUser = await UserService.getCurrentUser();
     window.currentUser = currentUser;

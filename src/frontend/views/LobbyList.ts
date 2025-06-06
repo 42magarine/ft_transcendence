@@ -95,11 +95,6 @@ export default class LobbyList extends AbstractView {
     private setupEvents(): void {
         console.log('[LobbyList] setupEvents()');
 
-        // if (!window.ft_socket) {
-        //     console.warn('[LobbyList] Socket not ready');
-        //     return;
-        // }
-
         if (window.lobbyListService?.setupCreateLobbyButtonListener) {
             window.lobbyListService.setupCreateLobbyButtonListener();
         }
@@ -111,10 +106,6 @@ export default class LobbyList extends AbstractView {
 
     private cleanupEvents(): void {
         console.log('[LobbyList] cleanupEvents()');
-
-        // if (window.ft_socket && window.lobbyListService?.handleSocketMessage) {
-        //     window.ft_socket.removeEventListener('message', window.lobbyListService.handleSocketMessage);
-        // }
 
         if (window.lobbyListService) {
             document.body.removeEventListener('click', window.lobbyListService.handleCreateLobbyClick);
