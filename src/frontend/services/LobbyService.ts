@@ -8,7 +8,6 @@ export default class LobbyService {
     private isInitialized = false;
 
     constructor() {
-
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
         this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
     }
@@ -86,7 +85,6 @@ export default class LobbyService {
     }
 
     public async handleLobbyPageClick(e: MouseEvent): Promise<void> {
-        console.log("handleLobbyPageClick")
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
         if (!currentLobbyId || !window.location.pathname.startsWith("/lobby/")) return;
 

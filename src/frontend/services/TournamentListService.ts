@@ -6,11 +6,7 @@ export default class TournamentListService {
     private currentTournamentRequest: Promise<ITournamentState[]> | null = null;
     private tournamentDataResolver: ((tournaments: ITournamentState[]) => void) | null = null;
 
-    constructor() {
-    }
-
     public setupEventListeners = (): void => {
-
         if (!window.ft_socket) {
             console.warn("TournamentListService: ft_socket not available.");
             return;
@@ -22,12 +18,9 @@ export default class TournamentListService {
         // Button listeners
             const createTournamentBtn = document.getElementById('createTournamentBtn');
             if (createTournamentBtn) {
-                console.log("Hier ist der Übeltäter!!!")
                 createTournamentBtn.removeEventListener('click', this.handleCreateTournamentClick);
                 createTournamentBtn.addEventListener('click', this.handleCreateTournamentClick);
             }
-
-        console.log('TournamentListService: Event listeners setup complete');
     }
 
     private handleSocketMessage = (event: MessageEvent<string>): void => {
@@ -111,12 +104,6 @@ export default class TournamentListService {
     }
 
     private handleCreateTournamentClick = async (e: MouseEvent): Promise<void> => {
-        // const target = e.target as HTMLElement;
-        // const button = target.closest('#createTournamentBtn');
-        // if (!button) {
-        //     return;
-        // }
-
         e.preventDefault();
 
         if (!window.currentUser?.id) {
@@ -149,7 +136,5 @@ export default class TournamentListService {
 
         this.currentTournamentRequest = null;
         this.tournamentDataResolver = null;
-
-        console.log("TournamentListService: Destroyed listeners and reset state");
     }
 }

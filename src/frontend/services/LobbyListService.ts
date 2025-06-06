@@ -15,17 +15,12 @@ export default class LobbyListService {
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
 
-        console.log("LobbyListService");
-        console.log(data);
-
         switch (data.type) {
             case 'lobbyList':
-                console.log("case  lobbyList")
                 this.lobbyData = data.lobbies || [];
                 this.resolveLobbyDataPromises(this.lobbyData);
                 break;
             case 'lobbyCreated':
-                console.warn("lobbyCreated recv")
                 console.log(window.currentUser)
                 console.log(data.owner)
                 if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
@@ -37,7 +32,6 @@ export default class LobbyListService {
                 }
                 break;
             case 'joinedLobby':
-                console.warn("joinedLobby recv")
                 console.log(window.currentUser)
                 console.log(data.owner)
                 if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
@@ -50,7 +44,6 @@ export default class LobbyListService {
                 }
                 break;
             case 'leftLobby':
-                console.warn("leftLobby recv")
                 if (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
                     Router.update()
                 }
@@ -77,7 +70,6 @@ export default class LobbyListService {
     }
 
     public async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
-        console.log("handleCreateLobbyClick")
         e.preventDefault();
 
         if (!window.currentUser) {
@@ -101,11 +93,10 @@ export default class LobbyListService {
     }
 
     public handleJoinLobbyClick = async (e: Event) => {
-        console.log("handleJoinLobbyClick")
         e.preventDefault();
+
         const target = e.target as HTMLElement;
         const lobbyId = target.getAttribute('data-lobby-id');
-        console.log("handleJoinLobbyClick ", lobbyId)
         if (!lobbyId) {
             console.error("LobbyListService: joinLobbyBtn clicked, but 'data-lobby-id' attribute is missing.");
             return;

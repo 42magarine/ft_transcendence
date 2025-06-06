@@ -40,7 +40,6 @@ window.userManagementService = new UserManagementService();
 // ==============================
 // 📦 FOOTER + HEADER RENDERING
 // ==============================
-
 async function renderFooter(): Promise<void> {
     const footer = new Footer();
     const footerHtml = await footer.renderWithProps({
@@ -67,7 +66,6 @@ async function renderHeader(): Promise<void> {
 // =======================
 // 🌐 SOCKET INITIALIZATION
 // =======================
-
 function webSocketWrapper(socket: WebSocket): Promise<void> {
     return new Promise((resolve, reject) => {
         if (socket.readyState === WebSocket.OPEN) {
@@ -100,6 +98,7 @@ async function initSocket(): Promise<void> {
         window.messageHandler = new MessageHandlerService();
         window.lobbyListService = new LobbyListService();
         window.lobbyService = new LobbyService();
+
         if (window.ft_socket) {
             window.ft_socket.addEventListener('message', function (messageEvent) {
                 window.lobbyListService.handleSocketMessage(messageEvent)
@@ -133,7 +132,8 @@ async function socketUpdateOnSession() {
         initSocket();
         try {
             await window.socketReady;
-        } catch (error) {
+        }
+        catch (error) {
             console.error("RouterContentLoaded: Failed to initialize socket via initSocket():", error);
         }
     }
@@ -141,8 +141,6 @@ async function socketUpdateOnSession() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     await socketUpdateOnSession();
-    //console.warn('WebSocket status:', window.ft_socket?.readyState);
-    //console.warn('WebSocket:', window.ft_socket);
     await renderHeader();
     await renderFooter();
     await router.render();
@@ -159,18 +157,17 @@ document.addEventListener('RouterContentLoaded', async () => {
 // =======================
 // 🧭 ROUTER INSTANCE
 // =======================
-
 const router = new Router(routes);
 (window as any).router = router;
 
 // ============================
 // 🔐 GOOGLE LOGIN HANDLER
 // ============================
-
 (window as any).handleGoogleLogin = async function (response: any) {
     try {
         await window.userManagementService.loginWithGoogle(response.credential);
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Google login failed:', error);
         throw error;
     }

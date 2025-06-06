@@ -4,8 +4,8 @@ import { ILobbyState } from '../../interfaces/interfaces.js';
 
 export default class LobbyList extends AbstractView {
     constructor() {
-        console.log("constructor LobbyList")
         super();
+
         this.initEvents = this.setupEvents.bind(this);
         this.destroyEvents = this.cleanupEvents.bind(this);
     }
@@ -16,25 +16,6 @@ export default class LobbyList extends AbstractView {
             lobbies = await window.lobbyListService.getLobbies();
             lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
         }
-
-        //console.debug('[LobbyList] Fetched lobbies:', lobbies);
-
-        if (!Array.isArray(lobbies) || lobbies.length === 0) {
-            //console.warn('[LobbyList] No lobbies found or invalid format.');
-        }
-
-        // console.log(lobbies);
-        // lobbies.forEach((lobby, i) => {
-        //     console.log(`[Lobby ${i}]`, {
-        //         name: lobby.name,
-        //         id: lobby.id,
-        //         lobbyId: lobby.lobbyId,
-        //         creatorId: lobby.creatorId,
-        //         currentPlayers: lobby.currentPlayers,
-        //         maxPlayers: lobby.maxPlayers,
-        //         isStarted: lobby.isStarted,
-        //     });
-        // });
 
         const lobbyListCard = await new Card().renderCard({
             title: 'Available Lobbies',
@@ -111,17 +92,14 @@ export default class LobbyList extends AbstractView {
         return this.render(`${lobbyListCard}`);
     }
 
-
     private setupEvents(): void {
-        console.log('[LobbyList] Setting up events');
+        console.log('[LobbyList] setupEvents()');
 
-        if (!window.ft_socket) {
-            console.warn('[LobbyList] Socket not ready');
-            return;
-        }
+        // if (!window.ft_socket) {
+        //     console.warn('[LobbyList] Socket not ready');
+        //     return;
+        // }
 
-
-        // Button Listeners einrichten
         if (window.lobbyListService?.setupCreateLobbyButtonListener) {
             window.lobbyListService.setupCreateLobbyButtonListener();
         }
@@ -132,11 +110,11 @@ export default class LobbyList extends AbstractView {
     }
 
     private cleanupEvents(): void {
-        console.log('[LobbyList] Cleaning up events');
+        console.log('[LobbyList] cleanupEvents()');
 
-        if (window.ft_socket && window.lobbyListService?.handleSocketMessage) {
-            window.ft_socket.removeEventListener('message', window.lobbyListService.handleSocketMessage);
-        }
+        // if (window.ft_socket && window.lobbyListService?.handleSocketMessage) {
+        //     window.ft_socket.removeEventListener('message', window.lobbyListService.handleSocketMessage);
+        // }
 
         if (window.lobbyListService) {
             document.body.removeEventListener('click', window.lobbyListService.handleCreateLobbyClick);
