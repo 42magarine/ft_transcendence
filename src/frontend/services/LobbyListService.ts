@@ -5,12 +5,6 @@ import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
 export default class LobbyListService {
     private lobbyData: ILobbyState[] = [];
     private lobbyDataResolvers: ((lobbies: ILobbyState[]) => void)[] = [];
-    private isInitialized = false;
-
-    constructor() {
-        this.handleCreateLobbyClick = this.handleCreateLobbyClick.bind(this);
-        this.handleJoinLobbyClick = this.handleJoinLobbyClick.bind(this);
-    }
 
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);

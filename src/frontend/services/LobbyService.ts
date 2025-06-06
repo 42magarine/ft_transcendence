@@ -7,11 +7,6 @@ export default class LobbyService {
     private lobbyDataResolvers: ((lobby: ILobbyState) => void)[] = [];
     private isInitialized = false;
 
-    constructor() {
-        // this.handleSocketMessage = this.handleSocketMessage.bind(this);
-        // this.handleLobbyPageClick = this.handleLobbyPageClick.bind(this);
-    }
-
     private getCurrentLobbyIdFromUrl(): string {
         const match = window.location.pathname.match(/\/lobby\/([^/]+)/);
         return match?.[1] || '';
