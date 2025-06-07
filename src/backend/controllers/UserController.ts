@@ -534,4 +534,54 @@ export class UserController {
         }
         return reply.code(200).send(secAQrCode);
     }
+
+    async getFriends(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const users = await this._userService.findUserFriends(request.user!.id);
+            reply.code(200).send(users);
+        }
+        catch (error) {
+            reply.code(500).send({ error: 'Could not fetch friends' });
+        }
+    }
+
+    async addFriend(request: FastifyRequest<{ Body: { username: string } }>, reply: FastifyReply) {
+        const userId = request.user!.id;
+
+        const { username } = request.body;
+        if (!username) {
+            return reply.code(400).send({ error: 'Username is required' });
+        }
+
+        try {
+            await this._userService.addFriend(userId, username);
+            reply.code(200).send({ message: 'Friend added successfully' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                return reply.code(400).send({ error: error.message });
+            }
+            reply.code(500).send({ error: 'Could not add friend' });
+        }
+    }
+
+    async removeFriend(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+        const userId = request.user!.id;
+
+        const friendId = parseInt(request.params.id);
+        if (isNaN(friendId)) {
+            return reply.code(400).send({ error: 'Invalid friend ID format' });
+        }
+
+        try {
+            await this._userService.removeFriend(userId, friendId);
+            reply.code(200).send({ message: 'Friend removed successfully' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                return reply.code(400).send({ error: error.message });
+            }
+            reply.code(500).send({ error: 'Could not remove friend' });
+        }
+    }
 }
