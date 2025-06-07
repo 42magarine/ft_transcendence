@@ -161,7 +161,7 @@ export default class PongService {
                     this.clientLoop();
                 }
                 break;
-            case "playerLeftGame":
+            case "playerLeft":
                 this.overlay.classList.add("terminated");
 
                 const terminatedText = document.createElement('div');
@@ -190,7 +190,7 @@ export default class PongService {
                 // this.overlay.appendChild(redirectSpan);
                 setTimeout(function () {
                     Router.redirect("/lobbylist")
-                }, 1000000)
+                }, 10000)
                 break;
         }
     }
@@ -298,9 +298,9 @@ export default class PongService {
                 if (this.gameState.player1Left || this.gameState.player2Left) {
                     // console.log("player left win");
                     if (this.gameState.player1Left) {
-                        winMsg = this.gameState.winnerName + ` wins because ` + this.player1.userName + ' left' ;
+                        winMsg = this.gameState.winnerName + ` wins because ` + this.player1.userName + ' left';
                     } else {
-                        winMsg = this.gameState.winnerName + ` wins because ` + this.player2.userName + ' left' ;
+                        winMsg = this.gameState.winnerName + ` wins because ` + this.player2.userName + ' left';
                     }
 
                 } else {

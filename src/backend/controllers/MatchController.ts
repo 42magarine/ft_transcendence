@@ -147,7 +147,6 @@ export class MatchController {
     }
 
     private broadcastToLobby(lobbyId: string, data: IServerMessage): void {
-
         for (const [connection, player] of this._clients.entries()) {
             if (
                 connection.readyState === WebSocket.OPEN &&
@@ -363,6 +362,7 @@ export class MatchController {
             return;
         }
         lobby.startGame();
+        //implement broadcasts here
     }
 
     private handleMovePaddle(requestingUserId: number, direction: IPaddleDirection, lobbyId: string): void {

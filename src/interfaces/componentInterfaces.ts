@@ -1,6 +1,9 @@
 // BUTTON INTERFACES
 
-export type ButtonAlign = 'left' | 'center' | 'right';
+export type ButtonAlign =
+    | 'left'
+    | 'center'
+    | 'right';
 
 export type ButtonColor =
     | 'primary'
@@ -14,7 +17,12 @@ export type ButtonColor =
     | 'transparent'
     | 'outline';
 
-export type ButtonType = 'submit' | 'delete' | 'button' | 'google-signin' | 'text-with-button';
+export type ButtonType = 
+    | 'submit'
+    | 'delete'
+    | 'button'
+    | 'google-signin'
+    | 'text-with-button';
 
 export interface ButtonProps {
     id?: string;
@@ -32,7 +40,10 @@ export interface ButtonProps {
 
 export interface ButtonGroupProps {
     align?: ButtonAlign;
-    layout?: 'stack' | 'grid' | 'group';
+    layout?:
+        | 'stack'
+        | 'grid'
+        | 'group';
     className?: string;
     columns?: number;
     buttons?: ButtonProps[];
@@ -150,15 +161,25 @@ export type ContentBlock =
     | { type: 'paragraph'; props: ParagraphProps }
     | { type: 'container'; props: ContainerProps }
     | { type: 'twofactor'; props: { length?: number; namePrefix?: string } }
-    | { type: 'signup-footer'; props?: {} };
+    | { type: 'signup-footer'; props?: {} }
+    | { type: 'avatar'; props: AvatarProps } ;
 
 // FORM / LABEL / TOGGLE
 
+export interface AvatarProps {
+    src: string; // image url or base64/svg string
+    alt?: string;
+    size?: number;
+    className?: string;
+}
+
 export interface LabelProps {
-    htmlFor: string;
-    text: string;
+    htmlFor?: string;
+    text?: string;
     id?: string;
     className?: string;
+    iconHtml?: string;
+    color?: 'green' | 'red' | 'gray' | 'yellow' | string; 
 }
 
 export interface ToggleProps {

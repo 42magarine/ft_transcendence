@@ -91,12 +91,17 @@ export default class Card extends AbstractView {
 
             case 'twofactor': {
                 const renderTwoFactor = (await import('./TwoFactor.js')).default;
-                return renderTwoFactor();
+                return await renderTwoFactor(); // <- ensure this is being called!
             }
 
             case 'signup-footer': {
                 const renderSignupFooter = (await import('./SignupFooter.js')).default;
                 return renderSignupFooter();
+            }
+
+            case 'avatar': {
+                const renderAvatar = (await import('./Avatar.js')).default;
+                return renderAvatar(block.props);
             }
 
             case 'html': {

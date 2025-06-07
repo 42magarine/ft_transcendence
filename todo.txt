@@ -4,14 +4,11 @@ FRONTEND:
         - man kann fast nichts lesen wegen dem Hintergrund
         - es gibt 3 Passwort-Felder?!
     3. User Management View (als MASTER)
-        - Delete Button funktioniert nicht
         - Create User funktioniert nicht, wenn eine ungültige E-Mail eingegeben wird (vielleicht liegt der Fehler im Backend, weil der E-Mail Serive einen Fehler wirft)
     4. User View (als Master)
         - nach dem löschen eines User wird man (manchmal?) nicht richtig weitergeleitet auf den User Management View
-    5. Im Bestätigungs-Fenster zum Löschen steht kein Text.
     6. Token refresh request aus dem Frontend schicken, wenn das Backend 401 (Token abgelaufen) zurückschickt. route: api/users/refresh
     7. Safari
-
 
 BACKEND:
     1. Bei allen Anfragen aus dem Frontend prüfen welche Daten das Backend zurück schicken soll.
