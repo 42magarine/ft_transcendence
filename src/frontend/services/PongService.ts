@@ -1,4 +1,5 @@
 import { IServerMessage, IPaddleDirection, IGameState, IPlayerState } from '../../interfaces/interfaces.js';
+import Router from '../../utils/Router.js';
 
 export default class PongService {
     private gameState!: IGameState;
@@ -8,6 +9,7 @@ export default class PongService {
     private isPlayer2Paddle: boolean = false;
 
     private canvas!: HTMLCanvasElement;
+    private overlay!: HTMLElement;
     private ctx!: CanvasRenderingContext2D;
 
     private wPressed: boolean = false;
@@ -27,6 +29,12 @@ export default class PongService {
             throw new Error("Canvas element not found.");
         }
 
+        this.overlay = document.getElementById("gameCanvasWrap-overlay") as HTMLElement;
+        if (!this.overlay) {
+            console.error("[PongService] Could not find overlay element.");
+            throw new Error("Overlay element not found.");
+        }
+
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
             console.error("[PongService] Could not get 2D rendering context for canvas.");
@@ -37,6 +45,32 @@ export default class PongService {
 
         document.addEventListener('keydown', this.handleKeyDown);
         document.addEventListener('keyup', this.handleKeyUp);
+        let countdown = 3;
+        this.overlay.textContent = countdown.toString();
+        const timer = setInterval(() => {
+            countdown--;
+
+            if (countdown == 3) {
+                this.overlay.classList.add("third");
+                this.overlay.textContent = countdown.toString();
+            } else if (countdown == 2) {
+                this.overlay.classList.remove("third");
+                this.overlay.classList.add("second");
+                this.overlay.textContent = countdown.toString();
+            } else if (countdown == 1) {
+                this.overlay.classList.remove("second");
+                this.overlay.classList.add("first");
+                this.overlay.textContent = countdown.toString();
+            } else if (countdown === 0) {
+                this.overlay.classList.remove("first");
+                this.overlay.classList.add("ready");
+                this.overlay.textContent = 'START!';
+            } else {
+                this.overlay.style.display = 'none';
+                clearInterval(timer);
+            }
+        }, 1000);
+
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -70,19 +104,25 @@ export default class PongService {
                 else {
                     console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
                 }
-                //countdown here?
-                // this.draw();
 
-                if (window.messageHandler && currentUrlLobbyId) {
-                    window.messageHandler.startGame(currentUrlLobbyId);
-                }
+                setTimeout(function () {
+                    if (window.messageHandler && currentUrlLobbyId) {
+                        window.messageHandler.startGame(currentUrlLobbyId);
+                    }
+                }, 4000)
                 break;
 
             case 'gameUpdate':
-                if (this.wPressed) { console.log("intelligent") }
-                if (this.sPressed) { console.log("flo") }
                 this.gameState = data.gameState!;
                 this.draw();
+                break;
+            case "playerLeft":
+                this.overlay.classList.remove("first");
+                this.overlay.classList.add("terminated");
+                this.overlay.textContent = 'Terminated\nby Opponent<span>you will be redirected!';
+                setTimeout(function () {
+                    Router.redirect("/lobbylist")
+                }, 10000)
                 break;
         }
     }
@@ -122,7 +162,8 @@ export default class PongService {
     }
 
     private draw(): void {
-        console.log(this.canvas);
+        this.overlay.classList.remove("ready");
+        this.overlay.classList.add("hidden")
         if (!this.ctx) {
             return;
         }
