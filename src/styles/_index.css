@@ -13,6 +13,7 @@
 @import './input_fields.css';
 @import './profile.css';
 @import './modal.css';
+@import './canvas.css';
 
 * {
 	user-select: none;

@@ -13,7 +13,6 @@ export default class Lobby extends AbstractView {
         super();
 
         this.initEvents = this.setupEvents.bind(this);
-        this.destroyEvents = this.cleanupEvents.bind(this);
 
         this.lobbyId = params.get('id') || '';
         if (!this.lobbyId) {

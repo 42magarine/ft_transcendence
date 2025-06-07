@@ -1,4 +1,5 @@
 import { IServerMessage, IPaddleDirection, IGameState, IPlayerState } from '../../interfaces/interfaces.js';
+import Router from '../../utils/Router.js';
 
 export default class PongService {
     private gameState!: IGameState;
@@ -8,35 +9,71 @@ export default class PongService {
     private isPlayer2Paddle: boolean = false;
 
     private canvas!: HTMLCanvasElement;
+    private overlay!: HTMLElement;
     private ctx!: CanvasRenderingContext2D;
 
     private wPressed: boolean = false;
     private sPressed: boolean = false;
+
+    private animationFrameId: number | null = null;
 
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleKeyUp = this.handleKeyUp.bind(this);
         this.draw = this.draw.bind(this);
-
-        if (window.ft_socket) {
-            window.ft_socket.addEventListener('message', this.handleSocketMessage);
-        } else {
-            console.error("[PongService] window.ft_socket is not initialized when PongService is constructed.");
-        }
+        this.clientLoop = this.clientLoop.bind(this);
     }
 
-    public initialize(canvasElement: HTMLCanvasElement): void {
-        this.canvas = canvasElement;
-        const context = this.canvas.getContext('2d');
-        if (!context) {
+    public setupEventListener(): void {
+        this.canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+        if (!this.canvas) {
+            console.error("[PongService] Could not find gameCanvas element.");
+            throw new Error("Canvas element not found.");
+        }
+
+        this.overlay = document.getElementById("gameCanvasWrap-overlay") as HTMLElement;
+        if (!this.overlay) {
+            console.error("[PongService] Could not find overlay element.");
+            throw new Error("Overlay element not found.");
+        }
+
+        const ctx = this.canvas.getContext('2d');
+        if (!ctx) {
             console.error("[PongService] Could not get 2D rendering context for canvas.");
             throw new Error("Canvas context not available.");
         }
-        this.ctx = context;
 
-        this.setupUIEventListeners();
-        console.log("[PongService] Initialized with canvas.");
+        this.ctx = ctx;
+
+        document.addEventListener('keydown', this.handleKeyDown);
+        document.addEventListener('keyup', this.handleKeyUp);
+        let countdown = 3;
+        this.overlay.textContent = countdown.toString();
+        const timer = setInterval(() => {
+            countdown--;
+
+            if (countdown == 3) {
+                this.overlay.classList.add("third");
+                this.overlay.textContent = countdown.toString();
+            } else if (countdown == 2) {
+                this.overlay.classList.remove("third");
+                this.overlay.classList.add("second");
+                this.overlay.textContent = countdown.toString();
+            } else if (countdown == 1) {
+                this.overlay.classList.remove("second");
+                this.overlay.classList.add("first");
+                this.overlay.textContent = countdown.toString();
+            } else if (countdown === 0) {
+                this.overlay.classList.remove("first");
+                this.overlay.classList.add("ready");
+                this.overlay.textContent = 'START!';
+            } else {
+                this.overlay.style.display = 'none';
+                clearInterval(timer);
+            }
+        }, 1000);
+
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -44,15 +81,12 @@ export default class PongService {
         return match?.[1] || '';
     }
 
-    private handleSocketMessage(event: MessageEvent<string>): void {
+    public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        console.log("frontend received: " + data.type);
+        //console.log("frontend received: " + data.type);
 
-        // if (data.lobbyId !== currentUrlLobbyId) {
-        //     console.log(`[PongService] Ignoring message for lobby ${data.lobbyId}, current is ${currentUrlLobbyId}`);
-        //     return;
-        // }
+        console.log("PongService msg received: " + data.type)
 
         switch (data.type) {
             case 'gameJoined':
@@ -60,61 +94,72 @@ export default class PongService {
                 this.player1 = data.player1!;
                 this.player2 = data.player2!;
 
-                if (window.currentUser?.id=== this.player1.userId) {
+                if (window.currentUser?.id === this.player1.userId) {
                     this.isPlayer1Paddle = true;
                     this.isPlayer2Paddle = false;
                     console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
-                } else if (window.currentUser?.id === this.player2.userId) {
+                }
+                else if (window.currentUser?.id === this.player2.userId) {
                     this.isPlayer1Paddle = false;
                     this.isPlayer2Paddle = true;
                     console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
-                } else {
+                }
+                else {
                     console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
                 }
-                //countdown here?
-                this.draw();
-                if (window.messageHandler && currentUrlLobbyId) {
-                    window.messageHandler.startGame(currentUrlLobbyId);
+
+                // NEW: Start the client-side input loop when the game is joined
+                if (this.animationFrameId === null) {
+                    this.clientLoop();
                 }
+
+                setTimeout(function () {
+                    if (window.messageHandler && currentUrlLobbyId) {
+                        window.messageHandler.startGame(currentUrlLobbyId);
+                    }
+                }, 4000)
                 break;
 
             case 'gameUpdate':
                 this.gameState = data.gameState!;
                 this.draw();
-                break;
 
-            default:
-                console.warn("[PongService] Unhandled server message type:", data.type);
+                // NEW: If game was paused and is now un-paused, restart the loop
+                if (!this.gameState.paused && !this.gameState.gameIsOver && this.animationFrameId === null) {
+                    this.clientLoop();
+                }
+                break;
+            case "playerLeft":
+                this.overlay.classList.remove("first");
+                this.overlay.classList.add("terminated");
+                this.overlay.textContent = 'Terminated\nby Opponent<span>you will be redirected!';
+                setTimeout(function () {
+                    Router.redirect("/lobbylist")
+                }, 10000)
+                break;
+            case "playerLeft":
+                this.overlay.classList.remove("first");
+                this.overlay.classList.add("terminated");
+                this.overlay.textContent = 'Terminated\nby Opponent<span>you will be redirected!';
+                setTimeout(function () {
+                    Router.redirect("/lobbylist")
+                }, 10000)
                 break;
         }
     }
 
-    private setupUIEventListeners(): void {
-        if (!this.canvas || !this.ctx) {
-            console.error("[PongService] Cannot setup UI event listeners: canvas or context not initialized.");
-            return;
-        }
-        document.addEventListener('keydown', this.handleKeyDown);
-        document.addEventListener('keyup', this.handleKeyUp);
-    }
+    private clientLoop(): void {
 
-    private handleKeyDown(event: KeyboardEvent): void {
         if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
+            this.animationFrameId = null;
             return;
         }
 
         let direction: IPaddleDirection | null = null;
-
-        if (event.key === 'w' || event.key === 'W') {
-            if (!this.wPressed) {
-                this.wPressed = true;
-                direction = 'up';
-            }
-        } else if (event.key === 's' || event.key === 'S') {
-            if (!this.sPressed) {
-                this.sPressed = true;
-                direction = 'down';
-            }
+        if (this.wPressed) {
+            direction = 'up';
+        } else if (this.sPressed) {
+            direction = 'down';
         }
 
         if (direction && window.messageHandler) {
@@ -122,19 +167,44 @@ export default class PongService {
                 window.messageHandler.movePaddle(window.currentUser?.id, direction);
             }
         }
+
+        this.animationFrameId = requestAnimationFrame(this.clientLoop);
+    }
+
+    private handleKeyDown(event: KeyboardEvent): void {
+        if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
+            return;
+        }
+
+        switch (event.key.toLowerCase()) {
+            case 'w':
+            case 'arrowup':
+                this.wPressed = true;
+                break;
+            case 's':
+            case 'arrowdown':
+                this.sPressed = true;
+                break;
+        }
     }
 
     private handleKeyUp(event: KeyboardEvent): void {
-        if (event.key === 'w' || event.key === 'W') {
-            this.wPressed = false;
-        } else if (event.key === 's' || event.key === 'S') {
-            this.sPressed = false;
+        switch (event.key.toLowerCase()) {
+            case 'w':
+            case 'arrowup':
+                this.wPressed = false;
+                break;
+            case 's':
+            case 'arrowdown':
+                this.sPressed = false;
+                break;
         }
     }
 
     private draw(): void {
+        this.overlay.classList.remove("ready");
+        this.overlay.classList.add("hidden")
         if (!this.ctx) {
-            console.warn("[PongService] Draw called but context is not ready.");
             return;
         }
 
@@ -142,7 +212,6 @@ export default class PongService {
             console.warn("[PongService] Draw called but gameState is not ready.");
             return;
         }
-
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.fillStyle = '#FFFFFF';
@@ -195,14 +264,5 @@ export default class PongService {
 
     public getPlayer2(): IPlayerState {
         return this.player2;
-    }
-
-    public destroy(): void {
-        if (window.ft_socket) {
-            window.ft_socket.removeEventListener('message', this.handleSocketMessage);
-        }
-        document.removeEventListener('keydown', this.handleKeyDown);
-        document.removeEventListener('keyup', this.handleKeyUp);
-        console.log('[PongService] Destroyed. All event listeners removed.');
     }
 }

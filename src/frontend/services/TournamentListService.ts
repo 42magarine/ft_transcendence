@@ -8,7 +8,7 @@ export default class TournamentListService {
 
     public handleSocketMessage = (event: MessageEvent<string>): void => {
         const data: IServerMessage = JSON.parse(event.data);
-
+        // console.log("TournamentListService msg received: " + data)
         switch (data.type) {
             case 'tournamentList':
                 this.tournamentData = data.tournaments || [];

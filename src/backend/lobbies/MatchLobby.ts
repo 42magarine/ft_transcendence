@@ -451,4 +451,8 @@ export class MatchLobby {
         //     type: "gameStopped"
         // })
     }
+
+    public get game(): PongGame {
+        return this._game;
+    }
 }

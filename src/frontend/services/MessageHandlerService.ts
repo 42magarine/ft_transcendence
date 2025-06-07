@@ -63,6 +63,7 @@ export default class MessageHandlerService {
     public async movePaddle(userId: number, direction: IPaddleDirection) {
         const msg: IClientMessage = {
             type: 'movePaddle',
+            direction,
             userId
         };
         await this.safeSend(msg);

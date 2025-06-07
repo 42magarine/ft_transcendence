@@ -69,7 +69,7 @@ export class MatchController {
                     this.handleLeaveLobby(connection, data.lobbyId!)
                 break;
             case "movePaddle":
-                this.handleMovePaddle(player!, data.direction!);
+                this.handleMovePaddle(data.userId!, data.direction!, player!._lobbyId);
                 break;
             case "ready":
                 this.handlePlayerReady(player!, data.ready)
@@ -114,7 +114,7 @@ export class MatchController {
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
         if (connection.readyState === WebSocket.OPEN) {
-            console.log("sendMessage (backend->frontend): ", data)
+            // console.log("sendMessage (backend->frontend): ", data)
             connection.send(JSON.stringify(data));
         }
     }
@@ -232,10 +232,7 @@ export class MatchController {
         }
 
         try {
-            // COMMENT BACK IN!!
             await lobby.removePlayer(player);
-
-            // Spieler aus _clients Map entfernen
             this._clients.set(connection, null);
 
             if (lobby.isEmpty()) {
@@ -348,23 +345,20 @@ export class MatchController {
         lobby.startGame();
     }
 
-    private handleMovePaddle(player: Player, direction: IPaddleDirection): void {
-        if (!player.lobbyId) {
-            console.error("Matchcontroller - handleMovePaddle(): =Player not in Lobby");
+    private handleMovePaddle(requestingUserId: number, direction: IPaddleDirection, lobbyId: string): void {
+        const lobby = this._lobbies.get(lobbyId);
+
+        if (!lobby) {
+            console.warn(`Lobby with ID ${lobbyId} not found for userId ${requestingUserId}.`);
             return;
         }
 
-        const lobby = this._lobbies.get(player.lobbyId);
-        if (lobby) {
-            // send full gamestate to frontend here later!
-            this.broadcastToLobby(player.lobbyId, {
-                type: "paddleMove",
-                playerNumber: player._playerNumber,
-                direction: direction
-            });
+        const game = lobby.game;
+        if (!game) {
+            console.error(`PongGame instance not found in lobby ${lobbyId}.`);
+            return;
         }
-        else {
-            console.error(`Lobby ${player.lobbyId} not found for player ${player.id} during movePaddle.`);
-        }
+        game.movePaddle(requestingUserId, direction);
     }
 }
+

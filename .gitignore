@@ -137,6 +137,7 @@ dist
 
 src/dist
 src/node_modules
-src/db.sqlite
+src/*.sqlite
 src/package-lock.json
+src/uploads
 client_secret_google.json

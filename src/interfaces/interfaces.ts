@@ -41,6 +41,7 @@ declare global {
         tournamentListService: TournamentListService;
         userService: UserService;
         userManagementService: UserManagementService;
+        pongService: PongService;
     }
 }
 

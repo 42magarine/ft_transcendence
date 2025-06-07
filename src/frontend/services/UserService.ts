@@ -200,47 +200,56 @@ export default class UserService {
 
     static async getFriends(): Promise<FriendList[]> {
         try {
-            const users = await UserService.getAllUsers();
-            return users
-                .filter(user => typeof user.id === 'number')
-                .map((user) => ({
-                    id: user.id!,
-                    username: user.username,
-                    status: Math.random() > 0.5 ? 'online' : 'offline'
-                }));
+            const response = await fetch('/api/users/friendlist');
+            if (!response.ok) {
+                const errorData = await response.json() as ApiErrorResponse;
+                throw new Error(errorData.error || 'Failed to fetch friends');
+            }
+            return await response.json() as FriendList[];
         }
         catch (error) {
-            console.error('[UserService] Failed to fetch friends:', error);
+            console.error('Failed to fetch friends:', error);
             return [];
         }
     }
 
     static async addFriendByUsername(username: string): Promise<boolean> {
-        console.log('[UserService] Attempting to add friend:', username);
         try {
-            const response = await fetch(`/api/friends/add`, {
+            console.log('[UserService] add friend:', username);
+
+            const response = await fetch(`/api/users/friend`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username })
             });
+
             const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Add failed');
+            if (!response.ok) {
+                throw new Error(result.error);
+            }
+
             console.log('[UserService] Friend added:', result);
             return true;
         }
         catch (error) {
-            console.error('[UserService] Failed to add friend:', error);
+            console.error('Failed to add friend:', error);
             return false;
         }
     }
 
     static async removeFriendById(id: number): Promise<boolean> {
-        console.log('[UserService] Attempting to remove friend ID:', id);
         try {
-            const response = await fetch(`/api/friends/remove/${id}`, {
+            console.log('[UserService] Attempting to remove friend ID:', id);
+
+            const response = await fetch(`/api/users/friend/${id}`, {
                 method: 'DELETE'
             });
-            if (!response.ok) throw new Error(await response.text());
+
+            if (!response.ok) {
+                const errorData = await response.json() as ApiErrorResponse;
+                throw new Error(errorData.error);
+            }
+
             console.log('[UserService] Friend removed:', id);
             return true;
         }

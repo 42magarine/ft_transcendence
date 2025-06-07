@@ -8,7 +8,7 @@ export default class LobbyListService {
 
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
-
+        // console.log("LobbyListService msg received: " + data)
         switch (data.type) {
             case 'lobbyList':
                 this.lobbyData = data.lobbies || [];

@@ -69,4 +69,26 @@ export default async function (fastify: FastifyInstance) {
         preHandler: authenticate,
         handler: userController.deleteUserById.bind(userController)
     });
+
+    // Friend List routes
+    fastify.route({
+        method: 'GET',
+        url: '/api/users/friendlist',
+        preHandler: authenticate,
+        handler: userController.getFriends.bind(userController)
+    });
+
+    fastify.route<{ Body: { username: string } }>({
+        method: 'POST',
+        url: '/api/users/friend',
+        preHandler: authenticate,
+        handler: userController.addFriend.bind(userController)
+    });
+
+    fastify.route<{ Params: { id: string } }>({
+        method: 'DELETE',
+        url: '/api/users/friend/:id',
+        preHandler: authenticate,
+        handler: userController.removeFriend.bind(userController)
+    });
 }

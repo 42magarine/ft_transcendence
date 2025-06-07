@@ -400,4 +400,54 @@ export class UserService {
         }
         return null;
     }
+
+    async findUserFriends(id: number): Promise<UserModel[]> {
+        const user = await this.userRepo.findOne({
+            where: { id },
+            relations: ['friends']
+        });
+        return user?.friends || [];
+    }
+
+    async addFriend(userId: number, username: string): Promise<void> {
+        const user = await this.userRepo.findOne({
+            where: { id: userId },
+            relations: ['friends']
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const friend = await this.findUserByUsername(username);
+        if (!friend) {
+            throw new Error('Friend not found');
+        }
+
+        if (userId === friend.id) {
+            throw new Error('Cannot add yourself as friend');
+        }
+
+        const isAlreadyFriend = user.friends.some(f => f.id === friend.id);
+        if (isAlreadyFriend) {
+            throw new Error('Already friends');
+        }
+
+        user.friends.push(friend);
+        await this.userRepo.save(user);
+    }
+
+    async removeFriend(userId: number, friendId: number): Promise<void> {
+        const user = await this.userRepo.findOne({
+            where: { id: userId },
+            relations: ['friends']
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.friends = user.friends.filter(friend => friend.id !== friendId);
+        await this.userRepo.save(user);
+    }
 }
