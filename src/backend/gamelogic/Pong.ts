@@ -69,7 +69,7 @@ export class PongGame {
             if (this._player2Left) {
                 this._winner = this.player1;
             }
-                this.updateGameRecord();
+            this.updateGameRecord();
             this.stopGameLoop();
         }
     }

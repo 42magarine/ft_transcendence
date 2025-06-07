@@ -12,9 +12,12 @@ export default class LobbyList extends AbstractView {
 
     async getHtml(): Promise<string> {
         let lobbies: ILobbyState[] = [];
-        if (window.lobbyListService && window.lobbyListService.getLobbies) {
-            lobbies = await window.lobbyListService.getLobbies();
-            lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
+        lobbies = await window.lobbyListService.getLobbies();
+
+        //console.debug('[LobbyList] Fetched lobbies:', lobbies);
+
+        if (!Array.isArray(lobbies) || lobbies.length === 0) {
+            //console.warn('[LobbyList] No lobbies found or invalid format.');
         }
 
         const lobbyListCard = await new Card().renderCard({

@@ -2,6 +2,7 @@ import Card from '../components/Card.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
 import UserService from '../services/UserService.js';
+import Modal from '../components/Modal.js'
 
 export default class ProfileEdit extends AbstractView {
     private userId: string;
@@ -17,12 +18,11 @@ export default class ProfileEdit extends AbstractView {
         if (!userData) {
             return this.render(`
                 <div class="flex justify-center items-center min-h-[80vh] px-4">
-                    <div class="alert alert-warning text-center">User not found or error loading user data.</div>
+                <div class="alert alert-warning text-center">User not found or error loading user data.</div>
                 </div>
-            `);
+                `);
         }
-        const profileImageSvg = generateProfileImage(userData, 100, 100);
-
+        const isMaster = userData.role === 'master';
         const profileEditCard = await new Card().renderCard(
             {
                 formId: 'edit-profile-form',
@@ -30,10 +30,10 @@ export default class ProfileEdit extends AbstractView {
                 contentBlocks:
                     [
                         {
-                            type: 'container',
+                            type: 'avatar',
                             props: {
-                                className: 'flex justify-center my-4',
-                                html: profileImageSvg
+                                src: generateProfileImage(userData, 100, 100),
+                                size: 300
                             }
                         },
                         {
@@ -42,7 +42,8 @@ export default class ProfileEdit extends AbstractView {
                             {
                                 name: 'name',
                                 placeholder: 'Name',
-                                value: userData.name
+                                value: userData.name,
+                                type: isMaster ? 'display' : 'text'
                             }
                         },
                         {
@@ -51,7 +52,8 @@ export default class ProfileEdit extends AbstractView {
                             {
                                 name: 'username',
                                 placeholder: 'Username',
-                                value: userData.username
+                                value: userData.username,
+                                type: isMaster ? 'display' : 'text'
                             }
                         },
                         {
@@ -139,33 +141,115 @@ export default class ProfileEdit extends AbstractView {
                                     [
                                         {
                                             id: 'back-to-list',
-                                            text: 'Back to User List',
-                                            href: '/user-mangement',
+                                            text: isMaster ? 'Back to User List' : 'Back to Profile',
+                                            href: isMaster ? '/user-mangement' : `/users/${userData.id}`,
                                             className: 'btn btn-primary'
                                         }
                                     ]
                             }
                         },
-                        {
-                            type: 'html',
-                            props:
-                            {
-                                html: `
-                            <div id="confirm-delete-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                                <div class="bg-white p-6 rounded-lg max-w-sm w-full shadow-lg animate-scale">
-                                    <h2 class="text-lg font-bold mb-4">Confirm Deletion</h2>
-                                    <p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>
-                                    <div class="flex justify-end gap-4 mt-6">
-                                        <button class="btn btn-secondary" onclick="document.getElementById('confirm-delete-modal').classList.add('hidden')">Cancel</button>
-                                        <button id="confirm-delete-btn" class="btn btn-red">Yes, Delete</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `
-                            }
-                        }
                     ]
             });
         return this.render(`${profileEditCard}`);
+    }
+
+    async mount(): Promise<void> {
+        const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
+        if (!form) {
+            console.warn(`Form with ID edit-profile-form not found`);
+            return;
+        }
+
+        const passwordInput = form.querySelector('input[name="password"]') as HTMLInputElement;
+        const confirmPasswordRow = document.getElementById('password-confirm-row');
+
+        if (passwordInput && confirmPasswordRow) {
+            passwordInput.addEventListener('input', () => {
+                if (passwordInput.value.trim().length > 0) {
+                    confirmPasswordRow.style.display = 'block';
+                } else {
+                    confirmPasswordRow.style.display = 'none';
+                }
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const payload: any = Object.fromEntries(formData.entries());
+            delete payload.passwordConfirm;
+            payload.emailVerified = (formData.get('emailVerified') === 'true');
+
+            // Handle avatar separately
+            const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
+            const avatarFile = avatarInput?.files?.[0];
+
+            try {
+                let success;
+                if (avatarFile && avatarFile.size > 0) {
+                    console.log('[ProfileEdit] Avatar file selected:', {
+                        name: avatarFile.name,
+                        size: avatarFile.size,
+                        type: avatarFile.type,
+                    });
+
+                    const uploadFormData = new FormData();
+
+                    for (const [key, value] of Object.entries(payload)) {
+                        if (typeof value === 'string' || value instanceof Blob) {
+                            console.log(`[FormData] Appending field "${key}" as`, value);
+                            uploadFormData.append(key, value);
+                        } else {
+                            console.log(`[FormData] Coercing and appending field "${key}" as`, String(value));
+                            uploadFormData.append(key, String(value));
+                        }
+                    }
+
+                    console.log('[FormData] Appending avatar file');
+                    uploadFormData.append('avatar', avatarFile);
+
+                    for (const pair of uploadFormData.entries()) {
+                        console.log(`[FormData] Final entry:`, pair[0], pair[1]);
+                    }
+
+                    success = await UserService.updateUser(this.userId, uploadFormData);
+                } else {
+                    console.log('[ProfileEdit] No avatar selected, removing avatar from payload');
+                    delete payload.avatar;
+                    console.log('[Payload] Final payload before sending:', payload);
+
+                    success = await UserService.updateUser(this.userId, payload);
+                }
+
+                if (success) {
+                    window.location.href = `/users/${this.userId}`;
+                } else {
+                    console.error('Failed to update profile.');
+                }
+            } catch (error) {
+                console.error('Update failed:', error);
+            }
+        });
+
+        // Setup modal for deletion
+        const modal = new Modal();
+
+        await modal.renderDeleteModal({
+            id: 'confirm-delete-modal',
+            userId: this.userId,
+            onConfirm: async () => {
+                try {
+                    await UserService.deleteUser(Number(this.userId));
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+
+        document.getElementById('delete-user-btn')?.addEventListener('click', () => {
+            document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
+        });
     }
 }

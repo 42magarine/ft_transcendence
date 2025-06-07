@@ -10,211 +10,138 @@ export default class UserManagement extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        let users: UserList[] = await UserService.getAllUsers();
+        const users: UserList[] = await UserService.getAllUsers();
 
-        const createUserCard = await new Card().renderCard(
-            {
-                title: 'Create New User',
-                formId: 'create-form',
-                contentBlocks:
-                    [
-                        {
-                            type: 'inputgroup',
-                            props: {
-                                inputs: [
-                                    {
-                                        name: 'name',
-                                        label: 'Name',
-                                        placeholder: 'Name'
-                                    },
-                                    {
-                                        name: 'username',
-                                        label: 'Username',
-                                        placeholder: 'Username'
-                                    },
-                                    {
-                                        name: 'email',
-                                        type: 'email',
-                                        label: 'E-Mail',
-                                        placeholder: 'E-Mail'
-                                    },
-                                    {
-                                        id: 'password',
-                                        name: 'password',
-                                        type: 'password',
-                                        label: 'Password',
-                                        placeholder: 'Password',
-                                        withConfirm: true
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            type: 'buttongroup',
-                            props: {
-                                toggles: [
-                                    {
-                                        id: 'emailVerified',
-                                        name: 'emailVerified',
-                                        label: 'Email Verified:',
-                                        checked: false
-                                    },
-                                    {
-                                        id: 'twoFAEnabled',
-                                        name: 'twoFAEnabled',
-                                        label: '2FA Enabled:',
-                                        checked: false,
-                                    },
-                                    {
-                                        id: 'googleSignIn',
-                                        name: 'googleSignIn',
-                                        label: 'Google Sign-In:',
-                                        checked: false,
-                                        readonly: true
-                                    }
-                                ],
-                                layout: 'stack',
-                                align: 'left'
-                            }
-                        },
-                        {
-                            type: 'buttongroup',
-                            props:
+        const createUserCard = await new Card().renderCard({
+            title: 'Create New User',
+            formId: 'create-form',
+            contentBlocks: [
+                {
+                    type: 'inputgroup',
+                    props: {
+                        inputs: [
+                            { name: 'name', label: 'Name', placeholder: 'Name' },
+                            { name: 'username', label: 'Username', placeholder: 'Username' },
+                            { name: 'email', type: 'email', label: 'E-Mail', placeholder: 'E-Mail' },
+                            { id: 'password', name: 'password', type: 'password', label: 'Password', placeholder: 'Password', withConfirm: true }
+                        ]
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props: {
+                        toggles: [
+                            { id: 'emailVerified', name: 'emailVerified', label: 'Email Verified:', checked: false },
+                            { id: 'twoFAEnabled', name: 'twoFAEnabled', label: '2FA Enabled:', checked: false },
+                            { id: 'googleSignIn', name: 'googleSignIn', label: 'Google Sign-In:', checked: false, readonly: true }
+                        ],
+                        layout: 'stack',
+                        align: 'left'
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props: {
+                        buttons: [
+                            { text: 'Create User', type: 'submit', className: 'btn btn-green' }
+                        ],
+                        layout: 'stack',
+                        align: 'left'
+                    }
+                },
+                {
+                    type: 'label',
+                    props: {
+                        htmlFor: 'dummy-id',
+                        text: ' '
+                    }
+                },
+                {
+                    type: 'table',
+                    props: {
+                        id: 'user-list',
+                        title: 'User Overview',
+                        height: '300px',
+                        data: users,
+                        columns: [
+                            { key: 'id', label: 'ID' },
+                            { key: 'name', label: 'Name' },
+                            { key: 'username', label: 'Username' },
+                            { key: 'email', label: 'Email' },
+                            { key: 'emailVerified', label: 'Verified' },
+                            { key: 'twoFAEnabled', label: '2FA' },
+                            { key: 'actions', label: 'Actions' }
+                        ],
+                        rowLayout: (user) => [
+                            { type: 'label', props: { text: `${user.id}` } },
+                            { type: 'label', props: { text: `${user.name}` } },
+                            { type: 'label', props: { text: `${user.username}` } },
+                            { type: 'label', props: { text: `${user.email}` } },
+                            { type: 'label', props: { text: user.emailVerified ? 'Yes' : 'No' } },
+                            { type: 'label', props: { text: user.twoFAEnabled ? 'Enabled' : 'Disabled' } },
                             {
-                                buttons:
-                                    [
+                                type: 'buttongroup',
+                                props: {
+                                    buttons: [
+                                        { icon: 'eye', text: 'View', href: `/users/${user.id}` },
+                                        { icon: 'pen-to-square', text: 'Edit', href: `/users/edit/${user.id}` },
                                         {
-                                            text: 'Create User',
-                                            type: 'submit',
-                                            className: 'btn btn-green'
+                                            id: `delete-user-btn-${user.id}`,
+                                            icon: 'trash',
+                                            text: 'Delete',
+                                            color: 'red',
+                                            dataAttributes: {
+                                                'user-id': String(user.id)
+                                            },
                                         }
-                                    ],
-                                layout: 'stack',
-                                align: 'left'
+                                    ]
+                                }
                             }
-                        },
-                        // Safe label
-                        {
-                            type: 'label',
-                            props: {
-                                htmlFor: 'dummy-id',
-                                text: ' '
-                            }
-                        },
+                        ]
+                    }
+                }
+            ]
+        });
 
-                        // Safe table
-                        {
-                            type: 'table',
-                            props: {
-                                id: 'user-list',
-                                title: 'User Overview',
-                                height: '300px',
-                                data: users,
-                                columns: [
-                                    { key: 'id', label: 'ID' },
-                                    { key: 'name', label: 'Name' },
-                                    { key: 'username', label: 'Username' },
-                                    { key: 'email', label: 'Email' },
-                                    { key: 'emailVerified', label: 'Verified' },
-                                    { key: 'twoFAEnabled', label: '2FA' },
-                                    { key: 'actions', label: 'Actions' }
-                                ],
-                                rowLayout: (user) => [
-                                    {
-                                        type: 'label',
-                                        props: {
-                                            text: `${user.id}`,
-                                            htmlFor: `user-${user.id}-id`
-                                        }
-                                    },
-                                    {
-                                        type: 'label',
-                                        props: {
-                                            text: `${user.name}`,
-                                            htmlFor: `user-${user.id}-name`
-                                        }
-                                    },
-                                    {
-                                        type: 'label',
-                                        props: {
-                                            text: `${user.username}`,
-                                            htmlFor: `user-${user.id}-username`
-                                        }
-                                    },
-                                    {
-                                        type: 'label',
-                                        props: {
-                                            text: `${user.email}`,
-                                            htmlFor: `user-${user.id}-email`
-                                        }
-                                    },
-                                    {
-                                        type: 'label',
-                                        props: {
-                                            text: `${user.emailVerified ? 'Yes' : 'No'}`,
-                                            htmlFor: `user-${user.id}-verified`
-                                        }
-                                    },
-                                    {
-                                        type: 'label',
-                                        props: {
-                                            text: `${user.twoFAEnabled ? 'Enabled' : 'Disabled'}`,
-                                            htmlFor: `user-${user.id}-2fa`
-                                        }
-                                    },
-                                    {
-                                        type: 'buttongroup',
-                                        props: {
-                                            buttons: [
-                                                {
-                                                    icon: 'eye',
-                                                    text: 'View',
-                                                    href: `/users/${user.id}`,
-                                                },
-                                                {
-                                                    icon: 'pen-to-square',
-                                                    text: 'Edit',
-                                                    href: `/users/edit/${user.id}`,
-                                                },
-                                                {
-                                                    icon: 'trash',
-                                                    text: 'Delete',
-                                                    onClick: `handleDeleteUser(${user.id})`,
-                                                    type: 'delete',
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-            });
-
-        const deleteModal = await new Modal().renderModal(
-            {
-                id: 'confirm-delete-modal',
-                title: 'Confirm Deletion',
-                content: `
-                <p>Are you sure you want to delete this user?<br>
-                <strong>This action cannot be undone.</strong></p>
-            `,
-                footerButtons:
-                    [
-                        {
-                            id: 'cancel-delete-btn',
-                            text: 'Cancel',
-                            className: 'btn btn-secondary',
-                            onClick: `document.getElementById('confirm-delete-modal').classList.add('hidden')`
-                        },
-                        {
-                            id: 'confirm-delete-btn',
-                            text: 'Yes, Delete',
-                            className: 'btn btn-red'
-                        }
-                    ],
-                closableOnOutsideClick: true
-            });
-        return this.render(`${createUserCard}${deleteModal}`);
+        return this.render(`${createUserCard}`);
     }
+
+    async mount(): Promise<void> {
+        const users: UserList[] = await UserService.getAllUsers();
+        const deleteButtons = document.querySelectorAll('[data-user-id]');
+
+        deleteButtons.forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const userId = btn.getAttribute('data-user-id');
+                if (!userId) return;
+
+                const user = users.find((u) => String(u.id) === userId);
+                if (!user) {
+                    console.error(`User with ID ${userId} not found`);
+                    return;
+                }
+
+                // Remove existing modal if present
+                document.getElementById('confirm-delete-modal')?.remove();
+
+                const modal = new Modal();
+
+                await modal.renderDeleteModal({
+                    id: 'confirm-delete-modal',
+                    userId: userId,
+                    onConfirm: async () => {
+                        try {
+                            await UserService.deleteUser(Number(userId));
+                            window.location.reload();
+                        } catch (err) {
+                            console.error('Failed to delete user:', err);
+                        }
+                    }
+                });
+
+                document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
+            });
+        });
+    }
+
 }

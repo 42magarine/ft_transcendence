@@ -34,7 +34,7 @@ export default class Table extends AbstractView {
                 ths.push(`<th class="px-4 py-2 text-left font-semibold" ${colspanAttr}>${col.label}</th>`);
             }
 
-            headerHtml = `<thead class="sticky top-0 bg-black/70 z-10 backdrop-blur-md">
+            headerHtml = `<thead class="sticky top-0bg-blue-900 z-8 backdrop-blur-md">
                 <tr>${ths.join('')}</tr>
             </thead>`;
         }
@@ -43,7 +43,7 @@ export default class Table extends AbstractView {
             <div class="table-container">
                 ${title ? `<h2 class="text-xl font-semibold mb-2 text-white">${title}</h2>` : ''}
                 <div class="overflow-y-auto rounded-md" style="max-height: ${height};">
-                    <table id="${tableId}" class="w-full table-fixed border-collapse text-sm text-white">
+                    <table id="${tableId}" class="w-full table-auto border-collapse text-sm text-white">
                         ${headerHtml}
                         <tbody>
                             ${rowsHtml.join('\n')}
