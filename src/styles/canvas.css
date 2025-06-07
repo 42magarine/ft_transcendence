@@ -2,6 +2,9 @@
 #gameCanvasWrap {
     @apply w-full max-w-[800px] h-[600px] mx-auto relative;
 }
+#playerCanvasWrap {
+    @apply w-full max-w-[800px] mx-auto relative flex gap-2 justify-between;
+}
 
 #gameCanvasWrap #gameCanvasWrap-overlay {
     @apply flex flex-col items-center justify-center gap-2 rounded-lg absolute top-[calc(var(--spacing)*_0)] left-[calc(var(--spacing)*_0)] z-[12] h-full w-full flex justify-center items-center text-[200px] text-center;
@@ -30,7 +33,7 @@
 
 .player-name.player1 {
     animation: slide-in-left 1s ease-out;
-    transform: skewX(-15deg);
+    transform: skewX(10deg);
     background: linear-gradient(45deg, rgb(255, 165, 0), rgb(255, 215, 0));
     -webkit-background-clip: text;
     background-clip: text;
@@ -40,7 +43,7 @@
 
 .player-name.player2 {
     animation: slide-in-right 1s ease-out 0.5s both;
-    transform: skewX(10deg);
+    transform: skewX(-10deg);
     background: linear-gradient(45deg, rgb(0, 128, 0), rgb(0, 100, 0));
     -webkit-background-clip: text;
     background-clip: text;
@@ -60,22 +63,22 @@
 
 @keyframes slide-in-left {
     0% {
-        transform: translateX(-100%) skewX(-15deg);
+        transform: translateX(-100%) skewX(10deg);
         opacity: 0;
     }
     100% {
-        transform: translateX(0) skewX(-15deg);
+        transform: translateX(0) skewX(10deg);
         opacity: 1;
     }
 }
 
 @keyframes slide-in-right {
     0% {
-        transform: translateX(100%) skewX(10deg);
+        transform: translateX(100%) skewX(-10deg);
         opacity: 0;
     }
     100% {
-        transform: translateX(0) skewX(10deg);
+        transform: translateX(0) skewX(-10deg);
         opacity: 1;
     }
 }
@@ -259,17 +262,19 @@
     @apply hidden;
 }
 
-#gameCanvasWrap #gameCanvasWrap-overlay.hidden.terminated {
+#gameCanvasWrap #gameCanvasWrap-overlay.terminated {
     background-color: rgb(104, 0, 0);
     color: rgb(255, 255, 255);
     @apply flex border-4 border-white rounded-lg;
 }
-#gameCanvasWrap #gameCanvasWrap-overlay.hidden.waiting {
+#gameCanvasWrap #gameCanvasWrap-overlay.waiting, #gameCanvasWrap #gameCanvasWrap-overlay.game-over {
     background-color: rgb(5, 0, 92);
     color: rgb(255, 255, 255);
     @apply flex border-4 border-white rounded-lg;
 }
 
 #gameCanvasWrap canvas {
-    @apply w-full h-full absolute top-0 left-0 bg-black border-4 border-white rounded-lg shadow-lg;
+    @apply w-full h-full absolute top-0 left-0 border-4 bg-black border-white rounded-lg shadow-lg;
+   /*background: #9b622a;*/
+   /*background: linear-gradient(90deg, rgba(155, 98, 42, 1) 0%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 80%, rgba(80, 145, 0, 1) 100%);*/
 }
