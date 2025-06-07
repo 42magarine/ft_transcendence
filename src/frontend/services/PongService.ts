@@ -48,6 +48,44 @@ export default class PongService {
 
         document.addEventListener('keydown', this.handleKeyDown);
         document.addEventListener('keyup', this.handleKeyUp);
+
+        // Start with player vs player screen
+        this.showPlayerVsPlayerScreen();
+    }
+
+    private showPlayerVsPlayerScreen(): void {
+        // Show "Player vs Player" screen for 4 seconds
+        this.overlay.classList.add("vs-screen");
+
+        const vsContainer = document.createElement('div');
+        vsContainer.className = 'vs-container';
+
+        const player1Name = document.createElement('div');
+        player1Name.textContent = this.player1?.userName || 'Player 1';
+        player1Name.className = 'player-name player1';
+
+        const vsText = document.createElement('div');
+        vsText.textContent = 'VS';
+        vsText.className = 'vs-text';
+
+        const player2Name = document.createElement('div');
+        player2Name.textContent = this.player2?.userName || 'Player 2';
+        player2Name.className = 'player-name player2';
+
+        this.overlay.textContent = '';
+        vsContainer.appendChild(player1Name);
+        vsContainer.appendChild(vsText);
+        vsContainer.appendChild(player2Name);
+        this.overlay.appendChild(vsContainer);
+
+        setTimeout(() => {
+            this.overlay.classList.remove("vs-screen");
+            this.overlay.classList.add("third");
+            this.startCountdown();
+        }, 4000);
+    }
+
+    private startCountdown(): void {
         let countdown = 3;
         this.overlay.textContent = countdown.toString();
         const timer = setInterval(() => {
@@ -69,11 +107,10 @@ export default class PongService {
                 this.overlay.classList.add("ready");
                 this.overlay.textContent = 'START!';
             } else {
-                this.overlay.style.display = 'none';
+                this.overlay.classList.add("hidden");
                 clearInterval(timer);
             }
         }, 1000);
-
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -117,7 +154,7 @@ export default class PongService {
                     if (window.messageHandler && currentUrlLobbyId) {
                         window.messageHandler.startGame(currentUrlLobbyId);
                     }
-                }, 4000)
+                }, 8000) // Changed from 4000 to 8000 to account for the 4s vs screen + 4s countdown
                 break;
 
             case 'gameUpdate':
@@ -130,20 +167,35 @@ export default class PongService {
                 }
                 break;
             case "playerLeft":
-                this.overlay.classList.remove("first");
                 this.overlay.classList.add("terminated");
-                this.overlay.textContent = 'Terminated\nby Opponent<span>you will be redirected!';
+
+                const terminatedText = document.createElement('div');
+                terminatedText.textContent = 'Terminated by Opponent';
+                terminatedText.className = 'overlay-title';
+
+                const redirectSpan = document.createElement('div');
+                redirectSpan.textContent = 'you will be redirected';
+                redirectSpan.className = 'overlay-text';
+
+                this.overlay.textContent = '';
+                this.overlay.appendChild(terminatedText);
+                this.overlay.appendChild(redirectSpan);
+                // this.overlay.classList.add("waiting");
+
+                // const terminatedText = document.createElement('div');
+                // terminatedText.textContent = 'Waiting for concurrent games';
+                // terminatedText.className = 'overlay-title';
+
+                // const redirectSpan = document.createElement('div');
+                // redirectSpan.textContent = 'you will be redirected to your next opponent soon...';
+                // redirectSpan.className = 'overlay-text';
+
+                // this.overlay.textContent = '';
+                // this.overlay.appendChild(terminatedText);
+                // this.overlay.appendChild(redirectSpan);
                 setTimeout(function () {
                     Router.redirect("/lobbylist")
-                }, 10000)
-                break;
-            case "playerLeft":
-                this.overlay.classList.remove("first");
-                this.overlay.classList.add("terminated");
-                this.overlay.textContent = 'Terminated\nby Opponent<span>you will be redirected!';
-                setTimeout(function () {
-                    Router.redirect("/lobbylist")
-                }, 10000)
+                }, 1000000)
                 break;
         }
     }
@@ -202,8 +254,10 @@ export default class PongService {
     }
 
     private draw(): void {
-        this.overlay.classList.remove("ready");
-        this.overlay.classList.add("hidden")
+        if (!this.overlay.classList.contains("terminated")) {
+            this.overlay.classList.remove("ready");
+            this.overlay.classList.add("hidden")
+        }
         if (!this.ctx) {
             return;
         }
