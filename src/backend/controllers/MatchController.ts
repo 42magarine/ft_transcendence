@@ -66,7 +66,7 @@ export class MatchController {
                 break;
             case "leaveLobby":
                 if (player) //todo fix in frontend leave route and button sends this twice
-                    this.handleLeaveLobby(connection, data.lobbyId!)
+                    this.handleLeaveLobby(connection, data.lobbyId!, data.gameIsOver!)
                 break;
             case "movePaddle":
                 this.handleMovePaddle(data.userId!, data.direction!, player!._lobbyId);
@@ -100,14 +100,19 @@ export class MatchController {
 
         if (player && player.lobbyId) {
             const lobby = this._lobbies.get(player.lobbyId);
-
-            if (lobby) {
-                lobby.removePlayer(player);
-
-                if (lobby.isEmpty()) {
-                    this._lobbies.delete(player.lobbyId);
-                }
+            if (lobby?.game.isRunning) {
+                this.handleLeaveLobby(connection, player.lobbyId, true)
             }
+            else {
+                this.handleLeaveLobby(connection, player.lobbyId, false)
+            }
+            // if (lobby) {
+            //     lobby.removePlayer(player);
+
+            //     if (lobby.isEmpty()) {
+            //         this._lobbies.delete(player.lobbyId);
+            //     }
+            // }
         }
         this._clients.delete(connection);
     }
@@ -206,7 +211,6 @@ export class MatchController {
                 type: "joinedLobby",
                 lobbyId: lobbyId,
                 owner: userId,
-                // playerNumber: player._playerNumber //prob don't need this since websocket is unique to client anyways
             });
             this.broadcastToLobby(lobbyId, {
                 type: "playerJoined",
@@ -218,7 +222,7 @@ export class MatchController {
         }
     }
 
-    private async handleLeaveLobby(connection: WebSocket, lobbyId: string) {
+    private async handleLeaveLobby(connection: WebSocket, lobbyId: string, gameIsOver: boolean) {
         const lobby = this._lobbies.get(lobbyId);
         if (!lobby) {
             console.error("Matchcontroller - handleLeaveLobby(): Couldn't find Lobby");
@@ -232,6 +236,19 @@ export class MatchController {
         }
 
         try {
+            if (gameIsOver) {
+                lobby.game.isGameOver = true;
+                if (player.userId === lobby.game.player1?.userId) {
+                    lobby.game.player1Left = true;
+                }
+                else if (player.userId === lobby.game.player2?.userId) {
+                    lobby.game.player2Left = true;
+                }
+
+                this.broadcastToLobby(lobbyId, {
+                    type: "playerLeftGame",
+                });
+            }
             await lobby.removePlayer(player);
             this._clients.set(connection, null);
 

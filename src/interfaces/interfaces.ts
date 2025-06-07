@@ -73,6 +73,9 @@ export interface IGameState {
     paused: boolean;
     running: boolean;
     gameIsOver: boolean;
+    player1Left: boolean;
+    player2Left: boolean;
+    winnerName?: string;
 }
 
 export interface ILobbyState {
@@ -104,6 +107,7 @@ export interface IClientMessage {
     lobbyId?: string;
     direction?: IPaddleDirection;
     message?: string;
+    gameIsOver?: boolean;
     [key: string]: any;
 }
 
