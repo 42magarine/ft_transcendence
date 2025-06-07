@@ -72,7 +72,7 @@ export class PongGame {
 
     public resetGame(): void {
         this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
-        this._ball.randomizeDirection();
+        this._ball.randomizeDirection(); // Ensure ball starts with a random direction
         this._paddle1 = new Paddle(10, this._height / 2 - 50);
         this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
     }
@@ -101,9 +101,7 @@ export class PongGame {
     }
 
     private endGame(winner: number): void {
-        // Call a callback, emit event, or flag the game state
         this._gameIsOver = true;
-        // Optionally notify controller or set state for frontend sync
     }
 
     public update(): void {
@@ -114,23 +112,31 @@ export class PongGame {
         for (let i = 0; i < STEPS; i++) {
             this._ball.update();
 
-            const ballY = this._ball.y;
             const ballX = this._ball.x;
+            const ballY = this._ball.y;
+            const ballRadius = this._ball.radius;
 
-            if (ballY <= 0 || ballY >= this._height) {
+            if (ballY - ballRadius <= 0) {
+                this._ball.y = ballRadius;
+                this._ball.revY();
+            }
+            else if (ballY + ballRadius >= this._height) {
+                this._ball.y = this._height - ballRadius;
                 this._ball.revY();
             }
 
-            if (this.isColliding(this._ball, this._paddle1)) {
+            if (this._ball.speedX < 0 && this.isColliding(this._ball, this._paddle1)) {
+                this._ball.x = this._paddle1.x + this._paddle1.width + ballRadius;
+                this._ball.revX();
                 const paddleCenterY = this._paddle1.y + this._paddle1.height / 2;
                 const overlapY = ballY - paddleCenterY;
-                this._ball.revX();
                 this._ball.speedY += overlapY * 0.05;
             }
-            else if (this.isColliding(this._ball, this._paddle2)) {
+            else if (this._ball.speedX > 0 && this.isColliding(this._ball, this._paddle2)) {
+                this._ball.x = this._paddle2.x - ballRadius;
+                this._ball.revX();
                 const paddleCenterY = this._paddle2.y + this._paddle2.height / 2;
                 const overlapY = ballY - paddleCenterY;
-                this._ball.revX();
                 this._ball.speedY += overlapY * 0.05;
             }
 
@@ -177,14 +183,17 @@ export class PongGame {
 
         if (!paddleToMove) {
             console.warn(`movePaddle: User ID ${requestingUserId} is not a player in this game.`);
-            return; // User is not associated with any paddle in this game
+            return;
         }
 
-        if (direction === "up" && paddleToMove.y > 0) {
+
+        if (direction === "up") {
             paddleToMove.moveUp();
+            if (paddleToMove.y < 0) paddleToMove.y = 0;
         }
-        else if (direction === "down" && paddleToMove.y + paddleToMove.height < this._height) {
+        else if (direction === "down") {
             paddleToMove.moveDown();
+            if (paddleToMove.y + paddleToMove.height > this._height) paddleToMove.y = this._height - paddleToMove.height; // Prevent going below bottom
         }
     }
 
@@ -234,7 +243,7 @@ export class PongGame {
             gameIsOver: this._gameIsOver
         };
     }
-
+    
     public get score1(): number {
         return this._score1;
     }
