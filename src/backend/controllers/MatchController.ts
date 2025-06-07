@@ -86,12 +86,12 @@ export class MatchController {
             case "getLobbyState":
                 this.handleGetLobbyState(data.lobbyId!);
                 break;
+            // default ist nur dafür da fehler zu sehen, sollte später entfernt werden.
             default:
                 this.sendMessage(connection, {
                     type: "error",
                     message: "not yet implemented"
                 });
-            // throw Error("Backend: invalid message type received");
         }
     }
 

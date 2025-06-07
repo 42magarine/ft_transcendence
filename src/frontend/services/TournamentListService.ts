@@ -6,13 +6,6 @@ export default class TournamentListService {
     private currentTournamentRequest: Promise<ITournamentState[]> | null = null;
     private tournamentDataResolver: ((tournaments: ITournamentState[]) => void) | null = null;
 
-    public setupEventListener(): void {
-        const createTournamentBtn = document.getElementById('createTournamentBtn');
-        if (createTournamentBtn) {
-            createTournamentBtn.addEventListener('click', this.handleCreateTournamentClick);
-        }
-    }
-
     public handleSocketMessage = (event: MessageEvent<string>): void => {
         const data: IServerMessage = JSON.parse(event.data);
 
@@ -93,7 +86,14 @@ export default class TournamentListService {
         return this.currentTournamentRequest;
     }
 
-    private handleCreateTournamentClick = async (e: MouseEvent): Promise<void> => {
+    public setupEventListener(): void {
+        const createTournamentBtn = document.getElementById('createTournamentBtn');
+        if (createTournamentBtn) {
+            createTournamentBtn.addEventListener('click', this.handleCreateTournamentClick);
+        }
+    }
+
+    public handleCreateTournamentClick = async (e: MouseEvent): Promise<void> => {
         e.preventDefault();
 
         if (!window.currentUser?.id) {

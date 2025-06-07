@@ -95,21 +95,23 @@ export default class LobbyList extends AbstractView {
     private setupEvents(): void {
         console.log('[LobbyList] setupEvents()');
 
-        if (window.lobbyListService?.setupCreateLobbyButtonListener) {
-            window.lobbyListService.setupCreateLobbyButtonListener();
-        }
-
-        if (window.lobbyListService?.setupJoinLobbyButtonListener) {
-            window.lobbyListService.setupJoinLobbyButtonListener();
-        }
+        window.lobbyListService?.setupCreateLobbyButtonListener();
+        window.lobbyListService?.setupJoinLobbyButtonListener();
     }
 
     private cleanupEvents(): void {
         console.log('[LobbyList] cleanupEvents()');
 
         if (window.lobbyListService) {
-            document.body.removeEventListener('click', window.lobbyListService.handleCreateLobbyClick);
-            document.body.removeEventListener('click', window.lobbyListService.handleJoinLobbyClick);
+            const createButton = document.getElementById('createLobbyBtn');
+            if (createButton) {
+                createButton.removeEventListener('click', window.lobbyListService.handleCreateLobbyClick);
+            }
+
+            const joinButtons = document.querySelectorAll('.joinLobbyBtn');
+            joinButtons.forEach((btn: Element) => {
+                btn.removeEventListener('click', window.lobbyListService.handleJoinLobbyClick);
+            });
         }
     }
 }

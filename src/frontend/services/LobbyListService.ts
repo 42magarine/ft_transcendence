@@ -15,8 +15,8 @@ export default class LobbyListService {
                 this.resolveLobbyDataPromises(this.lobbyData);
                 break;
             case 'lobbyCreated':
-                console.log(window.currentUser)
-                console.log(data.owner)
+                // console.log(window.currentUser)
+                // console.log(data.owner)
                 if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
                     Router.update()
                 }
@@ -26,8 +26,8 @@ export default class LobbyListService {
                 }
                 break;
             case 'joinedLobby':
-                console.log(window.currentUser)
-                console.log(data.owner)
+                // console.log(window.currentUser)
+                // console.log(data.owner)
                 if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
                     window.messageHandler!.requestLobbyList();
                     Router.update()
@@ -53,23 +53,20 @@ export default class LobbyListService {
     }
 
     public setupJoinLobbyButtonListener(): void {
-        if (!window.ft_socket) {
-            console.warn("TournamentListService: ft_socket not available.");
-            return;
-        }
         const jLButton: NodeListOf<Element> = document.querySelectorAll('.joinLobbyBtn');
         jLButton.forEach((jlb: Element) => {
             jlb.addEventListener('click', this.handleJoinLobbyClick);
         });
     }
 
-    public async handleCreateLobbyClick(e: MouseEvent): Promise<void> {
+    public handleCreateLobbyClick = async (e: MouseEvent) => {
         e.preventDefault();
 
         if (!window.currentUser) {
             console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
             return;
         }
+
         if (window.currentUser) {
             if (window.messageHandler && window.currentUser.id) {
                 try {
@@ -80,7 +77,6 @@ export default class LobbyListService {
                 }
             }
         }
-
         else {
             console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
         }
@@ -113,7 +109,6 @@ export default class LobbyListService {
         else {
             console.warn("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
         }
-
     }
 
     private resolveLobbyDataPromises(lobbies: ILobbyState[]): void {
@@ -126,6 +121,7 @@ export default class LobbyListService {
             console.warn("LobbyListService getLobbies: messageHandler not found.");
             return Promise.resolve(this.lobbyData);
         }
+
         if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
             console.warn("LobbyListService getLobbies: WebSocket not open.");
             return Promise.resolve(this.lobbyData);

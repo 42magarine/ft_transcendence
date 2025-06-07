@@ -108,17 +108,24 @@ export default class Lobby extends AbstractView {
 
     private setupEvents(): void {
         console.log('[LobbyView] setupEvents()');
-        if (window.lobbyService?.setupEventListener) {
-            window.lobbyService.setupEventListener();
-        }
 
+        window.lobbyService?.setupEventListener();
     }
 
     private cleanupEvents(): void {
         console.log('[LobbyView] cleanupEvents()');
 
         if (window.lobbyService) {
-            document.body.removeEventListener('click', window.lobbyService.setupEventListener);
+            const startButton = document.getElementById('startGameBtn');
+            if (startButton) {
+                startButton.removeEventListener('click', window.lobbyService.handleStartGameClick);
+            }
+
+            const leaveButton = document.getElementById('leaveBtn');
+            if (leaveButton) {
+                leaveButton.removeEventListener('click', window.lobbyService.handleLeaveLobbyClick
+                );
+            }
         }
     }
 
