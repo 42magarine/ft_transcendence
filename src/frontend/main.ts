@@ -8,6 +8,7 @@ import LobbyService from './services/LobbyService.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
 import UserManagementService from './services/UserManagementService.js';
 import UserService from './services/UserService.js';
+import PongService from './services/PongService.js';
 
 // ===============
 // 🔧 GLOBAL UTILS
@@ -102,6 +103,7 @@ async function initSocket(): Promise<void> {
         window.lobbyService = new LobbyService();
         window.tournamentListService = new TournamentListService();
         window.tournamentService = new TournamentService();
+        window.pongService = new PongService();
 
         if (window.ft_socket) {
             window.ft_socket.addEventListener('message', function (messageEvent) {
@@ -109,6 +111,7 @@ async function initSocket(): Promise<void> {
                 window.lobbyService.handleSocketMessage(messageEvent);
                 window.tournamentListService.handleSocketMessage(messageEvent);
                 window.tournamentService.handleSocketMessage(messageEvent);
+                window.pongService.handleSocketMessage(messageEvent);
             })
         }
     }

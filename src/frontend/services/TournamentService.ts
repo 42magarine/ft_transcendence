@@ -11,5 +11,6 @@ export default class TournamentService {
 
     public handleSocketMessage = (event: MessageEvent<string>): void => {
         const data: IServerMessage = JSON.parse(event.data);
+        // console.log("TournamentService msg received: " + data)
     }
 }

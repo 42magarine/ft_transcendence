@@ -13,6 +13,7 @@ export default class LobbyService {
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
+        // console.log("LobbyService msg received: " + data)
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby) {
