@@ -4,6 +4,7 @@ import { MatchModel } from "../models/MatchModel.js";
 import { UserService } from "./UserService.js";
 import { TournamentModel } from "../models/MatchModel.js";
 import { match } from "assert";
+import { ITournamentRound } from "../../interfaces/interfaces.js";
 
 export class MatchService {
     public tournamentRepo: Repository<TournamentModel>
@@ -141,7 +142,7 @@ export class MatchService {
         return match.winnerId === userId ? "Won" : "Lost";
     }
 
-    async createMatch(lobbyId: string, userId: number): Promise<MatchModel> {
+    async createMatch(lobbyId: string, userId: number, maxPlayers: number, lobbyName: string): Promise<MatchModel> {
         const player1 = await this.userService.findUserById(userId);
         if (player1 == null) {
             throw new Error("User does not exist in DB");
@@ -149,10 +150,11 @@ export class MatchService {
 
         const match = new MatchModel();
         match.lobbyId = lobbyId;
+        match.lobbyName = lobbyName;
         match.createdAt = new Date();
         match.player1 = player1;
         match.player2 = null;
-        match.maxPlayers = 2;
+        match.maxPlayers = maxPlayers;
         match.isLobbyOpen = true;
         match.status = "pending";
         match.invitedUserIds = [];
@@ -189,33 +191,33 @@ export class MatchService {
                 throw new Error("Match not found");
             }
 
-            // Prüfen welcher Spieler entfernt werden soll
-            if (match.player1?.id === userId) {
-                // Wenn Player1 verlässt und Player2 existiert, Player2 zu Player1 machen
-                if (match.player2) {
-                    match.player1 = match.player2;
-                    match.player2 = null;
-                }
-                else {
-                    // Wenn nur Player1 da war, Match löschen
-                    await this.matchRepo.delete({ lobbyId });
+            if (match.tournament === null) {
+                if (match.player1?.id === userId) {
+                    if (match.player2) {
+                        match.player1 = match.player2;
+                        match.player2 = null;
+                        await this.matchRepo.save(match);
+                    } else {
+                        await this.matchRepo.delete({ lobbyId });
+                    }
                     return true;
+                } else if (match.player2?.id === userId) {
+                    match.player2 = null;
+                    await this.matchRepo.save(match);
+                    return true;
+                } else {
+                    console.warn(`awdawd player not funden`);
+                    return false;
                 }
+            } else {
+                console.log(`alle raus ihr huans.`);
+                return false;
             }
-            else if (match.player2?.id === userId) {
-                match.player2 = null;
-            }
-            else {
-                throw new Error("Player not found in this match");
-            }
-
-            await this.matchRepo.save(match);
-            return true;
-        }
-        catch (error) {
-            console.error("Error removing player from match:", error);
+        } catch (error) {
+            console.error("wasn hier los?", error);
             return false;
         }
+            
     }
 
     //function that should return score values / playerInfo of specified Match!
@@ -274,14 +276,24 @@ export class MatchService {
         return await this.matchRepo.save(match);
     }
 
-    async getOpenLobbies() {
-        return await this.matchRepo.find({
+    async getOpenLobbies(): Promise<(MatchModel | TournamentModel)[]> {
+        const pendingMatches = await this.matchRepo.find({
             where: {
                 isLobbyOpen: true,
-                status: 'pending'
+                status: 'pending',
+                tournament: undefined
             },
             relations: ['player1', 'player2', 'lobbyParticipants']
-        })
+        });
+
+        const pendingTournaments = await this.tournamentRepo.find({
+            where: {
+                status: 'pending'
+            },
+            relations: ['creator', 'lobbyParticipants']
+        });
+
+        return [...pendingMatches, ...pendingTournaments];
     }
 
     async getUserActiveGames(userId: number) {
@@ -289,8 +301,156 @@ export class MatchService {
             .leftJoinAndSelect("game.player1", "player1")
             .leftJoinAndSelect("game.player2", "player2")
             .leftJoinAndSelect("game.lobbyParticipants", "participants")
+            .leftJoinAndSelect("game.tournament", "tournament")
             .where("(player1.id = :userId OR player2.id = :userId)", { userId })
-            .andWhere("gameStatus IN (:...statuses)", { statuses: ['pending', 'ongoing', 'paused'] })
+            .andWhere("gameStatus IN (:...statuses)", { statuses: ['ongoing'] })
             .getMany()
     }
+
+    // new tournier funkies now
+
+    async createTournament(lobbyId: string, creatorId: number, maxPlayers: number, name:string)
+    {
+       const creator = await this.userService.findUserById(creatorId)
+       if (!creator)
+            throw new Error("Wirf Junge WIRF den FEHLER DU BASTARD")
+        
+       const tournament = new TournamentModel();
+       tournament.lobbyId = lobbyId;
+       tournament.creator = creator;
+       tournament.name = name;
+       tournament.maxPlayers = maxPlayers;
+       tournament.createdAt = new Date();
+       tournament.status = 'pending';
+       tournament.currentRound = 0;
+       tournament.playerScores = {};
+       tournament.matchSchedule = [];
+       tournament.participants = [creator];
+
+       return await this.tournamentRepo.save(tournament);
+    }
+
+    async addPlayerToTournament(tournamentId: number, userId: number)
+    {
+        const tournament = await this.getTournamentById(tournamentId)
+        const user = await this.userService.findUserById(userId)
+
+        if (!tournament || !user)
+        {
+            throw new Error("irgendwas uwrde nicht angelegt")
+        }
+
+        if (!tournament.participants)
+        {
+            tournament.participants = []
+        }
+
+        const exisitingParticipant = tournament.participants.find(p => p.id === userId)
+        if (!exisitingParticipant)
+            tournament.participants.push(user);
+
+        return await this.tournamentRepo.save(tournament);
+    }
+
+
+    async createTournamentMatch(lobbyId: string, player1Id: number, player2Id: number, tournamentId: number)
+    {
+        const player1 = await this.userService.findUserById(player1Id)
+        const player2 = await this.userService.findUserById(player2Id)
+        const tournament = await this.getTournamentById(tournamentId);
+
+        if (!player1 || !player2 || !tournament)
+        {
+            throw new Error("??????????????dawdawd awad AHHHHHHHHHHHHHHHHHHHH ich ahsse typescript")
+        }
+
+        const match = new MatchModel()
+        match.lobbyId = lobbyId
+        match.lobbyName = `Random ass fkin name so here you Go ${player1.username} ${player2.username}`
+        match.createdAt = new Date()
+        match.player1 = player1;
+        match.player2 = player2;
+        match.maxPlayers = 2;
+        match.isLobbyOpen = false;
+        match.status = "pending"
+        match.invitedUserIds = []
+        match.lobbyParticipants = [player1, player2]
+        match.player1Score = 0
+        match.player2Score = 9
+        match.readyStatusMap = []
+        match.tournament = tournament
+
+        return await this.matchRepo.save(match);
+    }
+
+    async updateTournamentStatus(tournamentId: number, status: 'pending', endedAt: Date)
+    {
+        const tournament = await this.getTournamentById(tournamentId);
+        if (!tournament) {
+            throw new Error(`Tournament with ID ${tournamentId} not found.`);
+        }
+        tournament.status = status;
+        if (endedAt) {
+            tournament.endedAt = endedAt;
+        }
+        return await this.tournamentRepo.save(tournament);
+    }
+
+    async updateTouramentCompletion(tournamentId: number, winnerId: number | undefined, endedAt: Date)
+    {
+        const tournament = await this.getTournamentById(tournamentId)
+        if (!tournament)
+        {
+            throw new Error("Oh hell nah bruv")
+        }
+
+        tournament.status = 'completed'
+        tournament.endedAt = endedAt;
+        if (winnerId)
+        {
+            const winner = await this.userService.findUserById(winnerId)
+            if (winner)
+            {
+                tournament.winner = winner;
+            }
+        }
+        return await this.tournamentRepo.save(tournament);
+    }
+
+
+    async updateTournamentSchedule(tournamentId: number, schedule: ITournamentRound[])
+    {
+        const transformer = schedule.map(round => 
+            round.matches.map( match => ({
+                player1Id: match.player1Id,
+                player2Id: match.player2Id,
+                matchId: match.matchId ?? null
+            }))
+        )
+        await this.tournamentRepo.update(tournamentId, {matchSchedule: transformer})
+    }
+
+    async updateTournamentPlayerPoints(tournamentId: number, playerPoints: { [userId: number]: number})
+    {
+        await this.tournamentRepo.update(tournamentId, {playerScores: playerPoints})
+    }
+
+    public async cleanupCrashed()
+    {
+        const ongoingRegularMatches = await this.matchRepo.find({
+            where: {status: 'ongoing', tournament: undefined}
+        })
+        if(ongoingRegularMatches.length > 0)
+        {
+            const matchIds = ongoingRegularMatches.map(m => m.matchModelId);
+            await this.matchRepo.delete(matchIds);
+            console.log("deletion wrks")
+        }
+        else
+        {
+            console.log("deletion nix gut oder einfach nix am laufen gewesen(dann alles gut)")
+        }
+    }
+
+
 }

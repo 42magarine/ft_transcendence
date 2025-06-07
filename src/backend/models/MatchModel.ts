@@ -146,6 +146,9 @@ export class TournamentModel
     @JoinColumn({ name: 'creatorId'})
     creator!: UserModel;
 
+    @Column()
+    maxPlayers!: number;
+
     @Column({ default: 'pending'})
     status!: 'pending' | 'ongoing' | 'completed' | 'cancelled';
 
