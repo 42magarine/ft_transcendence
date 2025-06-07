@@ -92,7 +92,7 @@ export default class Friends extends AbstractView {
                             {
                                 type: 'label',
                                 props: {
-                                    text: friend.status === 'online' ? '🟢 Online' : '🔘 Offline',
+                                    text: friend.online === true ? '🟢 Online' : '🔘 Offline',
                                     htmlFor: `friend-${friend.id}-status`
                                 }
                             },

@@ -17,6 +17,9 @@ export class UserModel {
     @Column()
     password!: string;
 
+    @Column({ default: false })
+    online!: boolean;
+
     @Column({ default: 'user' })
     role!: string;
 

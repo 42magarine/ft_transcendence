@@ -41,6 +41,8 @@ export class MatchController {
             this.handleCloseSocket(connection);
         });
 
+        this.broadcastToAll({ type: "updateFriendlist" });
+
         this.sendMessage(connection, {
             type: "connection",
             message: "Connected to game server",
@@ -110,6 +112,7 @@ export class MatchController {
             }
         }
         this._clients.delete(connection);
+        this.broadcastToAll({ type: "updateFriendlist" });
     }
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
@@ -361,4 +364,3 @@ export class MatchController {
         game.movePaddle(requestingUserId, direction);
     }
 }
-

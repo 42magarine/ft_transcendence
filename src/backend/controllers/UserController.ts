@@ -510,6 +510,14 @@ export class UserController {
     }
 
     async logout(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const userId = request.user!.id;
+            await this._userService.logout(userId);
+        }
+        catch (error) {
+            console.error('Error setting user offline:', error);
+        }
+
         reply.clearCookie('accessToken', {
             path: '/',
             httpOnly: true,

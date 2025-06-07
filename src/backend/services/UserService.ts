@@ -314,6 +314,9 @@ export class UserService {
             };
         }
 
+        // Set user online status to true
+        await this.setUserOnline(user.id, true);
+
         // If no 2FA, proceed with normal login
         return this.generateTokens(user);
     }
@@ -356,8 +359,19 @@ export class UserService {
             });
         }
 
+        // Set user online status to true
+        await this.setUserOnline(user.id, true);
+
         // Generate and return JWTs
         return this.generateTokens(user);
+    }
+
+    async logout(userId: number): Promise<void> {
+        await this.setUserOnline(userId, false);
+    }
+
+    async setUserOnline(userId: number, online: boolean): Promise<void> {
+        await this.userRepo.update(userId, { online });
     }
 
     // Add new method to verify 2FA code
