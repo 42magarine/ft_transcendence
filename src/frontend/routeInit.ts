@@ -35,6 +35,15 @@ const routes: Route[] = [
         }
     },
     {
+        path: '/lobbylist',
+        role: 'user',
+        view: LobbyList,
+        metadata: {
+            title: 'Transcendence - Lobby',
+            description: 'Invite players to matches'
+        }
+    },
+    {
         path: '/lobby/:id',
         role: 'user',
         view: Lobby,
@@ -57,12 +66,12 @@ const routes: Route[] = [
         }
     },
     {
-        path: '/lobbylist',
+        path: '/tournament/:id',
         role: 'user',
-        view: LobbyList,
+        view: Tournament,
         metadata: {
-            title: 'Transcendence - Lobby',
-            description: 'Invite players to matches'
+            title: 'Transcendence - Tournament',
+            description: 'Welcome to Pong'
         }
     },
     {
