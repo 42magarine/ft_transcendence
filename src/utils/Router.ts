@@ -231,7 +231,7 @@ export default class Router {
     /**
      * Execute onLeave hook for the current route
      */
-    private async executeOnLeave(): Promise<boolean> {
+    private async executeOnLeave(toPath: string): Promise<boolean> {
         // Only execute onLeave if we have both a current route and current view
         if (this.currentRoute?.onLeave && this.currentView) {
             if (this.currentView.destroyEvents) {
@@ -242,7 +242,9 @@ export default class Router {
                     route: this.currentRoute,
                     params: this.currentParams,
                     view: this.currentView,
-                    path: location.pathname
+                    path: location.pathname,
+                    from: location.pathname,
+                    to: toPath
                 });
                 return result !== false;
             }
@@ -257,14 +259,16 @@ export default class Router {
     /**
      * Execute onEnter hook for a route
      */
-    private async executeOnEnter(route: Route, params: Record<string, string>, view: AbstractView): Promise<boolean> {
+    private async executeOnEnter(route: Route, params: Record<string, string>, view: AbstractView, fromPath: string): Promise<boolean> {
         if (route.onEnter) {
             try {
                 const result = await route.onEnter({
                     route,
                     params,
                     view,
-                    path: location.pathname
+                    path: location.pathname,
+                    from: fromPath,
+                    to: location.pathname
                 });
                 // If onEnter returns false, prevent navigation
                 return result !== false;
@@ -278,8 +282,10 @@ export default class Router {
     }
 
     public async render(): Promise<void> {
+        const fromPath = location.pathname;
+
         // Execute onLeave hook for current route before navigation
-        const canLeave = await this.executeOnLeave();
+        const canLeave = await this.executeOnLeave(fromPath);
         if (!canLeave) {
             return; // Navigation cancelled by onLeave hook
         }
@@ -364,8 +370,13 @@ export default class Router {
         // Create view with all parameters
         const view = new match.route.view(allParams);
 
+        // Store the current path before potentially changing it
+        const currentPath = this.currentRoute ?
+            (typeof this.currentRoute.path === 'string' ? this.currentRoute.path : location.pathname) :
+            fromPath;
+
         // Execute onEnter hook before rendering
-        const canEnter = await this.executeOnEnter(match.route, match.params, view);
+        const canEnter = await this.executeOnEnter(match.route, match.params, view, currentPath);
         if (!canEnter) {
             view.destroy?.(); // Clean up view if it has a destroy method
             return; // Navigation cancelled by onEnter hook

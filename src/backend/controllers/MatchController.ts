@@ -233,16 +233,15 @@ export class MatchController {
 
         try {
             // COMMENT BACK IN!!
-            // await lobby.removePlayer(player);
+            await lobby.removePlayer(player);
 
-            // // Spieler aus _clients Map entfernen
-            // // this._clients.delete(connection);
-            // this._clients.set(connection, null);
+            // Spieler aus _clients Map entfernen
+            this._clients.set(connection, null);
 
-            // if (lobby.isEmpty()) {
-            //     this._lobbies.delete(lobbyId);
-            //     await this._matchService.deleteMatchByLobbyId(lobbyId);
-            // }
+            if (lobby.isEmpty()) {
+                this._lobbies.delete(lobbyId);
+                await this._matchService.deleteMatchByLobbyId(lobbyId);
+            }
 
             this.broadcastToAll({
                 type: "leftLobby"

@@ -13,6 +13,8 @@ export interface RouteHookContext {
     params: Record<string, string>;
     view: AbstractView;
     path: string;
+    from: string;
+    to: string;
 }
 
 export interface Route {

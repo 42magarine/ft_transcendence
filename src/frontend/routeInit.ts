@@ -32,6 +32,10 @@ const routes: Route[] = [
         metadata: {
             title: 'Transcendence - Pong',
             description: 'Welcome to Pong'
+        },
+        onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
+            window.messageHandler!.leaveLobby(params.id);
+            return true;
         }
     },
     {
@@ -42,8 +46,10 @@ const routes: Route[] = [
             title: 'Transcendence - Lobby',
             description: 'Welcome to Pong'
         },
-        onLeave: async ({ route, params, view, path }: RouteHookContext): Promise<boolean | void> => {
-            window.messageHandler!.leaveLobby(params.id);
+        onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
+            if (!to.includes('/pong/')) {
+                window.messageHandler!.leaveLobby(params.id);
+            }
             return true;
         }
     },
@@ -54,6 +60,21 @@ const routes: Route[] = [
         metadata: {
             title: 'Transcendence - Tournament',
             description: 'Welcome to Pong'
+        }
+    },
+    {
+        path: '/tournament/:id',
+        role: 'user',
+        view: Tournament,
+        metadata: {
+            title: 'Transcendence - Tournament',
+            description: 'Welcome to Pong'
+        },
+        onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
+            if (!to.includes('/pong/')) {
+                window.messageHandler!.leaveLobby(params.id);
+            }
+            return true;
         }
     },
     {
