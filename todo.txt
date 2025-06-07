@@ -10,6 +10,7 @@ FRONTEND:
         - nach dem löschen eines User wird man (manchmal?) nicht richtig weitergeleitet auf den User Management View
     5. Im Bestätigungs-Fenster zum Löschen steht kein Text.
     6. Token refresh request aus dem Frontend schicken, wenn das Backend 401 (Token abgelaufen) zurückschickt. route: api/users/refresh
+    7. Safari
 
 
 BACKEND:
@@ -18,6 +19,10 @@ BACKEND:
         - Sollen die Rückgabewerte gefiltert werden oder bei der Datenbank-Abfrage mit 'select' gearbeitet werden?
         - Soll unterschieden werden ob Master oder User die Daten anfordert?
 
+    2. User profiles display stats, such as wins and losses.
+    3. Each user has a Match History including 1v1 games, dates, and relevant details, accessible to logged-in users.
+    4. Offer customization features, such as power-ups, attacks, or different maps,  that enhance the gameplay experience.
+
 
 SONSTIGES:
     1. eine Interface für alle Userdaten? oder wie bisher je nach Fall ein eigenes Interface?
@@ -25,3 +30,10 @@ SONSTIGES:
     3. Soll Login nur über E-Mail oder auch über Username möglich sein/
         - Dann muss der Username beim Erstellen eines Accounts auch einzigartig sein.
         - Problem könnte signup mit Google sein, hier sollte dann ein Username z.b. mit 'Username#number' erstellt werden.
+
+
+TESTS:
+    1. Create different Users with different auth methods and try to add each user attribute (password, avatar etc.). Test uniqueness.
+    2. Test auth processes themselves
+    3. Open a lobby or tournament with or without its coresponsing game and test leaves by router and window.
+    4. Launch different games with different customizations and test their effects

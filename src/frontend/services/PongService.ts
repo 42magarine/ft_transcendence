@@ -121,9 +121,6 @@ export default class PongService {
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        //console.log("frontend received: " + data.type);
-
-        console.log("PongService msg received: " + data.type)
 
         switch (data.type) {
             case 'gameJoined':
@@ -299,7 +296,7 @@ export default class PongService {
 
             if (this.gameState.winnerName) {
                 if (this.gameState.player1Left || this.gameState.player2Left) {
-                    console.log("player left win");
+                    // console.log("player left win");
                     if (this.gameState.player1Left) {
                         winMsg = this.gameState.winnerName + ` wins because ` + this.player1.userName + ' left' ;
                     } else {
@@ -307,7 +304,7 @@ export default class PongService {
                     }
 
                 } else {
-                    console.log("normal win");
+                    // console.log("normal win");
                     winMsg = this.gameState.winnerName + ` wins`;
                     this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + 40);
                     this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + 80);
