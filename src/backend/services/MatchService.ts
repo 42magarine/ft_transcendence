@@ -5,6 +5,7 @@ import { UserService } from "./UserService.js";
 import { TournamentModel } from "../models/MatchModel.js";
 import { match } from "assert";
 import { ITournamentRound } from "../../interfaces/interfaces.js";
+import { SchemaDropCommand } from "typeorm/commands/SchemaDropCommand.js";
 
 export class MatchService {
     public tournamentRepo: Repository<TournamentModel>
@@ -325,7 +326,7 @@ export class MatchService {
        tournament.currentRound = 0;
        tournament.playerScores = {};
        tournament.matchSchedule = [];
-       tournament.participants = [creator];
+       tournament.lobbyParticipants = [creator];
 
        return await this.tournamentRepo.save(tournament);
     }
@@ -340,14 +341,14 @@ export class MatchService {
             throw new Error("irgendwas uwrde nicht angelegt")
         }
 
-        if (!tournament.participants)
+        if (!tournament.lobbyParticipants)
         {
-            tournament.participants = []
+            tournament.lobbyParticipants = []
         }
 
-        const exisitingParticipant = tournament.participants.find(p => p.id === userId)
+        const exisitingParticipant = tournament.lobbyParticipants.find(p => p.id === userId)
         if (!exisitingParticipant)
-            tournament.participants.push(user);
+            tournament.lobbyParticipants.push(user);
 
         return await this.tournamentRepo.save(tournament);
     }
@@ -383,7 +384,7 @@ export class MatchService {
         return await this.matchRepo.save(match);
     }
 
-    async updateTournamentStatus(tournamentId: number, status: 'pending', endedAt: Date)
+    async updateTournamentStatus(tournamentId: number, status: 'pending' | 'cancelled' | 'completed' | 'ongoing', endedAt: Date)
     {
         const tournament = await this.getTournamentById(tournamentId);
         if (!tournament) {
@@ -396,7 +397,7 @@ export class MatchService {
         return await this.tournamentRepo.save(tournament);
     }
 
-    async updateTouramentCompletion(tournamentId: number, winnerId: number | undefined, endedAt: Date)
+    async updateTournamentCompletion(tournamentId: number, winnerId: number | undefined, endedAt: Date)
     {
         const tournament = await this.getTournamentById(tournamentId)
         if (!tournament)
@@ -420,14 +421,7 @@ export class MatchService {
 
     async updateTournamentSchedule(tournamentId: number, schedule: ITournamentRound[])
     {
-        const transformer = schedule.map(round => 
-            round.matches.map( match => ({
-                player1Id: match.player1Id,
-                player2Id: match.player2Id,
-                matchId: match.matchId ?? null
-            }))
-        )
-        await this.tournamentRepo.update(tournamentId, {matchSchedule: transformer})
+        await this.tournamentRepo.update(tournamentId, {matchSchedule: schedule})
     }
 
     async updateTournamentPlayerPoints(tournamentId: number, playerPoints: { [userId: number]: number})

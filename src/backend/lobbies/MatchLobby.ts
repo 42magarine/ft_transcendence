@@ -1,12 +1,14 @@
 import { WebSocket } from "ws";
-import { ILobbyState, IPlayerState, IServerMessage } from "../../interfaces/interfaces.js";
+import { ILobbyState, IPlayerState, IServerMessage, ITournamentMatchPairing, ITournamentRound } from "../../interfaces/interfaces.js";
 import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState } from "../../interfaces/interfaces.js";
 import { PongGame } from "../gamelogic/Pong.js";
 import Pong from "../../frontend/views/Pong.js";
+import { UserModel } from "../models/MatchModel.js";
 
-export class MatchLobby {
+export class MatchLobby 
+{
     private _games: Map<number, PongGame> = new Map();
     private _gameId!: number;
     private _saveScoreInterval: NodeJS.Timeout | null = null;
@@ -28,7 +30,7 @@ export class MatchLobby {
     private _tournamentSchedule: ITournamentRound[] = [];
     private _playerPoints: Map<number,number> = new Map();
 
-    private _gameBroadCastInterval: NodeJS.Timeout | null = null;
+    private _gameBroadcastInterval: NodeJS.Timeout | null = null;
 
     constructor(lobbyId: string,
         matchService: MatchService,
@@ -159,7 +161,7 @@ export class MatchLobby {
 
     public async removePlayer(player: Player): Promise<void> {
         try {
-            // First, remove the player from the lobby's internal map
+            
             this._players.delete(player._playerNumber);
             this._readyPlayers.delete(player.userId); // Use userId for readyPlayers set
 
@@ -168,23 +170,22 @@ export class MatchLobby {
                 console.log(`Player ${player._name} left tournament lobby ${this._lobbyId}. Cancelling tournament.`);
                 await this.cancelTournament("A player left the tournament.");
             } else {
-                // For regular game, clean up player and potentially the single game
+                
                 await this._matchService.removePlayerFromMatch(this._lobbyId, player.userId);
 
-                // Stop any games they are currently in (for regular games)
+                
                 for (const [matchId, game] of this._games.entries()) {
-                    if (game.player1?._userId === player.userId || game.player2?._userId === player.userId) {
+                    if (game._player1?._userId === player.userId || game._player2?._userId === player.userId) {
                         game.stopGameLoop();
                         this._games.delete(matchId);
-                        // Mark the match in DB as cancelled
+                        
                         await this._matchService.updateMatchStatus(matchId, 'cancelled');
                     }
                 }
             }
 
-            this.repositionPlayers(); // Re-assign player numbers for remaining players
+            this.repositionPlayers(); 
 
-            // Reassign creator if the creator left
             if (this._creatorId === player.userId && this._players.size > 0) {
                 const nextPlayer = this._players.values().next().value;
                 if (nextPlayer && nextPlayer.userId) {
@@ -322,7 +323,7 @@ export class MatchLobby {
                 userId: p._userId,
                 userName: p._name,
                 isReady: p._isReady,
-                points: this._lobbyType === 'tournament' ? this._playerPoints.get(p.userId) || 0 : undefined;
+                points: this._lobbyType === 'tournament' ? this._playerPoints.get(p.userId) || 0 : undefined
             }));
     }
 
@@ -334,6 +335,7 @@ export class MatchLobby {
             return;
         }
         this._gameStarted = true;
+
         if (this._games.size === 0) {
             console.error("No PongGame instance found for regular game.");
             this.stopGame();
@@ -346,51 +348,459 @@ export class MatchLobby {
         game!.resetScores();
         game!.resetGame();
 
-        game!.startGameLoop()
-
-        const state = this.getGameState();
-
-        if (state.score1 >= this._game._scoreLimit || state.score2 >= this._game._scoreLimit) {
-            const winningPlayerId = state.score1 >= this._game._scoreLimit ? 1 : 2;
-            const winningPlayer = this._players.get(winningPlayerId);
-
-            this.handleGameWin(winningPlayerId, state.score1, state.score2)
-        }
-
-        if (this._matchService) {
-            const player1 = this._players.get(1);
-            const player2 = this._players.get(2);
-
-            if (player1?.userId && player2?.userId) {
-                // if (this._dbGame) {
-                const player2User = await this._matchService.userService.findUserById(player2.userId);
-                if (player2User) {
-                    // this._dbGame.player2 = player2User;
-                }
-                // this._dbGame.status = 'ongoing'
-                // this._dbGame.startedAt = new Date()
-                // await this._matchService.saveMatch(this._dbGame)
-                // }
-                this._saveScoreInterval = setInterval(() => {
-                    this.saveCurrentScore();
-                }, 10000)
-            }
-        }
-    }  // this._dbGame nicht direkt aufrufen, sondern über funktionen aus MatchService.ts
-
-    //save current score (should only be used for paused game stuff and so on)
-    private async saveCurrentScore() {
-        if (!this._gameId || !this._matchService) {
+        const player1 = this._players.get(1);
+        const player2 = this._players.get(2);
+        if (player1 && player2) {
+            game!.setPlayer(1, player1);
+            game!.setPlayer(2, player2);
+            game!.setMatchId(matchId!);
+        } else {
+            console.error("Cannot start game: missing players.");
+            this.stopGame();
             return;
         }
 
-        const state = this._game.getState();
-        await this._matchService.updateScore(this._gameId, state.score1, state.score2, 0)
+        game!.startGameLoop();
+
+        if (this._matchService && matchId) {
+            await this._matchService.updateMatchStatus(matchId, 'ongoing', new Date());
+        }
+
+        this.startPeriodicGameBroadcast();
+
+        this._broadcast({
+            type: "gameStarted",
+            lobby: this.getLobbyState(),
+            gameState: game!.getState(),
+            matchId: matchId
+        });
+        }
+
+    // this._dbGame nicht direkt aufrufen, sondern über funktionen aus MatchService.ts
+
+    public getAllActiveGameStates(): IGameState[] {
+        return Array.from(this._games.values()).map(game => game.getState());
     }
 
+    private startPeriodicGameBroadcast()
+    {
+        if (this._gameBroadcastInterval) {
+            clearInterval(this._gameBroadcastInterval);
+        }
+        this._gameBroadcastInterval = setInterval(() => {
+            if (this._games.size > 0) {
+                this._broadcast({
+                    type: "gameStateUpdate",
+                    activeGamesStates: this.getAllActiveGameStates(),
+                    lobby: this.getLobbyState()
+                });
+            }
+            this.saveCurrentScores();
+        }, 1000 / 30);
+    }
+
+    private stopPeriodicGameBroadcast() {
+        if (this._gameBroadcastInterval) {
+            clearInterval(this._gameBroadcastInterval);
+            this._gameBroadcastInterval = null;
+        }
+    }
+
+    //ersetzt durch savecurrentscores!!
+    // //save current score (should only be used for paused game stuff and so on)
+    // private async saveCurrentScore() {
+    //     if (!this._gameId || !this._matchService) {
+    //         return;
+    //     }
+
+    //     const state = this._games.getState();
+    //     await this._matchService.updateScore(this._gameId, state.score1, state.score2, 0)
+    // }
+
+    public async startTournament() {
+        if (this._tournamentStatus === 'ongoing' || this._gameStarted || this._lobbyType !== 'tournament') {
+            console.warn("Tournament already started, game active, or not a tournament lobby.");
+            return;
+        }
+        if (this._players.size < 4) {
+            console.error("Not enough players to start tournament (min 4).");
+            return;
+        }
+        if (this._readyPlayers.size !== this._players.size) {
+            console.error("Not all players are ready for the tournament.");
+            return;
+        }
+
+        this._tournamentStatus = 'ongoing';
+        this._gameStarted = true;
+
+        if (this._tournamentId) {
+            await this._matchService.updateTournamentStatus(this._tournamentId, 'ongoing', new Date());
+        }
+
+        this._tournamentSchedule = this.generateRoundRobinSchedule();
+
+        Array.from(this._players.values()).forEach(p => {
+            if (!this._playerPoints.has(p.userId)) {
+                this._playerPoints.set(p.userId, 0);
+            }
+        });
+
+        this._currentRound = 0;
+
+        this._broadcast({
+            type: "tournamentStarted",
+            lobby: this.getLobbyState(),
+            message: "Tournament has begun! Generating matches..."
+        });
+
+        await this.startNextTournamentRound();
+    }
+
+    private generateRoundRobinSchedule(): ITournamentRound[] {
+        const playersArray = Array.from(this._players.values()).map(p => p.userId);
+        const n = playersArray.length;
+        const schedule: ITournamentRound[] = [];
+
+        if (n < 2) return [];
+
+        let participants = [...playersArray];
+        let hasBye = false;
+
+        if (n % 2 !== 0) {
+            participants.push(0);
+            hasBye = true;
+        }
+
+        const numRounds = hasBye ? n : n - 1;
+        const numMatchesPerRound = (n + (hasBye ? 1 : 0)) / 2;
+
+        for (let round = 0; round < numRounds; round++) {
+            const currentRoundMatches: ITournamentMatchPairing[] = [];
+            for (let i = 0; i < numMatchesPerRound; i++) {
+                const player1Id = participants[i];
+                const player2Id = participants[participants.length - 1 - i];
+
+                if (player1Id !== 0 && player2Id !== 0) {
+                    currentRoundMatches.push({ player1Id, player2Id, matchId: null, isCompleted: false });
+                }
+            }
+            schedule.push({ roundNumber: round + 1, matches: currentRoundMatches });
+
+            if (participants.length > 1) {
+                const pivot = participants[0];
+                const movingPlayers = participants.slice(1);
+                const lastMovingPlayer = movingPlayers.pop();
+                if (lastMovingPlayer !== undefined) {
+                    movingPlayers.unshift(lastMovingPlayer);
+                }
+                participants = [pivot, ...movingPlayers];
+            }
+        }
+        console.log("Generated Tournament Schedule:", schedule);
+        return schedule;
+    }
+
+
+    private async startNextTournamentRound() {
+        this._currentRound++;
+        this._games.clear();
+
+        if (this._currentRound > this._tournamentSchedule.length) {
+            console.log("All rounds completed! Tournament Finished.");
+            await this.finishTournament();
+            return;
+        }
+
+        const currentRoundSchedule = this._tournamentSchedule[this._currentRound - 1];
+        if (!currentRoundSchedule || currentRoundSchedule.matches.length === 0) {
+            console.log(`No matches for Round ${this._currentRound}. Moving to next round.`);
+            await this.startNextTournamentRound();
+            return;
+        }
+
+        console.log(`Starting Round ${this._currentRound} with ${currentRoundSchedule.matches.length} matches.`);
+        this._broadcast({
+            type: "tournamentRoundStart",
+            lobby: this.getLobbyState(),
+            message: `Round ${this._currentRound} is starting! Matches: ${currentRoundSchedule.matches.length}`
+        });
+
+        for (const matchPairing of currentRoundSchedule.matches) {
+            if (!matchPairing.isCompleted) {
+                await this.startSpecificTournamentMatch(matchPairing);
+            }
+        }
+        this.startPeriodicGameBroadcast();
+    }
+
+    private async startSpecificTournamentMatch(matchPairing: ITournamentMatchPairing) {
+        const player1UserId = matchPairing.player1Id;
+        const player2UserId = matchPairing.player2Id;
+
+        const player1 = Array.from(this._players.values()).find(p => p.userId === player1UserId);
+        const player2 = Array.from(this._players.values()).find(p => p.userId === player2UserId);
+
+        if (!player1 || !player2) {
+            console.error(`Missing players for match: P1:${player1UserId}, P2:${player2UserId}. Skipping match.`);
+            matchPairing.isCompleted = true;
+            return;
+        }
+
+        const newMatch = await this._matchService.createTournamentMatch(
+            this._lobbyId,
+            player1UserId,
+            player2UserId,
+            this._tournamentId!
+        );
+
+        matchPairing.matchId = newMatch.matchModelId;
+        await this._matchService.updateTournamentSchedule(this._tournamentId!, this._tournamentSchedule);
+
+        const game = new PongGame(this.handleGameEndCallback.bind(this, newMatch.matchModelId));
+        game.setMatchId(newMatch.matchModelId);
+        this._games.set(newMatch.matchModelId, game);
+
+        game.resetScores();
+        game.resetGame();
+        game.setPlayer(1, player1);
+        game.setPlayer(2, player2);
+        game.startGameLoop();
+
+        await this._matchService.updateMatchStatus(newMatch.matchModelId, 'ongoing', new Date());
+
+        console.log(`Starting ze match wiz the ${newMatch.matchModelId}: ${player1._name} vs ${player2._name}`);
+        this._broadcast({
+            type: "tournamentMatchStart",
+            lobby: this.getLobbyState(),
+            gameState: game.getState(),
+            player1Name: player1._name,
+            player2Name: player2._name,
+            matchId: newMatch.matchModelId
+        });
+    }
+
+    private async handleGameEndCallback(matchId: number) {
+        const game = this._games.get(matchId);
+        if (!game) {
+            console.error("Game not found.");
+            return;
+        }
+        console.log("Game end");
+        await this.handleGameEnd(matchId, game._score1, game._score2);
+    }
+
+    private async handleGameEnd(matchId: number, player1Score: number, player2Score: number) {
+        const game = this._games.get(matchId);
+        if (!game) return;
+
+        game.stopGameLoop();
+        this._games.delete(matchId);
+
+        let winnerId: number | null = null;
+        let winningPlayer: Player | undefined;
+        let losingPlayer: Player | undefined;
+
+        if (player1Score > player2Score) {
+            winningPlayer = game._player1!;
+            losingPlayer = game._player2!;
+            winnerId = winningPlayer?.userId || null;
+        } else if (player2Score > player1Score) {
+            winningPlayer = game._player2!;
+            losingPlayer = game._player1!;
+            winnerId = winningPlayer?.userId || null;
+        }
+
+        await this._matchService.updateScore(
+            matchId,
+            player1Score,
+            player2Score,
+            winnerId || 0
+        );
+
+        const dbMatch = await this._matchService.getMatchById(matchId);
+        if (dbMatch) {
+            dbMatch.status = 'completed';
+            dbMatch.endedAt = new Date();
+            const winner = winnerId ? await this._matchService.userService.findUserById(winnerId) : undefined;
+            dbMatch.winner = winner ?? undefined; //This is the reason I hate typescript. It's so fkin stupid
+            await this._matchService.matchRepo.save(dbMatch);
+        }
+
+        if (this._lobbyType === 'tournament') {
+            const player1UserId = game._player1?._userId;
+            const player2UserId = game._player2?._userId;
+
+            if (player1UserId && player2UserId) {
+                let p1Points = this._playerPoints.get(player1UserId) || 0;
+                let p2Points = this._playerPoints.get(player2UserId) || 0;
+
+                if (player1Score > player2Score) {
+                    p1Points += 3;
+                    p2Points += 0;
+                } else if (player2Score > player1Score) {
+                    p2Points += 3;
+                    p1Points += 0;
+                } else {
+                    p1Points += 1;
+                    p2Points += 1;
+                }
+                this._playerPoints.set(player1UserId, p1Points);
+                this._playerPoints.set(player2UserId, p2Points);
+
+                let matchFoundInSchedule = false;
+                for (const round of this._tournamentSchedule) {
+                    for (const pairing of round.matches) {
+                        if (pairing.matchId === matchId) {
+                            pairing.isCompleted = true;
+                            matchFoundInSchedule = true;
+                            break;
+                        }
+                    }
+                    if (matchFoundInSchedule) break;
+                }
+
+                if (this._tournamentId) {
+                    await this._matchService.updateTournamentSchedule(this._tournamentId, this._tournamentSchedule);
+                    await this._matchService.updateTournamentPlayerPoints(this._tournamentId, Object.fromEntries(this._playerPoints));
+                }
+            }
+
+            this._broadcast({
+                type: "tournamentMatchOver",
+                matchId: matchId,
+                winnerId: winnerId,
+                player1Score,
+                player2Score,
+                lobby: this.getLobbyState(),
+                message: winnerId ? `${winningPlayer?._name} won the match!` : "It's a tie!"
+            });
+
+            const currentRoundSchedule = this._tournamentSchedule[this._currentRound - 1];
+            const allMatchesInRoundCompleted = currentRoundSchedule.matches.every(m => m.isCompleted);
+
+            if (allMatchesInRoundCompleted) {
+                console.log(`All matches in Round ${this._currentRound} completed.`);
+                if (this._games.size === 0) {
+                     setTimeout(() => {
+                        this.stopPeriodicGameBroadcast();
+                        this.startNextTournamentRound();
+                    }, 3000);
+                }
+            } else {
+                 console.log(`Round ${this._currentRound} still has active matches. Remaining: ${currentRoundSchedule.matches.filter(m => !m.isCompleted).length}`);
+            }
+
+        } else {
+            this._broadcast({
+                type: "gameOver",
+                winnerId: winnerId,
+                winningUserId: winnerId,
+                player1Score,
+                player2Score,
+                lobby: this.getLobbyState()
+            });
+            this.stopGame();
+        }
+    }
+
+    private async saveCurrentScores() {
+        for (const [matchId, game] of this._games.entries()) {
+            const state = game.getState();
+            await this._matchService.updateScore(matchId, state.score1, state.score2, 0);
+        }
+    }
+
+    private async finishTournament() {
+        this._tournamentStatus = 'completed';
+        this._gameStarted = false;
+        this._currentRound = 0;
+        this.stopPeriodicGameBroadcast();
+        this._games.clear();
+
+        let tournamentWinner: UserModel | null = null;
+        let maxPoints = -1;
+        let winnerUserIds: number[] = [];
+
+        for (const [userId, points] of this._playerPoints.entries()) {
+            if (points > maxPoints) {
+                maxPoints = points;
+                winnerUserIds = [userId];
+            } else if (points === maxPoints) {
+                winnerUserIds.push(userId);
+            }
+        }
+
+        if (winnerUserIds.length === 1) {
+            tournamentWinner = await this._matchService.userService.findUserById(winnerUserIds[0]);
+        }
+
+        if (this._tournamentId) {
+            await this._matchService.updateTournamentCompletion(this._tournamentId, tournamentWinner?.id, new Date());
+        }
+
+        this._broadcast({
+            type: "tournamentFinished",
+            lobby: this.getLobbyState(),
+            winnerId: tournamentWinner?.id || null,
+            winnerUserName: tournamentWinner?.username || null,
+            message: tournamentWinner ? `${tournamentWinner.username} wins the tournament!` : "The tournament ended in a tie!"
+        });
+    }
+
+    public async cancelTournament(reason: string = "Tournament cancelled.") {
+        console.log(`Tournament ${this._lobbyId} is being cancelled. Reason: ${reason}`);
+
+        this._games.forEach(game => game.stopGameLoop());
+        this._games.clear();
+        this.stopPeriodicGameBroadcast();
+
+        this._tournamentStatus = 'cancelled';
+        this._gameStarted = false;
+
+        if (this._tournamentId) {
+            await this._matchService.updateTournamentStatus(this._tournamentId, 'cancelled', new Date());
+            await this._matchService.deleteAllMatchesForTournament(this._tournamentId);
+        }
+
+        this._currentRound = 0;
+        this._tournamentSchedule = [];
+        this._playerPoints.clear();
+        this._readyPlayers.clear();
+
+        this._broadcast({
+            type: "tournamentCancelled",
+            lobby: this.getLobbyState(),
+            message: reason
+        });
+    }
+
+    public async stopGame() {
+        if (!this._gameStarted && this._lobbyType === 'game') {
+            return;
+        }
+
+        this._gameStarted = false;
+        this.stopPeriodicGameBroadcast();
+
+        this._games.forEach(game => game.stopGameLoop());
+        this._games.clear();
+
+        if (this._lobbyType === 'game' && this.getGameId() && this._matchService) {
+            const matchId = this.getGameId();
+            this._matchService.getMatchById(matchId!).then(game => {
+                if (game && game.status !== 'completed') {
+                    game.status = 'cancelled';
+                    game.endedAt = new Date();
+                    this._matchService.matchRepo.save(game);
+                }
+            });
+        }
+    }
+    
     private async handleGameWin(winningPlayerId: number, player1Score: number, player2Score: number) {
         this.stopGame();
-
+        
         const winningPlayer = this._players.get(winningPlayerId);
         if (!winningPlayer?.userId || !this._gameId || !this._matchService) {
             return;
@@ -409,50 +819,9 @@ export class MatchLobby {
             game.endedAt = new Date()
             await this._matchService.matchRepo.save(game);
         }
-        // dont broadcast here! need to move to controller later
-        // handle bool gameOver via gamestate
-        // this._broadcast(this._lobbyId, {
-        //     type: "gameOver",
-        //     winnerId: winningPlayerId,
-        //     winningUserId: winningPlayer.userId,
-        //     player1Score,
-        //     player2Score
-        // })
     }
 
-    public async stopGame() {
-        if (!this._gameStarted) {
-            return;
-        }
-
-        this._gameStarted = false;
-        this._game.stopGameLoop();
-
-        if (this._saveScoreInterval) {
-            clearInterval(this._saveScoreInterval);
-            this._saveScoreInterval = null;
-        }
-
-        await this.saveCurrentScore();
-
-        if (this._gameId && this._matchService) {
-            this._matchService.getMatchById(this._gameId).then(game => {
-                if (game && game.status !== 'completed') {
-                    game.status = 'cancelled',
-                        game.endedAt = new Date();
-                    this._matchService.matchRepo.save(game);
-                }
-            })
-        }
-
-        // dont broadcast here! need to move to controller later
-        // handle bool gamestopped via gamestate
-        // this._broadcast(this._lobbyId, {
-        //     type: "gameStopped"
-        // })
-    }
-
-    public get game(): PongGame {
-        return this._game;
-    }
+    // public getGame(): PongGame {
+    //     return this._games.;
+    // }
 }
