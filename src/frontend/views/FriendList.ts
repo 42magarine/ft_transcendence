@@ -1,8 +1,8 @@
 import AbstractView from '../../utils/AbstractView.js';
-import Card from '../components/Card.js';
-import { FriendList } from '../../interfaces/userManagementInterfaces.js';
-import UserService from '../services/UserService.js';
 import Modal from '../components/Modal.js'
+import Card from '../components/Card.js';
+import UserService from '../services/UserService.js';
+import { FriendList } from '../../interfaces/userManagementInterfaces.js';
 
 export default class Friends extends AbstractView {
     constructor() {
