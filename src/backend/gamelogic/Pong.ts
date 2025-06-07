@@ -22,6 +22,9 @@ export class PongGame {
     private _gameId: number | null = null;
     private _player1: Player | null = null;
     private _player2: Player | null = null;
+    private _player1Left: boolean = false;
+    private _player2Left: boolean = false;
+    private _winner: Player | null = null;
     private _gameService?: MatchService;
     private _broadcast: (data: IServerMessage) => void;
 
@@ -50,16 +53,25 @@ export class PongGame {
             if (this._paused) return;
 
             this.update();
+            this.checkWin();
             this._broadcast({
                 type: "gameUpdate",
                 gameState: this.getState()
             });
-
-            if (this._gameIsOver) {
-                this.updateGameRecord();
-                this.stopGameLoop();
-            }
         }, 1000 / 60);
+    }
+
+    public checkWin(): void {
+        if (this._gameIsOver) {
+            if (this._player1Left) {
+                this._winner = this.player2;
+            }
+            if (this._player2Left) {
+                this._winner = this.player1;
+            }
+                this.updateGameRecord();
+            this.stopGameLoop();
+        }
     }
 
     public stopGameLoop(): void {
@@ -92,16 +104,12 @@ export class PongGame {
                     this._gameId,
                     this._score1,
                     this._score2,
-                    WinnerId || undefined
+                    this._winner?.userId
                 );
             } catch (error) {
                 console.error("Failed to update db", error)
             }
         }
-    }
-
-    private endGame(winner: number): void {
-        this._gameIsOver = true;
     }
 
     public update(): void {
@@ -143,7 +151,8 @@ export class PongGame {
             if (ballX < 0) {
                 this._score2++;
                 if (this._score2 >= this._scoreLimit) {
-                    this.endGame(2)
+                    this._gameIsOver = true;
+                    this._winner = this.player2;
                 }
                 else {
                     this.resetGame();
@@ -153,7 +162,8 @@ export class PongGame {
             else if (ballX > this._width) {
                 this._score1++;
                 if (this._score1 >= this._scoreLimit) {
-                    this.endGame(1)
+                    this._gameIsOver = true;
+                    this._winner = this.player1;
                 }
                 else {
                     this.resetGame();
@@ -240,10 +250,13 @@ export class PongGame {
             score2: this._score2,
             paused: this._paused,
             running: this._running,
-            gameIsOver: this._gameIsOver
+            gameIsOver: this._gameIsOver,
+            player1Left: this.player1Left,
+            player2Left: this.player2Left,
+            winnerName: this._winner?._name,
         };
     }
-    
+
     public get score1(): number {
         return this._score1;
     }
@@ -290,5 +303,13 @@ export class PongGame {
 
     public set isGameOver(state: boolean) {
         this._gameIsOver = state;
+    }
+
+    public set player1Left(state: boolean) {
+        this._player1Left = state;
+    }
+
+    public set player2Left(state: boolean) {
+        this._player2Left = state;
     }
 }

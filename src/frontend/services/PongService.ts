@@ -145,7 +145,6 @@ export default class PongService {
                     console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
                 }
 
-                // NEW: Start the client-side input loop when the game is joined
                 if (this.animationFrameId === null) {
                     this.clientLoop();
                 }
@@ -161,12 +160,11 @@ export default class PongService {
                 this.gameState = data.gameState!;
                 this.draw();
 
-                // NEW: If game was paused and is now un-paused, restart the loop
                 if (!this.gameState.paused && !this.gameState.gameIsOver && this.animationFrameId === null) {
                     this.clientLoop();
                 }
                 break;
-            case "playerLeft":
+            case "playerLeftGame":
                 this.overlay.classList.add("terminated");
 
                 const terminatedText = document.createElement('div');
@@ -298,13 +296,23 @@ export default class PongService {
         if (this.gameState.gameIsOver) {
             this.ctx.fillText("GAME OVER", this.canvas.width / 2, this.canvas.height / 2);
             let winMsg = "";
-            if (this.gameState.score1 > this.gameState.score2) {
-                winMsg = this.player1.userName + ` wins`;
-            } else if (this.gameState.score2 > this.gameState.score1) {
-                winMsg = this.player2.userName + ` wins`;
+
+            if (this.gameState.winnerName) {
+                if (this.gameState.player1Left || this.gameState.player2Left) {
+                    console.log("player left win");
+                    if (this.gameState.player1Left) {
+                        winMsg = this.gameState.winnerName + ` wins because ` + this.player1.userName + ' left' ;
+                    } else {
+                        winMsg = this.gameState.winnerName + ` wins because ` + this.player2.userName + ' left' ;
+                    }
+
+                } else {
+                    console.log("normal win");
+                    winMsg = this.gameState.winnerName + ` wins`;
+                    this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + 40);
+                    this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + 80);
+                }
             }
-            this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + 40);
-            this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + 80);
         }
     }
 
