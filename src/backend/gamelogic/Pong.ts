@@ -52,7 +52,7 @@ export class PongGame {
             this.update();
             this._broadcast({
                 type: "gameUpdate",
-                state: this.getState()
+                gameState: this.getState()
             });
 
             if (this._gameIsOver) {

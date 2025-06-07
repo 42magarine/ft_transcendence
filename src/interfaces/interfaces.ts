@@ -41,6 +41,7 @@ declare global {
         tournamentListService: TournamentListService;
         userService: UserService;
         userManagementService: UserManagementService;
+        pongService: PongService;
     }
 }
 
@@ -116,6 +117,7 @@ export interface IServerMessage {
     direction?: IPaddleDirection;
     timestamp?: string;
     lobbies?: ILobbyState[]
+    gameState?: IGameState;
     [key: string]: any;
 }
 
