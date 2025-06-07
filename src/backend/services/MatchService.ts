@@ -1,28 +1,45 @@
+import { Repository } from "typeorm";
 import { AppDataSource } from "../DataSource.js";
 import { MatchModel } from "../models/MatchModel.js";
 import { UserService } from "./UserService.js";
+import { TournamentModel } from "../models/MatchModel.js";
+import { match } from "assert";
 
 export class MatchService {
-    public matchRepo = AppDataSource.getRepository(MatchModel);
+    public tournamentRepo: Repository<TournamentModel>
+    public matchRepo: Repository<MatchModel>;
     public userService: UserService;
+    // private userMatchStatRepo: Repository<UserMatchStat>;
 
     constructor(userService: UserService) {
         this.userService = userService;
+        this.tournamentRepo = AppDataSource.getRepository(TournamentModel);
+        this.matchRepo = AppDataSource.getRepository(MatchModel);
+        // this.userMatchStatRepo = AppDataSource.getRepository(userMatchStat);
     }
 
     async getMatchById(matchId: number) {
         return await this.matchRepo.findOne({
             where: { matchModelId: matchId },
-            relations: ['player1', 'player2', 'winner', 'lobbyParticipants']
+            relations: ['player1', 'player2', 'winner', 'lobbyParticipants', 'tournament']
         })
     }
 
     async getMatchLobbyById(lobbyId: string) {
         return await this.matchRepo.findOne({
             where: { lobbyId },
-            relations: ['player1', 'player2', 'winner', 'lobbyParticipants']
+            relations: ['player1', 'player2', 'winner', 'lobbyParticipants', 'tournament']
         })
     }
+    
+    async getTournamentById(tournamentId: number): Promise<TournamentModel | null>
+    {
+        return await this.tournamentRepo.findOne({
+            where: { id: tournamentId },
+            relations: ['creator', 'lobbyParticipants']
+        })
+    }
+
 
     //update score of match / do winner update in DB
     async updateScore(matchId: number, player1Score: number, player2Score: number, winnerId?: number) {
@@ -36,7 +53,7 @@ export class MatchService {
         match.player2Score = player2Score;
 
         //set winner in DB
-        if (winnerId) {
+        if (winnerId && winnerId !== 0) {
             const winner = await this.userService.findUserById(winnerId)
             if (!winner) {
                 throw new Error("Couldn't find winner in users");
@@ -47,6 +64,21 @@ export class MatchService {
             match.endedAt = new Date();
         }
 
+        return await this.matchRepo.save(match);
+    }
+
+    async updateMatchStatus(matchId: number, status: 'pending' | 'ongoing' |'completed'| 'cancelled', endedAt?: Date)
+    {
+        const match = await this.getMatchById(matchId);
+        if (!match)
+        {
+            throw new Error("no match found")
+        }
+        match.status = status;
+        if (endedAt)
+        {
+            match.endedAt = endedAt;
+        }
         return await this.matchRepo.save(match);
     }
 
@@ -66,6 +98,20 @@ export class MatchService {
         catch (error) {
             console.error("Error deleting match:", error);
             return false;
+        }
+    }
+
+    async deleteAllMatchesForTournament(tournamentId: number)
+    {
+        try 
+        {
+            await this.matchRepo.delete({tournament: {id: tournamentId}})
+            console.log("bladlaldlawdlalwd")
+        }
+        catch (error)
+        {
+            console.error("fkin error ig (Penis)")
+            throw error;
         }
     }
 
