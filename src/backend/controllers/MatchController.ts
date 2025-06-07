@@ -287,7 +287,7 @@ export class MatchController {
     }
 
     private async handleGetLobbyList(connection: WebSocket) {
-        console.log("handleGetLobbyList")
+        // console.log("handleGetLobbyList")
         const openMatchModels = await this._matchService.getOpenLobbies();
 
         const openLobbies = openMatchModels.map(Lobby => {

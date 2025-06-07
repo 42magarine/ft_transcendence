@@ -12,3 +12,4 @@ export const GAME_WIDTH = 800;
 export const GAME_HEIGHT = 600;
 export const STEPS = 4;
 export const SCORE_LIMIT = 10;
+
