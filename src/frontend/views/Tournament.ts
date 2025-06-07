@@ -19,14 +19,17 @@ export default class Tournament extends AbstractView {
     private setupEvents(): void {
         console.log('[Tournament] setupEvents()');
 
-        window.tournamentService.setupEventListener();
+        window.tournamentService?.setupEventListener();
     }
 
     private cleanupEvents(): void {
         console.log('[Tournament] cleanupEvents()');
 
-        if (window.tournamentService) {
-            document.body.removeEventListener('click', window.tournamentService.setupEventListener);
-        }
+        // if (window.tournamentService) {
+        //     const Button = document.getElementById('');
+        //     if (Button) {
+        //         Button.removeEventListener('click', window.tournamentService.);
+        //     }
+        // }
     }
 }
