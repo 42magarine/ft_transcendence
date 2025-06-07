@@ -88,10 +88,8 @@ export default class Signup extends AbstractView {
 				enableTwoFactor.addEventListener("change", async (e: Event) => {
 					const checkbox = e.target as HTMLInputElement;
 					if (checkbox.checked) {
-						console.log('[2FA] classes before:', twoFactorInterface.className);
 						twoFactorInterface.classList.remove('hidden');
 						twoFactorInterface.style.display = 'block';
-						console.log('[2FA] classes after:', twoFactorInterface.className);
 
 						try {
 							const response = await fetch('/api/generate-qr');
@@ -195,17 +193,19 @@ export default class Signup extends AbstractView {
 				const formData = new FormData(form);
 				const password = formData.get('password') as string;
 
-				// 2FA validation check
-				const twoFactorCheckbox = form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement;
-				if (twoFactorCheckbox?.checked) {
-					const tfFields = ['tf_1', 'tf_2', 'tf_3', 'tf_4', 'tf_5', 'tf_6'];
+				const tfFields = ['tf_one', 'tf_two', 'tf_three', 'tf_four', 'tf_five', 'tf_six'];
+				if ((form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked) {
 					const missing = tfFields.some(name => {
 						const val = formData.get(name) as string;
 						return !val || val.trim() === '';
 					});
 
+					console.log('[DEBUG] tf values:');
+					tfFields.forEach(key => {
+						console.log(key, formData.get(key));
+					});
+
 					if (missing) {
-						console.log('modallllll!');
 						await new Modal().renderInfoModal({
 							id: 'incomplete-2fa',
 							title: __('Missing Code'),
@@ -215,25 +215,55 @@ export default class Signup extends AbstractView {
 					}
 				}
 
-				const userData: User = {
-					name: formData.get('name') as string || '',
-					username: formData.get('username') as string || '',
-					email: formData.get('email') as string || '',
-					password: password,
-					role: 'user',
-					tf_one: formData.get('tf_1') as string || '',
-					tf_two: formData.get('tf_2') as string || '',
-					tf_three: formData.get('tf_3') as string || '',
-					tf_four: formData.get('tf_4') as string || '',
-					tf_five: formData.get('tf_5') as string || '',
-					tf_six: formData.get('tf_6') as string || '',
-					secret: formData.get('secret') as string || '',
-					status: 'offline'
-				};
+				
+				const getStr = (key: string) => String(formData.get(key) || '');
 
+				const twoFactorEnabled = (form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked;
+				if (twoFactorEnabled)
+					console.log('2fa enabled')
+				
+				console.log(getStr('tf_one'));
+				// const userData: User = {
+				// 	name: getStr('name'),
+				// 	username: getStr('username'),
+				// 	email: getStr('email'),
+				// 	password: password,
+				// 	role: 'user',
+				// 	secret: getStr('secret'),
+				// 	status: 'offline',
+				// 	...(twoFactorEnabled && {
+				// 		tf_one: getStr('tf_one'),
+				// 		tf_two: getStr('tf_two'),
+				// 		tf_three: getStr('tf_three'),
+				// 		tf_four: getStr('tf_four'),
+				// 		tf_five: getStr('tf_five'),
+				// 		tf_six: getStr('tf_six'),
+				// 	}),
+				// };
+
+				for (const [key, value] of formData.entries()) {
+					console.log(`formData[${key}] =`, value);
+				}
+
+				
 				const avatarFile = formData.get('avatar') as File;
 
 				try {
+					const userData: User = {
+						name: getStr('name'),
+						username: getStr('username'),
+						email: getStr('email'),
+						password: password,
+						role: 'userasdasdasd',
+						secret: getStr('secret'),
+						status: 'offline',
+						tf_one: getStr('tf_one'),
+						tf_two: getStr('tf_two'),
+						tf_three: getStr('tf_three'),
+						tf_four: getStr('tf_four'),
+						tf_five: getStr('tf_five'),
+						tf_six: getStr('tf_six')
+					};
 					let result;
 					console.log(userData);
 					if (avatarFile && avatarFile.size > 0) {
