@@ -166,14 +166,25 @@ export class PongGame {
         );
     }
 
-    public movePaddle(player: Player, direction: IPaddleDirection): void {
-        const paddle = player.id === 1 ? this._paddle1 : this._paddle2;
+    public movePaddle(requestingUserId: number, direction: IPaddleDirection): void {
+        let paddleToMove: Paddle | null = null;
 
-        if (direction === "up" && paddle.y > 0) {
-            paddle.moveUp();
+        if (this._player1 && this._player1.userId === requestingUserId) {
+            paddleToMove = this._paddle1;
+        } else if (this._player2 && this._player2.userId === requestingUserId) {
+            paddleToMove = this._paddle2;
         }
-        else if (direction === "down" && paddle.y + paddle.height < this._height) {
-            paddle.moveDown();
+
+        if (!paddleToMove) {
+            console.warn(`movePaddle: User ID ${requestingUserId} is not a player in this game.`);
+            return; // User is not associated with any paddle in this game
+        }
+
+        if (direction === "up" && paddleToMove.y > 0) {
+            paddleToMove.moveUp();
+        }
+        else if (direction === "down" && paddleToMove.y + paddleToMove.height < this._height) {
+            paddleToMove.moveDown();
         }
     }
 

@@ -13,11 +13,14 @@ export default class PongService {
     private wPressed: boolean = false;
     private sPressed: boolean = false;
 
+    private animationFrameId: number | null = null;
+
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleKeyUp = this.handleKeyUp.bind(this);
         this.draw = this.draw.bind(this);
+        this.clientLoop = this.clientLoop.bind(this);
     }
 
     public setupEventListener(): void {
@@ -49,7 +52,7 @@ export default class PongService {
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
         //console.log("frontend received: " + data.type);
 
-        console.log("PongService msg received: " + data.gameState)
+        console.log("PongService msg received: " + data.type)
 
         switch (data.type) {
             case 'gameJoined':
@@ -70,8 +73,11 @@ export default class PongService {
                 else {
                     console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
                 }
-                //countdown here?
-                // this.draw();
+
+                // NEW: Start the client-side input loop when the game is joined
+                if (this.animationFrameId === null) {
+                    this.clientLoop();
+                }
 
                 if (window.messageHandler && currentUrlLobbyId) {
                     window.messageHandler.startGame(currentUrlLobbyId);
@@ -79,31 +85,29 @@ export default class PongService {
                 break;
 
             case 'gameUpdate':
-                if (this.wPressed) { console.log("intelligent") }
-                if (this.sPressed) { console.log("flo") }
                 this.gameState = data.gameState!;
                 this.draw();
+
+                // NEW: If game was paused and is now un-paused, restart the loop
+                if (!this.gameState.paused && !this.gameState.gameIsOver && this.animationFrameId === null) {
+                    this.clientLoop();
+                }
                 break;
         }
     }
 
-    private handleKeyDown(event: KeyboardEvent): void {
+    private clientLoop(): void {
+
         if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
+            this.animationFrameId = null;
             return;
         }
 
         let direction: IPaddleDirection | null = null;
-
-        if (event.key === 'w' || event.key === 'W' || event.key === 'ArrowUp') {
-            if (!this.wPressed) {
-                this.wPressed = true;
-                direction = 'up';
-            }
-        } else if (event.key === 's' || event.key === 'S' || event.key === 'ArrowDown') {
-            if (!this.sPressed) {
-                this.sPressed = true;
-                direction = 'down';
-            }
+        if (this.wPressed) {
+            direction = 'up';
+        } else if (this.sPressed) {
+            direction = 'down';
         }
 
         if (direction && window.messageHandler) {
@@ -111,18 +115,41 @@ export default class PongService {
                 window.messageHandler.movePaddle(window.currentUser?.id, direction);
             }
         }
+
+        this.animationFrameId = requestAnimationFrame(this.clientLoop);
+    }
+
+    private handleKeyDown(event: KeyboardEvent): void {
+        if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
+            return;
+        }
+
+        switch (event.key.toLowerCase()) {
+            case 'w':
+            case 'arrowup':
+                this.wPressed = true;
+                break;
+            case 's':
+            case 'arrowdown':
+                this.sPressed = true;
+                break;
+        }
     }
 
     private handleKeyUp(event: KeyboardEvent): void {
-        if (event.key === 'w' || event.key === 'W') {
-            this.wPressed = false;
-        } else if (event.key === 's' || event.key === 'S') {
-            this.sPressed = false;
+        switch (event.key.toLowerCase()) {
+            case 'w':
+            case 'arrowup':
+                this.wPressed = false;
+                break;
+            case 's':
+            case 'arrowdown':
+                this.sPressed = false;
+                break;
         }
     }
 
     private draw(): void {
-        console.log(this.canvas);
         if (!this.ctx) {
             return;
         }
