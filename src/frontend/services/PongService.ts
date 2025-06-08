@@ -11,11 +11,14 @@ export default class PongService {
     private canvas!: HTMLCanvasElement;
     private overlay!: HTMLElement;
     private ctx!: CanvasRenderingContext2D;
+    private playerOneNameTag!: HTMLElement;
+    private playerTwoNameTag!: HTMLElement;
 
     private wPressed: boolean = false;
     private sPressed: boolean = false;
 
     private animationFrameId: number | null = null;
+    private countdownActive: boolean = false;
 
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
@@ -44,6 +47,18 @@ export default class PongService {
             throw new Error("Canvas context not available.");
         }
 
+        this.playerOneNameTag = document.getElementById("playerOneNameTag") as HTMLElement;
+        if (!this.playerOneNameTag) {
+            console.error("[PongService] Could not find playerOneNameTag element.");
+            throw new Error("playerOneNameTag element not found.");
+        }
+
+        this.playerTwoNameTag = document.getElementById("playerTwoNameTag") as HTMLElement;
+        if (!this.playerTwoNameTag) {
+            console.error("[PongService] Could not find playerTwoNameTag element.");
+            throw new Error("playerTwoNameTag element not found.");
+        }
+
         this.ctx = ctx;
 
         document.addEventListener('keydown', this.handleKeyDown);
@@ -54,7 +69,6 @@ export default class PongService {
     }
 
     private showPlayerVsPlayerScreen(): void {
-        // Show "Player vs Player" screen for 4 seconds
         this.overlay.classList.add("vs-screen");
 
         const vsContainer = document.createElement('div');
@@ -62,6 +76,7 @@ export default class PongService {
 
         const player1Name = document.createElement('div');
         player1Name.textContent = this.player1?.userName || 'Player 1';
+        this.playerOneNameTag.innerText = player1Name.textContent;
         player1Name.className = 'player-name player1';
 
         const vsText = document.createElement('div');
@@ -70,6 +85,7 @@ export default class PongService {
 
         const player2Name = document.createElement('div');
         player2Name.textContent = this.player2?.userName || 'Player 2';
+        this.playerTwoNameTag.innerText = player2Name.textContent;
         player2Name.className = 'player-name player2';
 
         this.overlay.textContent = '';
@@ -80,8 +96,11 @@ export default class PongService {
 
         setTimeout(() => {
             this.overlay.classList.remove("vs-screen");
-            this.overlay.classList.add("third");
-            this.startCountdown();
+            if (!this.overlay.classList.contains("terminated")) {
+                this.overlay.classList.add("third");
+                this.countdownActive = true;
+                this.startCountdown();
+            }
         }, 4000);
     }
 
@@ -90,7 +109,11 @@ export default class PongService {
         this.overlay.textContent = countdown.toString();
         const timer = setInterval(() => {
             countdown--;
-
+            if (this.overlay.classList.contains('terminated')) {
+                this.countdownActive = false;
+                clearInterval(timer);
+                return;
+            }
             if (countdown == 3) {
                 this.overlay.classList.add("third");
                 this.overlay.textContent = countdown.toString();
@@ -106,8 +129,10 @@ export default class PongService {
                 this.overlay.classList.remove("first");
                 this.overlay.classList.add("ready");
                 this.overlay.textContent = 'START!';
+                this.countdownActive = false;
             } else {
                 this.overlay.classList.add("hidden");
+                this.countdownActive = false;
                 clearInterval(timer);
             }
         }, 1000);
@@ -131,15 +156,10 @@ export default class PongService {
                 if (window.currentUser?.id === this.player1.userId) {
                     this.isPlayer1Paddle = true;
                     this.isPlayer2Paddle = false;
-                    console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
                 }
                 else if (window.currentUser?.id === this.player2.userId) {
                     this.isPlayer1Paddle = false;
                     this.isPlayer2Paddle = true;
-                    console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
-                }
-                else {
-                    console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
                 }
 
                 if (this.animationFrameId === null) {
@@ -155,39 +175,52 @@ export default class PongService {
 
             case 'gameUpdate':
                 this.gameState = data.gameState!;
-                this.draw();
+                this.draw(); // Das bleibt
 
                 if (!this.gameState.paused && !this.gameState.gameIsOver && this.animationFrameId === null) {
                     this.clientLoop();
                 }
+                // NEU: Wenn das Spiel vorbei ist, stoppe die Loop explizit
+                else if (this.gameState.gameIsOver && this.animationFrameId !== null) {
+                    cancelAnimationFrame(this.animationFrameId);
+                    this.animationFrameId = null;
+                }
                 break;
             case "playerLeft":
-                this.overlay.classList.add("terminated");
+                if (this.countdownActive) {
+                    this.overlay.classList.remove("first", "second", "third", "vs-screen", "ready");
+                    this.overlay.classList.add("terminated");
 
-                const terminatedText = document.createElement('div');
-                terminatedText.textContent = 'Terminated by Opponent';
-                terminatedText.className = 'overlay-title';
+                    const terminatedText = document.createElement('div');
+                    terminatedText.textContent = 'Terminated by Opponent';
+                    terminatedText.className = 'overlay-title';
 
-                const redirectSpan = document.createElement('div');
-                redirectSpan.textContent = 'you will be redirected';
-                redirectSpan.className = 'overlay-text';
+                    const redirectSpan = document.createElement('div');
+                    redirectSpan.textContent = 'you will be redirected';
+                    redirectSpan.className = 'overlay-text';
 
-                this.overlay.textContent = '';
-                this.overlay.appendChild(terminatedText);
-                this.overlay.appendChild(redirectSpan);
-                // this.overlay.classList.add("waiting");
+                    this.overlay.textContent = '';
+                    this.overlay.appendChild(terminatedText);
+                    this.overlay.appendChild(redirectSpan);
 
-                // const terminatedText = document.createElement('div');
-                // terminatedText.textContent = 'Waiting for concurrent games';
-                // terminatedText.className = 'overlay-title';
+                    this.countdownActive = false;
+                } else if (!this.gameState.gameIsOver) {
+                    this.overlay.classList.remove("first", "second", "third", "vs-screen", "ready");
+                    this.overlay.classList.add("terminated");
 
-                // const redirectSpan = document.createElement('div');
-                // redirectSpan.textContent = 'you will be redirected to your next opponent soon...';
-                // redirectSpan.className = 'overlay-text';
+                    const terminatedText = document.createElement('div');
+                    terminatedText.textContent = 'Terminated by Opponent';
+                    terminatedText.className = 'overlay-title';
 
-                // this.overlay.textContent = '';
-                // this.overlay.appendChild(terminatedText);
-                // this.overlay.appendChild(redirectSpan);
+                    const redirectSpan = document.createElement('div');
+                    redirectSpan.textContent = 'you will be redirected';
+                    redirectSpan.className = 'overlay-text';
+
+                    this.overlay.textContent = '';
+                    this.overlay.appendChild(terminatedText);
+                    this.overlay.appendChild(redirectSpan);
+                }
+
                 setTimeout(function () {
                     Router.redirect("/lobbylist")
                 }, 10000)
@@ -249,6 +282,10 @@ export default class PongService {
     }
 
     private draw(): void {
+        if (this.overlay.classList.contains("terminated")) {
+            return;
+        }
+
         if (!this.overlay.classList.contains("terminated")) {
             this.overlay.classList.remove("ready");
             this.overlay.classList.add("hidden")
@@ -290,25 +327,37 @@ export default class PongService {
         this.ctx.stroke();
         this.ctx.setLineDash([]);
 
-        if (this.gameState.gameIsOver) {
-            this.ctx.fillText("GAME OVER", this.canvas.width / 2, this.canvas.height / 2);
+        if (this.gameState.gameIsOver && !this.overlay.classList.contains("terminated")) {
             let winMsg = "";
 
             if (this.gameState.winnerName) {
-                if (this.gameState.player1Left || this.gameState.player2Left) {
-                    // console.log("player left win");
-                    if (this.gameState.player1Left) {
-                        winMsg = this.gameState.winnerName + ` wins because ` + this.player1.userName + ' left';
-                    } else {
-                        winMsg = this.gameState.winnerName + ` wins because ` + this.player2.userName + ' left';
-                    }
+                winMsg = this.gameState.winnerName + ` wins`;
+                this.overlay.classList.remove("hidden");
+                this.overlay.classList.add("game-over");
 
-                } else {
-                    // console.log("normal win");
-                    winMsg = this.gameState.winnerName + ` wins`;
-                    this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + 40);
-                    this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + 80);
-                }
+                const gameOverText = document.createElement('div');
+                gameOverText.textContent = 'Game Over';
+                gameOverText.className = 'overlay-title';
+
+                const wins = document.createElement('div');
+                wins.textContent = winMsg;
+                wins.className = 'overlay-text';
+
+                const scores = document.createElement('div');
+                scores.textContent = 'Final Score: ' + this.gameState.score1 + ' - ' + this.gameState.score2;
+                scores.className = 'overlay-text';
+
+                const finishBtn = document.createElement('button');
+                finishBtn.textContent = "Back to Lobbies";
+                finishBtn.className = 'btn btn-primary';
+                finishBtn.id = 'btnGameLeave';
+                finishBtn.onclick = () => { Router.redirect("/lobbylist") };
+
+                this.overlay.textContent = '';
+                this.overlay.appendChild(gameOverText);
+                this.overlay.appendChild(wins);
+                this.overlay.appendChild(scores);
+                this.overlay.appendChild(finishBtn);
             }
         }
     }
