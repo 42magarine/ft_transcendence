@@ -14,7 +14,7 @@ export default class Friends extends AbstractView {
         const friends: FriendList[] = await UserService.getFriends?.() ?? [];
 
         const friendsCard = await new Card().renderCard({
-            title: __('Friends'),
+            title: window.ls.__('Friends'),
             formId: 'friend-form',
             contentBlocks: [
                 {
@@ -24,8 +24,8 @@ export default class Friends extends AbstractView {
                             {
                                 id: 'friend-username',
                                 name: 'username',
-                                label: __('Username'),
-                                placeholder: __('Search for a friend...')
+                                label: window.ls.__('Username'),
+                                placeholder: window.ls.__('Search for a friend...')
                             }
                         ]
                     }
@@ -36,7 +36,7 @@ export default class Friends extends AbstractView {
                         buttons: [
                             {
                                 id: 'add-friend-btn',
-                                text: __('Add as Friend'),
+                                text: window.ls.__('Add as Friend'),
                                 type: 'button',
                                 icon: 'user-plus',
                                 color: 'green'
@@ -66,14 +66,14 @@ export default class Friends extends AbstractView {
                     type: 'table',
                     props: {
                         id: 'friends-list',
-                        title: __('Your Friends'),
+                        title: window.ls.__('Your Friends'),
                         height: '300px',
                         data: friends,
                         columns: [
-                            { key: 'id', label: __('ID') },
-                            { key: 'username', label: __('Username') },
-                            { key: 'status', label: __('Status') },
-                            { key: 'actions', label: __('Actions') }
+                            { key: 'id', label: window.ls.__('ID') },
+                            { key: 'username', label: window.ls.__('Username') },
+                            { key: 'status', label: window.ls.__('Status') },
+                            { key: 'actions', label: window.ls.__('Actions') }
                         ],
                         rowLayout: (friend) => [
                             {
@@ -93,7 +93,7 @@ export default class Friends extends AbstractView {
                             {
                                 type: 'label',
                                 props: {
-                                    text: friend.online === true ? __('🟢 Online') : __('🔘 Offline'),
+                                    text: friend.online === true ? window.ls.__('🟢 Online') : window.ls.__('🔘 Offline'),
                                     htmlFor: `friend-${friend.id}-status`
                                 }
                             },
@@ -104,7 +104,7 @@ export default class Friends extends AbstractView {
                                         {
                                             id: `remove-friend-${friend.id}`,
                                             icon: 'user-minus',
-                                            text: __('Remove'),
+                                            text: window.ls.__('Remove'),
                                             type: 'button'
                                         }
                                     ]
@@ -118,21 +118,21 @@ export default class Friends extends AbstractView {
 
         const deleteModal = await new Modal().renderModal({
             id: 'confirm-remove-modal',
-            title: __('Remove Friend'),
+            title: window.ls.__('Remove Friend'),
             content: `
-                <p>${__('Are you sure you want to remove this friend?')}<br>
-                <strong>${__('This action cannot be undone.')}</strong></p>
+                <p>${window.ls.__('Are you sure you want to remove this friend?')}<br>
+                <strong>${window.ls.__('This action cannot be undone.')}</strong></p>
             `,
             footerButtons: [
                 {
                     id: 'cancel-remove-btn',
-                    text: __('Cancel'),
+                    text: window.ls.__('Cancel'),
                     className: 'btn btn-secondary',
                     onClick: `document.getElementById('confirm-remove-modal').classList.add('hidden')`
                 },
                 {
                     id: 'confirm-remove-btn',
-                    text: __('Yes, Remove'),
+                    text: window.ls.__('Yes, Remove'),
                     className: 'btn btn-red'
                 }
             ],

@@ -12,7 +12,7 @@ export default class Pong extends AbstractView {
     async getHtml(): Promise<string> {
         const gameCard = await new Card(this.params).renderCard(
             {
-                title: __('Pong Arena'),
+                title: window.ls.__('Pong Arena'),
                 contentBlocks:
                     [
                         {

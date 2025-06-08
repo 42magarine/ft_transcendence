@@ -1,51 +1,80 @@
-import Router from '../../utils/Router.js';
+import Router from "../../utils/Router.js";
 
-export class LanguageService {
-    private static translations: Record<string, Record<string, string>> = {};
-    private static isInitialized: boolean = false;
+export default class LanguageService {
+    private isInitialized: boolean = false;
+    private translations: Record<string, Record<string, string>> = {};
 
-    static async loadTranslations() {
+    constructor() {
+        this.initialize();
+        const langSelectActionHandler = () => {
+            this.langSelectAction();
+        };
+        document.addEventListener('RouterContentLoaded', langSelectActionHandler);
+    }
+
+    private async loadTranslations(): Promise<void> {
         try {
             const httpProtocol = window.location.protocol;
             const response = await fetch(`${httpProtocol}//${window.location.host}/dist/assets/languages/translation.json`);
-            LanguageService.translations = await response.json();
+            this.translations = await response.json();
         }
         catch (error) {
             console.error('Failed to load translations:', error);
         }
     }
 
-    static __(key: string): string {
-        const currentLanguage = LanguageService.getCurrentLanguage?.() || 'en_EN';
+    public __(key: string): string {
+        const currentLanguage = this.getCurrentLanguage() || 'en_EN';
 
-        const keys = Object.keys(LanguageService.translations);
-        for (const k of keys) {
-            const translationObjU = LanguageService.translations[k] as unknown;
-            const translationObj = translationObjU as Record<string, Record<string, string>>;
-
-            if (key in translationObj) {
-                const translation = translationObj[key][currentLanguage];
-                return translation || key;
-            }
+        if (key in this.translations) {
+            const translation = this.translations[key][currentLanguage];
+            return translation || key;
         }
 
-        if (key in LanguageService.translations) {
-            const translation = LanguageService.translations[key][currentLanguage];
-            return translation || key;
+        const keys = Object.keys(this.translations);
+        for (const k of keys) {
+            const translationObj = this.translations[k];
+
+            if (typeof translationObj === 'object' && translationObj !== null && key in translationObj) {
+                const nestedTranslation = translationObj[key];
+                if (typeof nestedTranslation === 'object' && nestedTranslation !== null && currentLanguage in nestedTranslation) {
+                    const translation = (nestedTranslation as Record<string, string>)[currentLanguage];
+                    return translation || key;
+                }
+            }
         }
 
         return key;
     }
 
-    static getCurrentLanguage(): string {
+    private getCurrentLanguage(): string {
         const langCookie = document.cookie
             .split('; ')
             .find(row => row.startsWith('language='));
 
-        return langCookie ? langCookie.split('=')[1] : 'en';
+        return langCookie ? langCookie.split('=')[1] : 'en_EN';
     }
 
-    static setupLangSelect() {
+    private translateTextElements(): void {
+        const elementsToTranslate = document.querySelectorAll('.__');
+
+        elementsToTranslate.forEach(element => {
+            if (!element.getAttribute('data-original-text')) {
+                const originalText = element.textContent?.trim();
+                if (originalText) {
+                    element.setAttribute('data-original-text', originalText);
+                }
+            }
+
+            const originalText = element.getAttribute('data-original-text');
+            if (originalText) {
+                const translatedText = this.__(originalText);
+                element.textContent = translatedText;
+            }
+        });
+    }
+
+    private langSelectAction(): Record<string, string> {
         const activeFlag = document.querySelector('.active[data-lang]') as HTMLImageElement;
         const passiveFlags = document.querySelectorAll('.passive[data-lang]');
         const flagSources: Record<string, string> = {};
@@ -86,7 +115,8 @@ export class LanguageService {
                         passiveFlagWithSavedLang.setAttribute('src', activeSrc);
                         passiveFlagWithSavedLang.setAttribute('data-lang', activeLang);
 
-                        LanguageService.loadTranslations().then(() => {
+                        this.loadTranslations().then(() => {
+                            this.translateTextElements();
                             document.dispatchEvent(new CustomEvent('LanguageChanged'));
                         });
                     }
@@ -95,58 +125,43 @@ export class LanguageService {
         }
 
         passiveFlags.forEach(passiveFlag => {
-            console.debug('[Lang] Setting up click event for flag:', passiveFlag.getAttribute('data-lang'));
-        
-            const clone = passiveFlag.cloneNode(true);
+            const clone = passiveFlag.cloneNode(true) as HTMLImageElement;
             if (passiveFlag.parentNode) {
                 passiveFlag.parentNode.replaceChild(clone, passiveFlag);
             }
-        
-            clone.addEventListener('click', function (e) {
+
+            clone.addEventListener('click', (e) => {
                 const clickedFlag = e.target as HTMLImageElement;
                 const newLang = clickedFlag.getAttribute('data-lang');
-        
-                console.log('[Lang] Flag clicked:', newLang);
-        
-                if (!newLang) {
-                    console.warn('[Lang] Clicked flag missing data-lang attribute.');
-                    return;
-                }
-        
+
+                if (!newLang) return;
+
                 document.cookie = `language=${newLang}; path=/; max-age=31536000`;
-                console.log('[Lang] Set language cookie:', document.cookie);
-        
+
                 if (activeFlag) {
                     const oldActiveLang = activeFlag.getAttribute('data-lang');
                     const oldActiveSrc = activeFlag.getAttribute('src');
-        
-                    console.log('[Lang] Swapping active flag:');
-                    console.log('       Old active:', oldActiveLang, oldActiveSrc);
-                    console.log('       New active:', newLang, clickedFlag.src);
-        
+
                     activeFlag.setAttribute('src', clickedFlag.src);
                     activeFlag.setAttribute('data-lang', newLang);
-        
+
                     if (oldActiveLang && oldActiveSrc) {
                         clickedFlag.setAttribute('src', oldActiveSrc);
                         clickedFlag.setAttribute('data-lang', oldActiveLang);
                     }
-        
-                    LanguageService.loadTranslations().then(() => {
-                        console.info('[Lang] Translations loaded, re-rendering...');
+
+                    this.loadTranslations().then(() => {
+                        this.translateTextElements();
                         Router.update();
                     });
-                } else {
-                    console.warn('[Lang] No active flag found to swap.');
                 }
             });
         });
-        
 
         return flagSources;
     }
 
-    static initialize() {
+    public initialize(): void {
         if (this.isInitialized) {
             return;
         }
@@ -155,12 +170,3 @@ export class LanguageService {
         this.loadTranslations();
     }
 }
-
-const __ = LanguageService.__;
-export default __;
-
-document.addEventListener('InitLangDropdown', () => {
-	LanguageService.setupLangSelect();
-});
-
-LanguageService.initialize();

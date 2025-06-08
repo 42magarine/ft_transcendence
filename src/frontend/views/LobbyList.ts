@@ -30,7 +30,7 @@ export default class LobbyList extends AbstractView {
                     type: 'button',
                     props: {
                         id: 'createLobbyBtn',
-                        text: __('Create Lobby'),
+                        text: window.ls.__('Create Lobby'),
                         type: 'button',
                         className: 'btn btn-primary'
                     },

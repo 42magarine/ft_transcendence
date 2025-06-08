@@ -1,5 +1,12 @@
 [
 	{
+		"Transcendence": {
+			"en_EN": "Transcendence",
+			"de_DE": "Transzendenz",
+			"it_IT": "Transzendenza"
+		}
+	},
+	{
 		"Login": {
 			"en_EN": "Login",
 			"de_DE": "Anmeldung",
@@ -635,6 +642,6 @@
 		"Edit": { "en_EN": "Edit", "de_DE": "Bearbeiten" },
 		"Delete": { "en_EN": "Delete", "de_DE": "Löschen" }
 	}
-	
+
 				]
-				
+

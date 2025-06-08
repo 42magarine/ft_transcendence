@@ -12,14 +12,14 @@ export default class Home extends AbstractView {
         const currentUser = await UserService.getCurrentUser();
         const homeCard = await new Card().renderCard({
             title: currentUser
-                ? `Hello ${currentUser.name}, ${__('this is Transcendence, please don\'t delete this card, it is for testing purpose!')}`
-                : __('Welcome to Transcendence!'),
+                ? `Hello ${currentUser.name}, ${window.ls.__('this is Transcendence, please don\'t delete this card, it is for testing purpose!')}`
+                : window.ls.__('Welcome to Transcendence!'),
             formId: 'test-form',
             contentBlocks: [
                 {
                     type: 'button',
                     props: {
-                        text: __('Max'),
+                        text: window.ls.__('Max'),
                         type: 'button',
                         color: 'red'
                     }
@@ -28,7 +28,7 @@ export default class Home extends AbstractView {
                     type: 'label',
                     props: {
                         htmlFor: 'fullName',
-                        text: __('Full Name')
+                        text: window.ls.__('Full Name')
                     }
                 },
                 {
@@ -36,7 +36,7 @@ export default class Home extends AbstractView {
                     props: {
                         name: 'fullName',
                         type: 'text',
-                        placeholder: __('Enter your name'),
+                        placeholder: window.ls.__('Enter your name'),
                         className: 'input input-bordered'
                     }
                 },
@@ -45,7 +45,7 @@ export default class Home extends AbstractView {
                     props: {
                         name: 'email',
                         type: 'email',
-                        placeholder: __('Enter your email')
+                        placeholder: window.ls.__('Enter your email')
                     }
                 },
                 {
@@ -53,7 +53,7 @@ export default class Home extends AbstractView {
                     props: {
                         name: 'password',
                         type: 'password',
-                        placeholder: __('Enter password'),
+                        placeholder: window.ls.__('Enter password'),
                         withConfirm: true
                     }
                 },
@@ -70,7 +70,7 @@ export default class Home extends AbstractView {
                     props: {
                         name: 'avatar',
                         type: 'file',
-                        placeholder: __('Upload your avatar')
+                        placeholder: window.ls.__('Upload your avatar')
                     }
                 },
                 {
@@ -78,7 +78,7 @@ export default class Home extends AbstractView {
                     props: {
                         name: 'age',
                         type: 'number',
-                        placeholder: __('Enter age'),
+                        placeholder: window.ls.__('Enter age'),
                         min: 0,
                         max: 120,
                         step: 1
@@ -89,11 +89,11 @@ export default class Home extends AbstractView {
                     props: {
                         name: 'country',
                         type: 'select',
-                        placeholder: __('Choose your country'),
+                        placeholder: window.ls.__('Choose your country'),
                         options: [
-                            { value: 'de', label: __('Germany') },
-                            { value: 'jp', label: __('Japan') },
-                            { value: 'us', label: __('USA') }
+                            { value: 'de', label: window.ls.__('Germany') },
+                            { value: 'jp', label: window.ls.__('Japan') },
+                            { value: 'us', label: window.ls.__('USA') }
                         ]
                     }
                 },
@@ -102,7 +102,7 @@ export default class Home extends AbstractView {
                     props: {
                         id: 'notify',
                         name: 'notify',
-                        label: __('Receive Email Notifications'),
+                        label: window.ls.__('Receive Email Notifications'),
                         checked: false
                     }
                 },
@@ -111,7 +111,7 @@ export default class Home extends AbstractView {
                     props: {
                         id: 'readonlyToggle',
                         name: 'readonlyToggle',
-                        label: __('This toggle is read-only'),
+                        label: window.ls.__('This toggle is read-only'),
                         checked: false,
                         readonly: true
                     }
@@ -119,14 +119,14 @@ export default class Home extends AbstractView {
                 {
                     type: 'stat',
                     props: {
-                        label: __('Points Earned'),
+                        label: window.ls.__('Points Earned'),
                         value: 999
                     }
                 },
                 {
                     type: 'stat',
                     props: {
-                        label: __('Tasks Completed'),
+                        label: window.ls.__('Tasks Completed'),
                         value: '12/20',
                         className: 'text-green-300'
                     }
@@ -136,11 +136,11 @@ export default class Home extends AbstractView {
                     props: {
                         buttons: [
                             {
-                                text: __('Greet'),
+                                text: window.ls.__('Greet'),
                                 onClick: "alert('Greetings! 🌟')"
                             },
                             {
-                                text: __('Log User'),
+                                text: window.ls.__('Log User'),
                                 onClick: "console.log('User logged')"
                             }
                         ]
@@ -153,7 +153,7 @@ export default class Home extends AbstractView {
                             type: 'button',
                             props: {
                                 id: 'player-1',
-                                text: __('Max'),
+                                text: window.ls.__('Max'),
                                 className: 'btn btn-info',
                                 type: 'button'
                             }
@@ -162,7 +162,7 @@ export default class Home extends AbstractView {
                             type: 'button',
                             props: {
                                 id: 'player-2',
-                                text: __('Lena'),
+                                text: window.ls.__('Lena'),
                                 className: 'btn btn-green',
                                 type: 'button'
                             }
@@ -173,9 +173,9 @@ export default class Home extends AbstractView {
                     type: 'inputgroup',
                     props: {
                         inputs: [
-                            { name: 'firstName', placeholder: __('First Name') },
-                            { name: 'lastName', placeholder: __('Last Name') },
-                            { name: 'nickname', placeholder: __('Nickname'), type: 'text' }
+                            { name: 'firstName', placeholder: window.ls.__('First Name') },
+                            { name: 'lastName', placeholder: window.ls.__('Last Name') },
+                            { name: 'nickname', placeholder: window.ls.__('Nickname'), type: 'text' }
                         ]
                     }
                 },
@@ -183,12 +183,12 @@ export default class Home extends AbstractView {
                     type: 'buttongroup',
                     props: {
                         buttons: [
-                            { text: __('Submit'), type: 'submit' },
-                            { text: __('Clear'), type: 'button' }
+                            { text: window.ls.__('Submit'), type: 'submit' },
+                            { text: window.ls.__('Clear'), type: 'button' }
                         ],
                         toggles: [
-                            { id: 'terms', name: 'terms', label: __('I agree to terms'), checked: false },
-                            { id: 'updates', name: 'updates', label: __('Enable updates'), checked: true }
+                            { id: 'terms', name: 'terms', label: window.ls.__('I agree to terms'), checked: false },
+                            { id: 'updates', name: 'updates', label: window.ls.__('Enable updates'), checked: true }
                         ],
                         layout: 'stack',
                         align: 'left',
@@ -199,7 +199,7 @@ export default class Home extends AbstractView {
                     type: 'button',
                     props: {
                         id: 'downloadBtn',
-                        text: __('Download PDF'),
+                        text: window.ls.__('Download PDF'),
                         className: 'btn btn-outline',
                         color: 'red'
                     }
@@ -207,7 +207,7 @@ export default class Home extends AbstractView {
                 {
                     type: 'button',
                     props: {
-                        text: __('🔒 Secure Login'),
+                        text: window.ls.__('🔒 Secure Login'),
                         color: 'yellow',
                         align: 'center'
                     }
@@ -217,9 +217,9 @@ export default class Home extends AbstractView {
                     props: {
                         html: `
                             <div class="p-4 bg-neutral text-white rounded-lg">
-                                <h4 class="text-xl font-semibold mb-2">${__('Custom HTML Block')}</h4>
-                                <p>${__('This block supports any')} <strong>HTML</strong>, ${__('like')} <em>${__('formatting')}</em>, <code>code</code>, ${__('and more')}.</p>
-                                <a href="https://example.com" target="_blank" class="text-blue-300 underline">${__('Learn more')}</a>
+                                <h4 class="text-xl font-semibold mb-2">${window.ls.__('Custom HTML Block')}</h4>
+                                <p>${window.ls.__('This block supports any')} <strong>HTML</strong>, ${window.ls.__('like')} <em>${window.ls.__('formatting')}</em>, <code>code</code>, ${window.ls.__('and more')}.</p>
+                                <a href="https://example.com" target="_blank" class="text-blue-300 underline">${window.ls.__('Learn more')}</a>
                             </div>
                         `
                     }
@@ -228,13 +228,13 @@ export default class Home extends AbstractView {
                     type: 'buttongroup',
                     props: {
                         buttons: [
-                            { id: 'btnDefault', text: __('Default'), type: 'button' },
-                            { id: 'btnGreen', text: __('Success'), color: 'green' },
-                            { id: 'btnRed', text: __('Delete'), type: 'delete', color: 'black' },
-                            { id: 'btnSubmit', text: __('Submit'), type: 'submit' },
-                            { id: 'btnWithIcon', icon: 'download', text: __('Download'), color: 'blue' },
+                            { id: 'btnDefault', text: window.ls.__('Default'), type: 'button' },
+                            { id: 'btnGreen', text: window.ls.__('Success'), color: 'green' },
+                            { id: 'btnRed', text: window.ls.__('Delete'), type: 'delete', color: 'black' },
+                            { id: 'btnSubmit', text: window.ls.__('Submit'), type: 'submit' },
+                            { id: 'btnWithIcon', icon: 'download', text: window.ls.__('Download'), color: 'blue' },
                             { id: 'btnOnlyIcon', icon: 'fa-cog', color: 'yellow' },
-                            { id: 'btnWithJS', text: __('Alert'), onClick: "alert('Button clicked!')", color: 'yellow' }
+                            { id: 'btnWithJS', text: window.ls.__('Alert'), onClick: "alert('Button clicked!')", color: 'yellow' }
                         ],
                         layout: 'group',
                         align: 'left',

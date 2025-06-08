@@ -15,13 +15,13 @@ export default class Header extends AbstractView {
         let buttonSet = [
             {
                 id: 'login-btn',
-                text: __('Login'),
+                text: window.ls.__('Login'),
                 icon: 'right-to-bracket',
                 href: '/login'
             },
             {
                 id: 'signup-btn',
-                text: __('Signup'),
+                text: window.ls.__('Signup'),
                 icon: 'user-plus',
                 href: '/signup'
             }
@@ -32,31 +32,31 @@ export default class Header extends AbstractView {
                 buttonSet = [
                     {
                         id: 'friends-btn',
-                        text: __('Friends List'),
+                        text: window.ls.__('Friends List'),
                         icon: 'user-group',
                         href: '/friends',
                     },
                     {
                         id: 'user-management-btn',
-                        text: __('User Management'),
+                        text: window.ls.__('User Management'),
                         icon: 'users',
                         href: '/user-mangement'
                     },
                     {
                         id: 'localpong-btn',
-                        text: __('Local Pong'),
+                        text: window.ls.__('Local Pong'),
                         icon: 'table-tennis-paddle-ball',
                         href: '/localpong'
                     },
                     {
                         id: 'lobby-list-btn',
-                        text: __('Lobby List'),
+                        text: window.ls.__('Lobby List'),
                         icon: 'list',
                         href: '/lobbylist'
                     },
                     {
                         id: 'tournament-list-btn',
-                        text: __('Tournament List'),
+                        text: window.ls.__('Tournament List'),
                         icon: 'list',
                         href: '/tournamentlist'
                     }
@@ -65,25 +65,25 @@ export default class Header extends AbstractView {
                 buttonSet = [
                     {
                         id: 'friends-btn',
-                        text: __('Friends List'),
+                        text: window.ls.__('Friends List'),
                         icon: 'user-group',
                         href: '/friends',
                     },
                     {
                         id: 'localpong-btn',
-                        text: __('Local Pong'),
+                        text: window.ls.__('Local Pong'),
                         icon: 'table-tennis-paddle-ball',
                         href: '/localpong'
                     },
                     {
                         id: 'lobby-list-btn',
-                        text: __('Lobby List'),
+                        text: window.ls.__('Lobby List'),
                         icon: 'list',
                         href: '/lobbylist'
                     },
                     {
                         id: 'tournament-list-btn',
-                        text: __('Tournament List'),
+                        text: window.ls.__('Tournament List'),
                         icon: 'list',
                         href: '/tournamentlist'
                     }
@@ -120,13 +120,13 @@ export default class Header extends AbstractView {
 				</div>
 				<div class="dropdown-body">
 					<div class="dropdown-item">
-						<a router href="/users/${currentUser.id}">${__('My Profile')}</a>
+						<a router href="/users/${currentUser.id}">${window.ls.__('My Profile')}</a>
 					</div>
 					<div class="dropdown-item">
-						<a router href="/users/friends">${__('Friends')}</a>
+						<a router href="/users/friends">${window.ls.__('Friends')}</a>
 					</div>
 					<div class="dropdown-item">
-						<button id="logout-btn" type="button" class="btn btn-red btn-sm">${__('Logout')}</button>
+						<button id="logout-btn" type="button" class="btn btn-red btn-sm">${window.ls.__('Logout')}</button>
 					</div>
 				</div>
 			</div>`;
@@ -157,7 +157,7 @@ export default class Header extends AbstractView {
         return super.render(`
 			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">
-					<a router href="/" class="hover:underline">Transcendence</a>
+					<a router href="/" class="__">Transcendence</a>
 				</h1>
 				<div class="header-nav">
 					${buttonGroupHtml}
