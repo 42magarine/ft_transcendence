@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance, ManyToMany, JoinTable, OneToMany, ChildEntity } from "typeorm";
 import { ITournamentRound } from "../../interfaces/interfaces.js";
+import { JsonColumnTransformer } from "../transformers/JsonTransformer.js";
 
 @Entity()
 export class UserModel {
@@ -127,7 +128,7 @@ export class MatchModel {
 
     @Column({ nullable: true })
     tournamentId?: number;
-    
+
 }
 
 
@@ -143,7 +144,7 @@ export class TournamentModel
     @Column()
     name!:string
 
-    @ManyToMany(() => UserModel)
+    @ManyToOne(() => UserModel)
     @JoinColumn({ name: 'creatorId'})
     creator!: UserModel;
 
@@ -171,19 +172,19 @@ export class TournamentModel
     @OneToMany(() => MatchModel, (match) => match.tournament)
     matches!: MatchModel[];
 
-    @Column({ type: 'jsonb', default: {} })
+    @Column({ type: 'text', transformer: new JsonColumnTransformer() })
     playerScores?: { [userId: number]: number }; // Stores points for each player
 
     @Column({ default: 1 })
     currentRound!: number;
 
-    @Column('jsonb', { default:[] })
+    @Column({type: 'text', transformer: new JsonColumnTransformer() })
     matchSchedule?: ITournamentRound[]; // Array of rounds, each containing array of matches for that round
 
     @ManyToOne(() => UserModel, { nullable: true })
     @JoinColumn({ name: 'winnerUserId' })
     winner?: UserModel; // The winner of the tournament
 
-    @Column({ nullable: true })
+    @Column({name: 'winnerUserId', nullable: true })
     winnerId!: number | null; // Store the ID of the winner
 }
