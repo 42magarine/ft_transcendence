@@ -137,7 +137,7 @@ export default class Header extends AbstractView {
 
 		return super.render(`
 			<header class="header">
-				<h1 class="text-2xl font-bold whitespace-nowrap">
+				<h1 text-inherit font-bold whitespace-nowrap">
 					<a router href="/" class="hover:underline">Transcendence</a>
 				</h1>
 				<div class="header-nav">

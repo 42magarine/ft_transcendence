@@ -59,7 +59,7 @@ export default class Friends extends AbstractView {
                         htmlFor: 'friend-feedback',
                         id: 'friend-feedback',
                         text: '',
-                        className: 'text-sm text-red-500 hidden'
+                        className: 'hidden'
                     }
                 },
                 {

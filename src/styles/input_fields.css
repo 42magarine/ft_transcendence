@@ -130,3 +130,16 @@ input[type=number] {
   border-radius: 9999px;
   cursor: pointer;
 }
+
+/* Ensure input fields scale with body text size */
+body.big-textSize input,
+body.big-textSize textarea,
+body.big-textSize select {
+	font-size: 1.5rem !important;
+}
+
+body.huge-textSize input,
+body.huge-textSize textarea,
+body.huge-textSize select {
+	font-size: 2rem !important;
+}

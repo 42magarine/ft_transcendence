@@ -49,7 +49,7 @@ export default class PasswordReset extends AbstractView {
 							text: __('Log in'),
 							textBefore: __('Remember your password?'),
 							href: '/login',
-							className: 'btn-link text-sm underline',
+							className: 'underline',
 							align: 'center',
 						}
 					]
@@ -74,7 +74,7 @@ export default class PasswordReset extends AbstractView {
 							text: __('password reset page'),
 							textBefore: __('Please request a new password reset link from the'),
 							href: '/password-reset',
-							className: 'btn-link text-sm underline',
+							className: 'underline',
 							align: 'center'
 						}
 					]
@@ -96,7 +96,6 @@ export default class PasswordReset extends AbstractView {
 					{
 						text: __('Request Password Reset'),
 						type: 'submit',
-						className: "btn btn-primary",
 					},
 					{
 						id: 'login-redirect',
@@ -104,7 +103,7 @@ export default class PasswordReset extends AbstractView {
 						text: __('Log in'),
 						textBefore: __('Remember your password?'),
 						href: '/login',
-						className: 'btn-link text-sm underline',
+						className: 'underline',
 						align: 'center'
 					}
 				]

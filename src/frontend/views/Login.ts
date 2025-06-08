@@ -50,7 +50,7 @@ export default class Login extends AbstractView {
                                             text: __('sign up'),
                                             textBefore: __('May want to'),
                                             href: '/signup',
-                                            className: 'btn-link text-sm underline',
+                                            className: 'underline',
                                             align: 'center',
                                         },
                                         {
@@ -59,7 +59,7 @@ export default class Login extends AbstractView {
                                             text: __('Reset Password'),
                                             textBefore: __('Did you forget your Password?'),
                                             href: '/password-reset',
-                                            className: 'btn-link text-sm underline',
+                                            className: 'underline',
                                             align: 'center',
                                         },
                                         {

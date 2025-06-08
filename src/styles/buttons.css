@@ -21,11 +21,15 @@
 
 /* === BASE BUTTON STYLE === */
 .btn {
-	@apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-0 focus:ring-offset-0 rounded-xl;
+	@apply inline-flex items-center justify-center px-4 py-2 text-inherit font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-0 focus:ring-offset-0 rounded-xl;
 }
 
 .btn.disabled {
 	@apply cursor-not-allowed opacity-25;
+}
+
+.btn i {
+	@apply text-inherit align-middle;
 }
 
 /* === VARIANTS === */
