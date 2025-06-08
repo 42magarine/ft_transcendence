@@ -1,3 +1,4 @@
+import { match } from 'assert';
 import { IServerMessage, IPaddleDirection, IGameState, IPlayerState } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
 
@@ -7,6 +8,7 @@ export default class PongService {
     private player2!: IPlayerState;
     private isPlayer1Paddle: boolean = false;
     private isPlayer2Paddle: boolean = false;
+    private matchId: number | null = null;
 
     private canvas!: HTMLCanvasElement;
     private overlay!: HTMLElement;
@@ -23,6 +25,14 @@ export default class PongService {
         this.handleKeyUp = this.handleKeyUp.bind(this);
         this.draw = this.draw.bind(this);
         this.clientLoop = this.clientLoop.bind(this);
+    }
+
+    public initializeGame(
+        matchId: number,
+    )
+    {
+        this.ctx = this.canvas.getContext('2d')!;
+        this.matchId = matchId;
     }
 
     public setupEventListener(): void {
@@ -89,21 +99,27 @@ export default class PongService {
         console.log("PongService msg received: " + data.type)
 
         switch (data.type) {
-            case 'playerJoined':
-                this.gameState = data.gameState!;
+            case 'gameStarted':
 
-                if (window.currentUser?.id === this.gameState.player1Id) {
-                    this.isPlayer1Paddle = true;
-                    this.isPlayer2Paddle = false;
-                    console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
-                }
-                else if (window.currentUser?.id === this.gameState.player2Id) {
-                    this.isPlayer1Paddle = false;
-                    this.isPlayer2Paddle = true;
-                    console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
-                }
-                else {
-                    console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
+                if (data.matchId === this.matchId)
+                {
+                    this.gameState = data.gameState!;
+
+                    if (window.currentUser?.id === this.gameState.player1Id) {
+                        this.isPlayer1Paddle = true;
+                        this.isPlayer2Paddle = false;
+                        console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
+                    }
+                    else if (window.currentUser?.id === this.gameState.player2Id) {
+                        this.isPlayer1Paddle = false;
+                        this.isPlayer2Paddle = true;
+                        console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
+                    }
+                    else {
+                        this.isPlayer1Paddle = false;
+                        this.isPlayer2Paddle = false;
+                        console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
+                    }
                 }
 
                 // NEW: Start the client-side input loop when the game is joined
@@ -111,29 +127,27 @@ export default class PongService {
                     this.clientLoop();
                 }
 
-                setTimeout(function () {
-                    if (window.messageHandler && currentUrlLobbyId) {
-                        window.messageHandler.startGame(currentUrlLobbyId);
-                    }
-                }, 4000)
+                // setTimeout(function () {
+                //     if (window.messageHandler && currentUrlLobbyId) {
+                //         window.messageHandler.startGame(currentUrlLobbyId);
+                //     }
+                // }, 4000)
                 break;
 
             case 'gameStateUpdate':
-                this.gameState = data.gameState!;
-                this.draw();
+                if (data.activeGamesStates && Array.isArray(data.activeGamesStates))
+                {
+                    const relevantGameState = data.activeGamesStates.find(gs => gs.matchId === this.matchId)
 
-                // NEW: If game was paused and is now un-paused, restart the loop
-                if (!this.gameState.paused && !this.gameState.gameIsOver && this.animationFrameId === null) {
-                    this.clientLoop();
+                    if (relevantGameState)
+                    {
+                        this.gameState = relevantGameState;
+                        this.draw();
+                        if (!this.gameState.paused && !this.gameState.gameIsOver && this.animationFrameId === null) {
+                            this.clientLoop();
+                        }
+                    }
                 }
-                break;
-            case "playerLeft":
-                this.overlay.classList.remove("first");
-                this.overlay.classList.add("terminated");
-                this.overlay.textContent = 'Terminated\nby Opponent<span>you will be redirected!';
-                setTimeout(function () {
-                    Router.redirect("/lobbylist")
-                }, 10000)
                 break;
             case "playerLeft":
                 this.overlay.classList.remove("first");

@@ -81,6 +81,22 @@ export default class LobbyService {
                     // }
                 }
                 break;
+            case 'gameStarted':
+                if (data.lobby && data.gameState && data.matchId)
+                {
+                    const receivedLobbyInfo: ILobbyState = {
+                        ...data.lobby,
+                        createdAt: new Date(data.lobby.createdAt),
+                        lobbyPlayers: data.lobby.lobbyPlayers || []
+                    }
+
+                    if (receivedLobbyInfo.lobbyId === currentUrlLobbyId)
+                    {
+                        this.lobbyState = receivedLobbyInfo;
+                        Router.update();
+                    }
+                    Router.redirect(`/pong/${data.lobby.lobbyId}/${data.matchId}`)
+                }
             default:
                 break;
         }

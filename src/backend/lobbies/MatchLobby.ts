@@ -7,7 +7,7 @@ import { PongGame } from "../gamelogic/Pong.js";
 import Pong from "../../frontend/views/Pong.js";
 import { UserModel } from "../models/MatchModel.js";
 
-export class MatchLobby 
+export class MatchLobby
 {
     private _games: Map<number, PongGame> = new Map();
     private _gameId!: number;
@@ -161,7 +161,7 @@ export class MatchLobby
 
     public async removePlayer(player: Player): Promise<void> {
         try {
-            
+
             this._players.delete(player._playerNumber);
             this._readyPlayers.delete(player.userId); // Use userId for readyPlayers set
 
@@ -170,21 +170,21 @@ export class MatchLobby
                 console.log(`Player ${player._name} left tournament lobby ${this._lobbyId}. Cancelling tournament.`);
                 await this.cancelTournament("A player left the tournament.");
             } else {
-                
+
                 await this._matchService.removePlayerFromMatch(this._lobbyId, player.userId);
 
-                
+
                 for (const [matchId, game] of this._games.entries()) {
                     if (game._player1?._userId === player.userId || game._player2?._userId === player.userId) {
                         game.stopGameLoop();
                         this._games.delete(matchId);
-                        
+
                         await this._matchService.updateMatchStatus(matchId, 'cancelled');
                     }
                 }
             }
 
-            this.repositionPlayers(); 
+            this.repositionPlayers();
 
             if (this._creatorId === player.userId && this._players.size > 0) {
                 const nextPlayer = this._players.values().next().value;
@@ -374,7 +374,7 @@ export class MatchLobby
             gameState: game!.getState(),
             matchId: matchId
         });
-        }
+    }
 
     // this._dbGame nicht direkt aufrufen, sondern über funktionen aus MatchService.ts
 
@@ -797,10 +797,10 @@ export class MatchLobby
             });
         }
     }
-    
+
     private async handleGameWin(winningPlayerId: number, player1Score: number, player2Score: number) {
         this.stopGame();
-        
+
         const winningPlayer = this._players.get(winningPlayerId);
         if (!winningPlayer?.userId || !this._gameId || !this._matchService) {
             return;

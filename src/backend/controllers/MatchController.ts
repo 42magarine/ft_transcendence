@@ -400,4 +400,3 @@ private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType
         }
     }
 }
-

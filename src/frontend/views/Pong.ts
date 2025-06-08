@@ -31,6 +31,17 @@ export default class Pong extends AbstractView {
         return this.render(`${gameCard}`);
     }
 
+    async afterRender(): Promise<void> {
+        if (!this.params)
+            return;
+
+        if (window.pongService)
+        {
+            window.pongService.initializeGame(Number(this.params.values['name']))
+        }
+
+    }
+
     private setupEvents(): void {
         window.pongService.setupEventListener();
     }

@@ -26,7 +26,7 @@ const routes: Route[] = [
         }
     },
     {
-        path: '/pong/:id',
+        path: '/pong/:lobbyId/:matchId',
         role: 'user',
         view: Pong,
         metadata: {
@@ -34,7 +34,7 @@ const routes: Route[] = [
             description: 'Welcome to Pong'
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
-            window.messageHandler!.leaveLobby(params.id);
+            window.messageHandler!.leaveLobby(params.lobbyId);
             return true;
         }
     },
