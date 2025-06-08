@@ -42,21 +42,6 @@ main .container {
 		@apply bg-purple-700 text-white;
 	}
 
-	/* High Contrast Mode für Role Tags */
-	.high-contrast .role-tag {
-		@apply border-2 border-white font-bold;
-	}
-
-	.high-contrast .role-tag.role-admin {
-		@apply bg-yellow-500 text-black border-black;
-	}
-	.high-contrast .role-tag.role-user {
-		@apply bg-green-500 text-black border-black;
-	}
-	.high-contrast .role-tag.role-master {
-		@apply bg-purple-600 text-white border-white;
-	}
-}
 
 /* Scrollbar Styles */
 ::-webkit-scrollbar {
@@ -71,14 +56,6 @@ main .container {
 	@apply bg-white;
 }
 
-/* High Contrast Scrollbar */
-.high-contrast ::-webkit-scrollbar {
-	@apply w-1 h-1;
-}
-
-.high-contrast ::-webkit-scrollbar-thumb {
-	@apply bg-black;
-}
 
 /* Firefox Scrollbar */
 * {
@@ -117,14 +94,6 @@ main .container {
 	@apply bg-transparent text-white/50;
 }
 
-/* High Contrast Toggle Buttons */
-.high-contrast .toggle-btn.active.bg-green-500 {
-	@apply bg-green-600 text-black border-2 border-black font-bold;
-}
-
-.high-contrast .toggle-btn.active.bg-red-500 {
-	@apply bg-red-600 text-white border-2 border-white font-bold;
-}
 
 .high-contrast .toggle-btn:not(.active) {
 	@apply bg-white text-black border-2 border-black font-bold;
@@ -138,4 +107,33 @@ body.big-textSize {
 }
 body.huge-textSize {
     @apply text-[32px];
+}
+
+.high-contrast .dropdown-item a,
+.high-contrast .dropdown-item button {
+	@apply text-black hover:bg-black hover:text-white;
+}
+
+.high-contrast .dropdown-img img,
+.high-contrast .dropdown-head img {
+	filter: grayscale(100%) contrast(150%);
+}
+
+/* === Header/Footer in High Contrast === */
+.high-contrast header,
+.high-contrast footer {
+	@apply bg-white text-black border-black;
+	background: white !important;
+	color: black !important;
+}
+
+.high-contrast h1,
+.high-contrast h2,
+.high-contrast h3,
+.high-contrast h4,
+.high-contrast h5,
+.high-contrast h6,
+.high-contrast .text-white {
+	color: black !important;
+}
 }

@@ -5,117 +5,120 @@ import { generateProfileImage } from '../../utils/Avatar.js';
 import __ from '../services/LanguageService.js';
 
 export default class Header extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
-        super(params);
-    }
+	constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
+		super(params);
+	}
 
-    async getHtml(): Promise<string> {
-        const noMenu = ['/login', '/signup', '/two-factor'];
-        const currentUser = await UserService.getCurrentUser();
-        let buttonSet = [
-            {
-                id: 'login-btn',
-                text: __('Login'),
-                icon: 'right-to-bracket',
-                href: '/login'
-            },
-            {
-                id: 'signup-btn',
-                text: __('Signup'),
-                icon: 'user-plus',
-                href: '/signup'
-            }
-        ];
+	async getHtml(): Promise<string> {
+		const noMenu = ['/login', '/signup', '/two-factor'];
+		const currentUser = await UserService.getCurrentUser();
 
-        if (currentUser != null) {
-            if (currentUser.role === 'master') {
-                buttonSet = [
-                    {
-                        id: 'friends-btn',
-                        text: __('Friends List'),
-                        icon: 'user-group',
-                        href: '/friends',
-                    },
-                    {
-                        id: 'user-management-btn',
-                        text: __('User Management'),
-                        icon: 'users',
-                        href: '/user-mangement'
-                    },
-                    {
-                        id: 'localpong-btn',
-                        text: __('Local Pong'),
-                        icon: 'table-tennis-paddle-ball',
-                        href: '/localpong'
-                    },
-                    {
-                        id: 'lobby-list-btn',
-                        text: __('Lobby List'),
-                        icon: 'list',
-                        href: '/lobbylist'
-                    },
-                    {
-                        id: 'tournament-list-btn',
-                        text: __('Tournament List'),
-                        icon: 'list',
-                        href: '/tournamentlist'
-                    }
-                ];
-            } else {
-                buttonSet = [
-                    {
-                        id: 'friends-btn',
-                        text: __('Friends List'),
-                        icon: 'user-group',
-                        href: '/friends',
-                    },
-                    {
-                        id: 'localpong-btn',
-                        text: __('Local Pong'),
-                        icon: 'table-tennis-paddle-ball',
-                        href: '/localpong'
-                    },
-                    {
-                        id: 'lobby-list-btn',
-                        text: __('Lobby List'),
-                        icon: 'list',
-                        href: '/lobbylist'
-                    },
-                    {
-                        id: 'tournament-list-btn',
-                        text: __('Tournament List'),
-                        icon: 'list',
-                        href: '/tournamentlist'
-                    }
-                ];
-            }
-        }
+		// Buttons visible depending on login state
+		let buttonSet = [
+			{
+				id: 'login-btn',
+				text: __('Login'),
+				icon: 'right-to-bracket',
+				href: '/login'
+			},
+			{
+				id: 'signup-btn',
+				text: __('Signup'),
+				icon: 'user-plus',
+				href: '/signup'
+			}
+		];
 
-        const button = new Button();
-        const languageDropDown = await button.renderLanguageDropdown();
+		if (currentUser) {
+			buttonSet = [
+				{
+					id: 'friends-btn',
+					text: __('Friends List'),
+					icon: 'user-group',
+					href: '/friends',
+				},
+				{
+					id: 'localpong-btn',
+					text: __('Local Pong'),
+					icon: 'table-tennis-paddle-ball',
+					href: '/localpong'
+				},
+				{
+					id: 'lobby-list-btn',
+					text: __('Lobby List'),
+					icon: 'list',
+					href: '/lobbylist'
+				},
+				{
+					id: 'tournament-list-btn',
+					text: __('Tournament List'),
+					icon: 'list',
+					href: '/tournamentlist'
+				}
+			];
 
-        let buttonGroupHtml = '';
-        if (!noMenu.includes(location.pathname)) {
-            buttonGroupHtml = await button.renderButtonGroup({
-                layout: 'group',
-                align: 'right',
-                className: 'no-wrap',
-                buttons: buttonSet
-            });
-        }
+			if (currentUser.role === 'master') {
+				buttonSet.unshift({
+					id: 'user-management-btn',
+					text: __('User Management'),
+					icon: 'users',
+					href: '/user-mangement'
+				});
+			}
+		}
 
-        let userDropDown = "";
-        if (currentUser) {
-            let dropDownAvatar = generateProfileImage(currentUser, 20, 20);
-            userDropDown = `<div class="dropdown">
+		const button = new Button();
+
+		// Language dropdown (modular)
+		const languageDropdown = await button.renderDropdownGroup({
+			id: 'language-dropdown',
+			head: {
+				icon: '',
+				img: `/dist/assets/flags/en_EN.svg`,
+				text: ''
+			},
+			items: [
+				{ img: `/dist/assets/flags/en_EN.svg`, text: 'English', dataAttributes: { lang: 'en_EN' } },
+				{ img: `/dist/assets/flags/de_DE.svg`, text: 'Deutsch', dataAttributes: { lang: 'de_DE' } },
+				{ img: `/dist/assets/flags/it_IT.svg`, text: 'Italiano', dataAttributes: { lang: 'it_IT' } },
+				{ img: `/dist/assets/flags/my_MY.svg`, text: 'Malay', dataAttributes: { lang: 'my_MY' } }
+			]
+		});
+
+		// Accessibility dropdown (modular)
+		const accessibilityDropdown = await button.renderDropdownGroup({
+			id: 'accessibility-dropdown',
+			head: {
+				icon: 'universal-access',
+				text: __('Accessibility')
+			},
+			items: [
+				{ icon: 'circle-half-stroke', text: __('Contrast'), id: 'contrastSwitch' },
+				{ icon: 'font', text: __('Textsize'), id: 'textsizeSwitch' }
+			]
+		});
+
+		// Top nav buttons
+		let buttonGroupHtml = '';
+		if (!noMenu.includes(location.pathname)) {
+			buttonGroupHtml = await button.renderButtonGroup({
+				layout: 'group',
+				align: 'right',
+				className: 'no-wrap',
+				buttons: buttonSet
+			});
+		}
+
+		// User profile dropdown
+		let userDropDown = "";
+		if (currentUser) {
+			let dropDownAvatar = generateProfileImage(currentUser, 20, 20);
+			userDropDown = `
+			<div class="dropdown">
 				<div class="dropdown-head">
 					<a router href="/users/${currentUser.id}">
-						<div class="dropdown-name">
-							${currentUser.name}
-						</div>
-						<div class="dropdown-img">
-							${dropDownAvatar}
-						</div>
+						<div class="dropdown-name">${currentUser.name}</div>
+						<div class="dropdown-img">${dropDownAvatar}</div>
 					</a>
 				</div>
 				<div class="dropdown-body">
@@ -130,46 +133,20 @@ export default class Header extends AbstractView {
 					</div>
 				</div>
 			</div>`;
-        }
+		}
 
-        let viewSettings = [
-            {
-                id: 'contrastSwitch',
-                text: 'Contrast',
-                icon: 'circle-half-stroke',
-                href: ''
-            },
-            {
-                id: 'textsizeSwitch',
-                text: 'Textsize',
-                icon: 'font',
-                href: ''
-            }
-        ];
-        let viewSettingsHtml = '';
-        viewSettingsHtml = await button.renderButtonGroup(
-            {
-                layout: 'group',
-                align: 'right',
-                className: 'no-wrap',
-                buttons: viewSettings
-            });
-        return super.render(`
+		return super.render(`
 			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">
 					<a router href="/" class="hover:underline">Transcendence</a>
 				</h1>
 				<div class="header-nav">
 					${buttonGroupHtml}
-                    ${viewSettingsHtml}
-					<div class="flex items-center">
-						${languageDropDown}
-					</div>
-					<div class="flex items-center ml-2">
-						${userDropDown}
-					</div>
+					<div class="flex items-center ml-2">${accessibilityDropdown}</div>
+					<div class="flex items-center ml-2">${languageDropdown}</div>
+					<div class="flex items-center ml-2">${userDropDown}</div>
 				</div>
 			</header>
 		`);
-    }
+	}
 }
