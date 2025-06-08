@@ -24,36 +24,59 @@ export default class Button extends AbstractView {
         if (type === 'google-signin')
             return renderGoogleSignInButton(align);
 
-        let finalClass = 'btn';
+        // Base button class, include text-inherit to support accessibility scaling
+        let finalClass = 'btn text-inherit';
+
+        // Apply color variant
         if (color) finalClass += ` btn-${color}`;
         else if (type === 'submit') finalClass += ' btn-green';
         else if (type === 'delete') finalClass += ' btn-red';
         else finalClass += ' btn-primary';
 
-        if (className) finalClass += ` ${className.trim()}`;
-        let alignClass = align ? `text-${align}` : '';
-        let clickAttr = onClick ? `onclick="${onClick}"` : '';
+        // Always inherit text size; only append className if it doesn't conflict
+        finalClass += ' text-inherit';
+        if (className && !/text-(xs|sm|md|lg|xl)/.test(className)) {
+            finalClass += ` ${className.trim()}`;
+        }
 
+
+        // Text alignment (left, center, right)
+        const alignClass = align ? `text-${align}` : '';
+
+        // Optional click handler
+        const clickAttr = onClick ? `onclick="${onClick}"` : '';
+
+        // Add any extra data-* attributes
         let dataAttrs = '';
         for (const [key, value] of Object.entries(dataAttributes || {})) {
             dataAttrs += `data-${key}="${value}" `;
         }
         dataAttrs = dataAttrs.trim();
 
-        let iconHtml = icon ? `<i class="fa-solid fa-${icon}"></i>` : '';
-        const translatedText = text ? window.ls.__(text) : '';
-        let content = iconHtml && translatedText ? `${iconHtml}<span class="ml-2 __">${translatedText}</span>` : iconHtml || translatedText;
+        // Icon rendering (if provided)
+        const iconHtml = icon ? `<i class="fa-solid fa-${icon}"></i>` : '';
+        // Combine icon and text with spacing and scaling support
+        let content = '';
+        if (iconHtml && text) {
+            content = `${iconHtml}<span class="ml-2 text-inherit __">${text}</span>`;
+        } else {
+            content = iconHtml || `<span class="text-inherit __">${text}</span>`;
+        }
 
-        let element = href
+        // Render as <a> or <button>
+        const element = href
             ? `<a id="${id}" href="${href}" router class="${finalClass}" ${dataAttrs}>${content}</a>`
             : `<button id="${id}" type="${type}" class="${finalClass}" ${clickAttr} ${dataAttrs}>${content}</button>`;
 
-        let combined = type === 'text-with-button'
-            ? `<span class="inline-block mr-2 text-sm text-gray-600">${textBefore}</span>${element}`
+        // Optionally add inline label text before the button (e.g. "Don't have an account? [Sign up]")
+        const combined = type === 'text-with-button'
+            ? `<span class="inline-block mr-2 text-inherit __">${textBefore}</span>${element}`
             : element;
 
+        // Wrap in a div with text alignment
         return this.render(`<div class="${alignClass}">${combined}</div>`);
     }
+
 
     async renderButtonGroup({
         buttons = [],

@@ -1,6 +1,5 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
-import __ from '../services/LanguageService.js';
 
 export default class PasswordReset extends AbstractView {
     constructor(params: URLSearchParams) {
@@ -49,7 +48,7 @@ export default class PasswordReset extends AbstractView {
                             text: window.ls.__('Log in'),
                             textBefore: window.ls.__('Remember your password?'),
                             href: '/login',
-                            className: 'btn-link text-sm underline',
+                            className: 'underline',
                             align: 'center',
                         }
                     ]
@@ -74,7 +73,7 @@ export default class PasswordReset extends AbstractView {
                             text: window.ls.__('password reset page'),
                             textBefore: window.ls.__('Please request a new password reset link from the'),
                             href: '/password-reset',
-                            className: 'btn-link text-sm underline',
+                            className: 'underline',
                             align: 'center'
                         }
                     ]
@@ -96,7 +95,6 @@ export default class PasswordReset extends AbstractView {
                     {
                         text: window.ls.__('Request Password Reset'),
                         type: 'submit',
-                        className: "btn btn-primary",
                     },
                     {
                         id: 'login-redirect',
@@ -104,7 +102,7 @@ export default class PasswordReset extends AbstractView {
                         text: window.ls.__('Log in'),
                         textBefore: window.ls.__('Remember your password?'),
                         href: '/login',
-                        className: 'btn-link text-sm underline',
+                        className: 'underline',
                         align: 'center'
                     }
                 ]

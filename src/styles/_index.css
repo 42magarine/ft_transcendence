@@ -136,4 +136,18 @@ body.huge-textSize {
 .high-contrast .text-white {
 	color: black !important;
 }
+
+body.big-textSize input,
+body.big-textSize textarea,
+body.big-textSize select {
+  font-size: 1.5rem; /* or 24px */
+}
+
+body.huge-textSize input,
+body.huge-textSize textarea,
+body.huge-textSize select {
+  font-size: 2rem; /* or 32px */
+}
+
+
 }
