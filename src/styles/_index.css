@@ -19,16 +19,12 @@
 	user-select: none;
 }
 
-
-
 main {
-	min-height: 100vh;
-    padding-top: 5em;
+	@apply min-h-screen pt-20;
 }
 
-main .container{
-	margin: auto;
-	width: 1200px;
+main .container {
+	@apply mx-auto w-full max-w-6xl;
 }
 
 @layer components {
@@ -45,51 +41,101 @@ main .container{
 	.role-tag.role-master {
 		@apply bg-purple-700 text-white;
 	}
+
+	/* High Contrast Mode für Role Tags */
+	.high-contrast .role-tag {
+		@apply border-2 border-white font-bold;
+	}
+
+	.high-contrast .role-tag.role-admin {
+		@apply bg-yellow-500 text-black border-black;
+	}
+	.high-contrast .role-tag.role-user {
+		@apply bg-green-500 text-black border-black;
+	}
+	.high-contrast .role-tag.role-master {
+		@apply bg-purple-600 text-white border-white;
+	}
 }
 
-
+/* Scrollbar Styles */
 ::-webkit-scrollbar {
-	width: 2px;
-	height: 2px;
-  }
+	@apply w-0.5 h-0.5;
+}
 
-  ::-webkit-scrollbar-track {
-	background: transparent;
-  }
+::-webkit-scrollbar-track {
+	@apply bg-transparent;
+}
 
-  ::-webkit-scrollbar-thumb {
-	background-color: white;
-  }
+::-webkit-scrollbar-thumb {
+	@apply bg-white;
+}
 
-  /* For Firefox */
-  * {
+/* High Contrast Scrollbar */
+.high-contrast ::-webkit-scrollbar {
+	@apply w-1 h-1;
+}
+
+.high-contrast ::-webkit-scrollbar-thumb {
+	@apply bg-black;
+}
+
+/* Firefox Scrollbar */
+* {
 	scrollbar-width: thin;
 	scrollbar-color: white transparent;
 }
-.g_id_signin {
-	opacity: 0;
-	animation: fadeIn 1s ease-in-out forwards;
-	animation-delay: 1s;
-  }
 
-  @keyframes fadeIn {
+.high-contrast * {
+	scrollbar-color: black transparent;
+}
+
+/* Google Sign-in Animation */
+.g_id_signin {
+	@apply opacity-0 animate-[fadeIn_1s_ease-in-out_1s_forwards];
+}
+
+@keyframes fadeIn {
 	from {
-	  opacity: 0;
+		opacity: 0;
 	}
 	to {
-	  opacity: 1;
+		opacity: 1;
 	}
-  }
+}
 
-  .toggle-btn.active.bg-green-500 {
-	background-color: #22c55e; /* green-500 */
-	color: white;
+/* Toggle Button Styles */
+.toggle-btn.active.bg-green-500 {
+	@apply bg-green-500 text-white;
 }
+
 .toggle-btn.active.bg-red-500 {
-	background-color: #ef4444; /* red-500 */
-	color: white;
+	@apply bg-red-500 text-white;
 }
+
 .toggle-btn:not(.active) {
-	background-color: transparent;
-	color: rgba(255, 255, 255, 0.5);
+	@apply bg-transparent text-white/50;
+}
+
+/* High Contrast Toggle Buttons */
+.high-contrast .toggle-btn.active.bg-green-500 {
+	@apply bg-green-600 text-black border-2 border-black font-bold;
+}
+
+.high-contrast .toggle-btn.active.bg-red-500 {
+	@apply bg-red-600 text-white border-2 border-white font-bold;
+}
+
+.high-contrast .toggle-btn:not(.active) {
+	@apply bg-white text-black border-2 border-black font-bold;
+}
+
+body {
+    @apply text-[16px];
+}
+body.big-textSize {
+    @apply text-[24px];
+}
+body.huge-textSize {
+    @apply text-[32px];
 }

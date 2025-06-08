@@ -149,6 +149,29 @@ export default class Header extends AbstractView {
 			`
         }
 
+        let viewSettings = [
+            {
+                id: 'contrastSwitch',
+                text: 'Contrast',
+                icon: 'circle-half-stroke',
+                href: ''
+            },
+            {
+                id: 'textsizeSwitch',
+                text: 'Textsize',
+                icon: 'font',
+                href: ''
+            }
+        ];
+        let viewSettingsHtml = '';
+        const button = new Button();
+        buttonGroupHtml = await button.renderButtonGroup(
+            {
+                layout: 'group',
+                align: 'right',
+                className: 'no-wrap',
+                buttons: viewSettings
+            });
         //{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-red btn-sm' }
         return super.render(`
 			<header class="header">
@@ -157,6 +180,7 @@ export default class Header extends AbstractView {
 				</h1>
 				<div class="header-nav">
 					${buttonGroupHtml}
+                    ${viewSettingsHtml}
 					<div class="flex items-center">
 						${languageDropDown}
 					</div>

@@ -26,6 +26,7 @@ import Footer from './components/Footer.js';
 import Header from './components/Header.js';
 import TournamentListService from './services/TournamentListService.js';
 import TournamentService from './services/TournamentService.js';
+import { AccessibilityService } from './services/AccessibilityService.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -147,6 +148,7 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();
@@ -159,6 +161,7 @@ document.addEventListener('RouterContentLoaded', async () => {
     window.userManagementService.twoFactorNumberActions();
     window.userManagementService.setupUserManagementView();
     window.userManagementService.initializeGoogleScript();
+    AccessibilityService.initialize();
 });
 
 // =======================

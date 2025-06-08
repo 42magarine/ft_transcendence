@@ -19,38 +19,72 @@
 .grid-cols-3 { @apply grid-cols-3; }
 .grid-cols-4 { @apply grid-cols-4; }
 
+/* High Contrast Button Groups */
+.high-contrast .btn-group,
+.high-contrast .btn-stack,
+.high-contrast .btn-grid {
+	@apply gap-3;
+}
+
 /* === BASE BUTTON STYLE === */
 .btn {
-	border-radius: 0.75rem;
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-0 focus:ring-offset-0;
+	@apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-0 focus:ring-offset-0 rounded-xl;
 }
 
 .btn.disabled {
-    @apply cursor-not-allowed opacity-25;
+	@apply cursor-not-allowed opacity-25;
+}
+
+/* High Contrast Base Button */
+.high-contrast .btn {
+	@apply border-2 font-bold focus:ring-4 focus:ring-blue-600 focus:ring-offset-2;
+}
+
+.high-contrast .btn.disabled {
+	@apply opacity-50 border-gray-500;
 }
 
 /* === VARIANTS === */
 /* 🔵 Primary (default action) */
-
-
 .btn-primary {
 	@apply bg-blue-900/70 text-white
 		 hover:bg-blue-800/70
 		 active:bg-blue-900/95;
-  }
+}
+
+/* High Contrast Primary */
+.high-contrast .btn-primary {
+	@apply bg-blue-800 text-white border-blue-900
+		hover:bg-blue-900 hover:border-blue-800
+		active:bg-blue-700 active:border-blue-900;
+}
 
 /* ⚪ Secondary (neutral action) */
 .btn-secondary {
-@apply bg-gray-200 text-gray-900
+	@apply bg-gray-200 text-gray-900
 		hover:bg-gray-300
 		active:bg-gray-400;
 }
 
+/* High Contrast Secondary */
+.high-contrast .btn-secondary {
+	@apply bg-gray-300 text-black border-gray-600
+		hover:bg-gray-400 hover:border-gray-700
+		active:bg-gray-500 active:border-gray-800;
+}
+
 /* 🔴 Danger (destructive action) */
 .btn-red {
-@apply bg-red-800/80 text-white
+	@apply bg-red-800/80 text-white
 		hover:bg-red-900/80
 		active:bg-red-800/80;
+}
+
+/* High Contrast Red */
+.high-contrast .btn-red {
+	@apply bg-red-700 text-white border-red-900
+		hover:bg-red-800 hover:border-red-600
+		active:bg-red-900 active:border-red-700;
 }
 
 /* 🔵 Blue = Informational */
@@ -60,11 +94,25 @@
 		active:bg-blue-800;
 }
 
+/* High Contrast Blue */
+.high-contrast .btn-blue {
+	@apply bg-blue-600 text-white border-blue-800
+		hover:bg-blue-700 hover:border-blue-900
+		active:bg-blue-800 active:border-blue-600;
+}
+
 /* ⚫ Black = Strong Emphasis */
 .btn-black {
 	@apply bg-black text-white
 		hover:bg-gray-900
 		active:bg-gray-800;
+}
+
+/* High Contrast Black */
+.high-contrast .btn-black {
+	@apply bg-black text-white border-gray-700
+		hover:bg-gray-900 hover:border-gray-600
+		active:bg-gray-800 active:border-gray-500;
 }
 
 /* ⚪ White = Inverse */
@@ -74,11 +122,25 @@
 		active:bg-gray-200;
 }
 
+/* High Contrast White */
+.high-contrast .btn-white {
+	@apply bg-white text-black border-black border-2
+		hover:bg-gray-50 hover:border-gray-800
+		active:bg-gray-100 active:border-gray-900;
+}
+
 /* ⚫⚪ Gray = Subtle Neutral */
 .btn-gray {
 	@apply bg-gray-500 text-white
 		hover:bg-gray-600
 		active:bg-gray-700;
+}
+
+/* High Contrast Gray */
+.high-contrast .btn-gray {
+	@apply bg-gray-600 text-white border-gray-800
+		hover:bg-gray-700 hover:border-gray-900
+		active:bg-gray-800 active:border-gray-600;
 }
 
 /* ♻ Transparent background */
@@ -88,44 +150,75 @@
 		active:bg-gray-200;
 }
 
+/* High Contrast Transparent */
+.high-contrast .btn-transparent {
+	@apply bg-transparent text-black border-black border-2
+		hover:bg-gray-100 hover:border-gray-700
+		active:bg-gray-200 active:border-gray-800;
+}
 
 /* 🔘 Outline variant (border-only) */
 .btn-outline {
-@apply border border-gray-400 text-gray-700 bg-transparent
+	@apply border border-gray-400 text-gray-700 bg-transparent
 		hover:bg-gray-100
 		active:bg-gray-200;
 }
 
+/* High Contrast Outline */
+.high-contrast .btn-outline {
+	@apply border-2 border-black text-black bg-transparent
+		hover:bg-gray-100 hover:border-gray-800
+		active:bg-gray-200 active:border-gray-900;
+}
+
 /* 🔗 Link-style button */
 .btn-link {
-@apply text-blue-600 underline
+	@apply text-blue-600 underline
 		hover:text-blue-700
 		active:text-blue-800;
+}
+
+/* High Contrast Link */
+.high-contrast .btn-link {
+	@apply text-blue-800 underline decoration-2 underline-offset-2
+		hover:text-blue-900 hover:decoration-4
+		active:text-blue-700 active:decoration-4;
 }
 
 /* ========================
    === FULL-WIDTH OPTION ===
    ======================== */
-   .btn-full {
+.btn-full {
 	@apply w-full justify-center;
-  }
+}
 
-
-  /* ========================
-	 === SIZE MODIFIERS ===
-	 ======================== */
-  .btn-sm {
+/* ========================
+   === SIZE MODIFIERS ===
+   ======================== */
+.btn-sm {
 	@apply px-3 py-1.5 text-sm;
-  }
+}
 
-  .btn-md {
+.btn-md {
 	@apply px-4 py-2 text-base;
-  }
+}
 
-  .btn-lg {
+.btn-lg {
 	@apply px-5 py-2.5 text-lg;
-  }
+}
 
+/* High Contrast Size Adjustments */
+.high-contrast .btn-sm {
+	@apply px-4 py-2 text-sm;
+}
+
+.high-contrast .btn-md {
+	@apply px-5 py-2.5 text-base;
+}
+
+.high-contrast .btn-lg {
+	@apply px-6 py-3 text-lg;
+}
 
 /* === STATE STYLES === */
 .btn:hover:not(.btn-disabled) {
@@ -136,11 +229,27 @@
 	@apply scale-95;
 }
 
+/* High Contrast State Styles */
+.high-contrast .btn:hover:not(.btn-disabled) {
+	@apply brightness-110 shadow-lg;
+}
+
+.high-contrast .btn:active:not(.btn-disabled) {
+	@apply scale-90 shadow-inner;
+}
+
 /* ✅ Green = Ready */
 .btn-green {
 	@apply bg-green-600 text-white
 		hover:bg-green-700
 		active:bg-green-800;
+}
+
+/* High Contrast Green */
+.high-contrast .btn-green {
+	@apply bg-green-600 text-white border-green-800
+		hover:bg-green-700 hover:border-green-900
+		active:bg-green-800 active:border-green-600;
 }
 
 /* 🟡 Yellow = Waiting */
@@ -150,8 +259,14 @@
 		active:bg-yellow-600;
 }
 
-/* 🔴 Red = Unavailable — already exists, reuse `btn-red` */
+/* High Contrast Yellow */
+.high-contrast .btn-yellow {
+	@apply bg-yellow-400 text-black border-yellow-600
+		hover:bg-yellow-500 hover:border-yellow-700
+		active:bg-yellow-600 active:border-yellow-800;
+}
 
+/* Utility */
 .hidden {
-	display: none;
+	@apply hidden;
 }
