@@ -6,7 +6,7 @@ export default class TournamentList extends AbstractView {
         super();
 
         this.initEvents = this.setupEvents.bind(this);
-        this.destroyEvents = this.cleanupEvents.bind(this);
+        // this.destroyEvents = this.cleanupEvents.bind(this);
     }
 
     async getHtml(): Promise<string> {
@@ -30,17 +30,17 @@ export default class TournamentList extends AbstractView {
     private setupEvents(): void {
         console.log('[TournamentList] setupEvents()');
 
-        window.tournamentListService?.setupEventListener();
+        // window.tournamentListService?.setupEventListener();
     }
 
-    private cleanupEvents(): void {
-        console.log('[TournamentList] cleanupEvents()');
+    // private cleanupEvents(): void {
+    //     console.log('[TournamentList] cleanupEvents()');
 
-        if (window.tournamentListService) {
-            const createTournamentBtn = document.getElementById('createTournamentBtn');
-            if (createTournamentBtn) {
-                createTournamentBtn.removeEventListener('click', window.tournamentListService.handleCreateTournamentClick);
-            }
-        }
-    }
+    //     if (window.tournamentListService) {
+    //         const createTournamentBtn = document.getElementById('createTournamentBtn');
+    //         if (createTournamentBtn) {
+    //             createTournamentBtn.removeEventListener('click', window.tournamentListService.handleCreateTournamentClick);
+    //         }
+    //     }
+    // }
 }

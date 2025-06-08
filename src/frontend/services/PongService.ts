@@ -89,17 +89,15 @@ export default class PongService {
         console.log("PongService msg received: " + data.type)
 
         switch (data.type) {
-            case 'gameJoined':
+            case 'playerJoined':
                 this.gameState = data.gameState!;
-                this.player1 = data.player1!;
-                this.player2 = data.player2!;
 
-                if (window.currentUser?.id === this.player1.userId) {
+                if (window.currentUser?.id === this.gameState.player1Id) {
                     this.isPlayer1Paddle = true;
                     this.isPlayer2Paddle = false;
                     console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
                 }
-                else if (window.currentUser?.id === this.player2.userId) {
+                else if (window.currentUser?.id === this.gameState.player2Id) {
                     this.isPlayer1Paddle = false;
                     this.isPlayer2Paddle = true;
                     console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
@@ -120,7 +118,7 @@ export default class PongService {
                 }, 4000)
                 break;
 
-            case 'gameUpdate':
+            case 'gameStateUpdate':
                 this.gameState = data.gameState!;
                 this.draw();
 

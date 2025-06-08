@@ -42,15 +42,15 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async joinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
-        const msg: IClientMessage = {
-            type: 'joinGame',
-            player1,
-            player2,
-            lobbyId,
-        };
-        await this.safeSend(msg);
-    }
+    // public async joinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
+    //     const msg: IClientMessage = {
+    //         type: 'joinGame',
+    //         player1,
+    //         player2,
+    //         lobbyId,
+    //     };
+    //     await this.safeSend(msg);
+    // }
 
     public async startGame(lobbyId: string) {
         const msg: IClientMessage = {
@@ -107,18 +107,20 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async getTournamentList() {
-        const msg: IClientMessage = {
-            type: 'getTournamentList',
-        };
-        await this.safeSend(msg);
-    }
+    // public async getTournamentList() {
+    //     const msg: IClientMessage = {
+    //         type: 'getTournamentList',
+    //     };
+    //     await this.safeSend(msg);
+    // }
 
-    public async createTournament(userId: number) {
-        const msg: IClientMessage = {
-            type: 'createTournament',
-            userId
-        };
-        await this.safeSend(msg);
-    }
+    // public async createTournament(userId: number) {
+    //     const msg: IClientMessage = {
+    //         type: 'createLobby',
+    //         userId,
+    //          lobbyType: 'tournament'
+    // awdadwadawd
+    //     };
+    //     await this.safeSend(msg);
+    // }
 }

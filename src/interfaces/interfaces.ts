@@ -1,7 +1,7 @@
 import type MessageHandlerService from '../frontend/services/MessageHandlerService.js';
 import type LobbyListService from '../frontend/services/LobbyListService.js';
 import type LobbyService from '../frontend/services/LobbyService.js';
-import type TournamentListService from '../frontend/services/TournamentListService.js';
+// import type TournamentListService from '../frontend/services/TournamentListService.js';
 import type TournamentService from '../frontend/services/TournamentService.js';
 import type UserService from '../frontend/services/UserService.js';
 import PongService from '../frontend/services/PongService.js';
@@ -38,7 +38,7 @@ declare global {
         lobbyListService: LobbyListService;
         lobbyService: LobbyService;
         tournamentService: TournamentService;
-        tournamentListService: TournamentListService;
+        // tournamentListService: TournamentListService;
         userService: UserService;
         userManagementService: UserManagementService;
         pongService: PongService;
