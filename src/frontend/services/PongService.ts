@@ -236,19 +236,13 @@ export default class PongService {
             let winMsg = "";
 
             if (this.gameState.winnerName) {
-                if (this.gameState.player1Left || this.gameState.player2Left) {
-                    console.log("player left win");
-                    if (this.gameState.player1Left) {
-                        winMsg = this.gameState.winnerName + ` wins because ` + this.player1.userName + ' left' ;
-                    } else {
-                        winMsg = this.gameState.winnerName + ` wins because ` + this.player2.userName + ' left' ;
-                    }
-
+                winMsg = this.gameState.winnerName + ` wins`;
+                this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + 40);
+                if (this.gameState.winnerName === this.player1.userName && this.gameState.score1 > this.gameState.score2
+                    || this.gameState.winnerName === this.player2.userName && this.gameState.score2 > this.gameState.score1) {
+                        this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + 80);
                 } else {
-                    console.log("normal win");
-                    winMsg = this.gameState.winnerName + ` wins`;
-                    this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + 40);
-                    this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + 80);
+                    this.ctx.fillText(`Other Player left`, this.canvas.width / 2, this.canvas.height / 2 + 80);
                 }
             }
         }
