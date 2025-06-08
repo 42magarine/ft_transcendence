@@ -281,6 +281,10 @@ export class PongGame {
         return this._player2;
     }
 
+    public get winner(): Player | null {
+        return this._winner;
+    }
+
     public get isGameOver(): boolean {
         return this._gameIsOver;
     }

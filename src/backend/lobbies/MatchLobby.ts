@@ -214,10 +214,8 @@ export class MatchLobby {
         const state = this.getGameState();
 
         if (state.score1 >= this._game._scoreLimit || state.score2 >= this._game._scoreLimit) {
-            const winningPlayerId = state.score1 >= this._game._scoreLimit ? 1 : 2;
-            const winningPlayer = this._players.get(winningPlayerId);
 
-            this.handleGameWin(winningPlayerId, state.score1, state.score2)
+            this.handleGameWin(state.score1, state.score2)
         }
 
         if (this._matchService) {
@@ -225,23 +223,19 @@ export class MatchLobby {
             const player2 = this._players.get(2);
 
             if (player1?.userId && player2?.userId) {
-                // if (this._dbGame) {
-                const player2User = await this._matchService.userService.findUserById(player2.userId);
-                if (player2User) {
-                    // this._dbGame.player2 = player2User;
+                const game = await this._matchService.getMatchById(this._gameId)
+                if (game) {
+                    game.status = 'ongoing'
+                    game.startedAt = new Date()
+                    await this._matchService.matchRepo.save(game);
                 }
-                // this._dbGame.status = 'ongoing'
-                // this._dbGame.startedAt = new Date()
-                // await this._matchService.saveMatch(this._dbGame)
-                // }
                 this._saveScoreInterval = setInterval(() => {
                     this.saveCurrentScore();
                 }, 10000)
             }
         }
-    }  // this._dbGame nicht direkt aufrufen, sondern über funktionen aus MatchService.ts
+    }
 
-    //save current score (should only be used for paused game stuff and so on)
     private async saveCurrentScore() {
         if (!this._gameId || !this._matchService) {
             return;
@@ -251,19 +245,14 @@ export class MatchLobby {
         await this._matchService.updateScore(this._gameId, state.score1, state.score2, 0)
     }
 
-    private async handleGameWin(winningPlayerId: number, player1Score: number, player2Score: number) {
+    private async handleGameWin(player1Score: number, player2Score: number) {
         this.stopGame();
-
-        const winningPlayer = this._players.get(winningPlayerId);
-        if (!winningPlayer?.userId || !this._gameId || !this._matchService) {
-            return;
-        }
 
         await this._matchService.updateScore(
             this._gameId,
             player1Score,
             player2Score,
-            winningPlayer.userId
+            this._game.winner?.userId
         )
 
         const game = await this._matchService.getMatchById(this._gameId)
