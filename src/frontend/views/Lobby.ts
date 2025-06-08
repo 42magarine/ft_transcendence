@@ -2,6 +2,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Router from '../../utils/Router.js';
 import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
+import __ from '../services/LanguageService.js';
 
 export default class Lobby extends AbstractView {
     private lobbyId: string;
@@ -40,64 +41,62 @@ export default class Lobby extends AbstractView {
             {
                 title: `Lobby ${this.lobbyId}`,
                 contentBlocks:
-                    [
+                [
+                    {
+                        type: 'separator',
+                    },
+                    {
+                        type: 'matchup',
+                        props:
                         {
-                            type: 'separator',
-                        },
-                        // Matchup buttons
-                        {
-                            type: 'matchup',
-                            props:
+                            player1:
                             {
-                                player1:
+                                type: 'button',
+                                props:
                                 {
-                                    type: 'button',
-                                    props:
-                                    {
-                                        id: 'player1',
-                                        text: this.player1.userName,
-                                        className: `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
-                                    }
-                                },
-                                player2:
+                                    id: 'player1',
+                                    text: __(this.player1.userName),
+                                    className: `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
+                                }
+                            },
+                            player2:
+                            {
+                                type: 'button',
+                                props:
                                 {
-                                    type: 'button',
-                                    props:
-                                    {
-                                        id: 'player2',
-                                        text: this.player2.userName,
-                                        className:
-                                            `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
-                                    }
+                                    id: 'player2',
+                                    text: __(this.player2.userName),
+                                    className:
+                                        `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
                                 }
                             }
-                        },
-                        {
-                            type: 'separator',
-                        },
-                        // Action buttons
-                        {
-                            type: 'buttongroup',
-                            props:
-                            {
-                                buttons:
-                                    [
-                                        {
-                                            id: 'startGameBtn',
-                                            text: 'Click when Ready',
-                                            className: 'btn btn-primary',
-                                            type: 'button'
-                                        },
-                                        {
-                                            id: 'leaveBtn',
-                                            text: 'Leave Lobby',
-                                            type: 'button',
-                                            href: '/lobbylist'
-                                        }
-                                    ],
-                            }
                         }
-                    ]
+                    },
+                    {
+                        type: 'separator',
+                    },
+                    {
+                        type: 'buttongroup',
+                        props:
+                        {
+                            buttons:
+                                [
+                                    {
+                                        id: 'startGameBtn',
+                                        text: __('Click when Ready'),
+                                        className: 'btn btn-primary',
+                                        type: 'button'
+                                    },
+                                    {
+                                        id: 'leaveBtn',
+                                        text: __('Leave Lobby'),
+                                        type: 'button',
+                                        href: '/lobbylist'
+                                    }
+                                ],
+                        }
+                    }
+                ]                
             });
         return this.render(`${lobbyCard}`);
     }

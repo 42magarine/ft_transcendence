@@ -159,6 +159,7 @@ document.addEventListener('RouterContentLoaded', async () => {
     window.userManagementService.twoFactorNumberActions();
     window.userManagementService.setupUserManagementView();
     window.userManagementService.initializeGoogleScript();
+    document.dispatchEvent(new CustomEvent('InitLangDropdown'));
 });
 
 // =======================

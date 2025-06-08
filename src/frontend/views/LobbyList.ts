@@ -1,6 +1,7 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import { ILobbyState } from '../../interfaces/interfaces.js';
+import __ from '../services/LanguageService.js';
 
 export default class LobbyList extends AbstractView {
     constructor() {
@@ -27,7 +28,7 @@ export default class LobbyList extends AbstractView {
                     type: 'button',
                     props: {
                         id: 'createLobbyBtn',
-                        text: 'Create Lobby',
+                        text: __('Create Lobby'),
                         type: 'button',
                         className: 'btn btn-primary'
                     },
