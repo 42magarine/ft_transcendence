@@ -2,6 +2,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps } from '../../interfaces/componentInterfaces.js';
 import Input from './Input.js';
 import renderGoogleSignInButton from './GoogleSignIn.js';
+import __ from '../services/LanguageService.js';
 
 export default class Button extends AbstractView {
     constructor(params: URLSearchParams = new URLSearchParams()) {
@@ -71,13 +72,14 @@ export default class Button extends AbstractView {
             iconHtml = `<i class="fa-solid fa-${icon}"></i>`;
         }
 
+        const translatedText = text ? __(text) : '';
         let content = '';
-        if (iconHtml && text) {
-            content = `${iconHtml}<span class="ml-2">${text}</span>`;
+        if (iconHtml && translatedText) {
+            content = `${iconHtml}<span class="ml-2">${translatedText}</span>`;
+        } else {
+            content = iconHtml || translatedText;
         }
-        else {
-            content = iconHtml || text || '';
-        }
+
 
         let element = '';
 
@@ -166,6 +168,32 @@ export default class Button extends AbstractView {
                 ${allHtmlBlocks}
             </div>
         `);
+    }
+
+    async renderLanguageDropdown(): Promise<string> {
+        const baseUrl = window.location.protocol + "//" + window.location.host;
+
+        const html = `
+            <div class="dropdown" id="language-dropdown">
+                <div class="dropdown-head">
+                    <img class="flag active" data-lang="en_EN" src="${baseUrl}/dist/assets/flags/en_EN.svg" />
+                </div>
+                <div class="dropdown-body">
+                    <div class="dropdown-item">
+                        <img class="flag passive" data-lang="de_DE" src="${baseUrl}/dist/assets/flags/de_DE.svg" />
+                    </div>
+                    <div class="dropdown-item">
+                        <img class="flag passive" data-lang="it_IT" src="${baseUrl}/dist/assets/flags/it_IT.svg" />
+                    </div>
+                    <div class="dropdown-item">
+                        <img class="flag passive" data-lang="my_MY" src="${baseUrl}/dist/assets/flags/my_MY.svg" />
+                    </div>
+                </div>
+            </div>
+        `;
+
+
+        return this.render(html);
     }
 
     async getHtml(): Promise<string> {

@@ -95,36 +95,53 @@ export class LanguageService {
         }
 
         passiveFlags.forEach(passiveFlag => {
+            console.debug('[Lang] Setting up click event for flag:', passiveFlag.getAttribute('data-lang'));
+        
             const clone = passiveFlag.cloneNode(true);
             if (passiveFlag.parentNode) {
                 passiveFlag.parentNode.replaceChild(clone, passiveFlag);
             }
-
+        
             clone.addEventListener('click', function (e) {
                 const clickedFlag = e.target as HTMLImageElement;
                 const newLang = clickedFlag.getAttribute('data-lang');
-
-                if (!newLang) return;
-
+        
+                console.log('[Lang] Flag clicked:', newLang);
+        
+                if (!newLang) {
+                    console.warn('[Lang] Clicked flag missing data-lang attribute.');
+                    return;
+                }
+        
                 document.cookie = `language=${newLang}; path=/; max-age=31536000`;
-
+                console.log('[Lang] Set language cookie:', document.cookie);
+        
                 if (activeFlag) {
                     const oldActiveLang = activeFlag.getAttribute('data-lang');
                     const oldActiveSrc = activeFlag.getAttribute('src');
-
+        
+                    console.log('[Lang] Swapping active flag:');
+                    console.log('       Old active:', oldActiveLang, oldActiveSrc);
+                    console.log('       New active:', newLang, clickedFlag.src);
+        
                     activeFlag.setAttribute('src', clickedFlag.src);
                     activeFlag.setAttribute('data-lang', newLang);
-
+        
                     if (oldActiveLang && oldActiveSrc) {
                         clickedFlag.setAttribute('src', oldActiveSrc);
                         clickedFlag.setAttribute('data-lang', oldActiveLang);
                     }
+        
                     LanguageService.loadTranslations().then(() => {
-                        Router.update()
+                        console.info('[Lang] Translations loaded, re-rendering...');
+                        Router.update();
                     });
+                } else {
+                    console.warn('[Lang] No active flag found to swap.');
                 }
             });
         });
+        
 
         return flagSources;
     }
@@ -141,5 +158,9 @@ export class LanguageService {
 
 const __ = LanguageService.__;
 export default __;
+
+document.addEventListener('InitLangDropdown', () => {
+	LanguageService.setupLangSelect();
+});
 
 LanguageService.initialize();

@@ -2,156 +2,146 @@ import Card from '../components/Card.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
 import UserService from '../services/UserService.js';
-import Modal from '../components/Modal.js'
+import Modal from '../components/Modal.js';
+import __ from '../services/LanguageService.js';
 
 export default class ProfileEdit extends AbstractView {
-    private userId: string;
+	private userId: string;
 
-    constructor(params: URLSearchParams) {
-        super();
-        this.userId = params.get('id') || 'unknown';
-    }
+	constructor(params: URLSearchParams) {
+		super();
+		this.userId = params.get('id') || 'unknown';
+	}
 
-    async getHtml(): Promise<string> {
-        const userIdNum = Number(this.userId);
-        const userData = isNaN(userIdNum) ? null : await UserService.getUserById(userIdNum);
-        if (!userData) {
-            return this.render(`
+	async getHtml(): Promise<string> {
+		const userIdNum = Number(this.userId);
+		const userData = isNaN(userIdNum) ? null : await UserService.getUserById(userIdNum);
+		if (!userData) {
+			return this.render(`
                 <div class="flex justify-center items-center min-h-[80vh] px-4">
-                <div class="alert alert-warning text-center">User not found or error loading user data.</div>
+                <div class="alert alert-warning text-center">${__('User not found or error loading user data.')}</div>
                 </div>
-                `);
-        }
-        const isMaster = userData.role === 'master';
-        const profileEditCard = await new Card().renderCard(
-            {
-                formId: 'edit-profile-form',
-                title: `Edit Profile: ${userData.name}`,
-                contentBlocks:
-                    [
-                        {
-                            type: 'avatar',
-                            props: {
-                                src: generateProfileImage(userData, 100, 100),
-                                size: 300
-                            }
-                        },
-                        {
-                            type: 'input',
-                            props:
-                            {
-                                name: 'name',
-                                placeholder: 'Name',
-                                value: userData.name,
-                                type: isMaster ? 'display' : 'text'
-                            }
-                        },
-                        {
-                            type: 'input',
-                            props:
-                            {
-                                name: 'username',
-                                placeholder: 'Username',
-                                value: userData.username,
-                                type: isMaster ? 'display' : 'text'
-                            }
-                        },
-                        {
-                            type: 'input',
-                            props:
-                            {
-                                name: 'email',
-                                placeholder: 'Email',
-                                value: userData.email,
-                                type: 'display'
-                            }
-                        },
-                        {
-                            type: 'input',
-                            props:
-                            {
-                                name: 'password',
-                                placeholder: 'Password',
-                                type: 'password',
-                                withConfirm: true
-                            }
-                        },
-                        {
-                            type: 'toggle',
-                            props:
-                            {
-                                id: 'emailVerified',
-                                name: 'emailVerified',
-                                label: 'Email Verified',
-                                checked: !!userData.emailVerified
-                            }
-                        },
-                        {
-                            type: 'toggle',
-                            props:
-                            {
-                                id: 'twoFAEnabled',
-                                name: 'twoFAEnabled',
-                                label: '2FA Enabled',
-                                checked: !!userData.twoFAEnabled,
-                                readonly: true
-                            }
-                        },
-                        {
-                            type: 'toggle',
-                            props:
-                            {
-                                id: 'googleSignIn',
-                                name: 'googleSignIn',
-                                label: 'Google Sign-In',
-                                checked: !!userData.googleSignIn,
-                                readonly: true
-                            }
-                        },
-                        {
-                            type: 'buttongroup',
-                            props:
-                            {
-                                layout: 'group',
-                                align: 'center',
-                                buttons:
-                                    [
-                                        {
-                                            id: 'submit-profile',
-                                            text: 'Update Profile',
-                                            type: 'submit',
-                                            className: 'btn btn-green'
-                                        },
-                                        {
-                                            id: 'delete-user-btn',
-                                            text: 'Delete Profile',
-                                            type: 'button',
-                                            className: 'btn btn-red'
-                                        }
-                                    ]
-                            }
-                        },
-                        {
-                            type: 'buttongroup',
-                            props:
-                            {
-                                layout: 'stack',
-                                align: 'center',
-                                buttons:
-                                    [
-                                        {
-                                            id: 'back-to-list',
-                                            text: isMaster ? 'Back to User List' : 'Back to Profile',
-                                            href: isMaster ? '/user-mangement' : `/users/${userData.id}`,
-                                            className: 'btn btn-primary'
-                                        }
-                                    ]
-                            }
-                        },
-                    ]
-            });
-        return this.render(`${profileEditCard}`);
-    }
+            `);
+		}
+
+		const isMaster = userData.role === 'master';
+
+		const profileEditCard = await new Card().renderCard({
+			formId: 'edit-profile-form',
+			title: `${__('Edit Profile')}: ${userData.name}`,
+			contentBlocks: [
+				{
+					type: 'avatar',
+					props: {
+						src: generateProfileImage(userData, 100, 100),
+						size: 300
+					}
+				},
+				{
+					type: 'input',
+					props: {
+						name: 'name',
+						placeholder: __('Name'),
+						value: userData.name,
+						type: isMaster ? 'display' : 'text'
+					}
+				},
+				{
+					type: 'input',
+					props: {
+						name: 'username',
+						placeholder: __('Username'),
+						value: userData.username,
+						type: isMaster ? 'display' : 'text'
+					}
+				},
+				{
+					type: 'input',
+					props: {
+						name: 'email',
+						placeholder: __('Email'),
+						value: userData.email,
+						type: 'display'
+					}
+				},
+				{
+					type: 'input',
+					props: {
+						name: 'password',
+						placeholder: __('Password'),
+						type: 'password',
+						withConfirm: true
+					}
+				},
+				{
+					type: 'toggle',
+					props: {
+						id: 'emailVerified',
+						name: 'emailVerified',
+						label: __('Email Verified'),
+						checked: !!userData.emailVerified
+					}
+				},
+				{
+					type: 'toggle',
+					props: {
+						id: 'twoFAEnabled',
+						name: 'twoFAEnabled',
+						label: __('2FA Enabled'),
+						checked: !!userData.twoFAEnabled,
+						readonly: true
+					}
+				},
+				{
+					type: 'toggle',
+					props: {
+						id: 'googleSignIn',
+						name: 'googleSignIn',
+						label: __('Google Sign-In'),
+						checked: !!userData.googleSignIn,
+						readonly: true
+					}
+				},
+				{
+					type: 'buttongroup',
+					props: {
+						layout: 'group',
+						align: 'center',
+						buttons: [
+							{
+								id: 'submit-profile',
+								text: __('Update Profile'),
+								type: 'submit',
+								className: 'btn btn-green'
+							},
+							{
+								id: 'delete-user-btn',
+								text: __('Delete Profile'),
+								type: 'button',
+								className: 'btn btn-red'
+							}
+						]
+					}
+				},
+				{
+					type: 'buttongroup',
+					props: {
+						layout: 'stack',
+						align: 'center',
+						buttons: [
+							{
+								id: 'back-to-list',
+								text: isMaster ? __('Back to User List') : __('Back to Profile'),
+								href: isMaster ? '/user-mangement' : `/users/${userData.id}`,
+								className: 'btn btn-primary'
+							}
+						]
+					}
+				}
+			]
+		});
+		return this.render(`${profileEditCard}`);
+	}
 
     async mount(): Promise<void> {
         const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;

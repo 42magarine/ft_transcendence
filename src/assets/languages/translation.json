@@ -54,5 +54,587 @@
 			"de_DE": "Passwort erneuern",
 			"it_IT": "Reimpostare la password"
 		}
+	},
+	{
+	"this is Transcendence, please don't delete this card, it is for testing purpose!": {
+		"en_EN": "this is Transcendence, please don't delete this card, it is for testing purpose!",
+		"de_DE": "Dies ist Transcendence, bitte löschen Sie diese Karte nicht, sie dient Testzwecken!",
+		"it_IT": "Questa è Transcendence, per favore non eliminare questa scheda, è solo per test!"
 	}
-]
+	},
+	{
+	"Welcome to Transcendence!": {
+		"en_EN": "Welcome to Transcendence!",
+		"de_DE": "Willkommen bei Transcendence!",
+		"it_IT": "Benvenuti in Transcendence!"
+	}
+	},
+	{
+	"Max": {
+		"en_EN": "Max",
+		"de_DE": "Max",
+		"it_IT": "Max"
+	}
+	},
+	{
+	"Full Name": {
+		"en_EN": "Full Name",
+		"de_DE": "Vollständiger Name",
+		"it_IT": "Nome completo"
+	}
+	},
+	{
+	"Enter your name": {
+		"en_EN": "Enter your name",
+		"de_DE": "Geben Sie Ihren Namen ein",
+		"it_IT": "Inserisci il tuo nome"
+	}
+	},
+	{
+	"Enter your email": {
+		"en_EN": "Enter your email",
+		"de_DE": "Geben Sie Ihre E-Mail-Adresse ein",
+		"it_IT": "Inserisci la tua email"
+	}
+	},
+	{
+	"Enter password": {
+		"en_EN": "Enter password",
+		"de_DE": "Passwort eingeben",
+		"it_IT": "Inserisci la password"
+	}
+	},
+	{
+	"Upload your avatar": {
+		"en_EN": "Upload your avatar",
+		"de_DE": "Lade dein Avatar hoch",
+		"it_IT": "Carica il tuo avatar"
+	}
+	},
+	{
+	"Enter age": {
+		"en_EN": "Enter age",
+		"de_DE": "Alter eingeben",
+		"it_IT": "Inserisci l'età"
+	}
+	},
+	{
+	"Choose your country": {
+		"en_EN": "Choose your country",
+		"de_DE": "Wählen Sie Ihr Land",
+		"it_IT": "Scegli il tuo paese"
+	}
+	},
+	{
+	"Germany": {
+		"en_EN": "Germany",
+		"de_DE": "Deutschland",
+		"it_IT": "Germania"
+	}
+	},
+	{
+	"Japan": {
+		"en_EN": "Japan",
+		"de_DE": "Japan",
+		"it_IT": "Giappone"
+	}
+	},
+	{
+	"USA": {
+		"en_EN": "USA",
+		"de_DE": "USA",
+		"it_IT": "USA"
+	}
+	},
+	{
+	"Receive Email Notifications": {
+		"en_EN": "Receive Email Notifications",
+		"de_DE": "E-Mail-Benachrichtigungen erhalten",
+		"it_IT": "Ricevi notifiche email"
+	}
+	},
+	{
+	"This toggle is read-only": {
+		"en_EN": "This toggle is read-only",
+		"de_DE": "Dieser Schalter ist schreibgeschützt",
+		"it_IT": "Questo toggle è di sola lettura"
+	}
+	},
+	{
+	"Points Earned": {
+		"en_EN": "Points Earned",
+		"de_DE": "Erhaltene Punkte",
+		"it_IT": "Punti guadagnati"
+	}
+	},
+	{
+	"Tasks Completed": {
+		"en_EN": "Tasks Completed",
+		"de_DE": "Abgeschlossene Aufgaben",
+		"it_IT": "Compiti completati"
+	}
+	},
+	{
+	"Greet": {
+		"en_EN": "Greet",
+		"de_DE": "Begrüßen",
+		"it_IT": "Saluta"
+	}
+	},
+	{
+	"Log User": {
+		"en_EN": "Log User",
+		"de_DE": "Benutzer protokollieren",
+		"it_IT": "Registra utente"
+	}
+	},
+	{
+	"Lena": {
+		"en_EN": "Lena",
+		"de_DE": "Lena",
+		"it_IT": "Lena"
+	}
+	},
+	{
+	"First Name": {
+		"en_EN": "First Name",
+		"de_DE": "Vorname",
+		"it_IT": "Nome"
+	}
+	},
+	{
+	"Last Name": {
+		"en_EN": "Last Name",
+		"de_DE": "Nachname",
+		"it_IT": "Cognome"
+	}
+	},
+	{
+	"Nickname": {
+		"en_EN": "Nickname",
+		"de_DE": "Spitzname",
+		"it_IT": "Soprannome"
+	}
+	},
+	{
+	"Submit": {
+		"en_EN": "Submit",
+		"de_DE": "Absenden",
+		"it_IT": "Invia"
+	}
+	},
+	{
+	"Clear": {
+		"en_EN": "Clear",
+		"de_DE": "Zurücksetzen",
+		"it_IT": "Cancella"
+	}
+	},
+	{
+	"I agree to terms": {
+		"en_EN": "I agree to terms",
+		"de_DE": "Ich stimme den Bedingungen zu",
+		"it_IT": "Accetto i termini"
+	}
+	},
+	{
+	"Enable updates": {
+		"en_EN": "Enable updates",
+		"de_DE": "Updates aktivieren",
+		"it_IT": "Abilita aggiornamenti"
+	}
+	},
+	{
+	"Download PDF": {
+		"en_EN": "Download PDF",
+		"de_DE": "PDF herunterladen",
+		"it_IT": "Scarica PDF"
+	}
+	},
+	{
+	"🔒 Secure Login": {
+		"en_EN": "🔒 Secure Login",
+		"de_DE": "🔒 Sicheres Login",
+		"it_IT": "🔒 Accesso sicuro"
+	}
+	},
+	{
+	"Custom HTML Block": {
+		"en_EN": "Custom HTML Block",
+		"de_DE": "Benutzerdefinierter HTML-Block",
+		"it_IT": "Blocco HTML personalizzato"
+	}
+	},
+	{
+	"This block supports any": {
+		"en_EN": "This block supports any",
+		"de_DE": "Dieser Block unterstützt jedes",
+		"it_IT": "Questo blocco supporta qualsiasi"
+	}
+	},
+	{
+	"like": {
+		"en_EN": "like",
+		"de_DE": "wie",
+		"it_IT": "come"
+	}
+	},
+	{
+	"formatting": {
+		"en_EN": "formatting",
+		"de_DE": "Formatierung",
+		"it_IT": "formattazione"
+	}
+	},
+	{
+	"and more": {
+		"en_EN": "and more",
+		"de_DE": "und mehr",
+		"it_IT": "e altro"
+	}
+	},
+	{
+	"Learn more": {
+		"en_EN": "Learn more",
+		"de_DE": "Mehr erfahren",
+		"it_IT": "Scopri di più"
+	}
+	},
+	{
+	"Default": {
+		"en_EN": "Default",
+		"de_DE": "Standard",
+		"it_IT": "Predefinito"
+	}
+	},
+	{
+	"Success": {
+		"en_EN": "Success",
+		"de_DE": "Erfolg",
+		"it_IT": "Successo"
+	}
+	},
+	{
+	"Delete": {
+		"en_EN": "Delete",
+		"de_DE": "Löschen",
+		"it_IT": "Elimina"
+	}
+	},
+	{
+	"Download": {
+		"en_EN": "Download",
+		"de_DE": "Herunterladen",
+		"it_IT": "Scarica"
+	}
+	},
+	{
+	"Alert": {
+		"en_EN": "Alert",
+		"de_DE": "Hinweis",
+		"it_IT": "Avviso"
+	}
+	},
+		{
+		  "Email Verification": {
+			"en_EN": "Email Verification",
+			"de_DE": "E-Mail-Bestätigung",
+			"it_IT": "Verifica email"
+		  }
+		},
+		{
+		  "Please check your email for a verification link.": {
+			"en_EN": "Please check your email for a verification link.",
+			"de_DE": "Bitte überprüfen Sie Ihre E-Mails auf einen Bestätigungslink.",
+			"it_IT": "Controlla la tua email per un link di verifica."
+		  }
+		},
+		{
+		  "If you haven't received an email, you can request a new verification link using the form below:": {
+			"en_EN": "If you haven't received an email, you can request a new verification link using the form below:",
+			"de_DE": "Wenn Sie keine E-Mail erhalten haben, können Sie unten ein neues Bestätigungslink anfordern:",
+			"it_IT": "Se non hai ricevuto un'email, puoi richiedere un nuovo link di verifica usando il modulo qui sotto:"
+		  }
+		},
+		{
+		  "Your Email Address": {
+			"en_EN": "Your Email Address",
+			"de_DE": "Ihre E-Mail-Adresse",
+			"it_IT": "Il tuo indirizzo email"
+		  }
+		},
+		{
+		  "Already verified?": {
+			"en_EN": "Already verified?",
+			"de_DE": "Bereits bestätigt?",
+			"it_IT": "Già verificato?"
+		  }
+		},
+		{
+		  "Log in": {
+			"en_EN": "Log in",
+			"de_DE": "Einloggen",
+			"it_IT": "Accedi"
+		  }
+		},
+		{
+		  "Resend Verification Email": {
+			"en_EN": "Resend Verification Email",
+			"de_DE": "Bestätigungs-E-Mail erneut senden",
+			"it_IT": "Invia nuovamente l'email di verifica"
+		  }
+		},
+		{
+		  "Verifying Your Email": {
+			"en_EN": "Verifying Your Email",
+			"de_DE": "Bestätigung Ihrer E-Mail",
+			"it_IT": "Verifica del tuo indirizzo email"
+		  }
+		},
+		{
+		  "Please wait while we verify your email address...": {
+			"en_EN": "Please wait while we verify your email address...",
+			"de_DE": "Bitte warten Sie, während wir Ihre E-Mail-Adresse bestätigen...",
+			"it_IT": "Attendere mentre verifichiamo il tuo indirizzo email..."
+		  }
+		},
+    {
+        "Friends": {
+            "en_EN": "Friends",
+            "de_DE": "Freunde",
+            "it_IT": "Amici"
+        }
+    },
+    {
+        "Username": {
+            "en_EN": "Username",
+            "de_DE": "Benutzername",
+            "it_IT": "Nome utente"
+        }
+    },
+    {
+        "Search for a friend...": {
+            "en_EN": "Search for a friend...",
+            "de_DE": "Suche nach einem Freund...",
+            "it_IT": "Cerca un amico..."
+        }
+    },
+    {
+        "Add as Friend": {
+            "en_EN": "Add as Friend",
+            "de_DE": "Als Freund hinzufügen",
+            "it_IT": "Aggiungi come amico"
+        }
+    },
+    {
+        "Your Friends": {
+            "en_EN": "Your Friends",
+            "de_DE": "Deine Freunde",
+            "it_IT": "I tuoi amici"
+        }
+    },
+    {
+        "ID": {
+            "en_EN": "ID",
+            "de_DE": "ID",
+            "it_IT": "ID"
+        }
+    },
+    {
+        "Status": {
+            "en_EN": "Status",
+            "de_DE": "Status",
+            "it_IT": "Stato"
+        }
+    },
+    {
+        "Actions": {
+            "en_EN": "Actions",
+            "de_DE": "Aktionen",
+            "it_IT": "Azioni"
+        }
+    },
+    {
+        "🟢 Online": {
+            "en_EN": "🟢 Online",
+            "de_DE": "🟢 Online",
+            "it_IT": "🟢 Online"
+        }
+    },
+    {
+        "🔘 Offline": {
+            "en_EN": "🔘 Offline",
+            "de_DE": "🔘 Offline",
+            "it_IT": "🔘 Offline"
+        }
+    },
+    {
+        "Remove": {
+            "en_EN": "Remove",
+            "de_DE": "Entfernen",
+            "it_IT": "Rimuovi"
+        }
+    },
+    {
+        "Remove Friend": {
+            "en_EN": "Remove Friend",
+            "de_DE": "Freund entfernen",
+            "it_IT": "Rimuovi amico"
+        }
+    },
+    {
+        "Are you sure you want to remove this friend?": {
+            "en_EN": "Are you sure you want to remove this friend?",
+            "de_DE": "Möchten Sie diesen Freund wirklich entfernen?",
+            "it_IT": "Sei sicuro di voler rimuovere questo amico?"
+        }
+    },
+    {
+        "This action cannot be undone.": {
+            "en_EN": "This action cannot be undone.",
+            "de_DE": "Diese Aktion kann nicht rückgängig gemacht werden.",
+            "it_IT": "Questa azione non può essere annullata."
+        }
+    },
+    {
+        "Cancel": {
+            "en_EN": "Cancel",
+            "de_DE": "Abbrechen",
+            "it_IT": "Annulla"
+        }
+    },
+    {
+        "Yes, Remove": {
+            "en_EN": "Yes, Remove",
+            "de_DE": "Ja, entfernen",
+            "it_IT": "Sì, rimuovi"
+        }
+    },
+	{
+		"Click when Ready": {
+			"en_EN": "Click when Ready",
+			"de_DE": "Klicke wenn bereit",
+			"it_IT": "Clicca quando sei pronto"
+		}
+	},
+	{
+		"Leave Lobby": {
+			"en_EN": "Leave Lobby",
+			"de_DE": "Lobby verlassen",
+			"it_IT": "Lascia la lobby"
+		}
+	},
+		{ "Login": { "en_EN": "Login", "de_DE": "Anmeldung", "it_IT": "Accesso" } },
+		{ "Signup": { "en_EN": "Signup", "de_DE": "Registrieren", "it_IT": "Iscriviti" } },
+		{ "Friends List": { "en_EN": "Friends List", "de_DE": "Freundesliste", "it_IT": "Lista amici" } },
+		{ "User Management": { "en_EN": "User Management", "de_DE": "Benutzerverwaltung", "it_IT": "Gestione utenti" } },
+		{ "Local Pong": { "en_EN": "Local Pong", "de_DE": "Lokales Pong", "it_IT": "Pong locale" } },
+		{ "Lobby List": { "en_EN": "Lobby List", "de_DE": "Lobbyliste", "it_IT": "Lista lobby" } },
+		{ "Tournament List": { "en_EN": "Tournament List", "de_DE": "Turnierliste", "it_IT": "Lista tornei" } },
+		{ "My Profile": { "en_EN": "My Profile", "de_DE": "Mein Profil", "it_IT": "Il mio profilo" } },
+		{ "Friends": { "en_EN": "Friends", "de_DE": "Freunde", "it_IT": "Amici" } },
+		{ "Logout": { "en_EN": "Logout", "de_DE": "Abmelden", "it_IT": "Disconnetti" } },
+	{ "Reset Your Password": { "en_EN": "Reset Your Password", "de_DE": "Passwort zurücksetzen", "it_IT": "Reimposta la password" } },
+	{ "New Password": { "en_EN": "New Password", "de_DE": "Neues Passwort", "it_IT": "Nuova password" } },
+	{ "Confirm New Password": { "en_EN": "Confirm New Password", "de_DE": "Neues Passwort bestätigen", "it_IT": "Conferma nuova password" } },
+	{ "Reset Password": { "en_EN": "Reset Password", "de_DE": "Passwort zurücksetzen", "it_IT": "Reimposta password" } },
+	{ "Log in": { "en_EN": "Log in", "de_DE": "Einloggen", "it_IT": "Accedi" } },
+	{ "Remember your password?": { "en_EN": "Remember your password?", "de_DE": "Passwort gemerkt?", "it_IT": "Ricordi la password?" } },
+	{ "Invalid or Expired Link": { "en_EN": "Invalid or Expired Link", "de_DE": "Ungültiger oder abgelaufener Link", "it_IT": "Link non valido o scaduto" } },
+	{ "This password reset link is invalid or has expired.": { "en_EN": "This password reset link is invalid or has expired.", "de_DE": "Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen.", "it_IT": "Questo link per reimpostare la password non è valido o è scaduto." } },
+	{ "Please request a new password reset link from the": { "en_EN": "Please request a new password reset link from the", "de_DE": "Bitte fordere einen neuen Passwort-Zurücksetzungslink an über die", "it_IT": "Richiedi un nuovo link di reimpostazione password dalla" } },
+	{ "password reset page": { "en_EN": "password reset page", "de_DE": "Passwort-Zurücksetzungsseite", "it_IT": "pagina di reimpostazione password" } },
+	{ "Password Reset": { "en_EN": "Password Reset", "de_DE": "Passwort zurücksetzen", "it_IT": "Reimposta password" } },
+	{ "E-Mail": { "en_EN": "E-Mail", "de_DE": "E-Mail", "it_IT": "Email" } },
+	{ "Request Password Reset": { "en_EN": "Request Password Reset", "de_DE": "Passwort-Zurücksetzung anfordern", "it_IT": "Richiedi reimpostazione password" } },
+	{ "Pong Arena": { "en_EN": "Pong Arena", "de_DE": "Pong Arena", "it_IT": "Arena Pong" } },
+	{ "Paddle Speed": { "en_EN": "Paddle Speed", "de_DE": "Schlägergeschwindigkeit", "it_IT": "Velocità della racchetta" } },
+	{ "Paddle Height": { "en_EN": "Paddle Height", "de_DE": "Schlägerhöhe", "it_IT": "Altezza della racchetta" } },
+	{ "Ball Speed": { "en_EN": "Ball Speed", "de_DE": "Ballgeschwindigkeit", "it_IT": "Velocità della palla" } },
+	{ "Ball Size": { "en_EN": "Ball Size", "de_DE": "Ballgröße", "it_IT": "Dimensione della palla" } },
+	{ "Paddle Width": { "en_EN": "Paddle Width", "de_DE": "Schlägerbreite", "it_IT": "Larghezza della racchetta" } },
+	{ "Win Score": { "en_EN": "Win Score", "de_DE": "Siegpunktzahl", "it_IT": "Punteggio per vincere" } },
+	{ "Start": { "en_EN": "Start", "de_DE": "Start", "it_IT": "Avvia" } },
+	{ "Pause": { "en_EN": "Pause", "de_DE": "Pause", "it_IT": "Pausa" } },
+	{ "Resume": { "en_EN": "Resume", "de_DE": "Fortsetzen", "it_IT": "Riprendi" } },
+	{ "Reset": { "en_EN": "Reset", "de_DE": "Zurücksetzen", "it_IT": "Resetta" } },
+		{ "Profile": { "en_EN": "Profile", "de_DE": "Profil", "it_IT": "Profilo" } },
+		{ "Name": { "en_EN": "Name", "de_DE": "Name", "it_IT": "Nome" } },
+		{ "Username": { "en_EN": "Username", "de_DE": "Benutzername", "it_IT": "Nome utente" } },
+		{ "Email": { "en_EN": "Email", "de_DE": "E-Mail", "it_IT": "Email" } },
+		{ "User ID": { "en_EN": "User ID", "de_DE": "Benutzer-ID", "it_IT": "ID utente" } },
+		{ "Edit Profile": { "en_EN": "Edit Profile", "de_DE": "Profil bearbeiten", "it_IT": "Modifica profilo" } },
+		{ "Back to User List": { "en_EN": "Back to User List", "de_DE": "Zur Benutzerliste", "it_IT": "Torna all'elenco utenti" } },
+		{ "User not found or error loading user data.": {
+			"en_EN": "User not found or error loading user data.",
+			"de_DE": "Benutzer nicht gefunden oder Fehler beim Laden der Daten.",
+			"it_IT": "Utente non trovato o errore nel caricamento dei dati."
+		} },
+			{ "Edit Profile": { "en_EN": "Edit Profile", "de_DE": "Profil bearbeiten", "it_IT": "Modifica profilo" } },
+			{ "Name": { "en_EN": "Name", "de_DE": "Name", "it_IT": "Nome" } },
+			{ "Username": { "en_EN": "Username", "de_DE": "Benutzername", "it_IT": "Nome utente" } },
+			{ "Email": { "en_EN": "Email", "de_DE": "E-Mail", "it_IT": "Email" } },
+			{ "Password": { "en_EN": "Password", "de_DE": "Passwort", "it_IT": "Password" } },
+			{ "Email Verified": { "en_EN": "Email Verified", "de_DE": "E-Mail verifiziert", "it_IT": "Email verificata" } },
+			{ "2FA Enabled": { "en_EN": "2FA Enabled", "de_DE": "2FA aktiviert", "it_IT": "2FA attivato" } },
+			{ "Google Sign-In": { "en_EN": "Google Sign-In", "de_DE": "Google-Anmeldung", "it_IT": "Accesso con Google" } },
+			{ "Update Profile": { "en_EN": "Update Profile", "de_DE": "Profil aktualisieren", "it_IT": "Aggiorna profilo" } },
+			{ "Delete Profile": { "en_EN": "Delete Profile", "de_DE": "Profil löschen", "it_IT": "Elimina profilo" } },
+			{ "Back to User List": { "en_EN": "Back to User List", "de_DE": "Zur Benutzerliste", "it_IT": "Torna all'elenco utenti" } },
+			{ "Back to Profile": { "en_EN": "Back to Profile", "de_DE": "Zurück zum Profil", "it_IT": "Torna al profilo" } },
+			{ "User not found or error loading user data.": {
+				"en_EN": "User not found or error loading user data.",
+				"de_DE": "Benutzer nicht gefunden oder Fehler beim Laden der Daten.",
+				"it_IT": "Utente non trovato o errore nel caricamento dei dati."
+			} },
+				{ "Profile Settings": { "en_EN": "Profile Settings", "de_DE": "Profileinstellungen", "it_IT": "Impostazioni profilo" } },
+				{ "Avatar": { "en_EN": "Avatar", "de_DE": "Avatar", "it_IT": "Avatar" } },
+				{ "User Avatar": { "en_EN": "User Avatar", "de_DE": "Benutzeravatar", "it_IT": "Avatar utente" } },
+				{ "Change Avatar": { "en_EN": "Change Avatar", "de_DE": "Avatar ändern", "it_IT": "Cambia avatar" } },
+				{ "Name": { "en_EN": "Name", "de_DE": "Name", "it_IT": "Nome" } },
+				{ "John Doe": { "en_EN": "John Doe", "de_DE": "Max Mustermann", "it_IT": "Mario Rossi" } },
+				{ "Email Address": { "en_EN": "Email Address", "de_DE": "E-Mail-Adresse", "it_IT": "Indirizzo email" } },
+				{ "john@example.com": { "en_EN": "john@example.com", "de_DE": "max@example.de", "it_IT": "mario@example.it" } },
+				{ "Preferred Language": { "en_EN": "Preferred Language", "de_DE": "Bevorzugte Sprache", "it_IT": "Lingua preferita" } },
+				{ "English": { "en_EN": "English", "de_DE": "Englisch", "it_IT": "Inglese" } },
+				{ "German": { "en_EN": "German", "de_DE": "Deutsch", "it_IT": "Tedesco" } },
+				{ "French": { "en_EN": "French", "de_DE": "Französisch", "it_IT": "Francese" } },
+				{ "Malay": { "en_EN": "Malay", "de_DE": "Malaiisch", "it_IT": "Malese" } },
+				{ "Dark Mode": { "en_EN": "Dark Mode", "de_DE": "Dunkelmodus", "it_IT": "Modalità scura" } },
+				{ "Toggle Dark Mode": { "en_EN": "Toggle Dark Mode", "de_DE": "Dunkelmodus umschalten", "it_IT": "Attiva/disattiva modalità scura" } },
+				{ "Save Settings": { "en_EN": "Save Settings", "de_DE": "Einstellungen speichern", "it_IT": "Salva impostazioni" } },
+					{ "Available Tournaments": { "en_EN": "Available Tournaments", "de_DE": "Verfügbare Turniere", "it_IT": "Tornei disponibili" } },
+					{ "Create Tournament": { "en_EN": "Create Tournament", "de_DE": "Turnier erstellen", "it_IT": "Crea torneo" } },
+					{ "Two-Factor Authentication": { "en_EN": "Two-Factor Authentication", "de_DE": "Zwei-Faktor-Authentifizierung" } },
+	{ "Verify": { "en_EN": "Verify", "de_DE": "Bestätigen" } },
+	{ "Open your authenticator app to view your verification code.": {
+		"en_EN": "Open your authenticator app to view your verification code.",
+		"de_DE": "Öffne deine Authentifizierungs-App, um deinen Verifizierungscode zu sehen."
+	} },
+	{
+		"Create New User": { "en_EN": "Create New User", "de_DE": "Neuen Benutzer erstellen" },
+		"Name": { "en_EN": "Name", "de_DE": "Name" },
+		"Username": { "en_EN": "Username", "de_DE": "Benutzername" },
+		"E-Mail": { "en_EN": "E-Mail", "de_DE": "E-Mail" },
+		"Password": { "en_EN": "Password", "de_DE": "Passwort" },
+		"Email Verified:": { "en_EN": "Email Verified:", "de_DE": "E-Mail verifiziert:" },
+		"2FA Enabled:": { "en_EN": "2FA Enabled:", "de_DE": "2FA aktiviert:" },
+		"Google Sign-In:": { "en_EN": "Google Sign-In:", "de_DE": "Google-Anmeldung:" },
+		"Create User": { "en_EN": "Create User", "de_DE": "Benutzer erstellen" },
+		"User Overview": { "en_EN": "User Overview", "de_DE": "Benutzerübersicht" },
+		"ID": { "en_EN": "ID", "de_DE": "ID" },
+		"Email": { "en_EN": "Email", "de_DE": "E-Mail" },
+		"Verified": { "en_EN": "Verified", "de_DE": "Verifiziert" },
+		"2FA": { "en_EN": "2FA", "de_DE": "2FA" },
+		"Actions": { "en_EN": "Actions", "de_DE": "Aktionen" },
+		"Yes": { "en_EN": "Yes", "de_DE": "Ja" },
+		"No": { "en_EN": "No", "de_DE": "Nein" },
+		"Enabled": { "en_EN": "Enabled", "de_DE": "Aktiviert" },
+		"Disabled": { "en_EN": "Disabled", "de_DE": "Deaktiviert" },
+		"View": { "en_EN": "View", "de_DE": "Ansehen" },
+		"Edit": { "en_EN": "Edit", "de_DE": "Bearbeiten" },
+		"Delete": { "en_EN": "Delete", "de_DE": "Löschen" }
+	}
+	
+				]
+				

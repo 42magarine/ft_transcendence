@@ -162,6 +162,7 @@ document.addEventListener('RouterContentLoaded', async () => {
     window.userManagementService.setupUserManagementView();
     window.userManagementService.initializeGoogleScript();
     AccessibilityService.initialize();
+    document.dispatchEvent(new CustomEvent('InitLangDropdown'));
 });
 
 // =======================

@@ -1,6 +1,6 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
-import __ from "../services/LanguageService.js";
+import __ from '../services/LanguageService.js';
 
 export default class Login extends AbstractView {
     constructor() {

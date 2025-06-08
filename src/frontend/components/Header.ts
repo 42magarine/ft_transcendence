@@ -2,6 +2,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
 import UserService from '../services/UserService.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
+import __ from '../services/LanguageService.js';
 
 export default class Header extends AbstractView {
     constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
@@ -10,18 +11,17 @@ export default class Header extends AbstractView {
 
     async getHtml(): Promise<string> {
         const noMenu = ['/login', '/signup', '/two-factor'];
-
         const currentUser = await UserService.getCurrentUser();
         let buttonSet = [
             {
                 id: 'login-btn',
-                text: 'Login',
+                text: __('Login'),
                 icon: 'right-to-bracket',
                 href: '/login'
             },
             {
                 id: 'signup-btn',
-                text: 'Signup',
+                text: __('Signup'),
                 icon: 'user-plus',
                 href: '/signup'
             }
@@ -32,59 +32,58 @@ export default class Header extends AbstractView {
                 buttonSet = [
                     {
                         id: 'friends-btn',
-                        text: 'Friends List',
+                        text: __('Friends List'),
                         icon: 'user-group',
                         href: '/friends',
                     },
                     {
                         id: 'user-management-btn',
-                        text: 'User Management',
+                        text: __('User Management'),
                         icon: 'users',
                         href: '/user-mangement'
                     },
                     {
                         id: 'localpong-btn',
-                        text: 'Local Pong',
+                        text: __('Local Pong'),
                         icon: 'table-tennis-paddle-ball',
                         href: '/localpong'
                     },
                     {
                         id: 'lobby-list-btn',
-                        text: 'Lobby List',
+                        text: __('Lobby List'),
                         icon: 'list',
                         href: '/lobbylist'
                     },
                     {
                         id: 'tournament-list-btn',
-                        text: 'Tournament List',
+                        text: __('Tournament List'),
                         icon: 'list',
                         href: '/tournamentlist'
                     }
                 ];
-            }
-            else {
+            } else {
                 buttonSet = [
                     {
                         id: 'friends-btn',
-                        text: 'Friends List',
+                        text: __('Friends List'),
                         icon: 'user-group',
                         href: '/friends',
                     },
                     {
                         id: 'localpong-btn',
-                        text: 'Local Pong',
+                        text: __('Local Pong'),
                         icon: 'table-tennis-paddle-ball',
                         href: '/localpong'
                     },
                     {
                         id: 'lobby-list-btn',
-                        text: 'Lobby List',
+                        text: __('Lobby List'),
                         icon: 'list',
                         href: '/lobbylist'
                     },
                     {
                         id: 'tournament-list-btn',
-                        text: 'Tournament List',
+                        text: __('Tournament List'),
                         icon: 'list',
                         href: '/tournamentlist'
                     }
@@ -92,35 +91,20 @@ export default class Header extends AbstractView {
             }
         }
 
+        const button = new Button();
+        const languageDropDown = await button.renderLanguageDropdown();
 
         let buttonGroupHtml = '';
         if (!noMenu.includes(location.pathname)) {
-            const button = new Button();
-            buttonGroupHtml = await button.renderButtonGroup(
-                {
-                    layout: 'group',
-                    align: 'right',
-                    className: 'no-wrap',
-                    buttons: buttonSet
-                });
+            buttonGroupHtml = await button.renderButtonGroup({
+                layout: 'group',
+                align: 'right',
+                className: 'no-wrap',
+                buttons: buttonSet
+            });
         }
-        let baseUrl = window.location.protocol + "//" + window.location.host;
-        let languageDropDown = `<div class="dropdown">
-				<div class="dropdown-head">
-					<img class="flag active" data-lang="en_EN" src="${baseUrl}/dist/assets/flags/en_EN.svg" />
-				</div>
-				<div class="dropdown-body">
-					<div class="dropdown-item">
-						<img class="flag passive" data-lang="de_DE" src="${baseUrl}/dist/assets/flags/de_DE.svg" />
-					</div>
-					<div class="dropdown-item">
-						<img class="flag passive" data-lang="it_IT" src="${baseUrl}/dist/assets/flags/it_IT.svg" />
-					</div>
-				</div>
-			</div>
-			`
 
-        let userDropDown = ""
+        let userDropDown = "";
         if (currentUser) {
             let dropDownAvatar = generateProfileImage(currentUser, 20, 20);
             userDropDown = `<div class="dropdown">
@@ -136,17 +120,16 @@ export default class Header extends AbstractView {
 				</div>
 				<div class="dropdown-body">
 					<div class="dropdown-item">
-						<a router href="/users/${currentUser.id}">My Profile</a>
+						<a router href="/users/${currentUser.id}">${__('My Profile')}</a>
 					</div>
 					<div class="dropdown-item">
-						<a router href="/users/friends">Friends</a>
+						<a router href="/users/friends">${__('Friends')}</a>
 					</div>
 					<div class="dropdown-item">
-						<button id="logout-btn" type="button" class="btn btn-red btn-sm">Logout</button>
+						<button id="logout-btn" type="button" class="btn btn-red btn-sm">${__('Logout')}</button>
 					</div>
 				</div>
-			</div>
-			`
+			</div>`;
         }
 
         let viewSettings = [
@@ -164,19 +147,17 @@ export default class Header extends AbstractView {
             }
         ];
         let viewSettingsHtml = '';
-        const button = new Button();
-        buttonGroupHtml = await button.renderButtonGroup(
+        viewSettingsHtml = await button.renderButtonGroup(
             {
                 layout: 'group',
                 align: 'right',
                 className: 'no-wrap',
                 buttons: viewSettings
             });
-        //{ id: 'logout-btn', text: 'Logout', href: '', className: 'btn btn-red btn-sm' }
         return super.render(`
 			<header class="header">
 				<h1 class="text-2xl font-bold whitespace-nowrap">
-				<a router href="/" class="hover:underline">Transcendence</a>
+					<a router href="/" class="hover:underline">Transcendence</a>
 				</h1>
 				<div class="header-nav">
 					${buttonGroupHtml}

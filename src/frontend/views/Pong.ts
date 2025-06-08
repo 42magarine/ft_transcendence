@@ -1,6 +1,7 @@
 // Pong.ts (view)
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
+import __ from '../services/LanguageService.js';
 
 export default class Pong extends AbstractView {
     constructor() {
@@ -11,7 +12,7 @@ export default class Pong extends AbstractView {
     async getHtml(): Promise<string> {
         const gameCard = await new Card(this.params).renderCard(
             {
-                title: 'Pong Arena',
+                title: __('Pong Arena'),
                 contentBlocks:
                     [
                         {
