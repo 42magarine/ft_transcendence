@@ -31,12 +31,6 @@ export default class Header extends AbstractView {
             if (currentUser.role === 'master') {
                 buttonSet = [
                     {
-                        id: 'friends-btn',
-                        text: 'Friends List',
-                        icon: 'user-group',
-                        href: '/friends',
-                    },
-                    {
                         id: 'user-management-btn',
                         text: 'User Management',
                         icon: 'users',
@@ -65,12 +59,6 @@ export default class Header extends AbstractView {
             else {
                 buttonSet = [
                     {
-                        id: 'friends-btn',
-                        text: 'Friends List',
-                        icon: 'user-group',
-                        href: '/friends',
-                    },
-                    {
                         id: 'localpong-btn',
                         text: 'Local Pong',
                         icon: 'table-tennis-paddle-ball',
@@ -91,7 +79,6 @@ export default class Header extends AbstractView {
                 ];
             }
         }
-
 
         let buttonGroupHtml = '';
         if (!noMenu.includes(location.pathname)) {
@@ -139,7 +126,7 @@ export default class Header extends AbstractView {
 						<a router href="/users/${currentUser.id}">My Profile</a>
 					</div>
 					<div class="dropdown-item">
-						<a router href="/users/friends">Friends</a>
+						<a router href="/friends">Friends</a>
 					</div>
 					<div class="dropdown-item">
 						<button id="logout-btn" type="button" class="btn btn-red btn-sm">Logout</button>

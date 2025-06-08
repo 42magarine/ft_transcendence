@@ -1,3 +1,4 @@
+import { FastifyReply, FastifyRequest } from "fastify";
 import { WebSocket } from "ws";
 import { randomUUID } from "crypto";
 import { IClientMessage, IServerMessage, IPaddleDirection, IPlayerState } from "../../interfaces/interfaces.js";
@@ -30,7 +31,7 @@ export class MatchController {
         }
     }
 
-    public handleConnection(connection: WebSocket) {
+    public handleConnection(connection: WebSocket, request: FastifyRequest) {
         this._clients.set(connection, null);
 
         connection.on("message", (message: string | Buffer) => {
@@ -38,9 +39,11 @@ export class MatchController {
         });
 
         connection.on("close", () => {
-            this.handleCloseSocket(connection);
+            this.handleCloseSocket(connection, request);
         });
 
+        // Set online status
+        this._matchService.userService.setUserOnline(request.user!.id, true);
         this.broadcastToAll({ type: "updateFriendlist" });
 
         this.sendMessage(connection, {
@@ -97,7 +100,7 @@ export class MatchController {
         }
     }
 
-    private handleCloseSocket(connection: WebSocket) {
+    private handleCloseSocket(connection: WebSocket, request: FastifyRequest) {
         const player = this._clients.get(connection);
 
         if (player && player.lobbyId) {
@@ -108,15 +111,11 @@ export class MatchController {
             else {
                 this.handleLeaveLobby(connection, player.lobbyId, false)
             }
-            // if (lobby) {
-            //     lobby.removePlayer(player);
-
-            //     if (lobby.isEmpty()) {
-            //         this._lobbies.delete(player.lobbyId);
-            //     }
-            // }
         }
         this._clients.delete(connection);
+
+        // Set online status
+        this._matchService.userService.setUserOnline(request.user!.id, false);
         this.broadcastToAll({ type: "updateFriendlist" });
     }
 
@@ -133,7 +132,7 @@ export class MatchController {
 
         let sentCount = 0;
         for (const [connection, player] of this._clients.entries()) {
-            console.log(`Client ${sentCount + 1}: readyState=${connection.readyState}, player=${player?.userId || 'no player'}`);
+            // console.log(`Client ${sentCount + 1}: readyState=${connection.readyState}, player=${player?.userId || 'no player'}`);
 
             if (connection.readyState === WebSocket.OPEN) {
                 this.sendMessage(connection, data);
@@ -338,7 +337,6 @@ export class MatchController {
     }
 
     private handleJoinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
-
         const lobby = this._lobbies.get(lobbyId) as MatchLobby;
         if (!lobby) {
             console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
@@ -355,7 +353,6 @@ export class MatchController {
     }
 
     private handleStartGame(lobbyId: string) {
-
         const lobby = this._lobbies.get(lobbyId) as MatchLobby;
         if (!lobby) {
             console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");

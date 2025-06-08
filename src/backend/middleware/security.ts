@@ -75,6 +75,3 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
         });
     }
 };
-
-// export async function verify2FA();
-// export async function createQRCode2FA();
