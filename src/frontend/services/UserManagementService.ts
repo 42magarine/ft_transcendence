@@ -3,6 +3,7 @@ import Router from '../../utils/Router.js';
 import { User, ApiErrorResponse, LoginCredentials, AuthResponse, QRResponse } from "../../interfaces/userManagementInterfaces.js";
 import UserService from "./UserService.js";
 import Toggle from "../components/Toggle.js"
+
 export default class UserManagementService {
 
     constructor() {
@@ -95,6 +96,7 @@ export default class UserManagementService {
                 });
 
                 if (!response.ok) {
+                    console.log(response);
                     const errorData = await response.json() as ApiErrorResponse;
                     throw new Error(errorData.error || 'Registration failed');
                 }
@@ -112,6 +114,7 @@ export default class UserManagementService {
                 });
 
                 if (!response.ok) {
+                    console.log(response);
                     const errorData = await response.json() as ApiErrorResponse;
                     throw new Error(errorData.error || 'Registration failed');
                 }
@@ -324,7 +327,6 @@ export default class UserManagementService {
         this.setupCreateForm();
         this.setupDeleteButtons();
         this.setupLoginForm();
-        this.setupSignupForm();
         this.setupPasswordResetRequestForm();
         this.setupPasswordResetForm();
         this.setupResendVerificationForm();

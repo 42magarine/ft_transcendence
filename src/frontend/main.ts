@@ -112,6 +112,7 @@ async function initSocket(): Promise<void> {
                 window.tournamentListService.handleSocketMessage(messageEvent);
                 window.tournamentService.handleSocketMessage(messageEvent);
                 window.pongService.handleSocketMessage(messageEvent);
+                window.userService.handleSocketMessage(messageEvent);
             })
         }
     }

@@ -2,17 +2,113 @@
 #gameCanvasWrap {
     @apply w-full max-w-[800px] h-[600px] mx-auto relative;
 }
+#playerCanvasWrap {
+    @apply w-full max-w-[800px] mx-auto relative flex gap-2 justify-between;
+}
 
 #gameCanvasWrap #gameCanvasWrap-overlay {
-    @apply absolute top-[calc(var(--spacing)*_0)] left-[calc(var(--spacing)*_0)] z-[12] h-full w-full flex justify-center items-center text-[200px];
-    font-weight: bold;
+    @apply flex flex-col items-center justify-center gap-2 rounded-lg absolute top-[calc(var(--spacing)*_0)] left-[calc(var(--spacing)*_0)] z-[12] h-full w-full flex justify-center items-center text-[200px] text-center;
 }
+
+#gameCanvasWrap #gameCanvasWrap-overlay .overlay-title{
+    @apply text-[50px];
+}
+#gameCanvasWrap #gameCanvasWrap-overlay .overlay-text{
+    @apply text-[30px];
+}
+
+/* === VS SCREEN STYLES === */
+#gameCanvasWrap #gameCanvasWrap-overlay.vs-screen {
+    @apply bg-black flex flex-col items-center justify-center;
+}
+
+.vs-container {
+    @apply flex flex-col items-center justify-center gap-8 w-full;
+}
+
+.player-name {
+    @apply text-[40px] font-bold;
+    font-family: "Press Start 2P", Arial, sans-serif;
+}
+
+.player-name.player1 {
+    animation: slide-in-left 1s ease-out;
+    transform: skewX(10deg);
+    background: linear-gradient(45deg, rgb(255, 165, 0), rgb(255, 215, 0));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+}
+
+.player-name.player2 {
+    animation: slide-in-right 1s ease-out 0.5s both;
+    transform: skewX(-10deg);
+    background: linear-gradient(45deg, rgb(0, 128, 0), rgb(0, 100, 0));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+}
+
+.vs-text {
+    @apply text-[80px] font-bold;
+    font-family: "Press Start 2P", Arial, sans-serif;
+    background: linear-gradient(45deg, rgb(255, 0, 150), rgb(0, 204, 255), rgb(255, 0, 150));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: vs-pulse 2s ease-in-out 1s infinite;
+}
+
+@keyframes slide-in-left {
+    0% {
+        transform: translateX(-100%) skewX(10deg);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0) skewX(10deg);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-right {
+    0% {
+        transform: translateX(100%) skewX(-10deg);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0) skewX(-10deg);
+        opacity: 1;
+    }
+}
+
+@keyframes vs-pulse {
+    0%, 100% {
+        background: linear-gradient(45deg, rgb(255, 0, 150), rgb(0, 204, 255), rgb(255, 0, 150));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        transform: scale(1);
+        text-shadow: 0 0 20px rgba(255, 0, 150, 0.5);
+    }
+    50% {
+        background: linear-gradient(45deg, rgb(0, 204, 255), rgb(255, 0, 150), rgb(0, 204, 255));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        transform: scale(1.1);
+        text-shadow: 0 0 30px rgba(0, 204, 255, 0.8);
+    }
+}
+
 
 @keyframes gradient-pulse {
     0%, 100% {
         background: linear-gradient(45deg, rgb(255, 0, 150), rgb(0, 204, 255));
         -webkit-background-clip: text;
         background-clip: text;
+        -webkit-text-fill-color: transparent;
         color: transparent;
         transform: scale(1);
     }
@@ -20,27 +116,31 @@
         background: linear-gradient(45deg, rgb(255, 100, 0), rgb(255, 0, 150));
         -webkit-background-clip: text;
         background-clip: text;
+        -webkit-text-fill-color: transparent;
         color: transparent;
-        transform: scale(1.1);
+        transform: scale(1.05);
     }
     50% {
         background: linear-gradient(45deg, rgb(0, 255, 100), rgb(255, 100, 0));
         -webkit-background-clip: text;
         background-clip: text;
+        -webkit-text-fill-color: transparent;
         color: transparent;
-        transform: scale(1.2);
+        transform: scale(1.1);
     }
     75% {
         background: linear-gradient(45deg, rgb(0, 204, 255), rgb(0, 255, 100));
         -webkit-background-clip: text;
         background-clip: text;
+        -webkit-text-fill-color: transparent;
         color: transparent;
-        transform: scale(1.1);
+        transform: scale(1.05);
     }
 }
 
 #gameCanvasWrap #gameCanvasWrap-overlay.third {
-    animation: gradient-pulse 1s ease-in-out;
+    border: none;
+    animation: gradient-pulse 2s ease-in-out infinite;
 }
 
 @keyframes fire-shake {
@@ -79,6 +179,7 @@
 }
 
 #gameCanvasWrap #gameCanvasWrap-overlay.second {
+    @apply border-none;
     animation: fire-shake 1s ease-in-out;
 }
 
@@ -126,8 +227,21 @@
 }
 
 #gameCanvasWrap #gameCanvasWrap-overlay.first {
+    @apply border-none;
     animation: electric-zoom 1s ease-in-out;
 }
+
+@keyframes flash-toggle {
+    0%, 50% {
+        background-color: rgb(17,167,17);
+        color: rgb(255, 255, 255);
+    }
+    51%, 100% {
+        background-color: rgba(255, 255, 255, 0);
+        color: rgb(17,167,17);
+    }
+}
+
 
 @keyframes flash-toggle {
     0%, 50% {
@@ -148,6 +262,19 @@
     @apply hidden;
 }
 
+#gameCanvasWrap #gameCanvasWrap-overlay.terminated {
+    background-color: rgb(104, 0, 0);
+    color: rgb(255, 255, 255);
+    @apply flex border-4 border-white rounded-lg;
+}
+#gameCanvasWrap #gameCanvasWrap-overlay.waiting, #gameCanvasWrap #gameCanvasWrap-overlay.game-over {
+    background-color: rgb(5, 0, 92);
+    color: rgb(255, 255, 255);
+    @apply flex border-4 border-white rounded-lg;
+}
+
 #gameCanvasWrap canvas {
-    @apply w-full h-full absolute top-0 left-0 bg-black border-4 border-white rounded-lg shadow-lg;
+    @apply w-full h-full absolute top-0 left-0 border-4 bg-black border-white rounded-lg shadow-lg;
+   /*background: #9b622a;*/
+   /*background: linear-gradient(90deg, rgba(155, 98, 42, 1) 0%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 80%, rgba(80, 145, 0, 1) 100%);*/
 }

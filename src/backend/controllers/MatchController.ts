@@ -41,6 +41,8 @@ export class MatchController {
             this.handleCloseSocket(connection);
         });
 
+        this.broadcastToAll({ type: "updateFriendlist" });
+
         this.sendMessage(connection, {
             type: "connection",
             message: "Connected to game server",
@@ -115,6 +117,7 @@ export class MatchController {
             // }
         }
         this._clients.delete(connection);
+        this.broadcastToAll({ type: "updateFriendlist" });
     }
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
@@ -144,7 +147,6 @@ export class MatchController {
     }
 
     private broadcastToLobby(lobbyId: string, data: IServerMessage): void {
-
         for (const [connection, player] of this._clients.entries()) {
             if (
                 connection.readyState === WebSocket.OPEN &&
@@ -285,7 +287,7 @@ export class MatchController {
     }
 
     private async handleGetLobbyList(connection: WebSocket) {
-        console.log("handleGetLobbyList")
+        // console.log("handleGetLobbyList")
         const openMatchModels = await this._matchService.getOpenLobbies();
 
         const openLobbies = openMatchModels.map(Lobby => {
@@ -360,6 +362,7 @@ export class MatchController {
             return;
         }
         lobby.startGame();
+        //implement broadcasts here
     }
 
     private handleMovePaddle(requestingUserId: number, direction: IPaddleDirection, lobbyId: string): void {
@@ -378,4 +381,3 @@ export class MatchController {
         game.movePaddle(requestingUserId, direction);
     }
 }
-

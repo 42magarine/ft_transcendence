@@ -136,7 +136,10 @@ export default class Header extends AbstractView {
 				</div>
 				<div class="dropdown-body">
 					<div class="dropdown-item">
-						<a router href="/users/${currentUser.id}">Profile</a>
+						<a router href="/users/${currentUser.id}">My Profile</a>
+					</div>
+					<div class="dropdown-item">
+						<a router href="/users/friends">Friends</a>
 					</div>
 					<div class="dropdown-item">
 						<button id="logout-btn" type="button" class="btn btn-red btn-sm">Logout</button>

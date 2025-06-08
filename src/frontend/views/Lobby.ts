@@ -6,8 +6,8 @@ import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
 export default class Lobby extends AbstractView {
     private lobbyId: string;
     private lobby!: ILobbyState;
-    private player1: IPlayerState;
-    private player2: IPlayerState;
+    private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isReady: false };
+    private player2: IPlayerState = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
 
     constructor(params: URLSearchParams) {
         super();
@@ -26,10 +26,8 @@ export default class Lobby extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        this.lobby = window.lobbyService!.getLobby();
+        this.lobby = window.lobbyService.getLobby();
         if (this.lobby.lobbyPlayers) {
-            this.player1 = { userName: 'Waiting for Opponent...', playerNumber: 1, userId: 1, isReady: false };
-            this.player2 = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
             if (this.lobby.lobbyPlayers[0]) {
                 this.player1 = this.lobby.lobbyPlayers[0];
             }
@@ -58,8 +56,7 @@ export default class Lobby extends AbstractView {
                                     {
                                         id: 'player1',
                                         text: this.player1.userName,
-                                        className:
-                                            `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
+                                        className: `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 },
                                 player2:
@@ -68,7 +65,7 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player2',
-                                        text: this.player2.userName || "Waiting for Opponent...",
+                                        text: this.player2.userName,
                                         className:
                                             `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }

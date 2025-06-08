@@ -1,6 +1,20 @@
 import { User, ApiErrorResponse, FriendList } from '../../interfaces/userManagementInterfaces.js';
+import Router from '../../utils/Router.js';
+import { IServerMessage } from '../../interfaces/interfaces.js';
 
 export default class UserService {
+    public handleSocketMessage(event: MessageEvent<string>): void {
+        const data: IServerMessage = JSON.parse(event.data);
+
+        switch (data.type) {
+            case 'updateFriendlist':
+                if (window.location.href.includes("friends")) {
+                    Router.update();
+                }
+                break;
+        }
+    }
+
     static async getCurrentUser(): Promise<User | null> {
         try {
             const response = await fetch('/api/users/me', {
@@ -262,7 +276,7 @@ export default class UserService {
     static attachFriendHandlers(): void {
         const addBtn = document.getElementById('add-friend-btn');
         const input = document.querySelector<HTMLInputElement>('input[name="username"]');
-        const feedback = document.getElementById('friend-feedback'); // our feedback label
+        const feedback = document.getElementById('friend-feedback');
 
         let selectedFriendId: number | null = null;
 
@@ -290,7 +304,7 @@ export default class UserService {
                         feedback.classList.remove('text-red-500');
                         feedback.classList.add('text-green-500');
                     }
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => Router.update(), 1000);
                 }
                 else {
                     if (feedback) {
@@ -333,7 +347,7 @@ export default class UserService {
 
                 const success = await UserService.removeFriendById(selectedFriendId);
                 if (success) {
-                    location.reload();
+                    Router.update();
                 }
                 else {
                     const modal = document.getElementById('confirm-remove-modal');
