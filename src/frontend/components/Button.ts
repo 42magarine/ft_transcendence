@@ -42,7 +42,7 @@ export default class Button extends AbstractView {
 
         let iconHtml = icon ? `<i class="fa-solid fa-${icon}"></i>` : '';
         const translatedText = text ? window.ls.__(text) : '';
-        let content = iconHtml && translatedText ? `${iconHtml}<span class="ml-2">${translatedText}</span>` : iconHtml || translatedText;
+        let content = iconHtml && translatedText ? `${iconHtml}<span class="ml-2 __">${translatedText}</span>` : iconHtml || translatedText;
 
         let element = href
             ? `<a id="${id}" href="${href}" router class="${finalClass}" ${dataAttrs}>${content}</a>`

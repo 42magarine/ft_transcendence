@@ -10,13 +10,8 @@ export default class LanguageService {
             this.langSelectAction();
         };
         document.addEventListener('RouterContentLoaded', langSelectActionHandler);
-
-        // Event-Listener auch beim initialen Laden hinzufügen
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', langSelectActionHandler);
-        } else {
-            // DOM ist bereits geladen
-            setTimeout(() => this.langSelectAction(), 0);
         }
     }
 
@@ -25,7 +20,6 @@ export default class LanguageService {
             const httpProtocol = window.location.protocol;
             const response = await fetch(`${httpProtocol}//${window.location.host}/dist/assets/languages/translation.json`);
             this.translations = await response.json();
-            console.log('Translations loaded:', this.translations);
         }
         catch (error) {
             console.error('Failed to load translations:', error);
@@ -34,11 +28,9 @@ export default class LanguageService {
 
     public __(key: string): string {
         const currentLanguage = this.getCurrentLanguage() || 'en_EN';
-        console.log('Translating key:', key, 'for language:', currentLanguage);
 
         if (key in this.translations) {
             const translation = this.translations[key][currentLanguage];
-            console.log('Direct translation found:', translation);
             return translation || key;
         }
 
@@ -50,13 +42,10 @@ export default class LanguageService {
                 const nestedTranslation = translationObj[key];
                 if (typeof nestedTranslation === 'object' && nestedTranslation !== null && currentLanguage in nestedTranslation) {
                     const translation = (nestedTranslation as Record<string, string>)[currentLanguage];
-                    console.log('Nested translation found:', translation);
                     return translation || key;
                 }
             }
         }
-
-        console.log('No translation found for key:', key);
         return key;
     }
 
@@ -70,34 +59,26 @@ export default class LanguageService {
 
     private translateTextElements(): void {
         const elementsToTranslate = document.querySelectorAll('.__');
-        console.log('Found elements to translate:', elementsToTranslate.length);
-
         elementsToTranslate.forEach((element, index) => {
             if (!element.getAttribute('data-original-text')) {
-                const originalText = element.textContent?.trim();
-                if (originalText) {
-                    element.setAttribute('data-original-text', originalText);
-                    console.log(`Element ${index}: Set original text:`, originalText);
+                const englishKey = element.textContent?.trim();
+                if (englishKey) {
+                    element.setAttribute('data-original-text', englishKey);
                 }
             }
-
-            const originalText = element.getAttribute('data-original-text');
-            if (originalText) {
-                const translatedText = this.__(originalText);
+            const englishKey = element.getAttribute('data-original-text');
+            if (englishKey) {
+                const translatedText = this.__(englishKey);
                 element.textContent = translatedText;
-                console.log(`Element ${index}: Translated "${originalText}" to "${translatedText}"`);
             }
         });
     }
 
     private langSelectAction(): Record<string, string> {
-        // Aktive Flagge im dropdown-head finden
         const activeFlag = document.querySelector('.dropdown-head .flag.active') as HTMLImageElement;
-        // Passive Flaggen in den dropdown-items finden
         const passiveButtons = document.querySelectorAll('.dropdown-item button[data-lang]');
         const flagSources: Record<string, string> = {};
 
-        // Alle verfügbaren Sprachen und ihre Flag-Quellen sammeln
         document.querySelectorAll('.flag[data-lang]').forEach(flag => {
             const lang = flag.getAttribute('data-lang');
             const src = flag.getAttribute('src');
@@ -114,12 +95,10 @@ export default class LanguageService {
 
         const savedLanguage = getCookieValue('language');
 
-        // Gespeicherte Sprache beim Laden anwenden
         if (savedLanguage && activeFlag && flagSources[savedLanguage]) {
             const currentLang = activeFlag.getAttribute('data-lang');
 
             if (currentLang !== savedLanguage) {
-                // Neue aktive Flagge setzen
                 if (flagSources[savedLanguage]) {
                     activeFlag.setAttribute('src', flagSources[savedLanguage]);
                     activeFlag.setAttribute('data-lang', savedLanguage);
@@ -132,7 +111,6 @@ export default class LanguageService {
             }
         }
 
-        // Event-Listener für passive Buttons hinzufügen
         passiveButtons.forEach(button => {
             const clone = button.cloneNode(true) as HTMLButtonElement;
             if (button.parentNode) {
@@ -147,22 +125,16 @@ export default class LanguageService {
 
                 if (!newLang || !clickedFlag) return;
 
-                // Cookie setzen
                 document.cookie = `language=${newLang}; path=/; max-age=31536000`;
 
                 if (activeFlag) {
-                    // Aktive Flagge aktualisieren
                     activeFlag.setAttribute('src', clickedFlag.src);
                     activeFlag.setAttribute('data-lang', newLang);
 
-                    // Übersetzungen laden und anwenden
                     this.loadTranslations().then(() => {
-                        console.log('Language changed to:', newLang);
                         this.translateTextElements();
                         Router.update();
-                        // Dropdown schließen (optional)
                         this.closeDropdown();
-                        // Custom Event für andere Komponenten
                         document.dispatchEvent(new CustomEvent('LanguageChanged', {
                             detail: { language: newLang }
                         }));
