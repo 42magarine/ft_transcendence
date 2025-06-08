@@ -10,23 +10,16 @@ FRONTEND:
     6. Token refresh request aus dem Frontend schicken, wenn das Backend 401 (Token abgelaufen) zurückschickt. route: api/users/refresh
     7. Safari
 
-BACKEND:
-    1. Bei allen Anfragen aus dem Frontend prüfen welche Daten das Backend zurück schicken soll.
-        - getCurrentUser filtert das User Objekt und entfernt u.a. das Password bevor es ans Frontend geschickt wird.
-        - Sollen die Rückgabewerte gefiltert werden oder bei der Datenbank-Abfrage mit 'select' gearbeitet werden?
-        - Soll unterschieden werden ob Master oder User die Daten anfordert?
 
+BACKEND:
     2. User profiles display stats, such as wins and losses.
     3. Each user has a Match History including 1v1 games, dates, and relevant details, accessible to logged-in users.
-    4. Offer customization features, such as power-ups, attacks, or different maps,  that enhance the gameplay experience.
+    4. Offer customization features, such as power-ups, attacks, or different maps, that enhance the gameplay experience.
 
 
 SONSTIGES:
     1. eine Interface für alle Userdaten? oder wie bisher je nach Fall ein eigenes Interface?
     2. Interfaces nach Frontend und Backend aufteilen?
-    3. Soll Login nur über E-Mail oder auch über Username möglich sein/
-        - Dann muss der Username beim Erstellen eines Accounts auch einzigartig sein.
-        - Problem könnte signup mit Google sein, hier sollte dann ein Username z.b. mit 'Username#number' erstellt werden.
 
 
 TESTS:

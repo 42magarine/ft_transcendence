@@ -18,22 +18,41 @@ export class UserController {
                 return reply.code(404).send({ error: 'User not found' });
             }
 
-            const { password, resetPasswordToken, resetPasswordExpires, verificationToken, ...userData } = user;
+            const userData = {
+                id: user.id,
+                // email: user.email,
+                username: user.username,
+                name: user.name,
+                role: user.role,
+                // twoFAEnabled: user.twoFAEnabled,
+                // emailVerified: user.emailVerified,
+            };
 
             return reply.code(200).send(userData);
         }
         catch (error) {
-            return reply.code(500).send({ error: 'Internal server error' });
+            return reply.code(500).send({ error: 'Could not fetch current user' });
         }
     }
 
     async getAllUser(request: FastifyRequest, reply: FastifyReply) {
         try {
             const users = await this._userService.findAllUsers();
-            reply.code(200).send(users);
+
+            const usersData = users.map(user => ({
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                name: user.name,
+                role: user.role,
+                twoFAEnabled: user.twoFAEnabled,
+                emailVerified: user.emailVerified,
+            }));
+
+            return reply.code(200).send(usersData);
         }
         catch (error) {
-            reply.code(500).send({ error: 'Could not fetch all users' });
+            return reply.code(500).send({ error: 'Could not fetch all users' });
         }
     }
 
@@ -57,10 +76,21 @@ export class UserController {
             if (!user) {
                 return reply.code(404).send({ error: 'User not found' });
             }
-            reply.code(200).send(user);
+
+            const userData = {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                name: user.name,
+                role: user.role,
+                twoFAEnabled: user.twoFAEnabled,
+                emailVerified: user.emailVerified,
+            };
+
+            return reply.code(200).send(userData);
         }
         catch (error) {
-            reply.code(500).send({ error: 'Could not fetch user' });
+            return reply.code(500).send({ error: 'Could not fetch user' });
         }
     }
 
@@ -86,7 +116,6 @@ export class UserController {
 
             // Process different request types (multipart or JSON)
             if (request.isMultipart()) {
-                // Handle multipart/form-data (file uploads)
                 const parts = request.parts();
 
                 for await (const part of parts) {
@@ -111,7 +140,6 @@ export class UserController {
                 }
             }
             else {
-                // Handle JSON request
                 updates = request.body as Partial<UserModel>;
             }
 
@@ -119,7 +147,18 @@ export class UserController {
             const updatedUser = { id: userId, ...updates } as UserModel;
 
             const result = await this._userService.updateUser(updatedUser);
-            reply.code(200).send({ message: 'User updated successfully', user: result });
+
+            const userData = {
+                id: result.id,
+                email: result.email,
+                username: result.username,
+                name: result.name,
+                role: result.role,
+                twoFAEnabled: result.twoFAEnabled,
+                emailVerified: result.emailVerified,
+            };
+
+            return reply.code(200).send({ message: 'User updated successfully', user: userData });
         }
         catch (error) {
             if (error instanceof Error) {
@@ -127,7 +166,7 @@ export class UserController {
                     return reply.code(404).send({ error: error.message });
                 }
             }
-            reply.code(500).send({ error: 'Could not update user' });
+            return reply.code(500).send({ error: 'Could not update user' });
         }
     }
 
@@ -152,7 +191,7 @@ export class UserController {
                 return reply.code(404).send({ error: 'User not found or cannot be deleted' });
             }
 
-            reply.code(200).send({ message: 'User deleted successfully' });
+            return reply.code(200).send({ message: 'User deleted successfully' });
         }
         catch (error) {
             return reply.code(500).send({ error: 'Could not delete user' });
@@ -200,8 +239,7 @@ export class UserController {
             });
         }
         catch (error) {
-            const message = error instanceof Error ? error.message : 'Invalid login credentials';
-            return reply.code(400).send({ error: message });
+            return reply.code(400).send({ error: 'Invalid login credentials' });
         }
     }
 
@@ -219,8 +257,7 @@ export class UserController {
             return reply.code(200).send({ message: 'Login successful' });
         }
         catch (error) {
-            const message = error instanceof Error ? error.message : 'Google login failed';
-            return reply.code(400).send({ error: message });
+            return reply.code(400).send({ error: 'Google login failed' });
         }
     }
 
@@ -253,8 +290,7 @@ export class UserController {
             return reply.code(200).send({ message: 'Two-factor authentication successful' });
         }
         catch (error) {
-            const message = error instanceof Error ? error.message : 'Two-factor authentication failed';
-            reply.code(400).send({ error: message });
+            return reply.code(400).send({ error: 'Two-factor authentication failed' });
         }
     }
 
@@ -270,16 +306,11 @@ export class UserController {
             await this._userService.requestPasswordReset(email);
 
             // Always return success for security reasons, even if email doesn't exist
-            return reply.code(200).send({
-                message: 'If an account with that email exists, a password reset link has been sent.'
-            });
+            return reply.code(200).send({ message: 'If an account with that email exists, a password reset link has been sent.' });
         }
         catch (error) {
-            console.error('Password reset request error:', error);
-            // For security, don't reveal if the process failed due to user not found
-            return reply.code(200).send({
-                message: 'If an account with that email exists, a password reset link has been sent.'
-            });
+            // Always return success for security reasons, even if email doesn't exist
+            return reply.code(200).send({ message: 'If an account with that email exists, a password reset link has been sent.' });
         }
     }
 
@@ -296,9 +327,7 @@ export class UserController {
             return reply.code(200).send({ valid: true });
         }
         catch (error) {
-            console.error('Token verification error:', error);
-            const message = error instanceof Error ? error.message : 'Invalid token';
-            return reply.code(400).send({ error: message, valid: false });
+            return reply.code(400).send({ error: 'Invalid token', valid: false });
         }
     }
 
@@ -332,9 +361,7 @@ export class UserController {
             return reply.code(200).send({ message: 'Password has been reset successfully' });
         }
         catch (error) {
-            console.error('Password reset error:', error);
-            const message = error instanceof Error ? error.message : 'Failed to reset password';
-            return reply.code(400).send({ error: message });
+            return reply.code(400).send({ error: 'Failed to reset password' });
         }
     }
 
@@ -351,7 +378,6 @@ export class UserController {
             return reply.redirect('/login?verified=true');
         }
         catch (error) {
-            console.error('Email verification error:', error);
             return reply.code(400).send({ error: 'Invalid verification token' });
         }
     }
@@ -364,29 +390,20 @@ export class UserController {
                 return reply.code(400).send({ error: 'Email is required' });
             }
 
-            // Find user by email
             const user = await this._userService.findUserByEmail(email);
 
             if (!user) {
                 // Don't reveal if email exists or not
-                return reply.code(200).send({
-                    message: 'If your account exists, a verification email has been sent.'
-                });
+                return reply.code(200).send({ message: 'If your account exists, a verification email has been sent.' });
             }
 
             if (user.emailVerified) {
                 return reply.code(400).send({ error: 'Email is already verified' });
             }
 
-            // Rest of the logic will be implemented in UserService
-            // Here we would regenerate verification token and send email
-
-            return reply.code(200).send({
-                message: 'If your account exists, a verification email has been sent.'
-            });
+            return reply.code(200).send({ message: 'If your account exists, a verification email has been sent.' });
         }
         catch (error) {
-            console.error('Resend verification error:', error);
             return reply.code(200).send({ message: 'If your account exists, a verification email has been sent.' });
         }
     }
@@ -423,7 +440,6 @@ export class UserController {
                             avatarData = result.publicPath;
                         }
                         catch (error) {
-                            console.error("Error saving avatar:", error);
                             return reply.code(400).send({ error: 'Failed to save avatar file' });
                         }
                     }
@@ -474,13 +490,13 @@ export class UserController {
             const message = error instanceof Error ? error.message : 'Registration failed';
 
             if (message.includes('exists')) {
-                reply.code(400).send({ error: 'User already exists' });
+                return reply.code(400).send({ error: 'User already exists' });
             }
             else if (message.includes('permissions') || message.includes('Master user')) {
-                reply.code(403).send({ error: message });
+                return reply.code(403).send({ error: message });
             }
             else {
-                reply.code(400).send({ error: 'Registration failed' });
+                return reply.code(400).send({ error: 'Registration failed' });
             }
         }
     }
@@ -536,7 +552,7 @@ export class UserController {
     }
 
     async generateQR(request: FastifyRequest, reply: FastifyReply) {
-        let secAQrCode = await this._userService.generateQR();
+        const secAQrCode = await this._userService.generateQR();
         if (!secAQrCode) {
             return reply.code(500).send({ error: "QR generation failed!" });
         }
@@ -546,10 +562,18 @@ export class UserController {
     async getFriends(request: FastifyRequest, reply: FastifyReply) {
         try {
             const users = await this._userService.findUserFriends(request.user!.id);
-            reply.code(200).send(users);
+
+            const friendsData = users.map(user => ({
+                id: user.id,
+                username: user.username,
+                // name: user.name,
+                online: user.online,
+            }));
+
+            return reply.code(200).send(friendsData);
         }
         catch (error) {
-            reply.code(500).send({ error: 'Could not fetch friends' });
+            return reply.code(500).send({ error: 'Could not fetch friends' });
         }
     }
 
@@ -563,13 +587,13 @@ export class UserController {
 
         try {
             await this._userService.addFriend(userId, username);
-            reply.code(200).send({ message: 'Friend added successfully' });
+            return reply.code(200).send({ message: 'Friend added successfully' });
         }
         catch (error) {
             if (error instanceof Error) {
                 return reply.code(400).send({ error: error.message });
             }
-            reply.code(500).send({ error: 'Could not add friend' });
+            return reply.code(500).send({ error: 'Could not add friend' });
         }
     }
 
@@ -583,13 +607,13 @@ export class UserController {
 
         try {
             await this._userService.removeFriend(userId, friendId);
-            reply.code(200).send({ message: 'Friend removed successfully' });
+            return reply.code(200).send({ message: 'Friend removed successfully' });
         }
         catch (error) {
             if (error instanceof Error) {
                 return reply.code(400).send({ error: error.message });
             }
-            reply.code(500).send({ error: 'Could not remove friend' });
+            return reply.code(500).send({ error: 'Could not remove friend' });
         }
     }
 }
