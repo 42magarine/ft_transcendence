@@ -1,7 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import { ILobbyState } from '../../interfaces/interfaces.js';
-import __ from '../services/LanguageService.js';
 
 export default class LobbyList extends AbstractView {
     constructor() {
@@ -15,16 +14,12 @@ export default class LobbyList extends AbstractView {
         let lobbies: ILobbyState[] = [];
         lobbies = await window.lobbyListService.getLobbies();
 
-        lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers && !lobby.isStarted);
-
-        //console.debug('[LobbyList] Fetched lobbies:', lobbies);
-
-        if (!Array.isArray(lobbies) || lobbies.length === 0) {
-            //console.warn('[LobbyList] No lobbies found or invalid format.');
-        }
+        lobbies = lobbies.filter(
+            (lobby) => lobby.currentPlayers !== lobby.maxPlayers && !lobby.isStarted
+        );
 
         const lobbyListCard = await new Card().renderCard({
-            title: 'Available Lobbies',
+            title: window.ls.__('Available Lobbies'),
             contentBlocks: [
                 {
                     type: 'button',
@@ -33,21 +28,21 @@ export default class LobbyList extends AbstractView {
                         text: window.ls.__('Create Lobby'),
                         type: 'button',
                         className: 'btn btn-primary'
-                    },
+                    }
                 },
                 {
                     type: 'table',
                     props: {
                         id: 'lobby-list',
-                        title: 'Lobby List',
+                        title: window.ls.__('Lobby List'),
                         height: '400px',
                         data: lobbies,
                         columns: [
-                            { key: 'id', label: 'ID' },
-                            { key: 'creatorId', label: 'Creator' },
-                            { key: 'players', label: 'Players' },
-                            { key: 'status', label: 'Status' },
-                            { key: 'actions', label: 'Actions' }
+                            { key: 'id', label: window.ls.__('ID') },
+                            { key: 'creatorId', label: window.ls.__('Creator') },
+                            { key: 'players', label: window.ls.__('Players') },
+                            { key: 'status', label: window.ls.__('Status') },
+                            { key: 'actions', label: window.ls.__('Actions') }
                         ],
                         rowLayout: (lobby) => [
                             {
@@ -75,15 +70,16 @@ export default class LobbyList extends AbstractView {
                                 type: 'stat',
                                 props: {
                                     label: '',
-                                    value: lobby.isStarted ? 'Started' : 'Waiting'
+                                    value: lobby.isStarted ? window.ls.__('Started') : window.ls.__('Waiting')
                                 }
                             },
                             {
                                 type: 'button',
-                                props:
-                                {
-                                    text: 'Join Lobby',
-                                    className: 'joinLobbyBtn btn btn-primary ' + ((lobby.currentPlayers == lobby.maxPlayers) ? "disabled" : ""),
+                                props: {
+                                    text: window.ls.__('Join Lobby'),
+                                    className:
+                                        'joinLobbyBtn btn btn-primary ' +
+                                        (lobby.currentPlayers == lobby.maxPlayers ? 'disabled' : ''),
                                     dataAttributes: {
                                         'lobby-id': lobby.lobbyId
                                     }
@@ -111,12 +107,18 @@ export default class LobbyList extends AbstractView {
         if (window.lobbyListService) {
             const createButton = document.getElementById('createLobbyBtn');
             if (createButton) {
-                createButton.removeEventListener('click', window.lobbyListService.handleCreateLobbyClick);
+                createButton.removeEventListener(
+                    'click',
+                    window.lobbyListService.handleCreateLobbyClick
+                );
             }
 
             const joinButtons = document.querySelectorAll('.joinLobbyBtn');
             joinButtons.forEach((btn: Element) => {
-                btn.removeEventListener('click', window.lobbyListService.handleJoinLobbyClick);
+                btn.removeEventListener(
+                    'click',
+                    window.lobbyListService.handleJoinLobbyClick
+                );
             });
         }
     }

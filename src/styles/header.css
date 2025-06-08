@@ -51,3 +51,19 @@ img.flag {
 img.flag {
 	scale: (1.1);
 }
+
+
+/* === High Contrast Header Styles === */
+.high-contrast .header {
+	@apply bg-white text-black border-b-2 border-black;
+}
+
+.high-contrast .header a {
+	@apply text-black hover:underline;
+}
+
+.high-contrast .dropdown-head,
+.high-contrast .dropdown-body,
+.high-contrast .dropdown-item {
+	@apply bg-white text-black border border-black;
+}
