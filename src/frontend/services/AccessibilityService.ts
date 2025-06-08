@@ -3,6 +3,7 @@ import Router from '../../utils/Router.js';
 export class AccessibilityService {
     private static textSize: string = 'normal-textSize';
     private static contrast: string = 'normal-contrast';
+    private static dropdownStates = new Map<HTMLElement, boolean>();
 
     static getCurrentTextSize(): string {
         const textSizeCookie = document.cookie
@@ -32,12 +33,56 @@ export class AccessibilityService {
         document.cookie = `accessibility_text_size=${this.textSize}; path=/; max-age=31536000`; // 1 year
     }
 
+    static setupDropdownKeyboardNavigation() {
+        document.addEventListener('keydown', (e) => {
+            const activeElement = document.activeElement as HTMLElement;
+
+            // Space nur für dropdown-head (zum Ein-/Ausklappen)
+            if (e.key === ' ' && activeElement?.classList.contains('dropdown-head')) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                const dropdown = activeElement.closest('.dropdown');
+                if (dropdown) {
+                    const currentState = this.dropdownStates.get(activeElement) || false;
+                    const newState = !currentState;
+
+                    this.dropdownStates.set(activeElement, newState);
+
+                    // State erst setzen, dann DOM manipulieren
+                    setTimeout(() => {
+                        activeElement.setAttribute('aria-expanded', newState.toString());
+                        dropdown.classList.toggle('open', newState);
+                    }, 0);
+                }
+            }
+
+            // Enter für dropdown-items (zum Aktivieren)
+            if (e.key === 'Enter' && activeElement?.closest('.dropdown-item')) {
+                e.preventDefault();
+                if (activeElement.tagName === 'BUTTON') {
+                    activeElement.click();
+                } else if (activeElement.tagName === 'A') {
+                    activeElement.click();
+                }
+            }
+
+            if (e.key === 'Escape') {
+                const openDropdowns = document.querySelectorAll('.dropdown-head[aria-expanded="true"]');
+                openDropdowns.forEach(head => {
+                    this.dropdownStates.set(head as HTMLElement, false);
+                    head.setAttribute('aria-expanded', 'false');
+                    head.closest('.dropdown')?.classList.remove('open');
+                });
+            }
+        });
+    }
+
     static setupAccessibilitySwitches() {
-        const contrastSwitch = document.getElementById('contrastSwitch') as HTMLImageElement;
-        const textsizeSwitch = document.getElementById('textsizeSwitch') as HTMLImageElement;
+        const contrastSwitch = document.getElementById('contrastSwitch') as HTMLElement;
+        const textsizeSwitch = document.getElementById('textsizeSwitch') as HTMLElement;
 
         if (!contrastSwitch || !textsizeSwitch) {
-            console.warn('Accessibility switches not found in DOM');
             return;
         }
 
@@ -52,29 +97,93 @@ export class AccessibilityService {
 
         this.applyAccessibilities();
 
-        contrastSwitch.addEventListener('click', (e) => {
+        const handleContrastToggle = () => {
             if (this.contrast === 'normal-contrast') {
                 this.contrast = 'high-contrast';
             } else {
                 this.contrast = 'normal-contrast';
             }
             this.applyAccessibilities();
-        });
+        };
 
-        textsizeSwitch.addEventListener('click', (e) => {
+        const handleTextsizeToggle = () => {
             if (this.textSize === 'normal-textSize') {
                 this.textSize = 'big-textSize';
             } else if (this.textSize === 'big-textSize') {
-                this.textSize = 'huge-textSize'; // Fixed: was "huge-contrast"
+                this.textSize = 'huge-textSize';
             } else {
                 this.textSize = 'normal-textSize';
             }
+            console.log("handleTextsizeToggle ")
+            console.log(this.textSize)
             this.applyAccessibilities();
+        };
+
+        contrastSwitch.addEventListener('click', handleContrastToggle);
+        textsizeSwitch.addEventListener('click', handleTextsizeToggle);
+
+        contrastSwitch.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                handleContrastToggle();
+            }
+        });
+
+        textsizeSwitch.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                handleTextsizeToggle();
+            }
         });
     }
 
+    static setupLanguageDropdown() {
+        setTimeout(() => {
+            const dropdown = document.getElementById('language-dropdown');
+            if (dropdown) {
+                const buttons = dropdown.querySelectorAll('button[data-lang]');
+                const images = dropdown.querySelectorAll('img[data-lang]');
+
+                buttons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const lang = (e.currentTarget as HTMLElement).getAttribute('data-lang');
+                        if (lang) {
+                            localStorage.setItem('lang', lang);
+                            Router.update()
+                        }
+                    });
+
+                    button.addEventListener('keydown', (e) => {
+                        const keyEvent = e as KeyboardEvent;
+                        // Nur Enter für Sprachauswahl, Space nicht mehr
+                        if (keyEvent.key === 'Enter') {
+                            keyEvent.preventDefault();
+                            const lang = (keyEvent.currentTarget as HTMLElement).getAttribute('data-lang');
+                            if (lang) {
+                                localStorage.setItem('lang', lang);
+                                Router.update();
+                            }
+                        }
+                    });
+                });
+
+                images.forEach(img => {
+                    img.addEventListener('click', (e) => {
+                        const lang = (e.currentTarget as HTMLElement).getAttribute('data-lang');
+                        if (lang) {
+                            localStorage.setItem('lang', lang);
+                            Router.update();
+                        }
+                    });
+                });
+            }
+        }, 100);
+    }
+
     static initialize() {
+        this.setupDropdownKeyboardNavigation();
         this.setupAccessibilitySwitches();
+        this.setupLanguageDropdown();
     }
 }
 

@@ -21,7 +21,7 @@
 
 /* === BASE BUTTON STYLE === */
 .btn {
-	@apply inline-flex items-center justify-center px-4 py-2 text-inherit font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-0 focus:ring-offset-0 rounded-xl;
+	@apply inline-flex items-center justify-center px-4 py-2 text-inherit font-semibold transition duration-150 ease-in-out rounded-xl;
 }
 
 .btn.disabled {
@@ -162,7 +162,6 @@
 
 /* Hover: white text on black */
 .high-contrast .btn:hover:not(.btn-disabled),
-.high-contrast .btn:focus:not(.btn-disabled),
 .high-contrast .btn:active:not(.btn-disabled) {
 	@apply bg-black text-white border-white;
 }
@@ -170,4 +169,14 @@
 /* Disabled state (optional for clarity) */
 .high-contrast .btn.disabled {
 	@apply opacity-60 bg-white text-gray-500 border-gray-500;
+}
+
+*:focus {
+    -webkit-box-shadow: 0px 0px 0px 1px rgb(255,255,255);
+    box-shadow: 0px 0px 0px 1px rgba(255,255,255);
+}
+.high-contrast *:focus {
+    border: white 5px solid!important;
+    -webkit-box-shadow: 0px 0px 0px 10px rgb(0, 0, 0)!important;
+    box-shadow: 0px 0px 0px 10px rgb(0, 0, 0)!important;
 }

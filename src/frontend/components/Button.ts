@@ -2,6 +2,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps } from '../../interfaces/componentInterfaces.js';
 import Input from './Input.js';
 import renderGoogleSignInButton from './GoogleSignIn.js';
+import Router from '../../utils/Router.js';
 
 export default class Button extends AbstractView {
     constructor(params: URLSearchParams = new URLSearchParams()) {
@@ -65,8 +66,8 @@ export default class Button extends AbstractView {
 
         // Render as <a> or <button>
         const element = href
-            ? `<a id="${id}" href="${href}" router class="${finalClass}" ${dataAttrs}>${content}</a>`
-            : `<button id="${id}" type="${type}" class="${finalClass}" ${clickAttr} ${dataAttrs}>${content}</button>`;
+            ? `<a ${(id) ? 'id="' + id + '"' : ''} href="${href}" router class="${finalClass}" ${dataAttrs}>${content}</a>`
+            : `<button ${(id) ? 'id="' + id + '"' : ''} type="${type}" class="${finalClass}" ${clickAttr} ${dataAttrs}>${content}</button>`;
 
         // Optionally add inline label text before the button (e.g. "Don't have an account? [Sign up]")
         const combined = type === 'text-with-button'
@@ -130,10 +131,10 @@ export default class Button extends AbstractView {
     async renderLanguageDropdown(): Promise<string> {
         const baseUrl = window.location.origin;
         const languages = [
-            { code: 'en_EN', label: 'English', isActive: true },
-            { code: 'de_DE', label: 'Deutsch', isActive: false },
-            { code: 'it_IT', label: 'Italiano', isActive: false },
-            { code: 'my_MY', label: 'Malay', isActive: false }
+            { code: 'en_EN', label: window.ls.__('English'), isActive: true },
+            { code: 'de_DE', label: window.ls.__('Deutsch'), isActive: false },
+            { code: 'it_IT', label: window.ls.__('Italiano'), isActive: false },
+            { code: 'my_MY', label: window.ls.__('Malay'), isActive: false }
         ];
 
         const dropdownHtml = await this.renderDropdownGroup({
@@ -147,24 +148,6 @@ export default class Button extends AbstractView {
                 dataAttributes: { lang: lang.code }
             }))
         });
-
-        // ✅ Add language change logic
-        setTimeout(() => {
-            const dropdown = document.getElementById('language-dropdown');
-            if (dropdown) {
-                const flags = dropdown.querySelectorAll('img[data-lang]');
-                flags.forEach(flag => {
-                    flag.addEventListener('click', (e) => {
-                        const lang = (e.currentTarget as HTMLElement).getAttribute('data-lang');
-                        if (lang) {
-                            localStorage.setItem('lang', lang);
-                            location.reload();
-                        }
-                    });
-                });
-            }
-        }, 0);
-
         return dropdownHtml;
     }
 
@@ -198,23 +181,25 @@ export default class Button extends AbstractView {
                 : '';
 
             const iconOrImg = item.img
-                ? `<img src="${baseUrl}${item.img}" class="flag passive" ${attrs} />`
+                ? `<img src="${baseUrl}${item.img}" alt="${item.text}" class="flag passive" ${attrs} />`
                 : `<i class="fa-solid fa-${item.icon} mr-2"></i>${window.ls.__(item.text)}`;
-
+            console.log(item)
             if (item.href)
-                return `<div class="dropdown-item"><a href="${item.href}" router>${iconOrImg}</a></div>`;
+                return `<div class="dropdown-item"><a href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
             else
-                return `<div class="dropdown-item"><button id="${item.id || ''}" ${attrs}>${iconOrImg}</button></div>`;
+                return `<div class="dropdown-item"><button ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
         }).join('\n');
 
         return this.render(`
-			<div class="dropdown" id="${id}">
-				<div class="dropdown-head">${headContent}</div>
-				<div class="dropdown-body">
-					${itemsHtml}
-				</div>
-			</div>
-		`);
+            <div class="dropdown" aria-expanded="true" ${(id) ? 'id="' + id + '"' : ''}>
+                <div class="dropdown-head" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+                    ${headContent}
+                </div>
+                <div class="dropdown-body" role="menu">
+                    ${itemsHtml}
+                </div>
+            </div>
+        `);
     }
 
 

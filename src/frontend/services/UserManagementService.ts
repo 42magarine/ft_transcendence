@@ -771,7 +771,7 @@ export default class UserManagementService {
                     try {
                         const success = await UserService.deleteUser(Number(selectedUserId));
                         if (success) {
-                            window.location.reload();
+                            Router.update();
                         }
                         else {
                             console.error('Failed to delete user');

@@ -77,10 +77,10 @@ export default class Header extends AbstractView {
                 text: ''
             },
             items: [
-                { img: `/dist/assets/flags/en_EN.svg`, text: 'English', dataAttributes: { lang: 'en_EN' } },
-                { img: `/dist/assets/flags/de_DE.svg`, text: 'Deutsch', dataAttributes: { lang: 'de_DE' } },
-                { img: `/dist/assets/flags/it_IT.svg`, text: 'Italiano', dataAttributes: { lang: 'it_IT' } },
-                { img: `/dist/assets/flags/my_MY.svg`, text: 'Malay', dataAttributes: { lang: 'my_MY' } }
+                { img: `/dist/assets/flags/en_EN.svg`, text: window.ls.__('English'), dataAttributes: { lang: 'en_EN' } },
+                { img: `/dist/assets/flags/de_DE.svg`, text: window.ls.__('Deutsch'), dataAttributes: { lang: 'de_DE' } },
+                { img: `/dist/assets/flags/it_IT.svg`, text: window.ls.__('Italiano'), dataAttributes: { lang: 'it_IT' } },
+                { img: `/dist/assets/flags/my_MY.svg`, text: window.ls.__('Malay'), dataAttributes: { lang: 'my_MY' } }
             ]
         });
 

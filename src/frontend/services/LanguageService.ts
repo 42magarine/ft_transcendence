@@ -105,7 +105,6 @@ export default class LanguageService {
 
                     this.loadTranslations().then(() => {
                         this.translateTextElements();
-                        document.dispatchEvent(new CustomEvent('LanguageChanged'));
                     });
                 }
             }
@@ -135,9 +134,6 @@ export default class LanguageService {
                         this.translateTextElements();
                         Router.update();
                         this.closeDropdown();
-                        document.dispatchEvent(new CustomEvent('LanguageChanged', {
-                            detail: { language: newLang }
-                        }));
                     }).catch(error => {
                         console.error('Error loading translations:', error);
                     });

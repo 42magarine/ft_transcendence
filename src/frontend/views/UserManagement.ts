@@ -4,6 +4,7 @@ import { UserList } from '../../interfaces/userManagementInterfaces.js';
 import Modal from '../components/Modal.js';
 import UserService from '../services/UserService.js';
 import __ from '../services/LanguageService.js';
+import Router from '../../utils/Router.js';
 
 export default class UserManagement extends AbstractView {
     constructor() {
@@ -140,7 +141,7 @@ export default class UserManagement extends AbstractView {
                     onConfirm: async () => {
                         try {
                             await UserService.deleteUser(Number(userId));
-                            window.location.reload();
+                            Router.update();
                         } catch (err) {
                             console.error('Failed to delete user:', err);
                         }
