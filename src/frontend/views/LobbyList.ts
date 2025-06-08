@@ -14,7 +14,7 @@ export default class LobbyList extends AbstractView {
         let lobbies: ILobbyState[] = [];
         lobbies = await window.lobbyListService.getLobbies();
 
-        lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers && !lobby.isStarted);
+        lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers && !lobby.isStarted && !lobby.gameIsOver);
 
         //console.debug('[LobbyList] Fetched lobbies:', lobbies);
 
@@ -43,7 +43,6 @@ export default class LobbyList extends AbstractView {
                         data: lobbies,
                         columns: [
                             { key: 'id', label: 'ID' },
-                            { key: 'creatorId', label: 'Creator' },
                             { key: 'players', label: 'Players' },
                             { key: 'status', label: 'Status' },
                             { key: 'actions', label: 'Actions' }
@@ -54,13 +53,6 @@ export default class LobbyList extends AbstractView {
                                 props: {
                                     htmlFor: '',
                                     text: `${lobby.lobbyId}`
-                                }
-                            },
-                            {
-                                type: 'label',
-                                props: {
-                                    htmlFor: '',
-                                    text: `${lobby.creatorId}`
                                 }
                             },
                             {

@@ -80,14 +80,12 @@ export interface IGameState {
 
 export interface ILobbyState {
     lobbyId: string;
-    name: string;
-    creatorId: number | undefined;
     maxPlayers: number;
     currentPlayers: number;
-    createdAt: Date;
     lobbyPlayers?: IPlayerState[];
     lobbyType: "game" | "tournament"
     isStarted: boolean;
+    gameIsOver: boolean;
 }
 
 export interface IPlayerState {

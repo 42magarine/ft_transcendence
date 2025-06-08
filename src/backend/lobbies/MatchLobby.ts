@@ -13,7 +13,6 @@ export class MatchLobby {
     public _players: Map<number, Player>;
     private _maxPlayers: number;
     private _gameStarted: boolean = false;
-    private _lobbyName: string;
     private _createdAt: Date;
     private _lobbyType: 'game' | 'tournament';
     private _readyPlayers: Set<number> = new Set();
@@ -33,7 +32,6 @@ export class MatchLobby {
         this._matchService = matchService!;
         this._players = new Map<number, Player>();
         this._maxPlayers = options?.maxPlayers || 2;
-        this._lobbyName = options?.name || `Lobby ${(lobbyId || '000000').substring(0, 6)}`;
         this._createdAt = new Date();
         this._lobbyType = options?.lobbyType || 'game';
         this._broadcast = broadcast;
@@ -53,14 +51,12 @@ export class MatchLobby {
             return null;
         }
 
-        // FIXED: Find next available slot instead of using size + 1
         const playerNumber = this.getNextAvailableSlot();
         if (playerNumber === null) {
             return null;
         }
 
         try {
-            // add player to DB via MatchService (type: DB)
             if (playerNumber === 1) {
                 await this._matchService.createMatch(this._lobbyId, userId);
                 this._creatorId = userId;
@@ -76,11 +72,8 @@ export class MatchLobby {
                 return null;
             }
             const player = new Player(connection, playerNumber, userId, this._lobbyId, user.username);
-            // add player to this._players (type: map)
             this._players.set(playerNumber, player);
-            // add player to this._game.player1 or player2 (type: PongGame)
             this._game.setPlayer(playerNumber, player);
-            // console.log(`Player ${player._playerNumber} (userId: ${player.userId}) join lobby ${this._lobbyId}`);
             return player;
         }
         catch (error) {
@@ -91,22 +84,13 @@ export class MatchLobby {
 
     public async removePlayer(player: Player): Promise<void> {
         try {
-            // Spieler aus DB entfernen
             await this._matchService.removePlayerFromMatch(this._lobbyId, player.userId);
-
-            // Spieler aus Maps entfernen
             this._players.delete(player._playerNumber);
             this._readyPlayers.delete(player._playerNumber);
-
-            // Spieler aus PongGame entfernen
             this._game.removePlayer(player._playerNumber);
 
-            // console.log(`Player ${player._playerNumber} (userId: ${player.userId}) left lobby ${this._lobbyId}`);
-
-            // ADDED: Reposition remaining players
             this.repositionPlayers();
 
-            // Wenn Creator verlässt, neuen Creator bestimmen
             if (this._creatorId === player.userId && this._players.size > 0) {
                 const nextPlayer = this._players.values().next().value;
 
@@ -121,7 +105,6 @@ export class MatchLobby {
         }
     }
 
-    // ADDED: Find next available slot (1 or 2)
     private getNextAvailableSlot(): number | null {
         for (let i = 1; i <= this._maxPlayers; i++) {
             if (!this._players.has(i)) {
@@ -131,34 +114,27 @@ export class MatchLobby {
         return null;
     }
 
-    // ADDED: Reposition players to fill slots 1, 2 without gaps
     private repositionPlayers(): void {
         if (this._players.size === 0) {
             return;
         }
 
-        // Get all players and sort by userId for consistency
         const playersArray = Array.from(this._players.values()).sort((a, b) => a.userId - b.userId);
 
-        // Clear maps
         this._players.clear();
         this._readyPlayers.clear();
 
-        // Reassign with consecutive player numbers
         playersArray.forEach((player, index) => {
             const newPlayerNumber = index + 1;
             const oldPlayerNumber = player._playerNumber;
 
-            // Update player number
             player._playerNumber = newPlayerNumber;
 
-            // Re-add to maps
             this._players.set(newPlayerNumber, player);
             if (player._isReady) {
                 this._readyPlayers.add(newPlayerNumber);
             }
 
-            // Update in game
             this._game.removePlayer(oldPlayerNumber);
             this._game.setPlayer(newPlayerNumber, player);
         });
@@ -203,26 +179,19 @@ export class MatchLobby {
         return this._players.get(id);
     }
 
-    public getLobbyId(): string {
-        return this._lobbyId;
-    }
-
     public getLobbyState(): ILobbyState {
         return {
             lobbyId: this._lobbyId,
-            name: this._lobbyName,
-            creatorId: this._creatorId!,
             maxPlayers: this._maxPlayers,
             currentPlayers: this._players.size,
-            createdAt: this._createdAt,
             lobbyType: this._lobbyType,
             lobbyPlayers: this.getPlayerStates(),
-            isStarted: this._gameStarted
+            isStarted: this._gameStarted,
+            gameIsOver: this._game.isGameOver
         };
     }
 
     public getPlayerStates(): IPlayerState[] {
-        // FIXED: Sort by playerNumber for consistent frontend display
         return Array.from(this._players.values())
             .sort((a, b) => a._playerNumber - b._playerNumber)
             .map(p => ({
@@ -303,15 +272,6 @@ export class MatchLobby {
             game.endedAt = new Date()
             await this._matchService.matchRepo.save(game);
         }
-        // dont broadcast here! need to move to controller later
-        // handle bool gameOver via gamestate
-        // this._broadcast(this._lobbyId, {
-        //     type: "gameOver",
-        //     winnerId: winningPlayerId,
-        //     winningUserId: winningPlayer.userId,
-        //     player1Score,
-        //     player2Score
-        // })
     }
 
     public async stopGame() {
@@ -338,15 +298,13 @@ export class MatchLobby {
                 }
             })
         }
-
-        // dont broadcast here! need to move to controller later
-        // handle bool gamestopped via gamestate
-        // this._broadcast(this._lobbyId, {
-        //     type: "gameStopped"
-        // })
     }
 
     public get game(): PongGame {
         return this._game;
+    }
+
+    public get lobbyId(): string {
+        return this._lobbyId;
     }
 }

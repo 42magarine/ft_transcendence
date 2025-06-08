@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { randomUUID } from "crypto";
-import { IClientMessage, IServerMessage, IPaddleDirection, IPlayerState } from "../../interfaces/interfaces.js";
+import { IClientMessage, IServerMessage, IPaddleDirection, IPlayerState, ILobbyState} from "../../interfaces/interfaces.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
@@ -108,13 +108,6 @@ export class MatchController {
             else {
                 this.handleLeaveLobby(connection, player.lobbyId, false)
             }
-            // if (lobby) {
-            //     lobby.removePlayer(player);
-
-            //     if (lobby.isEmpty()) {
-            //         this._lobbies.delete(player.lobbyId);
-            //     }
-            // }
         }
         this._clients.delete(connection);
         this.broadcastToAll({ type: "updateFriendlist" });
@@ -128,22 +121,13 @@ export class MatchController {
     }
 
     private broadcastToAll(data: IServerMessage): void {
-        // console.log(`Broadcasting to all clients. Total clients: ${this._clients.size}`);
-        // console.log('Message to broadcast:', data);
-
-        let sentCount = 0;
         for (const [connection, player] of this._clients.entries()) {
-            console.log(`Client ${sentCount + 1}: readyState=${connection.readyState}, player=${player?.userId || 'no player'}`);
-
             if (connection.readyState === WebSocket.OPEN) {
                 this.sendMessage(connection, data);
-                sentCount++;
-                // console.log(`Message sent to client ${sentCount}`);
             } else {
                 console.log(`Skipping client due to readyState: ${connection.readyState}`);
             }
         }
-        // console.log(`Total messages sent: ${sentCount}`);
     }
 
     private broadcastToLobby(lobbyId: string, data: IServerMessage): void {
@@ -159,8 +143,6 @@ export class MatchController {
     }
 
     private async handleCreateLobby(connection: WebSocket, userId: number) {
-        // console.log(`handleCreateLobby called for userId: ${userId}`);
-        // console.log(`Current clients count: ${this._clients.size}`);
         const lobbyId = randomUUID();
 
         const lobby = new MatchLobby(
@@ -175,14 +157,10 @@ export class MatchController {
         if (player) {
             this._clients.set(connection, player);
 
-            // console.log(`After adding player, clients count: ${this._clients.size}`);
-            // console.log("About to broadcast lobbyCreated");
-
             this.broadcastToAll({
                 type: "lobbyCreated",
                 lobbyId: lobbyId,
-                owner: userId, //should prob be creatorId for concurrency
-                // playerNumber: player._playerNumber //prob don't need this since websocket is unique to client anyways
+                owner: userId
             });
             console.log("handleCreateLobby: lobbyState sent")
             this.broadcastToLobby(lobbyId, {
@@ -287,33 +265,15 @@ export class MatchController {
     }
 
     private async handleGetLobbyList(connection: WebSocket) {
-        // console.log("handleGetLobbyList")
-        const openMatchModels = await this._matchService.getOpenLobbies();
+        const lobbyList: ILobbyState[] = this.getLobbyStates();
+        this.broadcastToAll({
+            type: "lobbyList",
+            lobbies: lobbyList
+        });
+    }
 
-        const openLobbies = openMatchModels.map(Lobby => {
-            const activeLobby = Array.from(this._lobbies.values()).find(l =>
-                l.getGameId() === Lobby.matchModelId
-            );
-
-            if (activeLobby) {
-                return activeLobby.getLobbyState();
-            }
-
-            return {
-                id: Lobby.matchModelId.toString(),
-                lobbyId: Lobby.lobbyId,
-                name: `Lobby ${Lobby.matchModelId}`,
-                creatorId: Lobby.player1.id,
-                maxPlayers: Lobby.maxPlayers,
-                currentPlayers: this._lobbies.get(Lobby.lobbyId)!._players.size,
-                createdAt: Lobby.createdAt,
-                lobbyType: 'game' as const,
-                isStarted: false,
-                //lobbyPlayers -> lobbyParticipants ???
-            }
-        })
-        //broadcastToAll ?
-        this.sendMessage(connection, { type: "lobbyList", lobbies: openLobbies });
+    private getLobbyStates(): ILobbyState[] {
+        return Array.from(this._lobbies.values()).map(lobby => lobby.getLobbyState());
     }
 
     /* GAME LOGIC FUNCTIONS FROM HERE */
@@ -362,7 +322,6 @@ export class MatchController {
             return;
         }
         lobby.startGame();
-        //implement broadcasts here
     }
 
     private handleMovePaddle(requestingUserId: number, direction: IPaddleDirection, lobbyId: string): void {

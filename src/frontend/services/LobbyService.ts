@@ -20,7 +20,6 @@ export default class LobbyService {
                     console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
-                        createdAt: new Date(data.lobby.createdAt),
                         lobbyPlayers: data.lobby.lobbyPlayers || []
                     };
 
@@ -33,7 +32,6 @@ export default class LobbyService {
                     console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
-                        createdAt: new Date(data.lobby.createdAt),
                         lobbyPlayers: data.lobby.lobbyPlayers || []
                     };
 
@@ -48,7 +46,6 @@ export default class LobbyService {
                     console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
-                        createdAt: new Date(data.lobby.createdAt),
                         lobbyPlayers: data.lobby.lobbyPlayers || []
                     };
 
@@ -63,7 +60,6 @@ export default class LobbyService {
                     console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
-                        createdAt: new Date(data.lobby.createdAt),
                         lobbyPlayers: data.lobby.lobbyPlayers || []
                     };
 
