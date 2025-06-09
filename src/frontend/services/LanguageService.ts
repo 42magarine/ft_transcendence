@@ -28,8 +28,6 @@ export default class LanguageService {
         if (key in this.translations) {
             const translation = this.translations[key][currentLanguage];
             return translation || key;
-        } else {
-            console.log("'" + key + "' not found in translations PLEASE CREATE!")
         }
 
         const keys = Object.keys(this.translations);
@@ -43,6 +41,10 @@ export default class LanguageService {
                     return translation || key;
                 }
             }
+        }
+        // this tells you if something got no translation yet!
+        if (currentLanguage !== "en_EN") {
+            console.log("(づ ◕‿◕ )づ  " + key)
         }
         return key;
     }
@@ -143,24 +145,15 @@ export default class LanguageService {
                 e.preventDefault();
                 const clickedButton = e.currentTarget as HTMLButtonElement;
                 const newLang = clickedButton.getAttribute('data-lang');
-                const clickedFlag = clickedButton.querySelector('.flag') as HTMLImageElement;
-
-                if (!newLang || !clickedFlag) return;
+                if (!newLang) return;
 
                 document.cookie = `language=${newLang}; path=/; max-age=31536000`;
-
-                if (activeFlag) {
-                    activeFlag.setAttribute('src', clickedFlag.src);
-                    activeFlag.setAttribute('data-lang', newLang);
-
-                    this.loadTranslations().then(() => {
-                        this.translateTextElements();
-                        Router.update();
-                        this.closeDropdown();
-                    }).catch(error => {
-                        console.error('Error loading translations:', error);
-                    });
-                }
+                this.loadTranslations().then(() => {
+                    this.translateTextElements();
+                    Router.update();
+                }).catch(error => {
+                    console.error('Error loading translations:', error);
+                });
             });
         })
         passiveButtons.forEach(button => {

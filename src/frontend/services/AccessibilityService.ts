@@ -79,10 +79,10 @@ export class AccessibilityService {
     }
 
     static setupAccessibilitySwitches() {
-        const contrastSwitch = document.getElementById('contrastSwitch') as HTMLElement;
-        const textsizeSwitch = document.getElementById('textsizeSwitch') as HTMLElement;
+        const contrastSwitches = document.querySelectorAll('.contrastSwitch') as NodeListOf<HTMLElement>;
+        const textsizeSwitches = document.querySelectorAll('.textsizeSwitch') as NodeListOf<HTMLElement>;
 
-        if (!contrastSwitch || !textsizeSwitch) {
+        if (!contrastSwitches || !textsizeSwitches) {
             return;
         }
 
@@ -121,21 +121,32 @@ export class AccessibilityService {
             this.applyAccessibilities();
         };
 
-        contrastSwitch.addEventListener('click', handleContrastToggle);
-        textsizeSwitch.addEventListener('click', handleTextsizeToggle);
-
-        contrastSwitch.addEventListener('keydown', (e) => {
-            if (e.key === ' ' || e.key === 'Enter') {
+        contrastSwitches.forEach(contrastSwitch => {
+            contrastSwitch.addEventListener('click', (e) => {
                 e.preventDefault();
                 handleContrastToggle();
-            }
+            });
+
+            contrastSwitch.addEventListener('keydown', (e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    handleContrastToggle();
+                }
+            });
         });
 
-        textsizeSwitch.addEventListener('keydown', (e) => {
-            if (e.key === ' ' || e.key === 'Enter') {
+        textsizeSwitches.forEach(textsizeSwitch => {
+            textsizeSwitch.addEventListener('click', (e) => {
                 e.preventDefault();
                 handleTextsizeToggle();
-            }
+            });
+
+            textsizeSwitch.addEventListener('keydown', (e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    handleTextsizeToggle();
+                }
+            });
         });
     }
 

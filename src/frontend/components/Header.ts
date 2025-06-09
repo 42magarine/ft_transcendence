@@ -67,8 +67,8 @@ export default class Header extends AbstractView {
         ];
 
         const accessibilityItems = [
-            { icon: 'circle-half-stroke', text: window.ls.__('Contrast'), id: 'contrastSwitch' },
-            { icon: 'font', text: window.ls.__('Textsize'), id: 'textsizeSwitch' }
+            { icon: 'circle-half-stroke', text: window.ls.__('Contrast'), className: 'contrastSwitch' },
+            { icon: 'font', text: window.ls.__('Textsize'), className: 'textsizeSwitch' }
         ];
 
         const langButtons = langItems.map((item, index) => ({
@@ -76,16 +76,16 @@ export default class Header extends AbstractView {
             text: item.text,
             icon: 'globe',
             href: '#',
-            className: 'mobilemenu',
+            className: 'mobilemenu ',
             dataAttributes: item.dataAttributes,
             img: item.img
         }));
 
         const accessibilityButtons = accessibilityItems.map(item => ({
-            id: item.id,
+            id: "",
             text: item.text,
             icon: item.icon,
-            className: 'mobilemenu',
+            className: 'mobilemenu ' + item.className,
             href: '#'
         }));
 

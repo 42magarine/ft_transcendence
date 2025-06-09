@@ -133,9 +133,9 @@ export default class Button extends AbstractView {
         const baseUrl = window.location.origin;
         const languages = [
             { code: 'en_EN', label: window.ls.__('English'), isActive: true },
-            { code: 'de_DE', label: window.ls.__('Deutsch'), isActive: false },
-            { code: 'it_IT', label: window.ls.__('Italiano'), isActive: false },
-            { code: 'my_MY', label: window.ls.__('Malay'), isActive: false }
+            { code: 'de_DE', label: window.ls.__('German'), isActive: false },
+            { code: 'it_IT', label: window.ls.__('Italian'), isActive: false },
+            { code: 'my_MY', label: window.ls.__('Malayan'), isActive: false }
         ];
 
         const dropdownHtml = await this.renderDropdownGroup({
@@ -166,6 +166,7 @@ export default class Button extends AbstractView {
             text: string;
             id?: string;
             href?: string;
+            className?: string;
             dataAttributes?: Record<string, string>;
         }>;
     }): Promise<string> {
@@ -185,9 +186,9 @@ export default class Button extends AbstractView {
                 ? `<img src="${baseUrl}${item.img}" alt="${item.text}" class="flag passive" ${attrs} />`
                 : `<i class="fa-solid fa-${item.icon} mr-2"></i>${window.ls.__(item.text)}`;
             if (item.href)
-                return `<div class="dropdown-item"><a class="text-inherit" href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
+                return `<div class="dropdown-item"><a class="text-inherit ${item.className}" href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
             else
-                return `<div class="dropdown-item"><button class="text-inherit" aria-label="${item.text}" ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
+                return `<div class="dropdown-item"><button class="text-inherit ${item.className}" aria-label="${item.text}" ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
         }).join('\n');
 
         return this.render(`
