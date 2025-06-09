@@ -3,6 +3,8 @@ import Card from '../components/Card.js';
 import { UserList } from '../../interfaces/userManagementInterfaces.js';
 import Modal from '../components/Modal.js';
 import UserService from '../services/UserService.js';
+import __ from '../services/LanguageService.js';
+import Router from '../../utils/Router.js';
 
 export default class UserManagement extends AbstractView {
     constructor() {
@@ -13,17 +15,24 @@ export default class UserManagement extends AbstractView {
         const users: UserList[] = await UserService.getAllUsers();
 
         const createUserCard = await new Card().renderCard({
-            title: 'Create New User',
+            title: window.ls.__('Create New User'),
             formId: 'create-form',
             contentBlocks: [
                 {
                     type: 'inputgroup',
                     props: {
                         inputs: [
-                            { name: 'name', label: 'Name', placeholder: 'Name' },
-                            { name: 'username', label: 'Username', placeholder: 'Username' },
-                            { name: 'email', type: 'email', label: 'E-Mail', placeholder: 'E-Mail' },
-                            { id: 'password', name: 'password', type: 'password', label: 'Password', placeholder: 'Password', withConfirm: true }
+                            { name: 'name', label: window.ls.__('Name'), placeholder: window.ls.__('Name') },
+                            { name: 'username', label: window.ls.__('Username'), placeholder: window.ls.__('Username') },
+                            { name: 'email', type: 'email', label: window.ls.__('E-Mail'), placeholder: window.ls.__('E-Mail') },
+                            {
+                                id: 'password',
+                                name: 'password',
+                                type: 'password',
+                                label: window.ls.__('Password'),
+                                placeholder: window.ls.__('Password'),
+                                withConfirm: true
+                            }
                         ]
                     }
                 },
@@ -31,9 +40,9 @@ export default class UserManagement extends AbstractView {
                     type: 'buttongroup',
                     props: {
                         toggles: [
-                            { id: 'emailVerified', name: 'emailVerified', label: 'Email Verified:', checked: false },
-                            { id: 'twoFAEnabled', name: 'twoFAEnabled', label: '2FA Enabled:', checked: false },
-                            { id: 'googleSignIn', name: 'googleSignIn', label: 'Google Sign-In:', checked: false, readonly: true }
+                            { id: 'emailVerified', name: 'emailVerified', label: window.ls.__('Email Verified:'), checked: false },
+                            { id: 'twoFAEnabled', name: 'twoFAEnabled', label: window.ls.__('2FA Enabled:'), checked: false },
+                            { id: 'googleSignIn', name: 'googleSignIn', label: window.ls.__('Google Sign-In:'), checked: false, readonly: true }
                         ],
                         layout: 'stack',
                         align: 'left'
@@ -43,7 +52,7 @@ export default class UserManagement extends AbstractView {
                     type: 'buttongroup',
                     props: {
                         buttons: [
-                            { text: 'Create User', type: 'submit', className: 'btn btn-green' }
+                            { text: window.ls.__('Create User'), type: 'submit', className: 'btn btn-green' }
                         ],
                         layout: 'stack',
                         align: 'left'
@@ -53,42 +62,42 @@ export default class UserManagement extends AbstractView {
                     type: 'label',
                     props: {
                         htmlFor: 'dummy-id',
-                        text: ' '
+                        text: ' ' // spacing only
                     }
                 },
                 {
                     type: 'table',
                     props: {
                         id: 'user-list',
-                        title: 'User Overview',
+                        title: window.ls.__('User Overview'),
                         height: '300px',
                         data: users,
                         columns: [
-                            { key: 'id', label: 'ID' },
-                            { key: 'name', label: 'Name' },
-                            { key: 'username', label: 'Username' },
-                            { key: 'email', label: 'Email' },
-                            { key: 'emailVerified', label: 'Verified' },
-                            { key: 'twoFAEnabled', label: '2FA' },
-                            { key: 'actions', label: 'Actions' }
+                            { key: 'id', label: window.ls.__('ID') },
+                            { key: 'name', label: window.ls.__('Name') },
+                            { key: 'username', label: window.ls.__('Username') },
+                            { key: 'email', label: window.ls.__('Email') },
+                            { key: 'emailVerified', label: window.ls.__('Verified') },
+                            { key: 'twoFAEnabled', label: window.ls.__('2FA') },
+                            { key: 'actions', label: window.ls.__('Actions') }
                         ],
                         rowLayout: (user) => [
                             { type: 'label', props: { text: `${user.id}` } },
                             { type: 'label', props: { text: `${user.name}` } },
                             { type: 'label', props: { text: `${user.username}` } },
                             { type: 'label', props: { text: `${user.email}` } },
-                            { type: 'label', props: { text: user.emailVerified ? 'Yes' : 'No' } },
-                            { type: 'label', props: { text: user.twoFAEnabled ? 'Enabled' : 'Disabled' } },
+                            { type: 'label', props: { text: user.emailVerified ? window.ls.__('Yes') : window.ls.__('No') } },
+                            { type: 'label', props: { text: user.twoFAEnabled ? window.ls.__('Enabled') : window.ls.__('Disabled') } },
                             {
                                 type: 'buttongroup',
                                 props: {
                                     buttons: [
-                                        { icon: 'eye', text: 'View', href: `/users/${user.id}` },
-                                        { icon: 'pen-to-square', text: 'Edit', href: `/users/edit/${user.id}` },
+                                        { icon: 'eye', text: window.ls.__('View'), href: `/users/${user.id}` },
+                                        { icon: 'pen-to-square', text: window.ls.__('Edit'), href: `/users/edit/${user.id}` },
                                         {
                                             id: `delete-user-btn-${user.id}`,
                                             icon: 'trash',
-                                            text: 'Delete',
+                                            text: window.ls.__('Delete'),
                                             color: 'red',
                                             dataAttributes: {
                                                 'user-id': String(user.id)
@@ -132,7 +141,7 @@ export default class UserManagement extends AbstractView {
                     onConfirm: async () => {
                         try {
                             await UserService.deleteUser(Number(userId));
-                            window.location.reload();
+                            Router.update();
                         } catch (err) {
                             console.error('Failed to delete user:', err);
                         }
@@ -143,5 +152,4 @@ export default class UserManagement extends AbstractView {
             });
         });
     }
-
 }

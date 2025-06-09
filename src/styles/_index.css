@@ -19,16 +19,12 @@
 	user-select: none;
 }
 
-
-
 main {
-	min-height: 100vh;
-    padding-top: 5em;
+	@apply min-h-screen pt-20;
 }
 
-main .container{
-	margin: auto;
-	width: 1200px;
+main .container {
+	@apply mx-auto w-full max-w-6xl;
 }
 
 @layer components {
@@ -45,51 +41,113 @@ main .container{
 	.role-tag.role-master {
 		@apply bg-purple-700 text-white;
 	}
+
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+	@apply w-0.5 h-0.5;
+}
+
+::-webkit-scrollbar-track {
+	@apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	@apply bg-white;
 }
 
 
-::-webkit-scrollbar {
-	width: 2px;
-	height: 2px;
-  }
-
-  ::-webkit-scrollbar-track {
-	background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-	background-color: white;
-  }
-
-  /* For Firefox */
-  * {
+/* Firefox Scrollbar */
+* {
 	scrollbar-width: thin;
 	scrollbar-color: white transparent;
 }
-.g_id_signin {
-	opacity: 0;
-	animation: fadeIn 1s ease-in-out forwards;
-	animation-delay: 1s;
-  }
 
-  @keyframes fadeIn {
+.high-contrast * {
+	scrollbar-color: black transparent;
+}
+
+/* Google Sign-in Animation */
+.g_id_signin {
+	@apply opacity-0 animate-[fadeIn_1s_ease-in-out_1s_forwards];
+}
+
+@keyframes fadeIn {
 	from {
-	  opacity: 0;
+		opacity: 0;
 	}
 	to {
-	  opacity: 1;
+		opacity: 1;
 	}
-  }
+}
 
-  .toggle-btn.active.bg-green-500 {
-	background-color: #22c55e; /* green-500 */
-	color: white;
+/* Toggle Button Styles */
+.toggle-btn.active.bg-green-500 {
+	@apply bg-green-500 text-white;
 }
+
 .toggle-btn.active.bg-red-500 {
-	background-color: #ef4444; /* red-500 */
-	color: white;
+	@apply bg-red-500 text-white;
 }
+
 .toggle-btn:not(.active) {
-	background-color: transparent;
-	color: rgba(255, 255, 255, 0.5);
+	@apply bg-transparent text-white/50;
+}
+
+
+.high-contrast .toggle-btn:not(.active) {
+	@apply bg-white text-black border-2 border-black font-bold;
+}
+
+body {
+    @apply text-[16px];
+}
+body.big-textSize {
+    @apply text-[24px];
+}
+body.huge-textSize {
+    @apply text-[32px];
+}
+
+.high-contrast .dropdown-item a,
+.high-contrast .dropdown-item button {
+	@apply text-black hover:bg-black hover:text-white;
+}
+
+.high-contrast .dropdown-img img,
+.high-contrast .dropdown-head img {
+	filter: grayscale(100%) contrast(150%);
+}
+
+/* === Header/Footer in High Contrast === */
+.high-contrast header,
+.high-contrast footer {
+	@apply bg-white text-black border-black;
+	background: white !important;
+	color: black !important;
+}
+
+.high-contrast h1,
+.high-contrast h2,
+.high-contrast h3,
+.high-contrast h4,
+.high-contrast h5,
+.high-contrast h6,
+.high-contrast .text-white {
+	color: black !important;
+}
+
+body.big-textSize input,
+body.big-textSize textarea,
+body.big-textSize select {
+  font-size: 1.5rem; /* or 24px */
+}
+
+body.huge-textSize input,
+body.huge-textSize textarea,
+body.huge-textSize select {
+  font-size: 2rem; /* or 32px */
+}
+
+
 }

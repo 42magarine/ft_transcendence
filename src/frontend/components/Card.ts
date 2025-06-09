@@ -132,7 +132,7 @@ export default class Card extends AbstractView {
         }: CardProps): Promise<string> {
         const titleHtml = title
             ? `<div class="card-header px-6 pt-6 py-2 text-center">
-                    <h3 class="text-xl font-bold text-white mb-2">${title}</h3>
+                    <h3 text-inherit font-bold text-white mb-2">${title}</h3>
                 </div>`
             : '';
 

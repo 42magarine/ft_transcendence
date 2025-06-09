@@ -7,6 +7,7 @@ import type UserService from '../frontend/services/UserService.js';
 import PongService from '../frontend/services/PongService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
 import AbstractView from "../utils/AbstractView.js";
+import LanguageService from '../frontend/services/LanguageService.js';
 
 export interface RouteHookContext {
     route: Route;
@@ -34,6 +35,7 @@ declare global {
         currentUser: User | null;
         ft_socket?: WebSocket;
         socketReady: Promise<void>;
+        ls: LanguageService;
         messageHandler: MessageHandlerService;
         lobbyListService: LobbyListService;
         lobbyService: LobbyService;
@@ -42,6 +44,7 @@ declare global {
         userService: UserService;
         userManagementService: UserManagementService;
         pongService: PongService;
+        __: (key: string) => string;
     }
 }
 

@@ -2,6 +2,7 @@ import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Router from '../../utils/Router.js';
 import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
+import __ from '../services/LanguageService.js';
 
 export default class Lobby extends AbstractView {
     private lobbyId: string;
@@ -44,7 +45,6 @@ export default class Lobby extends AbstractView {
                         {
                             type: 'separator',
                         },
-                        // Matchup buttons
                         {
                             type: 'matchup',
                             props:
@@ -55,7 +55,7 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player1',
-                                        text: this.player1.userName,
+                                        text: window.ls.__(this.player1.userName),
                                         className: `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 },
@@ -65,7 +65,7 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player2',
-                                        text: this.player2.userName,
+                                        text: window.ls.__(this.player2.userName),
                                         className:
                                             `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
@@ -75,7 +75,6 @@ export default class Lobby extends AbstractView {
                         {
                             type: 'separator',
                         },
-                        // Action buttons
                         {
                             type: 'buttongroup',
                             props:
@@ -84,13 +83,13 @@ export default class Lobby extends AbstractView {
                                     [
                                         {
                                             id: 'startGameBtn',
-                                            text: 'Click when Ready',
+                                            text: window.ls.__('Click when Ready'),
                                             className: 'btn btn-primary',
                                             type: 'button'
                                         },
                                         {
                                             id: 'leaveBtn',
-                                            text: 'Leave Lobby',
+                                            text: window.ls.__('Leave Lobby'),
                                             type: 'button',
                                             href: '/lobbylist'
                                         }

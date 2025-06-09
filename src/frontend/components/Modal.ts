@@ -57,7 +57,7 @@ export default class Modal extends AbstractView {
 					onclick="event.stopPropagation();"
 				>
 					${showCloseButton ? this.renderCloseButton(id) : ''}
-					${title ? `<h2 class="text-2xl font-semibold mb-4">${title}</h2>` : ''}
+					${title ? `<h2 text-inherit font-semibold mb-4">${title}</h2>` : ''}
 					<div class="modal-content text-base leading-relaxed text-gray-700 dark:text-gray-300 mb-4">
 						${content}
 					</div>

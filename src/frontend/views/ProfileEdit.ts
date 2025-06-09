@@ -2,7 +2,8 @@ import Card from '../components/Card.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
 import UserService from '../services/UserService.js';
-import Modal from '../components/Modal.js'
+import Modal from '../components/Modal.js';
+import __ from '../services/LanguageService.js';
 
 export default class ProfileEdit extends AbstractView {
     private userId: string;
@@ -18,138 +19,127 @@ export default class ProfileEdit extends AbstractView {
         if (!userData) {
             return this.render(`
                 <div class="flex justify-center items-center min-h-[80vh] px-4">
-                <div class="alert alert-warning text-center">User not found or error loading user data.</div>
+                <div class="alert alert-warning text-center">${window.ls.__('User not found or error loading user data.')}</div>
                 </div>
-                `);
+            `);
         }
+
         const isMaster = userData.role === 'master';
-        const profileEditCard = await new Card().renderCard(
-            {
-                formId: 'edit-profile-form',
-                title: `Edit Profile: ${userData.name}`,
-                contentBlocks:
-                    [
-                        {
-                            type: 'avatar',
-                            props: {
-                                src: generateProfileImage(userData, 100, 100),
-                                size: 300
-                            }
-                        },
-                        {
-                            type: 'input',
-                            props:
+
+        const profileEditCard = await new Card().renderCard({
+            formId: 'edit-profile-form',
+            title: `${window.ls.__('Edit Profile')}: ${userData.name}`,
+            contentBlocks: [
+                {
+                    type: 'avatar',
+                    props: {
+                        src: generateProfileImage(userData, 100, 100),
+                        size: 300
+                    }
+                },
+                {
+                    type: 'input',
+                    props: {
+                        name: 'name',
+                        placeholder: window.ls.__('Name'),
+                        value: userData.name,
+                        type: isMaster ? 'display' : 'text'
+                    }
+                },
+                {
+                    type: 'input',
+                    props: {
+                        name: 'username',
+                        placeholder: window.ls.__('Username'),
+                        value: userData.username,
+                        type: isMaster ? 'display' : 'text'
+                    }
+                },
+                {
+                    type: 'input',
+                    props: {
+                        name: 'email',
+                        placeholder: window.ls.__('Email'),
+                        value: userData.email,
+                        type: 'display'
+                    }
+                },
+                {
+                    type: 'input',
+                    props: {
+                        name: 'password',
+                        placeholder: window.ls.__('Password'),
+                        type: 'password',
+                        withConfirm: true
+                    }
+                },
+                {
+                    type: 'toggle',
+                    props: {
+                        id: 'emailVerified',
+                        name: 'emailVerified',
+                        label: window.ls.__('Email Verified'),
+                        checked: !!userData.emailVerified
+                    }
+                },
+                {
+                    type: 'toggle',
+                    props: {
+                        id: 'twoFAEnabled',
+                        name: 'twoFAEnabled',
+                        label: window.ls.__('2FA Enabled'),
+                        checked: !!userData.twoFAEnabled,
+                        readonly: true
+                    }
+                },
+                {
+                    type: 'toggle',
+                    props: {
+                        id: 'googleSignIn',
+                        name: 'googleSignIn',
+                        label: window.ls.__('Google Sign-In'),
+                        checked: !!userData.googleSignIn,
+                        readonly: true
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props: {
+                        layout: 'group',
+                        align: 'center',
+                        buttons: [
                             {
-                                name: 'name',
-                                placeholder: 'Name',
-                                value: userData.name,
-                                type: isMaster ? 'display' : 'text'
-                            }
-                        },
-                        {
-                            type: 'input',
-                            props:
+                                id: 'submit-profile',
+                                text: window.ls.__('Update Profile'),
+                                type: 'submit',
+                                className: 'btn btn-green'
+                            },
                             {
-                                name: 'username',
-                                placeholder: 'Username',
-                                value: userData.username,
-                                type: isMaster ? 'display' : 'text'
+                                id: 'delete-user-btn',
+                                text: window.ls.__('Delete Profile'),
+                                type: 'button',
+                                className: 'btn btn-red'
                             }
-                        },
-                        {
-                            type: 'input',
-                            props:
+                        ]
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props: {
+                        layout: 'stack',
+                        align: 'center',
+                        buttons: [
                             {
-                                name: 'email',
-                                placeholder: 'Email',
-                                value: userData.email,
-                                type: 'display'
+                                id: 'back-to-list',
+                                text: isMaster ? window.ls.__('Back to User List') : window.ls.__('Back to Profile'),
+                                href: isMaster ? '/user-mangement' : `/users/${userData.id}`,
+                                className: 'btn btn-primary'
                             }
-                        },
-                        {
-                            type: 'input',
-                            props:
-                            {
-                                name: 'password',
-                                placeholder: 'Password',
-                                type: 'password',
-                                withConfirm: true
-                            }
-                        },
-                        {
-                            type: 'toggle',
-                            props:
-                            {
-                                id: 'emailVerified',
-                                name: 'emailVerified',
-                                label: 'Email Verified',
-                                checked: !!userData.emailVerified
-                            }
-                        },
-                        {
-                            type: 'toggle',
-                            props:
-                            {
-                                id: 'twoFAEnabled',
-                                name: 'twoFAEnabled',
-                                label: '2FA Enabled',
-                                checked: !!userData.twoFAEnabled,
-                                readonly: true
-                            }
-                        },
-                        {
-                            type: 'toggle',
-                            props:
-                            {
-                                id: 'googleSignIn',
-                                name: 'googleSignIn',
-                                label: 'Google Sign-In',
-                                checked: !!userData.googleSignIn,
-                                readonly: true
-                            }
-                        },
-                        {
-                            type: 'buttongroup',
-                            props:
-                            {
-                                layout: 'group',
-                                align: 'center',
-                                buttons:
-                                    [
-                                        {
-                                            id: 'submit-profile',
-                                            text: 'Update Profile',
-                                            type: 'submit',
-                                            className: 'btn btn-green'
-                                        },
-                                        {
-                                            id: 'delete-user-btn',
-                                            text: 'Delete Profile',
-                                            type: 'button',
-                                            className: 'btn btn-red'
-                                        }
-                                    ]
-                            }
-                        },
-                        {
-                            type: 'buttongroup',
-                            props:
-                            {
-                                layout: 'stack',
-                                align: 'center',
-                                buttons:
-                                    [
-                                        {
-                                            id: 'back-to-list',
-                                            text: isMaster ? 'Back to User List' : 'Back to Profile',
-                                            href: isMaster ? '/user-mangement' : `/users/${userData.id}`,
-                                            className: 'btn btn-primary'
-                                        }
-                                    ]
-                            }
-                        },
-                    ]
-            });
+                        ]
+                    }
+                }
+            ]
+        });
         return this.render(`${profileEditCard}`);
     }
 

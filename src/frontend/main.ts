@@ -2,7 +2,6 @@
 // 🌐 ROUTES & SERVICES
 // ====================
 import routes from './routeInit.js';
-import './services/LanguageService.js';
 import LobbyListService from './services/LobbyListService.js';
 import LobbyService from './services/LobbyService.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
@@ -26,6 +25,8 @@ import Footer from './components/Footer.js';
 import Header from './components/Header.js';
 import TournamentListService from './services/TournamentListService.js';
 import TournamentService from './services/TournamentService.js';
+import { AccessibilityService } from './services/AccessibilityService.js';
+import LanguageService from './services/LanguageService.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -38,8 +39,8 @@ globalTemplateEngine.registerComponent('Button', Button);
 // 🧩 GLOBAL SINGLETONS
 // =====================
 window.userService = new UserService();
+window.ls = new LanguageService();
 window.userManagementService = new UserManagementService();
-
 // ==============================
 // 📦 FOOTER + HEADER RENDERING
 // ==============================
@@ -147,6 +148,7 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();
@@ -155,10 +157,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 document.addEventListener('RouterContentLoaded', async () => {
     await socketUpdateOnSession();
+    window.ls.initialize();
     window.userManagementService.setupEventListeners();
     window.userManagementService.twoFactorNumberActions();
     window.userManagementService.setupUserManagementView();
     window.userManagementService.initializeGoogleScript();
+    AccessibilityService.initialize();
 });
 
 // =======================
