@@ -162,8 +162,17 @@
 
 /* Hover: white text on black */
 .high-contrast .btn:hover:not(.btn-disabled),
-.high-contrast .btn:active:not(.btn-disabled) {
+.high-contrast .btn:active:not(.btn-disabled),
+.high-contrast .btn.text-inherit:hover:not(.btn-disabled),
+.high-contrast .btn.text-inherit:active:not(.btn-disabled) {
 	@apply bg-black text-white border-white;
+}
+
+.high-contrast .btn:hover:not(.btn-disabled) span,
+.high-contrast .btn:active:not(.btn-disabled) span,
+.high-contrast .btn.text-inherit:hover:not(.btn-disabled) span,
+.high-contrast .btn.text-inherit:active:not(.btn-disabled) span {
+	@apply text-white;
 }
 
 /* Disabled state (optional for clarity) */
