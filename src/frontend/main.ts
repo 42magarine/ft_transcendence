@@ -41,6 +41,12 @@ globalTemplateEngine.registerComponent('Button', Button);
 window.userService = new UserService();
 window.ls = new LanguageService();
 window.userManagementService = new UserManagementService();
+window.handleModalOutsideClick = (event: Event, id: string) => {
+    event.preventDefault();
+    let modal = document.getElementById(id);
+    modal?.remove();
+}
+
 // ==============================
 // 📦 FOOTER + HEADER RENDERING
 // ==============================

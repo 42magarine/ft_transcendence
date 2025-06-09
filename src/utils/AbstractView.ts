@@ -8,6 +8,7 @@ export default abstract class AbstractView {
     protected props: Record<string, any>;
     public initEvents: (() => void) | null = null;
     public destroyEvents: (() => void) | null = null;
+    public mount?(): void | Promise<void>;
 
     constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
         this.params = params;

@@ -11,7 +11,6 @@ export default class LanguageService {
         };
         document.addEventListener('RouterContentLoaded', langSelectActionHandler);
     }
-
     private async loadTranslations(): Promise<void> {
         try {
             const httpProtocol = window.location.protocol;
@@ -29,6 +28,8 @@ export default class LanguageService {
         if (key in this.translations) {
             const translation = this.translations[key][currentLanguage];
             return translation || key;
+        } else {
+            console.log("'" + key + "' not found in translations PLEASE CREATE!")
         }
 
         const keys = Object.keys(this.translations);
@@ -105,6 +106,7 @@ export default class LanguageService {
         const activeFlag = document.querySelector('.dropdown-head .flag.active') as HTMLImageElement;
         const passiveButtons = document.querySelectorAll('.dropdown-item button[data-lang]');
         const flagSources: Record<string, string> = {};
+        const mobileFlags = document.querySelectorAll(".mobilemenu .flag");
 
         document.querySelectorAll('.flag[data-lang]').forEach(flag => {
             const lang = flag.getAttribute('data-lang');
@@ -136,7 +138,31 @@ export default class LanguageService {
                 }
             }
         }
+        mobileFlags.forEach(mobileButton => {
+            mobileButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const clickedButton = e.currentTarget as HTMLButtonElement;
+                const newLang = clickedButton.getAttribute('data-lang');
+                const clickedFlag = clickedButton.querySelector('.flag') as HTMLImageElement;
 
+                if (!newLang || !clickedFlag) return;
+
+                document.cookie = `language=${newLang}; path=/; max-age=31536000`;
+
+                if (activeFlag) {
+                    activeFlag.setAttribute('src', clickedFlag.src);
+                    activeFlag.setAttribute('data-lang', newLang);
+
+                    this.loadTranslations().then(() => {
+                        this.translateTextElements();
+                        Router.update();
+                        this.closeDropdown();
+                    }).catch(error => {
+                        console.error('Error loading translations:', error);
+                    });
+                }
+            });
+        })
         passiveButtons.forEach(button => {
             const clone = button.cloneNode(true) as HTMLButtonElement;
             if (button.parentNode) {

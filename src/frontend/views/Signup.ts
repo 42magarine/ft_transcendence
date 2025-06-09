@@ -175,8 +175,7 @@ export default class Signup extends AbstractView {
                         if (e.target) {
                             const img = document.createElement('img');
                             img.src = e.target.result as string;
-                            img.style.width = '100px';
-                            img.style.height = '100px';
+                            img.setAttribute("alt", window.ls.__('Avatar of new User'));
                             img.style.borderRadius = '50%';
                             img.style.objectFit = 'cover';
                             signupAvatar.innerHTML = '';
@@ -200,11 +199,6 @@ export default class Signup extends AbstractView {
                         return !val || val.trim() === '';
                     });
 
-                    console.log('[DEBUG] tf values:');
-                    tfFields.forEach(key => {
-                        console.log(key, formData.get(key));
-                    });
-
                     if (missing) {
                         await new Modal().renderInfoModal({
                             id: 'incomplete-2fa',
@@ -219,10 +213,6 @@ export default class Signup extends AbstractView {
                 const getStr = (key: string) => String(formData.get(key) || '');
 
                 const twoFactorEnabled = (form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked;
-                if (twoFactorEnabled)
-                    console.log('2fa enabled')
-
-                console.log(getStr('tf_one'));
                 // const userData: User = {
                 // 	name: getStr('name'),
                 // 	username: getStr('username'),
@@ -240,10 +230,6 @@ export default class Signup extends AbstractView {
                 // 		tf_six: getStr('tf_six'),
                 // 	}),
                 // };
-
-                for (const [key, value] of formData.entries()) {
-                    console.log(`formData[${key}] =`, value);
-                }
 
 
                 const avatarFile = formData.get('avatar') as File;
@@ -265,7 +251,6 @@ export default class Signup extends AbstractView {
                         tf_six: getStr('tf_six')
                     };
                     let result;
-                    console.log(userData);
                     if (avatarFile && avatarFile.size > 0) {
                         result = await window.userManagementService.registerUser(userData, avatarFile);
                     } else {

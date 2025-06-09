@@ -45,6 +45,7 @@ declare global {
         userManagementService: UserManagementService;
         pongService: PongService;
         __: (key: string) => string;
+        handleModalOutsideClick: (event: Event, id: string) => void;
     }
 }
 

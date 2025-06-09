@@ -12,7 +12,6 @@ export default class Header extends AbstractView {
         const noMenu = ['/login', '/signup', '/two-factor'];
         const currentUser = await UserService.getCurrentUser();
 
-        // Buttons visible depending on login state
         let buttonSet = [
             {
                 id: 'login-btn',
@@ -66,9 +65,42 @@ export default class Header extends AbstractView {
             }
         }
 
+        const langItems = [
+            { img: `/dist/assets/flags/en_EN.svg`, text: window.ls.__('English'), dataAttributes: { lang: 'en_EN' } },
+            { img: `/dist/assets/flags/de_DE.svg`, text: window.ls.__('Deutsch'), dataAttributes: { lang: 'de_DE' } },
+            { img: `/dist/assets/flags/it_IT.svg`, text: window.ls.__('Italiano'), dataAttributes: { lang: 'it_IT' } },
+            { img: `/dist/assets/flags/my_MY.svg`, text: window.ls.__('Malay'), dataAttributes: { lang: 'my_MY' } }
+        ];
+
+        const accessibilityItems = [
+            { icon: 'circle-half-stroke', text: window.ls.__('Contrast'), id: 'contrastSwitch' },
+            { icon: 'font', text: window.ls.__('Textsize'), id: 'textsizeSwitch' }
+        ];
+
+        const langButtons = langItems.map((item, index) => ({
+            id: `lang-btn-${item.dataAttributes.lang}`,
+            text: item.text,
+            icon: 'globe',
+            href: '#',
+            className: 'mobilemenu',
+            dataAttributes: item.dataAttributes,
+            img: item.img
+        }));
+
+        const accessibilityButtons = accessibilityItems.map(item => ({
+            id: item.id,
+            text: item.text,
+            icon: item.icon,
+            className: 'mobilemenu',
+            href: '#'
+        }));
+
+        buttonSet.push(...langButtons);
+
+        buttonSet.push(...accessibilityButtons);
+
         const button = new Button();
 
-        // Language dropdown (modular)
         const languageDropdown = await button.renderDropdownGroup({
             id: 'language-dropdown',
             head: {
@@ -76,49 +108,45 @@ export default class Header extends AbstractView {
                 img: `/dist/assets/flags/en_EN.svg`,
                 text: ''
             },
-            items: [
-                { img: `/dist/assets/flags/en_EN.svg`, text: window.ls.__('English'), dataAttributes: { lang: 'en_EN' } },
-                { img: `/dist/assets/flags/de_DE.svg`, text: window.ls.__('Deutsch'), dataAttributes: { lang: 'de_DE' } },
-                { img: `/dist/assets/flags/it_IT.svg`, text: window.ls.__('Italiano'), dataAttributes: { lang: 'it_IT' } },
-                { img: `/dist/assets/flags/my_MY.svg`, text: window.ls.__('Malay'), dataAttributes: { lang: 'my_MY' } }
-            ]
+            items: langItems
         });
 
-        // Accessibility dropdown (modular)
         const accessibilityDropdown = await button.renderDropdownGroup({
             id: 'accessibility-dropdown',
             head: {
                 icon: 'universal-access',
                 text: window.ls.__('Accessibility')
             },
-            items: [
-                { icon: 'circle-half-stroke', text: window.ls.__('Contrast'), id: 'contrastSwitch' },
-                { icon: 'font', text: window.ls.__('Textsize'), id: 'textsizeSwitch' }
-            ]
+            items: accessibilityItems
         });
 
-        // Top nav buttons
+        const hamburgerDropdown = await button.renderDropdownGroup({
+            id: 'hamburger-dropdown',
+            head: {
+                icon: 'bars',
+                text: window.ls.__('Menu')
+            },
+            items: buttonSet
+        });
+
         let buttonGroupHtml = '';
         if (!noMenu.includes(location.pathname)) {
             buttonGroupHtml = await button.renderButtonGroup({
                 layout: 'group',
                 align: 'right',
-                className: 'no-wrap',
+                className: 'no-wrap desktopmenu',
                 buttons: buttonSet
             });
         }
 
-        // User profile dropdown
         let userDropDown = "";
         if (currentUser) {
             let dropDownAvatar = generateProfileImage(currentUser, 20, 20);
             userDropDown = `
 			<div class="dropdown">
 				<div class="dropdown-head">
-					<a router class="dropdown-head" href="/users/${currentUser.id}">
-						<div class="dropdown-name"  text-white font-semibold> ${currentUser.name}</div>
-						<div class="dropdown-img">${dropDownAvatar}</div>
-					</a>
+					<div class="dropdown-name"  text-white font-semibold> ${currentUser.name}</div>
+					<div class="dropdown-img">${dropDownAvatar}</div>
 				</div>
 				<div class="dropdown-body">
 					<div class="dropdown-item">
@@ -143,8 +171,9 @@ export default class Header extends AbstractView {
 				    <div class="header-nav">
 				    	${buttonGroupHtml}
                         <div class="dropdowns">
-				    	    <div class="flex items-center ml-2">${accessibilityDropdown}</div>
-				    	    <div class="flex items-center ml-2">${languageDropdown}</div>
+				    	    <div class="flex items-center ml-2 mobilemenu">${hamburgerDropdown}</div>
+				    	    <div class="flex items-center ml-2 desktopmenu">${accessibilityDropdown}</div>
+				    	    <div class="flex items-center ml-2 desktopmenu">${languageDropdown}</div>
 				    	    <div class="flex items-center ml-2">${userDropDown}</div>
                         </div>
                     </div>

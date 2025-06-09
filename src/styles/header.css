@@ -9,6 +9,14 @@ header.header {
 	min-height: 80px;
 }
 
+.mobilemenu {
+    @apply flex md:hidden;
+}
+
+.desktopmenu {
+    @apply hidden md:flex;
+}
+
 header .header-nav {
 	@apply flex flex-wrap gap-2;
 }
@@ -16,8 +24,12 @@ header .header-nav .dropdowns{
 	@apply flex ml-auto;
 }
 header .header-nav .btn.btn-primary{
-    @apply bg-[none] p-1;
+    @apply bg-[none] p-1 text-left;
+    white-space: nowrap;
     background: none;
+}
+header .header-nav .btn.btn-primary span{
+    @apply text-left;
 }
 header .dropdown {
 	@apply relative flex flex-col gap-2;
@@ -36,7 +48,7 @@ header .dropdown-head a{
 }
 header .dropdown .dropdown-body {
 	top: 100%;
-	@apply rounded-tl-none rounded-tr-none hidden absolute w-full p-2 max-w-full rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white flex flex-col gap-2 justify-between items-center;
+	@apply rounded-tl-none rounded-tr-none hidden absolute p-2 w-max rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white flex flex-col gap-2 justify-between items-center;
 }
 header .dropdown:hover .dropdown-body, header .dropdown.open .dropdown-body {
 	@apply flex;
@@ -44,10 +56,10 @@ header .dropdown:hover .dropdown-body, header .dropdown.open .dropdown-body {
 
 
 header .dropdown-img img{
-    @apply text-white h-10 w-10 mx-auto bg-white rounded-full;
+    @apply text-white h-6 w-6 mx-auto bg-white rounded-full;
 }
 header .dropdown-img svg{
-    @apply text-white h-10 w-10 mx-auto bg-white rounded-full;
+    @apply text-white h-6 w-6 mx-auto bg-white rounded-full;
 }
 
 img.flag {

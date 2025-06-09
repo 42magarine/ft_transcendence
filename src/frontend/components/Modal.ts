@@ -48,16 +48,16 @@ export default class Modal extends AbstractView {
         return this.render(`
 			<div
 				id="${id}"
-				class="fixed inset-0 z-50 bg-black/50 flex justify-center items-center hidden"
+				class="modal-overlay"
 				${closableAttr}
 				onclick="window.handleModalOutsideClick(event, '${id}')"
 			>
 				<div
-					class="dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
+					class="card"
 					onclick="event.stopPropagation();"
 				>
 					${showCloseButton ? this.renderCloseButton(id) : ''}
-					${title ? `<h2 text-inherit font-semibold mb-4">${title}</h2>` : ''}
+					${title ? `<h2 class="modal-title"">${title}</h2>` : ''}
 					<div class="modal-content text-base leading-relaxed text-gray-700 dark:text-gray-300 mb-4">
 						${content}
 					</div>

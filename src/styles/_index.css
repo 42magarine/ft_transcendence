@@ -20,11 +20,11 @@
 }
 
 main {
-	@apply min-h-screen pt-[200px];
+    @apply min-h-screen pt-24 pb-16 px-4 sm:pt-32 md:pt-40 lg:pt-48 xl:pt-[200px] sm:pb-20 md:pb-24 lg:pb-[100px];
 }
 
 .container {
-    @apply w-[1200px] m-auto;
+    @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8;
 }
 
 @layer components {
