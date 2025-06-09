@@ -136,15 +136,19 @@ export default class Header extends AbstractView {
 
         return super.render(`
 			<header class="header">
-				<h1 class="text-inherit font-bold whitespace-nowrap">
-					<a router href="/" class="__">Transcendence</a>
-				</h1>
-				<div class="header-nav">
-					${buttonGroupHtml}
-					<div class="flex items-center ml-2">${accessibilityDropdown}</div>
-					<div class="flex items-center ml-2">${languageDropdown}</div>
-					<div class="flex items-center ml-2">${userDropDown}</div>
-				</div>
+                <div class="container p-1">
+				    <h1 class="text-inherit font-bold whitespace-nowrap">
+				    	<a router href="/" class="__">Transcendence</a>
+				    </h1>
+				    <div class="header-nav">
+				    	${buttonGroupHtml}
+                        <div class="dropdowns">
+				    	    <div class="flex items-center ml-2">${accessibilityDropdown}</div>
+				    	    <div class="flex items-center ml-2">${languageDropdown}</div>
+				    	    <div class="flex items-center ml-2">${userDropDown}</div>
+                        </div>
+                    </div>
+                </div>
 			</header>
 		`);
     }

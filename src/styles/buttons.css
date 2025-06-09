@@ -201,3 +201,8 @@
 .high-contrast .dropdown-item button:hover {
 	@apply bg-black text-white;
 }
+
+.btn.btn-primary.text-btn {
+    @apply bg-[none] p-1;
+    background: none;
+}

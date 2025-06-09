@@ -5,7 +5,8 @@
     @apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80
       text-white backdrop-blur-md border border-white/10
       shadow-xl rounded-xl p-6;
-  }
+    @apply sm:p-6 p-1;
+}
 
   /* High Contrast Card */
   .high-contrast .card {
@@ -20,9 +21,6 @@
   /* High Contrast Card Image */
   .high-contrast .card-image {
     @apply border-4 border-black;
-  }
-  .card-body {
-    @apply px-6 py-4;
   }
 
   /* High Contrast Card Body */
@@ -142,3 +140,4 @@
   .high-contrast .card-group.flex {
     @apply gap-8;
   }
+

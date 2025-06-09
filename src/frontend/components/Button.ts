@@ -90,7 +90,7 @@ export default class Button extends AbstractView {
         className = ''
     }: ButtonGroupProps & { inputs?: InputProps[]; toggles?: ToggleProps[] }): Promise<string> {
         const layoutMap: Record<string, string> = {
-            group: 'flex flex-row gap-2',
+            group: 'flex flex-row gap-2 items-center',
             stack: 'flex flex-col gap-2',
             grid: `grid grid-cols-${columns} gap-2`,
             flex: 'flex flex-wrap gap-4 items-center'

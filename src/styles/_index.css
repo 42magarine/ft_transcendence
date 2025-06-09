@@ -20,11 +20,11 @@
 }
 
 main {
-	@apply min-h-screen pt-20;
+	@apply min-h-screen pt-[200px];
 }
 
-main .container {
-	@apply mx-auto w-full max-w-6xl;
+.container {
+    @apply w-[1200px] m-auto;
 }
 
 @layer components {
@@ -59,7 +59,7 @@ main .container {
 
 /* Firefox Scrollbar */
 * {
-	scrollbar-width: thin;
+	scrollbar-width: thi    font-familyn;
 	scrollbar-color: white transparent;
 }
 

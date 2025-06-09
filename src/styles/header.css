@@ -5,12 +5,19 @@ header {
 /* === HEADER THEMES === */
 
 header.header {
-	@apply w-full p-2 flex justify-between items-center flex-wrap gap-4;
+	@apply w-full;
 	min-height: 80px;
 }
 
 header .header-nav {
-	@apply flex;
+	@apply flex flex-wrap gap-2;
+}
+header .header-nav .dropdowns{
+	@apply flex ml-auto;
+}
+header .header-nav .btn.btn-primary{
+    @apply bg-[none] p-1;
+    background: none;
 }
 header .dropdown {
 	@apply relative flex flex-col gap-2;

@@ -107,8 +107,6 @@ export class AccessibilityService {
             } else {
                 this.contrast = 'normal-contrast';
             }
-            console.log("handleContrastToggle ");
-            console.log(this.contrast);
             this.applyAccessibilities();
         };
 
@@ -120,8 +118,6 @@ export class AccessibilityService {
             } else {
                 this.textSize = 'normal-textSize';
             }
-            console.log("handleTextsizeToggle ");
-            console.log(this.textSize);
             this.applyAccessibilities();
         };
 
