@@ -56,7 +56,7 @@ export default class Lobby extends AbstractView {
                                     {
                                         id: 'player1',
                                         text: window.ls.__(this.player1.userName),
-                                        className: `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
+                                        className: `btn state-btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 },
                                 player2:
@@ -67,7 +67,7 @@ export default class Lobby extends AbstractView {
                                         id: 'player2',
                                         text: window.ls.__(this.player2.userName),
                                         className:
-                                            `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
+                                            `btn state-btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 }
                             }

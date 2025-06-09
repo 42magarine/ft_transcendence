@@ -107,10 +107,16 @@ export default class Router {
 
         try {
             appElement.innerHTML = await this.currentView.getHtml();
+
             if (this.currentView.initEvents) {
-                this.currentView.initEvents()
+                this.currentView.initEvents();
             }
+
             await this.currentView.afterRender();
+
+            if (this.currentView.mount) {
+                await this.currentView.mount();
+            }
 
             this.dispatchRouterContentLoaded(true);
         }
@@ -413,8 +419,13 @@ export default class Router {
         await view.afterRender();
 
         if (view.initEvents) {
-            view.initEvents()
+            view.initEvents();
         }
+
+        if (view.mount) {
+            await view.mount();
+        }
+
         this.dispatchRouterContentLoaded();
     }
 

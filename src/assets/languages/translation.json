@@ -1,4 +1,12 @@
 [
+    {
+        "QR Code for 2FA": {
+            "en_EN": "QR Code for 2FA",
+            "de_DE": "QR-Code für 2FA",
+            "it_IT": "Codice QR per 2FA",
+            "my_MY": "Kod QR untuk 2FA"
+        }
+    },
 	{
 		"Transcendence": {
 			"en_EN": "Transcendence",

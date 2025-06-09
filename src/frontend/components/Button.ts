@@ -20,39 +20,40 @@ export default class Button extends AbstractView {
         icon = '',
         align = 'center',
         textBefore = '',
-        dataAttributes = {}
-    }: ButtonProps): Promise<string> {
+        dataAttributes = {},
+        aria = {}
+    }: ButtonProps & { aria?: Record<string, string> }): Promise<string> {
         if (type === 'google-signin')
             return renderGoogleSignInButton(align);
 
-        // Base button class, include text-inherit to support accessibility scaling
         let finalClass = 'btn text-inherit';
 
-        // Apply color variant
         if (color) finalClass += ` btn-${color}`;
         else if (type === 'submit') finalClass += ' btn-green';
         else if (type === 'delete') finalClass += ' btn-red';
         else finalClass += ' btn-primary';
 
-        // Always inherit text size; only append className if it doesn't conflict
         finalClass += ' text-inherit';
         if (className && !/text-(xs|sm|md|lg|xl)/.test(className)) {
             finalClass += ` ${className.trim()}`;
         }
 
 
-        // Text alignment (left, center, right)
         const alignClass = align ? `text-${align}` : '';
 
-        // Optional click handler
         const clickAttr = onClick ? `onclick="${onClick}"` : '';
 
-        // Add any extra data-* attributes
         let dataAttrs = '';
         for (const [key, value] of Object.entries(dataAttributes || {})) {
             dataAttrs += `data-${key}="${value}" `;
         }
         dataAttrs = dataAttrs.trim();
+
+        let ariaAttrs = '';
+        for (const [key, value] of Object.entries(aria || {})) {
+            ariaAttrs += `aria-${key}="${value}" `;
+        }
+        ariaAttrs = ariaAttrs.trim();
 
         // Icon rendering (if provided)
         const iconHtml = icon ? `<i class="fa-solid fa-${icon}"></i>` : '';
@@ -66,8 +67,8 @@ export default class Button extends AbstractView {
 
         // Render as <a> or <button>
         const element = href
-            ? `<a ${(id) ? 'id="' + id + '"' : ''} href="${href}" router class="${finalClass}" ${dataAttrs}>${content}</a>`
-            : `<button ${(id) ? 'id="' + id + '"' : ''} type="${type}" class="${finalClass}" ${clickAttr} ${dataAttrs}>${content}</button>`;
+            ? `<a ${(id) ? 'id="' + id + '"' : ''} href="${href}" router class="${finalClass}" ${dataAttrs} ${ariaAttrs}>${content}</a>`
+            : `<button aria-label="${text}" ${(id) ? 'id="' + id + '"' : ''} type="${type}" class="${finalClass}" ${clickAttr} ${dataAttrs} ${ariaAttrs}>${content}</button>`;
 
         // Optionally add inline label text before the button (e.g. "Don't have an account? [Sign up]")
         const combined = type === 'text-with-button'
@@ -89,7 +90,7 @@ export default class Button extends AbstractView {
         className = ''
     }: ButtonGroupProps & { inputs?: InputProps[]; toggles?: ToggleProps[] }): Promise<string> {
         const layoutMap: Record<string, string> = {
-            group: 'flex flex-row gap-2',
+            group: 'flex flex-row gap-2 items-center',
             stack: 'flex flex-col gap-2',
             grid: `grid grid-cols-${columns} gap-2`,
             flex: 'flex flex-wrap gap-4 items-center'
@@ -170,7 +171,7 @@ export default class Button extends AbstractView {
     }): Promise<string> {
         const baseUrl = window.location.origin;
         const headContent = head.img
-            ? `<img src="${baseUrl}${head.img}" class="flag active" />`
+            ? `<img src="${baseUrl}${head.img}" alt="Dowpdown Icon ${window.ls.__(head.text || 'for ')}" class="flag active" />`
             : `<i class="fa-solid fa-${head.icon} mr-2"></i>${window.ls.__(head.text || '')}`;
 
         const itemsHtml = items.map(item => {
@@ -183,11 +184,10 @@ export default class Button extends AbstractView {
             const iconOrImg = item.img
                 ? `<img src="${baseUrl}${item.img}" alt="${item.text}" class="flag passive" ${attrs} />`
                 : `<i class="fa-solid fa-${item.icon} mr-2"></i>${window.ls.__(item.text)}`;
-            console.log(item)
             if (item.href)
-                return `<div class="dropdown-item"><a href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
+                return `<div class="dropdown-item"><a class="text-inherit" href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
             else
-                return `<div class="dropdown-item"><button ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
+                return `<div class="dropdown-item"><button class="text-inherit" aria-label="${item.text}" ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
         }).join('\n');
 
         return this.render(`
@@ -204,6 +204,6 @@ export default class Button extends AbstractView {
 
 
     async getHtml(): Promise<string> {
-        return this.render(`<button class="btn">Default Button</button>`);
+        return this.render(`<button aria-label="Default Button" class="btn">Default Button</button>`);
     }
 }

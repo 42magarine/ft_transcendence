@@ -35,7 +35,8 @@ export interface ButtonProps {
     align?: ButtonAlign;
     color?: ButtonColor;
     type?: ButtonType;
-    dataAttributes?: any;
+    dataAttributes?: Record<string, string>;
+    aria?: Record<string, string>;
 }
 
 export interface ButtonGroupProps {

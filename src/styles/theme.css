@@ -1,4 +1,4 @@
-#app {
+main {
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -6,7 +6,7 @@
     background-image: url(/assets/backgrounds/stars.png);
 }
 
-.high-contrast #app {
+.high-contrast main {
     background-image: none;
     background-color: white;
 }

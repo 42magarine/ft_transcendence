@@ -140,6 +140,12 @@
 		hover:bg-green-700
 		active:bg-green-800;
 }
+.high-contrast .btn.btn-green {
+	@apply bg-black text-white;
+}
+.high-contrast .btn.btn-green span {
+	@apply text-white;
+}
 
 /* 🟡 Yellow = Waiting */
 .btn-yellow {
@@ -153,6 +159,56 @@
 .hidden {
 	@apply hidden;
 }
+/* === STATE BUTTON MODIFICATIONS === */
+/* Entfernt Fokussierbarkeit und alle Interaktionen */
+.btn.state-btn {
+    @apply pointer-events-none;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+}
+
+/* Verhindert alle Hover-Effekte für state-btn */
+.btn.state-btn:hover {
+    @apply brightness-100;
+    transform: none !important;
+}
+
+/* Verhindert alle Active-Effekte für state-btn */
+.btn.state-btn:active {
+    @apply scale-100;
+    transform: none !important;
+}
+
+/* Verhindert Focus-Styles für state-btn */
+.btn.state-btn:focus,
+.btn.state-btn:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border: none !important;
+}
+
+/* Spezielle Behandlung für High-Contrast Mode */
+.high-contrast .btn.state-btn:hover,
+.high-contrast .btn.state-btn:active,
+.high-contrast .btn.state-btn:focus {
+    @apply bg-white text-black border-black;
+    border: 1px solid black !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.high-contrast .btn.state-btn:hover span,
+.high-contrast .btn.state-btn:active span,
+.high-contrast .btn.state-btn:focus span {
+    @apply text-black;
+}
+
+/* Stellt sicher, dass state-btn Buttons nicht per Tab erreichbar sind */
+.btn *, .btn.state-btn * {
+    @apply pointer-events-none;
+}
 
 /* === FORCE BLACK & WHITE IN HIGH CONTRAST === */
 /* Base: black text on white */
@@ -162,8 +218,17 @@
 
 /* Hover: white text on black */
 .high-contrast .btn:hover:not(.btn-disabled),
-.high-contrast .btn:active:not(.btn-disabled) {
+.high-contrast .btn:active:not(.btn-disabled),
+.high-contrast .btn.text-inherit:hover:not(.btn-disabled),
+.high-contrast .btn.text-inherit:active:not(.btn-disabled) {
 	@apply bg-black text-white border-white;
+}
+
+.high-contrast .btn:hover:not(.btn-disabled) span,
+.high-contrast .btn:active:not(.btn-disabled) span,
+.high-contrast .btn.text-inherit:hover:not(.btn-disabled) span,
+.high-contrast .btn.text-inherit:active:not(.btn-disabled) span {
+	@apply text-white;
 }
 
 /* Disabled state (optional for clarity) */
@@ -179,4 +244,21 @@
     border: white 5px solid!important;
     -webkit-box-shadow: 0px 0px 0px 10px rgb(0, 0, 0)!important;
     box-shadow: 0px 0px 0px 10px rgb(0, 0, 0)!important;
+}
+
+/* Ensure dropdown text is black in high contrast mode */
+.high-contrast .dropdown-item a,
+.high-contrast .dropdown-item button {
+	@apply text-black bg-white border-none font-semibold;
+}
+
+/* Optional: Ensure hover and active are still visible */
+.high-contrast .dropdown-item a:hover,
+.high-contrast .dropdown-item button:hover {
+	@apply bg-black text-white;
+}
+
+.btn.btn-primary.text-btn {
+    @apply bg-[none] p-1;
+    background: none;
 }
