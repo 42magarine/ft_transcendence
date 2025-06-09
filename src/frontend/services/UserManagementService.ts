@@ -5,10 +5,7 @@ import UserService from "./UserService.js";
 import Toggle from "../components/Toggle.js"
 
 export default class UserManagementService {
-
-    constructor() {
-        this.initialize();
-    }
+    constructor() { }
 
     async registerUser(userData: User, avatarFile?: File): Promise<string> {
         try {
@@ -312,7 +309,8 @@ export default class UserManagementService {
 
             if (response.ok) {
                 return true;
-            } else {
+            }
+            else {
                 const data = await response.json();
                 throw new Error(data.error || 'Email verification failed');
             }
@@ -724,9 +722,6 @@ export default class UserManagementService {
         script.defer = true;
         script.id = 'google-login-script';
         document.head.appendChild(script);
-    }
-
-    initialize(): void {
     }
 
     async updateProfile(userId: string, payload: Record<string, any>): Promise<boolean> {
