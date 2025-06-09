@@ -31,12 +31,6 @@ export default class Header extends AbstractView {
         if (currentUser) {
             buttonSet = [
                 {
-                    id: 'friends-btn',
-                    text: window.ls.__('Friends List'),
-                    icon: 'user-group',
-                    href: '/friends',
-                },
-                {
                     id: 'localpong-btn',
                     text: window.ls.__('Local Pong'),
                     icon: 'table-tennis-paddle-ball',
@@ -125,7 +119,7 @@ export default class Header extends AbstractView {
 						<a router href="/users/${currentUser.id}">${window.ls.__('My Profile')}</a>
 					</div>
 					<div class="dropdown-item">
-						<a router href="/users/friends">${window.ls.__('Friends')}</a>
+						<a router href="/friends">${window.ls.__('Friends')}</a>
 					</div>
 					<div class="dropdown-item">
 						<button id="logout-btn" type="button" class="btn btn-red btn-sm">${window.ls.__('Logout')}</button>
