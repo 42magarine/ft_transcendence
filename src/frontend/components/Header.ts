@@ -116,7 +116,7 @@ export default class Header extends AbstractView {
 			<div class="dropdown">
 				<div class="dropdown-head">
 					<a router href="/users/${currentUser.id}">
-						<div class="dropdown-name">${currentUser.name}</div>
+						<div class="dropdown-name"  text-white font-semibold> ${currentUser.name}</div>
 						<div class="dropdown-img">${dropDownAvatar}</div>
 					</a>
 				</div>
@@ -136,7 +136,7 @@ export default class Header extends AbstractView {
 
         return super.render(`
 			<header class="header">
-				<h1 class="text-2xl font-bold whitespace-nowrap">
+				<h1 class="text-inherit font-bold whitespace-nowrap">
 					<a router href="/" class="__">Transcendence</a>
 				</h1>
 				<div class="header-nav">

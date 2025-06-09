@@ -213,18 +213,6 @@ export default class Home extends AbstractView {
                     }
                 },
                 {
-                    type: 'html',
-                    props: {
-                        html: `
-                            <div class="p-4 bg-neutral text-white rounded-lg">
-                                <h4 class="text-xl font-semibold mb-2">${window.ls.__('Custom HTML Block')}</h4>
-                                <p>${window.ls.__('This block supports any')} <strong>HTML</strong>, ${window.ls.__('like')} <em>${window.ls.__('formatting')}</em>, <code>code</code>, ${window.ls.__('and more')}.</p>
-                                <a href="https://example.com" target="_blank" class="text-blue-300 underline">${window.ls.__('Learn more')}</a>
-                            </div>
-                        `
-                    }
-                },
-                {
                     type: 'buttongroup',
                     props: {
                         buttons: [

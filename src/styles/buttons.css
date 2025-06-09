@@ -180,3 +180,15 @@
     -webkit-box-shadow: 0px 0px 0px 10px rgb(0, 0, 0)!important;
     box-shadow: 0px 0px 0px 10px rgb(0, 0, 0)!important;
 }
+
+/* Ensure dropdown text is black in high contrast mode */
+.high-contrast .dropdown-item a,
+.high-contrast .dropdown-item button {
+	@apply text-black bg-white border-none font-semibold;
+}
+
+/* Optional: Ensure hover and active are still visible */
+.high-contrast .dropdown-item a:hover,
+.high-contrast .dropdown-item button:hover {
+	@apply bg-black text-white;
+}
