@@ -12,8 +12,9 @@ export default class LobbyList extends AbstractView {
 
     async getHtml(): Promise<string> {
         let lobbies: ILobbyState[] = [];
-        if (window.lobbyListService && window.lobbyListService.getLobbies) {
-            lobbies = await window.lobbyListService.getLobbies();
+        if (window.lobbyListService && window.lobbyListService.getLobbyList) {
+            // lobbies = await window.lobbyListService.getLobbies();
+            lobbies = window.lobbyListService.getLobbyList();
             lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
         }
 
@@ -133,7 +134,7 @@ export default class LobbyList extends AbstractView {
 
             const createTournamentButton8 = document.getElementById('createTournamentBtn8');
             if (createTournamentButton8) {
-                createTournamentButton8.removeEventListener('click', window.lobbyListService.handleCreateTournamentClick4);
+                createTournamentButton8.removeEventListener('click', window.lobbyListService.handleCreateTournamentClick8);
             }
 
             const joinButtons = document.querySelectorAll('.joinLobbyBtn');
