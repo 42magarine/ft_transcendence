@@ -67,3 +67,13 @@ img.flag {
 .high-contrast .dropdown-item {
 	@apply bg-white text-black border border-black;
 }
+
+/* Fix dropdown-name text color in both contrast modes */
+.dropdown-name {
+	@apply text-white font-semibold;
+}
+
+.high-contrast .dropdown-name {
+	@apply text-white; /* Explicit override */
+}
+

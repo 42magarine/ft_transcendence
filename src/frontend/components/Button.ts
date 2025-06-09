@@ -193,9 +193,9 @@ export default class Button extends AbstractView {
                 ? `<img src="${baseUrl}${item.img}" alt="${item.text}" class="flag passive" ${attrs} />`
                 : `<i class="fa-solid fa-${item.icon} mr-2"></i>${window.ls.__(item.text)}`;
             if (item.href)
-                return `<div class="dropdown-item"><a href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
+                return `<div class="dropdown-item"><a class="text-inherit" href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
             else
-                return `<div class="dropdown-item"><button aria-label="${item.text}" ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
+                return `<div class="dropdown-item"><button class="text-inherit" aria-label="${item.text}" ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
         }).join('\n');
 
         return this.render(`
