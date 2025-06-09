@@ -2,7 +2,6 @@ import Home from './views/Home.js';
 import Pong from './views/Pong.js';
 import LobbyList from './views/LobbyList.js';
 import Lobby from './views/Lobby.js';
-import TournamentList from './views/TournamentList.js';
 import Tournament from './views/Tournament.js';
 import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
@@ -60,15 +59,6 @@ const routes: Route[] = [
                 window.messageHandler!.leaveLobby(params.id);
             }
             return true;
-        }
-    },
-    {
-        path: '/tournamentlist',
-        role: 'user',
-        view: TournamentList,
-        metadata: {
-            title: 'Transcendence - Tournament',
-            description: 'Welcome to Pong'
         }
     },
     {
