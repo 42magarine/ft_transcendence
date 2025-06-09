@@ -2,6 +2,7 @@ import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
 import UserService from '../services/UserService.js';
 import Card from '../components/Card.js';
+import __ from '../services/LanguageService.js';
 
 export default class Profile extends AbstractView {
     private userId: string;
@@ -21,7 +22,7 @@ export default class Profile extends AbstractView {
                     {
                         type: 'heading',
                         props: {
-                            text: `Profile: ${userData.name}`,
+                            text: `${window.ls.__('Profile')}: ${userData.name}`,
                             level: 1,
                             className: 'text-2xl font-bold text-center mb-4'
                         }
@@ -37,28 +38,28 @@ export default class Profile extends AbstractView {
                     {
                         type: 'stat',
                         props: {
-                            label: 'Name',
+                            label: window.ls.__('Name'),
                             value: userData.name ?? ''
                         }
                     },
                     {
                         type: 'stat',
                         props: {
-                            label: 'Username',
+                            label: window.ls.__('Username'),
                             value: userData.username ?? ''
                         }
                     },
                     {
                         type: 'stat',
                         props: {
-                            label: 'Email',
+                            label: window.ls.__('Email'),
                             value: userData.email ?? ''
                         }
                     },
                     {
                         type: 'stat',
                         props: {
-                            label: 'User ID',
+                            label: window.ls.__('User ID'),
                             value: userData.id?.toString() ?? ''
                         }
                     },
@@ -70,12 +71,12 @@ export default class Profile extends AbstractView {
                             buttons: [
                                 {
                                     id: 'edit-profile',
-                                    text: 'Edit Profile',
+                                    text: window.ls.__('Edit Profile'),
                                     href: `/users/edit/${this.userId}`
                                 },
                                 {
                                     id: 'back-to-list',
-                                    text: 'Back to User List',
+                                    text: window.ls.__('Back to User List'),
                                     href: '/user-mangement',
                                     color: 'red'
                                 }
@@ -93,7 +94,7 @@ export default class Profile extends AbstractView {
                         type: 'container',
                         props: {
                             className: 'alert alert-warning text-center',
-                            html: 'User not found or error loading user data.'
+                            html: window.ls.__('User not found or error loading user data.')
                         }
                     }
                 ]

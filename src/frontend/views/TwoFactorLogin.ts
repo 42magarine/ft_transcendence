@@ -1,6 +1,7 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
 import Router from '../../utils/Router.js';
+import __ from '../services/LanguageService.js';
 
 export default class TwoFactorLogin extends AbstractView {
     constructor() {
@@ -18,59 +19,54 @@ export default class TwoFactorLogin extends AbstractView {
 
         const card = new Card();
 
-        const twoFactorCard = await card.renderCard(
-            {
-                title: 'Two-Factor Authentication',
-                formId: 'TwoFactorLogin-form',
-                contentBlocks:
-                    [
-                        {
-                            type: 'twofactor',
-                            props:
+        const twoFactorCard = await card.renderCard({
+            title: window.ls.__('Two-Factor Authentication'),
+            formId: 'TwoFactorLogin-form',
+            contentBlocks: [
+                {
+                    type: 'twofactor',
+                    props: {
+                        namePrefix: 'tf'
+                    }
+                },
+                {
+                    type: 'inputgroup',
+                    props: {
+                        inputs: [
                             {
-                                namePrefix: 'tf'
-                            }
-                        },
-                        {
-                            type: 'inputgroup',
-                            props:
+                                name: 'username',
+                                type: 'hidden',
+                                value: username
+                            },
                             {
-                                inputs:
-                                    [
-                                        {
-                                            name: 'username',
-                                            type: 'hidden', value: username
-                                        },
-                                        {
-                                            name: 'userId',
-                                            type: 'hidden', value: userId
-                                        }
-                                    ]
+                                name: 'userId',
+                                type: 'hidden',
+                                value: userId
                             }
-                        },
-                        {
-                            type: 'buttongroup',
-                            props:
+                        ]
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props: {
+                        buttons: [
                             {
-                                buttons:
-                                    [
-                                        {
-                                            text: 'Verify',
-                                            type: 'submit',
-                                            className: 'btn btn-primary w-full'
-                                        }
-                                    ],
-                                align: 'center',
-                                layout: 'stack'
+                                text: window.ls.__('Verify'),
+                                type: 'submit',
+                                className: 'btn btn-primary w-full'
                             }
-                        }
-                    ],
-                extra: `
+                        ],
+                        align: 'center',
+                        layout: 'stack'
+                    }
+                }
+            ],
+            extra: `
 				<p class="mt-4 text-center text-gray-600 dark:text-gray-400">
-					Open your authenticator app to view your verification code.
+					${window.ls.__('Open your authenticator app to view your verification code.')}
 				</p>
 			`
-            });
+        });
 
         return this.render(`${twoFactorCard}`);
     }

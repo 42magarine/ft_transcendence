@@ -1,5 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
+import __ from '../services/LanguageService.js';
 
 export default class Tournament extends AbstractView {
     constructor(params: URLSearchParams) {

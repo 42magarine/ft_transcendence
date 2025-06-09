@@ -1,58 +1,1201 @@
 [
 	{
+		"Transcendence": {
+			"en_EN": "Transcendence",
+			"de_DE": "Transzendenz",
+			"it_IT": "Transzendenza",
+			"my_MY": "Transendensi"
+		}
+	},
+	{
 		"Login": {
 			"en_EN": "Login",
 			"de_DE": "Anmeldung",
-			"it_IT": "Accesso"
+			"it_IT": "Accesso",
+			"my_MY": "Log Masuk"
 		}
 	},
 	{
 		"Username": {
 			"en_EN": "Username",
 			"de_DE": "Benutzername",
-			"it_IT": "Nome utente"
+			"it_IT": "Nome utente",
+			"my_MY": "Nama Pengguna"
 		}
 	},
 	{
 		"Password": {
 			"en_EN": "Password",
 			"de_DE": "Passwort",
-			"it_IT": "La password"
+			"it_IT": "La password",
+			"my_MY": "Kata Laluan"
 		}
 	},
 	{
 		"sign up": {
 			"en_EN": "sign up",
 			"de_DE": "registrieren",
-			"it_IT": "registro"
+			"it_IT": "registro",
+			"my_MY": "daftar"
 		}
 	},
 	{
 		"Sign up": {
 			"en_EN": "Sign up",
 			"de_DE": "Registrieren",
-			"it_IT": "Registro"
+			"it_IT": "Registro",
+			"my_MY": "Daftar"
 		}
 	},
 	{
 		"May want to": {
 			"en_EN": "May want to",
 			"de_DE": "Vielleicht wollen Sie sich",
-			"it_IT": "Forse vorreste"
+			"it_IT": "Forse vorreste",
+			"my_MY": "Mungkin ingin"
 		}
 	},
 	{
 		"Did you forget your Password?": {
 			"en_EN": "Did you forget your Password?",
 			"de_DE": "Haben Sie Ihr Passwort vergessen?",
-			"it_IT": "Avete dimenticato la password?"
+			"it_IT": "Avete dimenticato la password?",
+			"my_MY": "Lupa kata laluan anda?"
 		}
 	},
 	{
 		"Reset Password": {
 			"en_EN": "Reset Password",
 			"de_DE": "Passwort erneuern",
-			"it_IT": "Reimpostare la password"
+			"it_IT": "Reimpostare la password",
+			"my_MY": "Tetapkan Semula Kata Laluan"
 		}
-	}
-]
+	},
+	{
+		"this is Transcendence, please don't delete this card, it is for testing purpose!": {
+			"en_EN": "this is Transcendence, please don't delete this card, it is for testing purpose!",
+			"de_DE": "Dies ist Transcendence, bitte löschen Sie diese Karte nicht, sie dient Testzwecken!",
+			"it_IT": "Questa è Transcendence, per favore non eliminare questa scheda, è solo per test!",
+			"my_MY": "Ini adalah Transcendence, sila jangan padam kad ini, ia hanya untuk ujian!"
+		}
+	},
+	{
+		"Welcome to Transcendence!": {
+			"en_EN": "Welcome to Transcendence!",
+			"de_DE": "Willkommen bei Transcendence!",
+			"it_IT": "Benvenuti in Transcendence!",
+			"my_MY": "Selamat datang ke Transcendence!"
+		}
+	},
+	{
+		"Max": {
+			"en_EN": "Max",
+			"de_DE": "Max",
+			"it_IT": "Max",
+			"my_MY": "Max"
+		}
+	},
+	{
+		"Full Name": {
+			"en_EN": "Full Name",
+			"de_DE": "Vollständiger Name",
+			"it_IT": "Nome completo",
+			"my_MY": "Nama Penuh"
+		}
+	},
+	{
+		"Enter your name": {
+			"en_EN": "Enter your name",
+			"de_DE": "Geben Sie Ihren Namen ein",
+			"it_IT": "Inserisci il tuo nome",
+			"my_MY": "Masukkan nama anda"
+		}
+	},
+	{
+		"Enter your email": {
+			"en_EN": "Enter your email",
+			"de_DE": "Geben Sie Ihre E-Mail-Adresse ein",
+			"it_IT": "Inserisci la tua email",
+			"my_MY": "Masukkan emel anda"
+		}
+	},
+	{
+		"Enter password": {
+			"en_EN": "Enter password",
+			"de_DE": "Passwort eingeben",
+			"it_IT": "Inserisci la password",
+			"my_MY": "Masukkan kata laluan"
+		}
+	},
+	{
+		"Upload your avatar": {
+			"en_EN": "Upload your avatar",
+			"de_DE": "Lade dein Avatar hoch",
+			"it_IT": "Carica il tuo avatar",
+			"my_MY": "Muat naik avatar anda"
+		}
+	},
+	{
+		"Enter age": {
+			"en_EN": "Enter age",
+			"de_DE": "Alter eingeben",
+			"it_IT": "Inserisci l'età",
+			"my_MY": "Masukkan umur"
+		}
+	},
+	{
+		"Choose your country": {
+			"en_EN": "Choose your country",
+			"de_DE": "Wählen Sie Ihr Land",
+			"it_IT": "Scegli il tuo paese",
+			"my_MY": "Pilih negara anda"
+		}
+	},
+	{
+		"Germany": {
+			"en_EN": "Germany",
+			"de_DE": "Deutschland",
+			"it_IT": "Germania",
+			"my_MY": "Jerman"
+		}
+	},
+	{
+		"Japan": {
+			"en_EN": "Japan",
+			"de_DE": "Japan",
+			"it_IT": "Giappone",
+			"my_MY": "Jepun"
+		}
+	},
+	{
+		"USA": {
+			"en_EN": "USA",
+			"de_DE": "USA",
+			"it_IT": "USA",
+			"my_MY": "AS"
+		}
+	},
+	{
+		"Receive Email Notifications": {
+			"en_EN": "Receive Email Notifications",
+			"de_DE": "E-Mail-Benachrichtigungen erhalten",
+			"it_IT": "Ricevi notifiche email",
+			"my_MY": "Terima Pemberitahuan E-mel"
+		}
+	},
+	{
+		"This toggle is read-only": {
+			"en_EN": "This toggle is read-only",
+			"de_DE": "Dieser Schalter ist schreibgeschützt",
+			"it_IT": "Questo toggle è di sola lettura",
+			"my_MY": "Togol ini hanya boleh dibaca"
+		}
+	},
+	{
+		"Points Earned": {
+			"en_EN": "Points Earned",
+			"de_DE": "Erhaltene Punkte",
+			"it_IT": "Punti guadagnati",
+			"my_MY": "Mata Diperoleh"
+		}
+	},
+	{
+		"Tasks Completed": {
+			"en_EN": "Tasks Completed",
+			"de_DE": "Abgeschlossene Aufgaben",
+			"it_IT": "Compiti completati",
+			"my_MY": "Tugas Diselesaikan"
+		}
+	},
+	{
+		"Greet": {
+			"en_EN": "Greet",
+			"de_DE": "Begrüßen",
+			"it_IT": "Saluta",
+			"my_MY": "Sapa"
+		}
+	},
+	{
+		"Log User": {
+			"en_EN": "Log User",
+			"de_DE": "Benutzer protokollieren",
+			"it_IT": "Registra utente",
+			"my_MY": "Log Masuk Pengguna"
+		}
+	},
+	{
+		"Lena": {
+			"en_EN": "Lena",
+			"de_DE": "Lena",
+			"it_IT": "Lena",
+			"my_MY": "Lena"
+		}
+	},
+	{
+		"First Name": {
+			"en_EN": "First Name",
+			"de_DE": "Vorname",
+			"it_IT": "Nome",
+			"my_MY": "Nama Pertama"
+		}
+	},
+	{
+		"Last Name": {
+			"en_EN": "Last Name",
+			"de_DE": "Nachname",
+			"it_IT": "Cognome",
+			"my_MY": "Nama Akhir"
+		}
+	},
+	{
+		"Nickname": {
+			"en_EN": "Nickname",
+			"de_DE": "Spitzname",
+			"it_IT": "Soprannome",
+			"my_MY": "Nama Panggilan"
+		}
+	},
+	{
+		"Submit": {
+			"en_EN": "Submit",
+			"de_DE": "Absenden",
+			"it_IT": "Invia",
+			"my_MY": "Hantar"
+		}
+	},
+	{
+		"Clear": {
+			"en_EN": "Clear",
+			"de_DE": "Zurücksetzen",
+			"it_IT": "Cancella",
+			"my_MY": "Kosongkan"
+		}
+	},
+	{
+		"I agree to terms": {
+			"en_EN": "I agree to terms",
+			"de_DE": "Ich stimme den Bedingungen zu",
+			"it_IT": "Accetto i termini",
+			"my_MY": "Saya bersetuju dengan terma"
+		},
+		"Enable updates": {
+			"en_EN": "Enable updates",
+			"de_DE": "Updates aktivieren",
+			"it_IT": "Abilita aggiornamenti",
+			"my_MY": "Benarkan kemas kini"
+		},
+		"Download PDF": {
+			"en_EN": "Download PDF",
+			"de_DE": "PDF herunterladen",
+			"it_IT": "Scarica PDF",
+			"my_MY": "Muat turun PDF"
+		},
+		"🔒 Secure Login": {
+			"en_EN": "🔒 Secure Login",
+			"de_DE": "🔒 Sicheres Login",
+			"it_IT": "🔒 Accesso sicuro",
+			"my_MY": "🔒 Log Masuk Selamat"
+		},
+		"Custom HTML Block": {
+			"en_EN": "Custom HTML Block",
+			"de_DE": "Benutzerdefinierter HTML-Block",
+			"it_IT": "Blocco HTML personalizzato",
+			"my_MY": "Blok HTML Tersuai"
+		},
+		"This block supports any": {
+			"en_EN": "This block supports any",
+			"de_DE": "Dieser Block unterstützt jedes",
+			"it_IT": "Questo blocco supporta qualsiasi",
+			"my_MY": "Blok ini menyokong apa sahaja"
+		},
+		"like": {
+			"en_EN": "like",
+			"de_DE": "wie",
+			"it_IT": "come",
+			"my_MY": "seperti"
+		},
+		"formatting": {
+			"en_EN": "formatting",
+			"de_DE": "Formatierung",
+			"it_IT": "formattazione",
+			"my_MY": "pemformatan"
+		},
+		"and more": {
+			"en_EN": "and more",
+			"de_DE": "und mehr",
+			"it_IT": "e altro",
+			"my_MY": "dan banyak lagi"
+		},
+		"Learn more": {
+			"en_EN": "Learn more",
+			"de_DE": "Mehr erfahren",
+			"it_IT": "Scopri di più",
+			"my_MY": "Ketahui lebih lanjut"
+		},
+		"Default": {
+			"en_EN": "Default",
+			"de_DE": "Standard",
+			"it_IT": "Predefinito",
+			"my_MY": "Lalai"
+		},
+		"Success": {
+			"en_EN": "Success",
+			"de_DE": "Erfolg",
+			"it_IT": "Successo",
+			"my_MY": "Berjaya"
+		},
+		"Delete": {
+			"en_EN": "Delete",
+			"de_DE": "Löschen",
+			"it_IT": "Elimina",
+			"my_MY": "Padam"
+		},
+		"Download": {
+			"en_EN": "Download",
+			"de_DE": "Herunterladen",
+			"it_IT": "Scarica",
+			"my_MY": "Muat turun"
+		},
+		"Alert": {
+			"en_EN": "Alert",
+			"de_DE": "Hinweis",
+			"it_IT": "Avviso",
+			"my_MY": "Amaran"
+		},
+		"Email Verification": {
+			"en_EN": "Email Verification",
+			"de_DE": "E-Mail-Bestätigung",
+			"it_IT": "Verifica email",
+			"my_MY": "Pengesahan E-mel"
+		},
+		"Please check your email for a verification link.": {
+			"en_EN": "Please check your email for a verification link.",
+			"de_DE": "Bitte überprüfen Sie Ihre E-Mails auf einen Bestätigungslink.",
+			"it_IT": "Controlla la tua email per un link di verifica.",
+			"my_MY": "Sila semak e-mel anda untuk pautan pengesahan."
+		},
+		"If you haven't received an email, you can request a new verification link using the form below:": {
+			"en_EN": "If you haven't received an email, you can request a new verification link using the form below:",
+			"de_DE": "Wenn Sie keine E-Mail erhalten haben, können Sie unten ein neues Bestätigungslink anfordern:",
+			"it_IT": "Se non hai ricevuto un'email, puoi richiedere un nuovo link di verifica usando il modulo qui sotto:",
+			"my_MY": "Jika anda tidak menerima e-mel, anda boleh meminta pautan pengesahan baru menggunakan borang di bawah:"
+		},
+		"Your Email Address": {
+			"en_EN": "Your Email Address",
+			"de_DE": "Ihre E-Mail-Adresse",
+			"it_IT": "Il tuo indirizzo email",
+			"my_MY": "Alamat E-mel Anda"
+		}
+	},
+	{
+		"Already verified?": {
+			"en_EN": "Already verified?",
+			"de_DE": "Bereits bestätigt?",
+			"it_IT": "Già verificato?",
+			"my_MY": "Sudah disahkan?"
+		},
+		"Log in": {
+			"en_EN": "Log in",
+			"de_DE": "Einloggen",
+			"it_IT": "Accedi",
+			"my_MY": "Log masuk"
+		},
+		"Resend Verification Email": {
+			"en_EN": "Resend Verification Email",
+			"de_DE": "Bestätigungs-E-Mail erneut senden",
+			"it_IT": "Invia nuovamente l'email di verifica",
+			"my_MY": "Hantar semula e-mel pengesahan"
+		},
+		"Verifying Your Email": {
+			"en_EN": "Verifying Your Email",
+			"de_DE": "Bestätigung Ihrer E-Mail",
+			"it_IT": "Verifica del tuo indirizzo email",
+			"my_MY": "Mengesahkan alamat e-mel anda"
+		},
+		"Please wait while we verify your email address...": {
+			"en_EN": "Please wait while we verify your email address...",
+			"de_DE": "Bitte warten Sie, während wir Ihre E-Mail-Adresse bestätigen...",
+			"it_IT": "Attendere mentre verifichiamo il tuo indirizzo email...",
+			"my_MY": "Sila tunggu semasa kami mengesahkan alamat e-mel anda..."
+		},
+		"Friends": {
+			"en_EN": "Friends",
+			"de_DE": "Freunde",
+			"it_IT": "Amici",
+			"my_MY": "Rakan"
+		},
+		"Username": {
+			"en_EN": "Username",
+			"de_DE": "Benutzername",
+			"it_IT": "Nome utente",
+			"my_MY": "Nama pengguna"
+		},
+		"Search for a friend...": {
+			"en_EN": "Search for a friend...",
+			"de_DE": "Suche nach einem Freund...",
+			"it_IT": "Cerca un amico...",
+			"my_MY": "Cari rakan..."
+		},
+		"Add as Friend": {
+			"en_EN": "Add as Friend",
+			"de_DE": "Als Freund hinzufügen",
+			"it_IT": "Aggiungi come amico",
+			"my_MY": "Tambah sebagai rakan"
+		},
+		"Your Friends": {
+			"en_EN": "Your Friends",
+			"de_DE": "Deine Freunde",
+			"it_IT": "I tuoi amici",
+			"my_MY": "Rakan anda"
+		},
+		"ID": {
+			"en_EN": "ID",
+			"de_DE": "ID",
+			"it_IT": "ID",
+			"my_MY": "ID"
+		},
+		"Status": {
+			"en_EN": "Status",
+			"de_DE": "Status",
+			"it_IT": "Stato",
+			"my_MY": "Status"
+		},
+		"Actions": {
+			"en_EN": "Actions",
+			"de_DE": "Aktionen",
+			"it_IT": "Azioni",
+			"my_MY": "Tindakan"
+		},
+		"🟢 Online": {
+			"en_EN": "🟢 Online",
+			"de_DE": "🟢 Online",
+			"it_IT": "🟢 Online",
+			"my_MY": "🟢 Dalam Talian"
+		}
+	},
+	{
+		"🔘 Offline": {
+			"en_EN": "🔘 Offline",
+			"de_DE": "🔘 Offline",
+			"it_IT": "🔘 Offline",
+			"my_MY": "🔘 Luar Talian"
+		},
+		"Remove": {
+			"en_EN": "Remove",
+			"de_DE": "Entfernen",
+			"it_IT": "Rimuovi",
+			"my_MY": "Buang"
+		},
+		"Remove Friend": {
+			"en_EN": "Remove Friend",
+			"de_DE": "Freund entfernen",
+			"it_IT": "Rimuovi amico",
+			"my_MY": "Buang Rakan"
+		},
+		"Are you sure you want to remove this friend?": {
+			"en_EN": "Are you sure you want to remove this friend?",
+			"de_DE": "Möchten Sie diesen Freund wirklich entfernen?",
+			"it_IT": "Sei sicuro di voler rimuovere questo amico?",
+			"my_MY": "Adakah anda pasti mahu buang rakan ini?"
+		},
+		"This action cannot be undone.": {
+			"en_EN": "This action cannot be undone.",
+			"de_DE": "Diese Aktion kann nicht rückgängig gemacht werden.",
+			"it_IT": "Questa azione non può essere annullata.",
+			"my_MY": "Tindakan ini tidak boleh dipadamkan."
+		},
+		"Cancel": {
+			"en_EN": "Cancel",
+			"de_DE": "Abbrechen",
+			"it_IT": "Annulla",
+			"my_MY": "Batal"
+		},
+		"Yes, Remove": {
+			"en_EN": "Yes, Remove",
+			"de_DE": "Ja, entfernen",
+			"it_IT": "Sì, rimuovi",
+			"my_MY": "Ya, Buang"
+		},
+		"Click when Ready": {
+			"en_EN": "Click when Ready",
+			"de_DE": "Klicke wenn bereit",
+			"it_IT": "Clicca quando sei pronto",
+			"my_MY": "Klik apabila bersedia"
+		},
+		"Leave Lobby": {
+			"en_EN": "Leave Lobby",
+			"de_DE": "Lobby verlassen",
+			"it_IT": "Lascia la lobby",
+			"my_MY": "Keluar dari Lobi"
+		},
+		"Login": {
+			"en_EN": "Login",
+			"de_DE": "Anmeldung",
+			"it_IT": "Accesso",
+			"my_MY": "Log Masuk"
+		},
+		"Signup": {
+			"en_EN": "Signup",
+			"de_DE": "Registrieren",
+			"it_IT": "Iscriviti",
+			"my_MY": "Daftar"
+		},
+		"Friends List": {
+			"en_EN": "Friends List",
+			"de_DE": "Freundesliste",
+			"it_IT": "Lista amici",
+			"my_MY": "Senarai Rakan"
+		},
+		"User Management": {
+			"en_EN": "User Management",
+			"de_DE": "Benutzerverwaltung",
+			"it_IT": "Gestione utenti",
+			"my_MY": "Pengurusan Pengguna"
+		},
+		"Local Pong": {
+			"en_EN": "Local Pong",
+			"de_DE": "Lokales Pong",
+			"it_IT": "Pong locale",
+			"my_MY": "Pong Tempatan"
+		},
+		"Lobby List": {
+			"en_EN": "Lobby List",
+			"de_DE": "Lobbyliste",
+			"it_IT": "Lista lobby",
+			"my_MY": "Senarai Lobi"
+		},
+		"Tournament List": {
+			"en_EN": "Tournament List",
+			"de_DE": "Turnierliste",
+			"it_IT": "Lista tornei",
+			"my_MY": "Senarai Kejohanan"
+		},
+		"My Profile": {
+			"en_EN": "My Profile",
+			"de_DE": "Mein Profil",
+			"it_IT": "Il mio profilo",
+			"my_MY": "Profil Saya"
+		},
+		"Friends": {
+			"en_EN": "Friends",
+			"de_DE": "Freunde",
+			"it_IT": "Amici",
+			"my_MY": "Rakan"
+		},
+		"Logout": {
+			"en_EN": "Logout",
+			"de_DE": "Abmelden",
+			"it_IT": "Disconnetti",
+			"my_MY": "Log Keluar"
+		}
+	},
+	{
+		"Reset Your Password": {
+			"en_EN": "Reset Your Password",
+			"de_DE": "Passwort zurücksetzen",
+			"it_IT": "Reimposta la password",
+			"my_MY": "Tetapkan Semula Kata Laluan Anda"
+		},
+		"New Password": {
+			"en_EN": "New Password",
+			"de_DE": "Neues Passwort",
+			"it_IT": "Nuova password",
+			"my_MY": "Kata Laluan Baharu"
+		},
+		"Confirm New Password": {
+			"en_EN": "Confirm New Password",
+			"de_DE": "Neues Passwort bestätigen",
+			"it_IT": "Conferma nuova password",
+			"my_MY": "Sahkan Kata Laluan Baharu"
+		},
+		"Reset Password": {
+			"en_EN": "Reset Password",
+			"de_DE": "Passwort zurücksetzen",
+			"it_IT": "Reimposta password",
+			"my_MY": "Tetapkan Semula Kata Laluan"
+		},
+		"Log in": {
+			"en_EN": "Log in",
+			"de_DE": "Einloggen",
+			"it_IT": "Accedi",
+			"my_MY": "Log Masuk"
+		},
+		"Remember your password?": {
+			"en_EN": "Remember your password?",
+			"de_DE": "Passwort gemerkt?",
+			"it_IT": "Ricordi la password?",
+			"my_MY": "Ingat kata laluan anda?"
+		},
+		"Invalid or Expired Link": {
+			"en_EN": "Invalid or Expired Link",
+			"de_DE": "Ungültiger oder abgelaufener Link",
+			"it_IT": "Link non valido o scaduto",
+			"my_MY": "Pautan Tidak Sah atau Tamat Tempoh"
+		},
+		"This password reset link is invalid or has expired.": {
+			"en_EN": "This password reset link is invalid or has expired.",
+			"de_DE": "Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen.",
+			"it_IT": "Questo link per reimpostare la password non è valido o è scaduto.",
+			"my_MY": "Pautan ini tidak sah atau telah tamat tempoh."
+		},
+		"Please request a new password reset link from the": {
+			"en_EN": "Please request a new password reset link from the",
+			"de_DE": "Bitte fordere einen neuen Passwort-Zurücksetzungslink an über die",
+			"it_IT": "Richiedi un nuovo link di reimpostazione password dalla",
+			"my_MY": "Sila minta pautan baharu dari"
+		},
+		"password reset page": {
+			"en_EN": "password reset page",
+			"de_DE": "Passwort-Zurücksetzungsseite",
+			"it_IT": "pagina di reimpostazione password",
+			"my_MY": "halaman tetapan semula kata laluan"
+		},
+		"Password Reset": {
+			"en_EN": "Password Reset",
+			"de_DE": "Passwort zurücksetzen",
+			"it_IT": "Reimposta password",
+			"my_MY": "Tetapan Semula Kata Laluan"
+		},
+		"E-Mail": {
+			"en_EN": "E-Mail",
+			"de_DE": "E-Mail",
+			"it_IT": "Email",
+			"my_MY": "E-Mel"
+		},
+		"Request Password Reset": {
+			"en_EN": "Request Password Reset",
+			"de_DE": "Passwort-Zurücksetzung anfordern",
+			"it_IT": "Richiedi reimpostazione password",
+			"my_MY": "Mohon Tetapan Semula Kata Laluan"
+		},
+		"Pong Arena": {
+			"en_EN": "Pong Arena",
+			"de_DE": "Pong Arena",
+			"it_IT": "Arena Pong",
+			"my_MY": "Arena Pong"
+		},
+		"Paddle Speed": {
+			"en_EN": "Paddle Speed",
+			"de_DE": "Schlägergeschwindigkeit",
+			"it_IT": "Velocità della racchetta",
+			"my_MY": "Kelajuan Paddle"
+		}
+	},
+	{
+		"Paddle Height": {
+			"en_EN": "Paddle Height",
+			"de_DE": "Schlägerhöhe",
+			"it_IT": "Altezza della racchetta",
+			"my_MY": "Ketinggian Paddle"
+		},
+		"Ball Speed": {
+			"en_EN": "Ball Speed",
+			"de_DE": "Ballgeschwindigkeit",
+			"it_IT": "Velocità della palla",
+			"my_MY": "Kelajuan Bola"
+		},
+		"Ball Size": {
+			"en_EN": "Ball Size",
+			"de_DE": "Ballgröße",
+			"it_IT": "Dimensione della palla",
+			"my_MY": "Saiz Bola"
+		},
+		"Paddle Width": {
+			"en_EN": "Paddle Width",
+			"de_DE": "Schlägerbreite",
+			"it_IT": "Larghezza della racchetta",
+			"my_MY": "Lebar Paddle"
+		},
+		"Win Score": {
+			"en_EN": "Win Score",
+			"de_DE": "Siegpunktzahl",
+			"it_IT": "Punteggio per vincere",
+			"my_MY": "Skor Kemenangan"
+		},
+		"Start": {
+			"en_EN": "Start",
+			"de_DE": "Start",
+			"it_IT": "Avvia",
+			"my_MY": "Mula"
+		},
+		"Pause": {
+			"en_EN": "Pause",
+			"de_DE": "Pause",
+			"it_IT": "Pausa",
+			"my_MY": "Jeda"
+		},
+		"Resume": {
+			"en_EN": "Resume",
+			"de_DE": "Fortsetzen",
+			"it_IT": "Riprendi",
+			"my_MY": "Sambung"
+		},
+		"Reset": {
+			"en_EN": "Reset",
+			"de_DE": "Zurücksetzen",
+			"it_IT": "Resetta",
+			"my_MY": "Tetapkan Semula"
+		},
+		"Profile": {
+			"en_EN": "Profile",
+			"de_DE": "Profil",
+			"it_IT": "Profilo",
+			"my_MY": "Profil"
+		},
+		"Name": {
+			"en_EN": "Name",
+			"de_DE": "Name",
+			"it_IT": "Nome",
+			"my_MY": "Nama"
+		},
+		"Username": {
+			"en_EN": "Username",
+			"de_DE": "Benutzername",
+			"it_IT": "Nome utente",
+			"my_MY": "Nama Pengguna"
+		},
+		"Email": {
+			"en_EN": "Email",
+			"de_DE": "E-Mail",
+			"it_IT": "Email",
+			"my_MY": "Emel"
+		},
+		"User ID": {
+			"en_EN": "User ID",
+			"de_DE": "Benutzer-ID",
+			"it_IT": "ID utente",
+			"my_MY": "ID Pengguna"
+		},
+		"Edit Profile": {
+			"en_EN": "Edit Profile",
+			"de_DE": "Profil bearbeiten",
+			"it_IT": "Modifica profilo",
+			"my_MY": "Sunting Profil"
+		},
+		"Back to User List": {
+			"en_EN": "Back to User List",
+			"de_DE": "Zur Benutzerliste",
+			"it_IT": "Torna all'elenco utenti",
+			"my_MY": "Kembali ke Senarai Pengguna"
+		},
+		"User not found or error loading user data.": {
+			"en_EN": "User not found or error loading user data.",
+			"de_DE": "Benutzer nicht gefunden oder Fehler beim Laden der Daten.",
+			"it_IT": "Utente non trovato o errore nel caricamento dei dati.",
+			"my_MY": "Pengguna tidak ditemui atau ralat memuatkan data pengguna."
+		}
+	},
+	{
+		"Email": {
+			"en_EN": "Email",
+			"de_DE": "E-Mail",
+			"it_IT": "Email",
+			"my_MY": "Emel"
+		},
+		"Password": {
+			"en_EN": "Password",
+			"de_DE": "Passwort",
+			"it_IT": "Password",
+			"my_MY": "Kata Laluan"
+		},
+		"Email Verified": {
+			"en_EN": "Email Verified",
+			"de_DE": "E-Mail verifiziert",
+			"it_IT": "Email verificata",
+			"my_MY": "Emel Disahkan"
+		},
+		"2FA Enabled": {
+			"en_EN": "2FA Enabled",
+			"de_DE": "2FA aktiviert",
+			"it_IT": "2FA attivato",
+			"my_MY": "2FA Diaktifkan"
+		},
+		"Google Sign-In": {
+			"en_EN": "Google Sign-In",
+			"de_DE": "Google-Anmeldung",
+			"it_IT": "Accesso con Google",
+			"my_MY": "Log Masuk Google"
+		},
+		"Update Profile": {
+			"en_EN": "Update Profile",
+			"de_DE": "Profil aktualisieren",
+			"it_IT": "Aggiorna profilo",
+			"my_MY": "Kemas Kini Profil"
+		},
+		"Delete Profile": {
+			"en_EN": "Delete Profile",
+			"de_DE": "Profil löschen",
+			"it_IT": "Elimina profilo",
+			"my_MY": "Padam Profil"
+		},
+		"Back to User List": {
+			"en_EN": "Back to User List",
+			"de_DE": "Zur Benutzerliste",
+			"it_IT": "Torna all'elenco utenti",
+			"my_MY": "Kembali ke Senarai Pengguna"
+		},
+		"Back to Profile": {
+			"en_EN": "Back to Profile",
+			"de_DE": "Zurück zum Profil",
+			"it_IT": "Torna al profilo",
+			"my_MY": "Kembali ke Profil"
+		},
+		"User not found or error loading user data.": {
+			"en_EN": "User not found or error loading user data.",
+			"de_DE": "Benutzer nicht gefunden oder Fehler beim Laden der Daten.",
+			"it_IT": "Utente non trovato o errore nel caricamento dei dati.",
+			"my_MY": "Pengguna tidak ditemui atau ralat memuatkan data."
+		},
+		"Profile Settings": {
+			"en_EN": "Profile Settings",
+			"de_DE": "Profileinstellungen",
+			"it_IT": "Impostazioni profilo",
+			"my_MY": "Tetapan Profil"
+		},
+		"Avatar": {
+			"en_EN": "Avatar",
+			"de_DE": "Avatar",
+			"it_IT": "Avatar",
+			"my_MY": "Avatar"
+		},
+		"User Avatar": {
+			"en_EN": "User Avatar",
+			"de_DE": "Benutzeravatar",
+			"it_IT": "Avatar utente",
+			"my_MY": "Avatar Pengguna"
+		},
+		"Change Avatar": {
+			"en_EN": "Change Avatar",
+			"de_DE": "Avatar ändern",
+			"it_IT": "Cambia avatar",
+			"my_MY": "Tukar Avatar"
+		}
+	},
+	{
+		"Name": {
+			"en_EN": "Name",
+			"de_DE": "Name",
+			"it_IT": "Nome",
+			"my_MY": "Nama"
+		},
+		"John Doe": {
+			"en_EN": "John Doe",
+			"de_DE": "Max Mustermann",
+			"it_IT": "Mario Rossi",
+			"my_MY": "Ahmad bin Ali"
+		},
+		"Email Address": {
+			"en_EN": "Email Address",
+			"de_DE": "E-Mail-Adresse",
+			"it_IT": "Indirizzo email",
+			"my_MY": "Alamat Emel"
+		},
+		"john@example.com": {
+			"en_EN": "john@example.com",
+			"de_DE": "max@example.de",
+			"it_IT": "mario@example.it",
+			"my_MY": "ahmad@example.my"
+		},
+		"Preferred Language": {
+			"en_EN": "Preferred Language",
+			"de_DE": "Bevorzugte Sprache",
+			"it_IT": "Lingua preferita",
+			"my_MY": "Bahasa Pilihan"
+		},
+		"English": {
+			"en_EN": "English",
+			"de_DE": "Englisch",
+			"it_IT": "Inglese",
+			"my_MY": "Bahasa Inggeris"
+		},
+		"German": {
+			"en_EN": "German",
+			"de_DE": "Deutsch",
+			"it_IT": "Tedesco",
+			"my_MY": "Bahasa Jerman"
+		},
+		"French": {
+			"en_EN": "French",
+			"de_DE": "Französisch",
+			"it_IT": "Francese",
+			"my_MY": "Bahasa Perancis"
+		},
+		"Malay": {
+			"en_EN": "Malay",
+			"de_DE": "Malaiisch",
+			"it_IT": "Malese",
+			"my_MY": "Bahasa Melayu"
+		},
+		"Dark Mode": {
+			"en_EN": "Dark Mode",
+			"de_DE": "Dunkelmodus",
+			"it_IT": "Modalità scura",
+			"my_MY": "Mod Gelap"
+		},
+		"Toggle Dark Mode": {
+			"en_EN": "Toggle Dark Mode",
+			"de_DE": "Dunkelmodus umschalten",
+			"it_IT": "Attiva/disattiva modalità scura",
+			"my_MY": "Tukar Mod Gelap"
+		},
+		"Save Settings": {
+			"en_EN": "Save Settings",
+			"de_DE": "Einstellungen speichern",
+			"it_IT": "Salva impostazioni",
+			"my_MY": "Simpan Tetapan"
+		},
+		"Available Tournaments": {
+			"en_EN": "Available Tournaments",
+			"de_DE": "Verfügbare Turniere",
+			"it_IT": "Tornei disponibili",
+			"my_MY": "Kejohanan Tersedia"
+		},
+		"Create Tournament": {
+			"en_EN": "Create Tournament",
+			"de_DE": "Turnier erstellen",
+			"it_IT": "Crea torneo",
+			"my_MY": "Cipta Kejohanan"
+		},
+		"Two-Factor Authentication": {
+			"en_EN": "Two-Factor Authentication",
+			"de_DE": "Zwei-Faktor-Authentifizierung",
+			"it_IT": "Autenticazione a due fattori",
+			"my_MY": "Pengesahan Dua Faktor"
+		},
+		"Verify": {
+			"en_EN": "Verify",
+			"de_DE": "Bestätigen",
+			"it_IT": "Verifica",
+			"my_MY": "Sahkan"
+		},
+		"Open your authenticator app to view your verification code.": {
+			"en_EN": "Open your authenticator app to view your verification code.",
+			"de_DE": "Öffne deine Authentifizierungs-App, um deinen Verifizierungscode zu sehen.",
+			"it_IT": "Apri la tua app di autenticazione per visualizzare il codice di verifica.",
+			"my_MY": "Buka aplikasi pengesah anda untuk melihat kod pengesahan anda."
+		}
+	},
+	{
+		"Create New User": {
+			"en_EN": "Create New User",
+			"de_DE": "Neuen Benutzer erstellen",
+			"it_IT": "Crea nuovo utente",
+			"my_MY": "Cipta Pengguna Baharu"
+		},
+		"Name": {
+			"en_EN": "Name",
+			"de_DE": "Name",
+			"it_IT": "Nome",
+			"my_MY": "Nama"
+		},
+		"Username": {
+			"en_EN": "Username",
+			"de_DE": "Benutzername",
+			"it_IT": "Nome utente",
+			"my_MY": "Nama Pengguna"
+		},
+		"E-Mail": {
+			"en_EN": "E-Mail",
+			"de_DE": "E-Mail",
+			"it_IT": "Email",
+			"my_MY": "E-mel"
+		},
+		"Password": {
+			"en_EN": "Password",
+			"de_DE": "Passwort",
+			"it_IT": "Password",
+			"my_MY": "Kata Laluan"
+		},
+		"Email Verified:": {
+			"en_EN": "Email Verified:",
+			"de_DE": "E-Mail verifiziert:",
+			"it_IT": "Email verificata:",
+			"my_MY": "E-mel Disahkan:"
+		},
+		"2FA Enabled:": {
+			"en_EN": "2FA Enabled:",
+			"de_DE": "2FA aktiviert:",
+			"it_IT": "2FA attivato:",
+			"my_MY": "2FA Dibenarkan:"
+		},
+		"Google Sign-In:": {
+			"en_EN": "Google Sign-In:",
+			"de_DE": "Google-Anmeldung:",
+			"it_IT": "Accesso con Google:",
+			"my_MY": "Log Masuk Google:"
+		},
+		"Create User": {
+			"en_EN": "Create User",
+			"de_DE": "Benutzer erstellen",
+			"it_IT": "Crea utente",
+			"my_MY": "Cipta Pengguna"
+		},
+		"User Overview": {
+			"en_EN": "User Overview",
+			"de_DE": "Benutzerübersicht",
+			"it_IT": "Panoramica utenti",
+			"my_MY": "Gambaran Pengguna"
+		},
+		"ID": {
+			"en_EN": "ID",
+			"de_DE": "ID",
+			"it_IT": "ID",
+			"my_MY": "ID"
+		},
+		"Email": {
+			"en_EN": "Email",
+			"de_DE": "E-Mail",
+			"it_IT": "Email",
+			"my_MY": "E-mel"
+		},
+		"Verified": {
+			"en_EN": "Verified",
+			"de_DE": "Verifiziert",
+			"it_IT": "Verificato",
+			"my_MY": "Disahkan"
+		},
+		"2FA": {
+			"en_EN": "2FA",
+			"de_DE": "2FA",
+			"it_IT": "2FA",
+			"my_MY": "2FA"
+		},
+		"Actions": {
+			"en_EN": "Actions",
+			"de_DE": "Aktionen",
+			"it_IT": "Azioni",
+			"my_MY": "Tindakan"
+		},
+		"Yes": {
+			"en_EN": "Yes",
+			"de_DE": "Ja",
+			"it_IT": "Sì",
+			"my_MY": "Ya"
+		},
+		"No": {
+			"en_EN": "No",
+			"de_DE": "Nein",
+			"it_IT": "No",
+			"my_MY": "Tidak"
+		},
+		"Enabled": {
+			"en_EN": "Enabled",
+			"de_DE": "Aktiviert",
+			"it_IT": "Attivato",
+			"my_MY": "Dibenarkan"
+		},
+		"Disabled": {
+			"en_EN": "Disabled",
+			"de_DE": "Deaktiviert",
+			"it_IT": "Disattivato",
+			"my_MY": "Dilumpuhkan"
+		},
+		"View": {
+			"en_EN": "View",
+			"de_DE": "Ansehen",
+			"it_IT": "Visualizza",
+			"my_MY": "Lihat"
+		},
+		"Edit": {
+			"en_EN": "Edit",
+			"de_DE": "Bearbeiten",
+			"it_IT": "Modifica",
+			"my_MY": "Sunting"
+		},
+		"Delete": {
+			"en_EN": "Delete",
+			"de_DE": "Löschen",
+			"it_IT": "Elimina",
+			"my_MY": "Padam"
+		}
+	},
+		{
+			"Available Lobbies": {
+				"en_EN": "Available Lobbies",
+				"de_DE": "Verfügbare Lobbys",
+				"it_IT": "Lobby disponibili",
+				"my_MY": "Lobi Tersedia"
+			}
+		},
+		{
+			"Create Lobby": {
+				"en_EN": "Create Lobby",
+				"de_DE": "Lobby erstellen",
+				"it_IT": "Crea Lobby",
+				"my_MY": "Cipta Lobi"
+			}
+		},
+		{
+			"Lobby List": {
+				"en_EN": "Lobby List",
+				"de_DE": "Lobby-Liste",
+				"it_IT": "Elenco Lobby",
+				"my_MY": "Senarai Lobi"
+			}
+		},
+		{
+			"ID": {
+				"en_EN": "ID",
+				"de_DE": "ID",
+				"it_IT": "ID",
+				"my_MY": "ID"
+			}
+		},
+		{
+			"Creator": {
+				"en_EN": "Creator",
+				"de_DE": "Ersteller",
+				"it_IT": "Creatore",
+				"my_MY": "Pencipta"
+			}
+		},
+		{
+			"Players": {
+				"en_EN": "Players",
+				"de_DE": "Spieler",
+				"it_IT": "Giocatori",
+				"my_MY": "Pemain"
+			}
+		},
+		{
+			"Status": {
+				"en_EN": "Status",
+				"de_DE": "Status",
+				"it_IT": "Stato",
+				"my_MY": "Status"
+			}
+		},
+		{
+			"Actions": {
+				"en_EN": "Actions",
+				"de_DE": "Aktionen",
+				"it_IT": "Azioni",
+				"my_MY": "Tindakan"
+			}
+		},
+		{
+			"Started": {
+				"en_EN": "Started",
+				"de_DE": "Gestartet",
+				"it_IT": "Avviato",
+				"my_MY": "Dimulakan"
+			}
+		},
+		{
+			"Waiting": {
+				"en_EN": "Waiting",
+				"de_DE": "Wartet",
+				"it_IT": "In attesa",
+				"my_MY": "Menunggu"
+			}
+		},
+		{
+			"Join Lobby": {
+				"en_EN": "Join Lobby",
+				"de_DE": "Lobby beitreten",
+				"it_IT": "Entra nella Lobby",
+				"my_MY": "Sertai Lobi"
+			}
+		}
+	]
+

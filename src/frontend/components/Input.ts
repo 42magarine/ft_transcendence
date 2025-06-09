@@ -20,10 +20,10 @@ export default class Input extends AbstractView {
         const finalClass = className || 'input';
 
         const inputField = type === 'select'
-            ? `<select name="${name}" id="${id}" class="${finalClass}">${value}</select>`
+            ? `<select name="${name}" ${(id) ? 'id="' + id + '"' : ''} class="${finalClass}">${value}</select>`
             : `<input
 					type="${type}"
-					id="${id}"
+					${(id) ? 'id="' + id + '"' : ''}
 					name="${name}"
 					placeholder="${placeholder}"
 					value="${value}"
@@ -33,7 +33,7 @@ export default class Input extends AbstractView {
         let confirmInput = '';
         if (withConfirm && type === 'password') {
             confirmInput = `
-                <div class="detail-row hidden" id="${id}-confirm-row">
+                <div class="detail-row hidden" ${(id) ? 'id="' + id + '-confirm-row"' : ''}>
                     <label class="label">Confirm Password:</label>
                     <input class="input" type="password" name="passwordConfirm" placeholder="Repeat ${placeholder}" />
                 </div>
