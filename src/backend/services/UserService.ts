@@ -75,7 +75,7 @@ export class UserService {
                     role: 'user',
                 });
             }
-
+            console.log(user);
             const savedUser = await this.userRepo.save(user);
             return savedUser;
 
