@@ -9,12 +9,12 @@ export default class Lobby extends AbstractView {
     private player1: IPlayerState;
     private player2: IPlayerState;
 
-    constructor(params: URLSearchParams) {
-        super();
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
 
         this.initEvents = this.setupEvents.bind(this);
 
-        this.lobbyId = params.get('id') || '';
+        this.lobbyId = routeParams.id || '';
         if (!this.lobbyId) {
             console.error("Lobby ID is missing!");
             Router.redirect('/lobbylist');

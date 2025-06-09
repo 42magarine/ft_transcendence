@@ -31,8 +31,28 @@ export default class PongService {
         matchId: number,
     )
     {
+        const canvasElement = document.getElementById('gameCanvas') as HTMLCanvasElement
+        if (!canvasElement)
+        {
+            console.error("canvasElement not found correctly")
+            throw new Error("DAWDAWD")
+        }
+        this.canvas = canvasElement;
         this.ctx = this.canvas.getContext('2d')!;
         this.matchId = matchId;
+        console.log("pongService matchId: ", this.matchId)
+        this.canvas.width = 800;
+        this.canvas.height = 600;
+
+
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.overlay = document.getElementById('gameCanvasWrap-overlay') as HTMLElement;
+        console.log(this.overlay);
+        if (!this.overlay) {
+             console.error("PongService: Game overlay element not found.");
+        }
     }
 
     public setupEventListener(): void {
@@ -58,31 +78,31 @@ export default class PongService {
 
         document.addEventListener('keydown', this.handleKeyDown);
         document.addEventListener('keyup', this.handleKeyUp);
-        let countdown = 3;
-        this.overlay.textContent = countdown.toString();
-        const timer = setInterval(() => {
-            countdown--;
+        // let countdown = 3;
+        // this.overlay.textContent = countdown.toString();
+        // const timer = setInterval(() => {
+        //     countdown--;
 
-            if (countdown == 3) {
-                this.overlay.classList.add("third");
-                this.overlay.textContent = countdown.toString();
-            } else if (countdown == 2) {
-                this.overlay.classList.remove("third");
-                this.overlay.classList.add("second");
-                this.overlay.textContent = countdown.toString();
-            } else if (countdown == 1) {
-                this.overlay.classList.remove("second");
-                this.overlay.classList.add("first");
-                this.overlay.textContent = countdown.toString();
-            } else if (countdown === 0) {
-                this.overlay.classList.remove("first");
-                this.overlay.classList.add("ready");
-                this.overlay.textContent = 'START!';
-            } else {
-                this.overlay.style.display = 'none';
-                clearInterval(timer);
-            }
-        }, 1000);
+        //     if (countdown == 3) {
+        //         this.overlay.classList.add("third");
+        //         this.overlay.textContent = countdown.toString();
+        //     } else if (countdown == 2) {
+        //         this.overlay.classList.remove("third");
+        //         this.overlay.classList.add("second");
+        //         this.overlay.textContent = countdown.toString();
+        //     } else if (countdown == 1) {
+        //         this.overlay.classList.remove("second");
+        //         this.overlay.classList.add("first");
+        //         this.overlay.textContent = countdown.toString();
+        //     } else if (countdown === 0) {
+        //         this.overlay.classList.remove("first");
+        //         this.overlay.classList.add("ready");
+        //         this.overlay.textContent = 'START!';
+        //     } else {
+        //         this.overlay.style.display = 'none';
+        //         clearInterval(timer);
+        //     }
+        // }, 1000);
 
     }
 
@@ -99,7 +119,7 @@ export default class PongService {
         console.log("PongService msg received: " + data.type)
 
         switch (data.type) {
-            case 'gameStarted':
+            case 'playerJoined':
 
                 if (data.matchId === this.matchId)
                 {
@@ -137,8 +157,9 @@ export default class PongService {
             case 'gameStateUpdate':
                 if (data.activeGamesStates && Array.isArray(data.activeGamesStates))
                 {
+                    console.log('Received gameStateUpdate. Looking for matchId:', this.matchId, 'in states:', data.activeGamesStates)
                     const relevantGameState = data.activeGamesStates.find(gs => gs.matchId === this.matchId)
-
+                    console.log('found relevantGameState:', relevantGameState);
                     if (relevantGameState)
                     {
                         this.gameState = relevantGameState;
@@ -214,33 +235,38 @@ export default class PongService {
     }
 
     private draw(): void {
-        this.overlay.classList.remove("ready");
-        this.overlay.classList.add("hidden")
-        if (!this.ctx) {
+        if (!this.ctx || !this.canvas || !this.gameState) {
+            console.error("something went wrong with draw in pongservice: context, canvas, or gameState is missing.");
             return;
         }
 
-        if (!this.gameState) {
-            console.warn("[PongService] Draw called but gameState is not ready.");
-            return;
-        }
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '30px "Press Start 2P", Arial, sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
 
-        // Draw paddles
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (this.overlay) {
+            if (this.gameState.paused || this.gameState.gameIsOver) {
+                this.overlay.classList.remove("hidden");
+                this.overlay.textContent = this.gameState.paused ? 'Paused' : 'Game Over';
+            } else {
+                this.overlay.classList.remove("ready");
+                this.overlay.classList.add("hidden");
+            }
+        }
+        this.ctx.fillStyle = 'white';
+
         this.ctx.fillRect(this.gameState.paddle1.x, this.gameState.paddle1.y, this.gameState.paddle1.width, this.gameState.paddle1.height);
         this.ctx.fillRect(this.gameState.paddle2.x, this.gameState.paddle2.y, this.gameState.paddle2.width, this.gameState.paddle2.height);
 
-        // Draw ball
         this.ctx.beginPath();
         this.ctx.arc(this.gameState.ball.x, this.gameState.ball.y, this.gameState.ball.radius, 0, Math.PI * 2);
         this.ctx.fill();
 
-        // Draw scores
+        this.ctx.font = '40px Arial';
+        this.ctx.textAlign = 'center';
         this.ctx.fillText(this.gameState.score1.toString(), this.canvas.width / 4, 50);
         this.ctx.fillText(this.gameState.score2.toString(), (this.canvas.width / 4) * 3, 50);
 
@@ -254,14 +280,20 @@ export default class PongService {
         this.ctx.setLineDash([]);
 
         if (this.gameState.gameIsOver) {
+            this.ctx.fillStyle = 'red';
+            this.ctx.font = '60px Arial';
             this.ctx.fillText("GAME OVER", this.canvas.width / 2, this.canvas.height / 2);
             let winMsg = "";
             if (this.gameState.score1 > this.gameState.score2) {
                 winMsg = this.player1.userName + ` wins`;
             } else if (this.gameState.score2 > this.gameState.score1) {
                 winMsg = this.player2.userName + ` wins`;
+            } else {
+                winMsg = "It's a draw!";
             }
+            this.ctx.font = '30px Arial';
             this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + 40);
+            this.ctx.font = '20px Arial';
             this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + 80);
         }
     }

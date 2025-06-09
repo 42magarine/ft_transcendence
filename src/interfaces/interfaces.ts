@@ -19,7 +19,7 @@ export interface RouteHookContext {
 
 export interface Route {
     path: string | RegExp;
-    view: new (params: URLSearchParams) => AbstractView;
+    view: new (routeParams: Record<string,string>, queryParams: URLSearchParams) => AbstractView;
     metadata?: {
         title?: string;
         description?: string;

@@ -2,8 +2,8 @@ import AbstractView from '../../utils/AbstractView.js';
 import { ToggleProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Toggle extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     async renderToggle({ id, name = '', label = '', checked = false, readonly = false }: ToggleProps): Promise<string> {

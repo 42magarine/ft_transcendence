@@ -1,8 +1,8 @@
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class Footer extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
-        super(params);
+	constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     async getHtml(): Promise<string> {

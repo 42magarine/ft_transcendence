@@ -59,7 +59,7 @@ async function renderFooter(): Promise<void> {
 }
 
 async function renderHeader(): Promise<void> {
-    const header = new Header(new URLSearchParams(window.location.search));
+    const header = new Header({}, new URLSearchParams(window.location.search));
     const headerHtml = await header.getHtml();
     const headerElement = document.getElementById('header-root');
     if (headerElement)
@@ -91,6 +91,12 @@ async function initSocket(): Promise<void> {
     const socket = new WebSocket(`${wsProtocol}//${window.location.host}/api/game/wss`);
 
     window.ft_socket = socket;
+
+    socket.addEventListener('close', (event) =>
+    {
+        console.warn("websocket closed", event.code, event.reason)
+        setTimeout(() => socketUpdateOnSession(), 3000)
+    })
 
     try {
         const readyPromise = webSocketWrapper(socket);

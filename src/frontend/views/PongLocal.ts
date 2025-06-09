@@ -3,13 +3,13 @@ import AbstractView from '../../utils/AbstractView.js';
 import localGameService from '../services/LocalGameService.js';
 
 export default class PongLocal extends AbstractView {
-    constructor(params: URLSearchParams) {
-        super();
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
         this.params = params;
     }
 
     async getHtml(): Promise<string> {
-        const gameCard = await new Card(this.params).renderCard({
+        const gameCard = await new Card({}, this.params).renderCard({
             title: 'Pong Arena',
             contentBlocks:
                 [

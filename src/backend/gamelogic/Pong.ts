@@ -33,7 +33,9 @@ export class PongGame {
         this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
         this._scoreLimit = SCORE_LIMIT;
         this._onGameOverCallback = onGameOverCallback;
+        this._ball.randomizeDirection();
     }
+
 
     public startGameLoop(): void {
         if (this._running) {
@@ -71,7 +73,8 @@ export class PongGame {
         this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
         this._paddle1 = new Paddle(10, this._height / 2 - 50);
         this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
-        this._gameIsOver = false; 
+        this._gameIsOver = false;
+        this._ball.randomizeDirection();
     }
 
     public resetScores(): void {
@@ -96,7 +99,7 @@ export class PongGame {
             const ballY = this._ball.y;
             const ballRadius = this._ball.radius;
 
-            
+
             if (ballY - ballRadius <= 0) {
                 this._ball.y = ballRadius;
                 this._ball.revY();
@@ -106,7 +109,7 @@ export class PongGame {
                 this._ball.revY();
             }
 
-            
+
             if (this._ball.speedX < 0 && this.isColliding(this._ball, this._paddle1)) {
                 this._ball.x = this._paddle1.x + this._paddle1.width + ballRadius;
                 this._ball.revX();
@@ -122,7 +125,7 @@ export class PongGame {
                 this._ball.speedY += overlapY * 0.05;
             }
 
-            
+
             if (ballX < 0) {
                 this._score2++;
                 if (this._score2 >= this._scoreLimit) {
@@ -193,7 +196,7 @@ export class PongGame {
         this._player2 = null;
     }
 
-    public setMatchId(matchId: number): void { 
+    public setMatchId(matchId: number): void {
         this._matchId = matchId;
     }
 

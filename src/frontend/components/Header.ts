@@ -4,8 +4,8 @@ import UserService from '../services/UserService.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 
 export default class Header extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     async getHtml(): Promise<string> {

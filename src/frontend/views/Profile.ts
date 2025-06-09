@@ -6,8 +6,8 @@ import Card from '../components/Card.js'
 export default class Profile extends AbstractView {
     private userId: string;
 
-    constructor(params: URLSearchParams) {
-        super();
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
         this.userId = params.get('id') || 'unknown';
     }
 

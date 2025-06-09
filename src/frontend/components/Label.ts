@@ -2,8 +2,8 @@ import AbstractView from '../../utils/AbstractView.js';
 import { LabelProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Label extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     async renderLabel({ htmlFor, text, className = '', id }: LabelProps): Promise<string> {
