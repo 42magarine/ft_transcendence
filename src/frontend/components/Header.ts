@@ -53,12 +53,6 @@ export default class Header extends AbstractView {
                         text: 'Lobby List',
                         icon: 'list',
                         href: '/lobbylist'
-                    },
-                    {
-                        id: 'tournament-list-btn',
-                        text: 'Tournament List',
-                        icon: 'list',
-                        href: '/tournamentlist'
                     }
                 ];
             }
@@ -82,12 +76,6 @@ export default class Header extends AbstractView {
                         icon: 'list',
                         href: '/lobbylist'
                     },
-                    {
-                        id: 'tournament-list-btn',
-                        text: 'Tournament List',
-                        icon: 'list',
-                        href: '/tournamentlist'
-                    }
                 ];
             }
         }

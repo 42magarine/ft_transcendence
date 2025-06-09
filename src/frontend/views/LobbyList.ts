@@ -23,8 +23,26 @@ export default class LobbyList extends AbstractView {
                 {
                     type: 'button',
                     props: {
-                        id: 'createLobbyBtn',
-                        text: 'Create Lobby',
+                        id: 'createGameBtn',
+                        text: 'Create Game',
+                        type: 'button',
+                        className: 'btn btn-primary'
+                    },
+                },
+                {
+                    type: 'button',
+                    props: {
+                        id: 'createTournamentBtn4',
+                        text: 'Tournament (4 Players)',
+                        type: 'button',
+                        className: 'btn btn-primary'
+                    },
+                },
+                {
+                    type: 'button',
+                    props: {
+                        id: 'createTournamentBtn8',
+                        text: 'Tournament (8 Players)',
                         type: 'button',
                         className: 'btn btn-primary'
                     },
@@ -38,7 +56,7 @@ export default class LobbyList extends AbstractView {
                         data: lobbies,
                         columns: [
                             { key: 'id', label: 'ID' },
-                            { key: 'creatorId', label: 'Creator' },
+                            { key: 'type', label: 'Type' },
                             { key: 'players', label: 'Players' },
                             { key: 'status', label: 'Status' },
                             { key: 'actions', label: 'Actions' }
@@ -55,7 +73,7 @@ export default class LobbyList extends AbstractView {
                                 type: 'label',
                                 props: {
                                     htmlFor: '',
-                                    text: `${lobby.creatorId}`
+                                    text: `${lobby.lobbyType}`
                                 }
                             },
                             {
@@ -105,7 +123,17 @@ export default class LobbyList extends AbstractView {
         if (window.lobbyListService) {
             const createButton = document.getElementById('createLobbyBtn');
             if (createButton) {
-                createButton.removeEventListener('click', window.lobbyListService.handleCreateLobbyClick);
+                createButton.removeEventListener('click', window.lobbyListService.handleCreateGameClick);
+            }
+
+            const createTournamentButton4 = document.getElementById('createTournamentBtn4');
+            if (createTournamentButton4) {
+                createTournamentButton4.removeEventListener('click', window.lobbyListService.handleCreateTournamentClick4);
+            }
+
+            const createTournamentButton8 = document.getElementById('createTournamentBtn8');
+            if (createTournamentButton8) {
+                createTournamentButton8.removeEventListener('click', window.lobbyListService.handleCreateTournamentClick4);
             }
 
             const joinButtons = document.querySelectorAll('.joinLobbyBtn');
