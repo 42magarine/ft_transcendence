@@ -39,18 +39,6 @@ export default class UserManagement extends AbstractView {
                 {
                     type: 'buttongroup',
                     props: {
-                        toggles: [
-                            { id: 'emailVerified', name: 'emailVerified', label: window.ls.__('Email Verified:'), checked: false },
-                            { id: 'twoFAEnabled', name: 'twoFAEnabled', label: window.ls.__('2FA Enabled:'), checked: false },
-                            { id: 'googleSignIn', name: 'googleSignIn', label: window.ls.__('Google Sign-In:'), checked: false, readonly: true }
-                        ],
-                        layout: 'stack',
-                        align: 'left'
-                    }
-                },
-                {
-                    type: 'buttongroup',
-                    props: {
                         buttons: [
                             { text: window.ls.__('Create User'), type: 'submit', className: 'btn btn-green' }
                         ],

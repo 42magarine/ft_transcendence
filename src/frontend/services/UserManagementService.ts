@@ -102,6 +102,7 @@ export default class UserManagementService {
                 return await response.text();
             }
             else {
+                console.log(userData);
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: {
@@ -349,8 +350,7 @@ export default class UserManagementService {
                         email: formData.get('email') as string,
                         password: formData.get('password') as string,
                         role: formData.get('role') as string,
-                        emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
-                        twoFAEnabled: formData.get('twoFAEnabled') as string,
+                        emailVerified: true,
                         status: 'offline'
                     };
 
