@@ -1,0 +1,167 @@
+import AbstractView from '../../utils/AbstractView.js';
+import Card from '../components/Card.js';
+import Router from '../../utils/Router.js';
+import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
+
+export default class Tournament extends AbstractView {
+    private lobbyId: string;
+    private lobby!: ILobbyState;
+    private players: IPlayerState[] = [];
+
+    constructor(params: URLSearchParams) {
+        super();
+
+        this.initEvents = this.setupEvents.bind(this);
+
+        this.lobbyId = params.get('id') || '';
+        if (!this.lobbyId) {
+            console.error("Lobby ID is missing!");
+            Router.redirect('/lobbylist');
+        }
+        for (let i = 0; i < 8; i++) {
+            this.players[i] = {
+                userName: 'Waiting for Opponent...',
+                playerNumber: i + 1,
+                userId: i + 1,
+                isReady: false
+            };
+        }
+        this.setTitle(`Lobby ${this.lobbyId}`);
+    }
+
+    async getHtml(): Promise<string> {
+        this.lobby = window.tournamentService!.getLobby();
+
+        for (let i = 0; i < 8; i++) {
+            this.players[i] = {
+                userName: 'Waiting for Opponent...',
+                playerNumber: i + 1,
+                userId: i + 1,
+                isReady: false
+            };
+        }
+        if (this.lobby.lobbyPlayers) {
+            for (let i = 0; i < this.lobby.lobbyPlayers.length && i < 8; i++) {
+                this.players[i] = this.lobby.lobbyPlayers[i];
+            }
+        }
+
+        const lobbyCard = await new Card().renderCard(
+            {
+                title: `Lobby ${this.lobbyId}`,
+                contentBlocks:
+                    [
+                        {
+                            type: 'separator',
+                        },
+                        // Matchup buttons
+                        {
+                            type: 'buttongroup',
+                            props:
+                            {
+                                buttons:
+                                    [
+                                        {
+                                            id: 'player1',
+                                            text: this.players[0].userName,
+                                            className:
+                                                `btn ${this.players[0].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        },
+                                        {
+                                            id: 'player2',
+                                            text: this.players[1].userName || "Waiting for Opponent...",
+                                            className:
+                                                `btn ${this.players[1].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        },
+                                        {
+                                            id: 'player3',
+                                            text: this.players[2].userName || "Waiting for Opponent...",
+                                            className:
+                                                `btn ${this.players[2].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        },
+                                        {
+                                            id: 'player4',
+                                            text: this.players[3].userName || "Waiting for Opponent...",
+                                            className:
+                                                `btn ${this.players[3].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        },
+                                        {
+                                            id: 'player5',
+                                            text: this.players[4].userName || "Waiting for Opponent...",
+                                            className:
+                                                `btn ${this.players[4].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        },
+                                        {
+                                            id: 'player6',
+                                            text: this.players[5].userName || "Waiting for Opponent...",
+                                            className:
+                                                `btn ${this.players[5].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        },
+                                        {
+                                            id: 'player7',
+                                            text: this.players[6].userName || "Waiting for Opponent...",
+                                            className:
+                                                `btn ${this.players[6].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        },
+                                        {
+                                            id: 'player8',
+                                            text: this.players[7].userName || "Waiting for Opponent...",
+                                            className:
+                                                `btn ${this.players[7].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        },
+                                    ],
+                            }
+                        },
+                        {
+                            type: 'separator',
+                        },
+                        // Action buttons
+                        {
+                            type: 'buttongroup',
+                            props:
+                            {
+                                buttons:
+                                    [
+                                        {
+                                            id: 'startGameBtn',
+                                            text: 'Click when Ready',
+                                            className: 'btn btn-primary',
+                                            type: 'button'
+                                        },
+                                        {
+                                            id: 'leaveBtn',
+                                            text: 'Leave Lobby',
+                                            type: 'button',
+                                            href: '/lobbylist'
+                                        }
+                                    ],
+                            }
+                        }
+                    ]
+            });
+        return this.render(`${lobbyCard}`);
+    }
+
+    private setupEvents(): void {
+        console.log('[TournamentView] setupEvents()');
+
+        window.tournamentService?.setupEventListener();
+    }
+
+    private cleanupEvents(): void {
+        console.log('[TournamentView] cleanupEvents()');
+
+        if (window.tournamentService) {
+            const startButton = document.getElementById('startGameBtn');
+            if (startButton) {
+                startButton.removeEventListener('click', window.tournamentService.handleStartGameClick);
+            }
+
+            const leaveButton = document.getElementById('leaveBtn');
+            if (leaveButton) {
+                leaveButton.removeEventListener('click', window.tournamentService.handleLeaveLobbyClick
+                );
+            }
+        }
+    }
+}

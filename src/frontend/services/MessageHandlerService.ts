@@ -25,10 +25,11 @@ export default class MessageHandlerService {
         window.ft_socket.send(JSON.stringify(msg));
     }
 
-    public async createLobby(userId: number, maxPlayers: number) {
+    public async createLobby(userId: number, lobbyType: "game" | "tournament", maxPlayers: number) {
         const msg: IClientMessage = {
             type: 'createLobby',
             userId,
+            lobbyType,
             maxPlayers
         };
         await this.safeSend(msg);

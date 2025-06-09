@@ -2,8 +2,7 @@ import Home from './views/Home.js';
 import Pong from './views/Pong.js';
 import LobbyList from './views/LobbyList.js';
 import Lobby from './views/Lobby.js';
-import TournamentFour from "./views/TournamentFour.js";
-import TournamentEight from "./views/TournamentEight.js"
+import Tournament from "./views/Tournament.js"
 import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';
@@ -63,24 +62,9 @@ const routes: Route[] = [
         }
     },
     {
-        path: '/lobby/:id',
+        path: '/tournament/:id',
         role: 'user',
-        view: TournamentFour,
-        metadata: {
-            title: 'Transcendence - Tournament',
-            description: 'Welcome to Pong'
-        },
-        onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
-            if (!to.includes('/pong/')) {
-                window.messageHandler!.leaveLobby(params.id);
-            }
-            return true;
-        }
-    },
-    {
-        path: '/lobby/:id',
-        role: 'user',
-        view: TournamentEight,
+        view: Tournament,
         metadata: {
             title: 'Transcendence - Tournament',
             description: 'Welcome to Pong'

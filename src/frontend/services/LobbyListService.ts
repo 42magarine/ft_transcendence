@@ -4,7 +4,6 @@ import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
 
 export default class LobbyListService {
     private lobbyData: ILobbyState[] = [];
-    // private lobbyDataResolvers: ((lobbies: ILobbyState[]) => void)[] = [];
 
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
@@ -12,7 +11,6 @@ export default class LobbyListService {
         switch (data.type) {
             case 'lobbyList':
                 this.lobbyData = data.lobbies || [];
-                // this.resolveLobbyDataPromises(this.lobbyData);
                 break;
             case 'lobbyCreated':
                 // console.log(window.currentUser)
@@ -22,7 +20,12 @@ export default class LobbyListService {
                 }
                 if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
-                    Router.redirect(`/lobby/${data.lobbyId}`);
+                    if (data.lobbyType === "game") {
+                        Router.redirect(`/lobby/${data.lobbyId}`);
+                    }
+                    else if (data.lobbyType === "tournament") {
+                        Router.redirect(`/tournament/${data.lobbyId}`);
+                    }
                 }
                 break;
             case 'joinedLobby':
@@ -32,9 +35,14 @@ export default class LobbyListService {
                     window.messageHandler!.requestLobbyList();
                     Router.update()
                 }
-                if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
+                if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler && data.lobbyType === 'game') {
                     window.messageHandler.requestLobbyList();
-                    Router.redirect(`/lobby/${data.lobbyId}`);
+                    if (data.lobbyType === "game") {
+                        Router.redirect(`/lobby/${data.lobbyId}`);
+                    }
+                    else if (data.lobbyType === "tournament") {
+                        Router.redirect(`/tournament/${data.lobbyId}`);
+                    }
                 }
                 break;
             case 'leftLobby':
@@ -51,15 +59,11 @@ export default class LobbyListService {
             createGameBtn.addEventListener('click', this.handleCreateGameClick);
         }
 
-        const createTournamentButton4 = document.getElementById('createTournamentBtn4');
-        if (createTournamentButton4) {
-            createTournamentButton4.addEventListener('click', this.handleCreateTournamentClick4);
+        const createTournamentBtn = document.getElementById('createTournamentBtn');
+        if (createTournamentBtn) {
+            createTournamentBtn.addEventListener('click', this.handleCreateTournamentClick);
         }
 
-        const createTournamentButton8 = document.getElementById('createTournamentBtn8');
-        if (createTournamentButton8) {
-            createTournamentButton8.addEventListener('click', this.handleCreateTournamentClick8);
-        }
     }
 
     public setupJoinLobbyButtonListener(): void {
@@ -80,7 +84,7 @@ export default class LobbyListService {
         if (window.currentUser) {
             if (window.messageHandler && window.currentUser.id) {
                 try {
-                    await window.messageHandler.createLobby(window.currentUser.id, 2);
+                    await window.messageHandler.createLobby(window.currentUser.id, "game", 2);
                 }
                 catch (error) {
                     console.error("LobbyListService: Error calling createLobby:", error);
@@ -92,7 +96,7 @@ export default class LobbyListService {
         }
     }
 
-    public handleCreateTournamentClick4 = async (e: MouseEvent) => {
+    public handleCreateTournamentClick = async (e: MouseEvent) => {
         e.preventDefault();
 
         if (!window.currentUser) {
@@ -103,38 +107,16 @@ export default class LobbyListService {
         if (window.currentUser) {
             if (window.messageHandler && window.currentUser.id) {
                 try {
-                    await window.messageHandler.createLobby(window.currentUser.id, 4);
+                    // need to adjust maxPlayer input for create Lobby maybe and not hardcode to 8 players dunno how relevant for backend
+                    await window.messageHandler.createLobby(window.currentUser.id, "tournament", 8);
                 }
                 catch (error) {
-                    console.error("LobbyListService: Error calling createLobby:", error);
+                    console.error("LobbyListService: Error calling createTournament:", error);
                 }
             }
         }
         else {
-            console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
-        }
-    }
-
-    public handleCreateTournamentClick8 = async (e: MouseEvent) => {
-        e.preventDefault();
-
-        if (!window.currentUser) {
-            console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
-            return;
-        }
-
-        if (window.currentUser) {
-            if (window.messageHandler && window.currentUser.id) {
-                try {
-                    await window.messageHandler.createLobby(window.currentUser.id, 4);
-                }
-                catch (error) {
-                    console.error("LobbyListService: Error calling createLobby:", error);
-                }
-            }
-        }
-        else {
-            console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
+            console.warn("LobbyListService: createTournamentBtn clicked, but messageHandler is not available.");
         }
     }
 
@@ -166,38 +148,6 @@ export default class LobbyListService {
             console.warn("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
         }
     }
-
-    // private resolveLobbyDataPromises(lobbies: ILobbyState[]): void {
-    //     this.lobbyDataResolvers.forEach(resolve => resolve(lobbies));
-    //     this.lobbyDataResolvers = [];
-    // }
-
-    // public async getLobbies(): Promise<ILobbyState[]> {
-    //     if (!window.messageHandler) {
-    //         console.warn("LobbyListService getLobbies: messageHandler not found.");
-    //         return Promise.resolve(this.lobbyData);
-    //     }
-
-    //     if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-    //         console.warn("LobbyListService getLobbies: WebSocket not open.");
-    //         return Promise.resolve(this.lobbyData);
-    //     }
-
-    //     const promise = new Promise<ILobbyState[]>((resolve) => {
-    //         this.lobbyDataResolvers.push(resolve);
-    //     });
-
-    //     try {
-    //         await window.messageHandler.requestLobbyList();
-    //     }
-    //     catch (error) {
-    //         console.error("LobbyListService getLobbies: Error during socket readiness or requesting list:", error);
-    //         this.resolveLobbyDataPromises(this.lobbyData);
-    //     }
-
-    //     return promise;
-    // }
-
     public getLobbyList(): ILobbyState[] {
         return this.lobbyData;
     }

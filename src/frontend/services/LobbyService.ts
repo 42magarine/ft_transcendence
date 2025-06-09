@@ -16,7 +16,7 @@ export default class LobbyService {
         // console.log("LobbyService msg received: " + data)
         switch (data.type) {
             case 'lobbyState':
-                if (data.lobby) {
+                if (data.lobby && data.lobby.lobbyType === 'game') {
                     console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
@@ -29,7 +29,7 @@ export default class LobbyService {
                     }
                 }
             case 'playerJoined':
-                if (data.lobby) {
+                if (data.lobby && data.lobby.lobbyType === 'game') {
                     console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
@@ -44,7 +44,7 @@ export default class LobbyService {
                 }
                 break;
             case 'playerLeft':
-                if (data.lobby) {
+                if (data.lobby && data.lobby.lobbyType === 'game') {
                     console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
@@ -59,7 +59,7 @@ export default class LobbyService {
                 }
                 break;
             case 'playerReady':
-                if (data.lobby) {
+                if (data.lobby && data.lobby.lobbyType === 'game') {
                     console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
