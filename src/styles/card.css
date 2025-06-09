@@ -71,6 +71,7 @@
     backdrop-filter: none;
   }
   .card input[type="checkbox"] {
+    background-color: red;
     @apply h-[1em] w-[1em] bg-[rgba(255,255,255,0.05)] border backdrop-blur-md text-[white] shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-shadow duration-[0.2s,outline-color] delay-[0.2s] appearance-none cursor-pointer rounded-xl border-solid border-[rgba(255,255,255,0.2)]; /* Base checkbox size */ /* Card styling */ /* Transition effects */ /* Remove default checkbox appearance */
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -85,7 +86,7 @@
 
   /* Style for checked state with white marker */
   .card input[type="checkbox"]:checked {
-    @apply bg-[url("data:image/svg+xml,%3Csvg_xmlns='http://www.w3.org/2000/svg'_viewBox='0_0_24_24'_fill='white'%3E%3Cpath_d='M9_16.17L4.83_12l-1.42_1.41L9_19_21_7l-1.41-1.41L9_16.17z'/%3E%3C/svg%3E")] bg-center bg-no-repeat bg-[0.7em];
+    background-color: green;
   }
 
   /* High Contrast Checked Checkbox */

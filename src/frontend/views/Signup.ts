@@ -95,7 +95,8 @@ export default class Signup extends AbstractView {
                             if (!response.ok) throw new Error(`QR API error: ${response.status}`);
 
                             const qr_response = await response.json();
-                            qrDisplay.innerHTML = `<img src="${qr_response.qr}" />`;
+                            const qr_alt_text = window.ls.__("QR Code for 2FA");
+                            qrDisplay.innerHTML = `<img alt="${qr_alt_text}" src="${qr_response.qr}" />`;
                             secHidden.value = qr_response.secret;
                         } catch (err) {
                             console.error('[2FA] Failed to fetch QR:', err);

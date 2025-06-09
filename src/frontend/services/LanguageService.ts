@@ -10,9 +10,6 @@ export default class LanguageService {
             this.langSelectAction();
         };
         document.addEventListener('RouterContentLoaded', langSelectActionHandler);
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', langSelectActionHandler);
-        }
     }
 
     private async loadTranslations(): Promise<void> {
@@ -59,19 +56,49 @@ export default class LanguageService {
 
     private translateTextElements(): void {
         const elementsToTranslate = document.querySelectorAll('.__');
-        elementsToTranslate.forEach((element, index) => {
+        elementsToTranslate.forEach((element) => {
             if (!element.getAttribute('data-original-text')) {
-                const englishKey = element.textContent?.trim();
-                if (englishKey) {
-                    element.setAttribute('data-original-text', englishKey);
+                const currentText = element.textContent?.trim();
+                if (currentText) {
+                    const englishKey = this.findEnglishKeyByTranslation(currentText);
+                    if (englishKey) {
+                        element.setAttribute('data-original-text', englishKey);
+                    } else {
+                        element.setAttribute('data-original-text', currentText);
+                    }
                 }
             }
+
             const englishKey = element.getAttribute('data-original-text');
             if (englishKey) {
                 const translatedText = this.__(englishKey);
                 element.textContent = translatedText;
             }
         });
+    }
+
+    private findEnglishKeyByTranslation(translatedText: string): string | null {
+        const currentLanguage = this.getCurrentLanguage() || 'en_EN';
+
+        for (const key of Object.keys(this.translations)) {
+            const translationObj = this.translations[key];
+
+            if (translationObj[currentLanguage] === translatedText) {
+                return translationObj['en_EN'] || key;
+            }
+
+            if (typeof translationObj === 'object') {
+                for (const nestedKey of Object.keys(translationObj)) {
+                    const nestedTranslation = translationObj[nestedKey];
+                    if (typeof nestedTranslation === 'object' &&
+                        nestedTranslation[currentLanguage] === translatedText) {
+                        return nestedTranslation['en_EN'] || nestedKey;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private langSelectAction(): Record<string, string> {

@@ -29,15 +29,18 @@ export class AccessibilityService {
         body.classList.add(this.contrast);
         body.classList.add(this.textSize);
 
-        document.cookie = `accessibility_contrast=${this.contrast}; path=/; max-age=31536000`; // 1 year
-        document.cookie = `accessibility_text_size=${this.textSize}; path=/; max-age=31536000`; // 1 year
+        // Cookie-Werte ohne Suffix speichern für Konsistenz
+        const contrastValue = this.contrast.replace('-contrast', '');
+        const textSizeValue = this.textSize.replace('-textSize', '');
+
+        document.cookie = `accessibility_contrast=${contrastValue}; path=/; max-age=31536000`; // 1 year
+        document.cookie = `accessibility_text_size=${textSizeValue}; path=/; max-age=31536000`; // 1 year
     }
 
     static setupDropdownKeyboardNavigation() {
         document.addEventListener('keydown', (e) => {
             const activeElement = document.activeElement as HTMLElement;
 
-            // Space nur für dropdown-head (zum Ein-/Ausklappen)
             if (e.key === ' ' && activeElement?.classList.contains('dropdown-head')) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -49,7 +52,6 @@ export class AccessibilityService {
 
                     this.dropdownStates.set(activeElement, newState);
 
-                    // State erst setzen, dann DOM manipulieren
                     setTimeout(() => {
                         activeElement.setAttribute('aria-expanded', newState.toString());
                         dropdown.classList.toggle('open', newState);
@@ -57,8 +59,7 @@ export class AccessibilityService {
                 }
             }
 
-            // Enter für dropdown-items (zum Aktivieren)
-            if (e.key === 'Enter' && activeElement?.closest('.dropdown-item')) {
+            if ((e.key === 'Enter' || e.key === 'Space') && activeElement?.closest('.dropdown-item')) {
                 e.preventDefault();
                 if (activeElement.tagName === 'BUTTON') {
                     activeElement.click();
@@ -92,8 +93,12 @@ export class AccessibilityService {
             return cookie ? cookie.split('=')[1] : null;
         };
 
-        this.textSize = getCookieValue('accessibility_text_size') || 'normal-textSize';
-        this.contrast = getCookieValue('accessibility_contrast') || 'normal-contrast';
+        // Konsistente Cookie-zu-Klassen-Zuordnung
+        const contrastCookie = getCookieValue('accessibility_contrast') || 'normal';
+        const textSizeCookie = getCookieValue('accessibility_text_size') || 'normal';
+
+        this.contrast = contrastCookie + '-contrast';
+        this.textSize = textSizeCookie + '-textSize';
 
         this.applyAccessibilities();
 
@@ -103,6 +108,8 @@ export class AccessibilityService {
             } else {
                 this.contrast = 'normal-contrast';
             }
+            console.log("handleContrastToggle ");
+            console.log(this.contrast);
             this.applyAccessibilities();
         };
 
@@ -114,8 +121,8 @@ export class AccessibilityService {
             } else {
                 this.textSize = 'normal-textSize';
             }
-            console.log("handleTextsizeToggle ")
-            console.log(this.textSize)
+            console.log("handleTextsizeToggle ");
+            console.log(this.textSize);
             this.applyAccessibilities();
         };
 
@@ -155,8 +162,7 @@ export class AccessibilityService {
 
                     button.addEventListener('keydown', (e) => {
                         const keyEvent = e as KeyboardEvent;
-                        // Nur Enter für Sprachauswahl, Space nicht mehr
-                        if (keyEvent.key === 'Enter') {
+                        if (keyEvent.key === 'Enter' || keyEvent.key === 'Space') {
                             keyEvent.preventDefault();
                             const lang = (keyEvent.currentTarget as HTMLElement).getAttribute('data-lang');
                             if (lang) {

@@ -17,7 +17,7 @@ export type ButtonColor =
     | 'transparent'
     | 'outline';
 
-export type ButtonType = 
+export type ButtonType =
     | 'submit'
     | 'delete'
     | 'button'
@@ -35,15 +35,16 @@ export interface ButtonProps {
     align?: ButtonAlign;
     color?: ButtonColor;
     type?: ButtonType;
-    dataAttributes?: any;
+    dataAttributes?: Record<string, string>;
+    aria?: Record<string, string>;
 }
 
 export interface ButtonGroupProps {
     align?: ButtonAlign;
     layout?:
-        | 'stack'
-        | 'grid'
-        | 'group';
+    | 'stack'
+    | 'grid'
+    | 'group';
     className?: string;
     columns?: number;
     buttons?: ButtonProps[];
@@ -162,7 +163,7 @@ export type ContentBlock =
     | { type: 'container'; props: ContainerProps }
     | { type: 'twofactor'; props: { length?: number; namePrefix?: string } }
     | { type: 'signup-footer'; props?: {} }
-    | { type: 'avatar'; props: AvatarProps } ;
+    | { type: 'avatar'; props: AvatarProps };
 
 // FORM / LABEL / TOGGLE
 
@@ -179,7 +180,7 @@ export interface LabelProps {
     id?: string;
     className?: string;
     iconHtml?: string;
-    color?: 'green' | 'red' | 'gray' | 'yellow' | string; 
+    color?: 'green' | 'red' | 'gray' | 'yellow' | string;
 }
 
 export interface ToggleProps {

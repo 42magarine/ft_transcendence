@@ -43,6 +43,10 @@ export default class Login extends AbstractView {
                                             text: window.ls.__('Login'),
                                             type: 'submit',
                                             className: 'btn btn-primary',
+                                            aria: {
+                                                "description": "Submit Login Form",
+                                                "describedby": "login-form"
+                                            },
                                         },
                                         {
                                             id: 'signup-redirect',

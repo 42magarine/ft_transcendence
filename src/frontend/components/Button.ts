@@ -20,8 +20,10 @@ export default class Button extends AbstractView {
         icon = '',
         align = 'center',
         textBefore = '',
-        dataAttributes = {}
-    }: ButtonProps): Promise<string> {
+        dataAttributes = {},
+        aria = {}
+    }: ButtonProps & { aria?: Record<string, string> }): Promise<string> {
+        console.log('Aria attributes received:', aria); // Debug-Zeile
         if (type === 'google-signin')
             return renderGoogleSignInButton(align);
 
@@ -54,6 +56,13 @@ export default class Button extends AbstractView {
         }
         dataAttrs = dataAttrs.trim();
 
+        // Add any extra aria-* attributes
+        let ariaAttrs = '';
+        for (const [key, value] of Object.entries(aria || {})) {
+            ariaAttrs += `aria-${key}="${value}" `;
+        }
+        ariaAttrs = ariaAttrs.trim();
+
         // Icon rendering (if provided)
         const iconHtml = icon ? `<i class="fa-solid fa-${icon}"></i>` : '';
         // Combine icon and text with spacing and scaling support
@@ -66,8 +75,8 @@ export default class Button extends AbstractView {
 
         // Render as <a> or <button>
         const element = href
-            ? `<a ${(id) ? 'id="' + id + '"' : ''} href="${href}" router class="${finalClass}" ${dataAttrs}>${content}</a>`
-            : `<button ${(id) ? 'id="' + id + '"' : ''} type="${type}" class="${finalClass}" ${clickAttr} ${dataAttrs}>${content}</button>`;
+            ? `<a ${(id) ? 'id="' + id + '"' : ''} href="${href}" router class="${finalClass}" ${dataAttrs} ${ariaAttrs}>${content}</a>`
+            : `<button aria-label="${text}" ${(id) ? 'id="' + id + '"' : ''} type="${type}" class="${finalClass}" ${clickAttr} ${dataAttrs} ${ariaAttrs}>${content}</button>`;
 
         // Optionally add inline label text before the button (e.g. "Don't have an account? [Sign up]")
         const combined = type === 'text-with-button'
@@ -170,7 +179,7 @@ export default class Button extends AbstractView {
     }): Promise<string> {
         const baseUrl = window.location.origin;
         const headContent = head.img
-            ? `<img src="${baseUrl}${head.img}" class="flag active" />`
+            ? `<img src="${baseUrl}${head.img}" alt="Dowpdown Icon ${window.ls.__(head.text || 'for ')}" class="flag active" />`
             : `<i class="fa-solid fa-${head.icon} mr-2"></i>${window.ls.__(head.text || '')}`;
 
         const itemsHtml = items.map(item => {
@@ -183,11 +192,10 @@ export default class Button extends AbstractView {
             const iconOrImg = item.img
                 ? `<img src="${baseUrl}${item.img}" alt="${item.text}" class="flag passive" ${attrs} />`
                 : `<i class="fa-solid fa-${item.icon} mr-2"></i>${window.ls.__(item.text)}`;
-            console.log(item)
             if (item.href)
                 return `<div class="dropdown-item"><a href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
             else
-                return `<div class="dropdown-item"><button ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
+                return `<div class="dropdown-item"><button aria-label="${item.text}" ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
         }).join('\n');
 
         return this.render(`
@@ -204,6 +212,6 @@ export default class Button extends AbstractView {
 
 
     async getHtml(): Promise<string> {
-        return this.render(`<button class="btn">Default Button</button>`);
+        return this.render(`<button aria-label="Default Button" class="btn">Default Button</button>`);
     }
 }
