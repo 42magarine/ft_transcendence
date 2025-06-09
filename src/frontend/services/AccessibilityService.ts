@@ -29,7 +29,6 @@ export class AccessibilityService {
         body.classList.add(this.contrast);
         body.classList.add(this.textSize);
 
-        // Cookie-Werte ohne Suffix speichern für Konsistenz
         const contrastValue = this.contrast.replace('-contrast', '');
         const textSizeValue = this.textSize.replace('-textSize', '');
 

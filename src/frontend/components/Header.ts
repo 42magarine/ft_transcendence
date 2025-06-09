@@ -115,7 +115,7 @@ export default class Header extends AbstractView {
             userDropDown = `
 			<div class="dropdown">
 				<div class="dropdown-head">
-					<a router href="/users/${currentUser.id}">
+					<a router class="dropdown-head" href="/users/${currentUser.id}">
 						<div class="dropdown-name"  text-white font-semibold> ${currentUser.name}</div>
 						<div class="dropdown-img">${dropDownAvatar}</div>
 					</a>

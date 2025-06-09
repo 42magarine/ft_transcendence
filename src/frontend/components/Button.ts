@@ -23,40 +23,32 @@ export default class Button extends AbstractView {
         dataAttributes = {},
         aria = {}
     }: ButtonProps & { aria?: Record<string, string> }): Promise<string> {
-        console.log('Aria attributes received:', aria); // Debug-Zeile
         if (type === 'google-signin')
             return renderGoogleSignInButton(align);
 
-        // Base button class, include text-inherit to support accessibility scaling
         let finalClass = 'btn text-inherit';
 
-        // Apply color variant
         if (color) finalClass += ` btn-${color}`;
         else if (type === 'submit') finalClass += ' btn-green';
         else if (type === 'delete') finalClass += ' btn-red';
         else finalClass += ' btn-primary';
 
-        // Always inherit text size; only append className if it doesn't conflict
         finalClass += ' text-inherit';
         if (className && !/text-(xs|sm|md|lg|xl)/.test(className)) {
             finalClass += ` ${className.trim()}`;
         }
 
 
-        // Text alignment (left, center, right)
         const alignClass = align ? `text-${align}` : '';
 
-        // Optional click handler
         const clickAttr = onClick ? `onclick="${onClick}"` : '';
 
-        // Add any extra data-* attributes
         let dataAttrs = '';
         for (const [key, value] of Object.entries(dataAttributes || {})) {
             dataAttrs += `data-${key}="${value}" `;
         }
         dataAttrs = dataAttrs.trim();
 
-        // Add any extra aria-* attributes
         let ariaAttrs = '';
         for (const [key, value] of Object.entries(aria || {})) {
             ariaAttrs += `aria-${key}="${value}" `;
