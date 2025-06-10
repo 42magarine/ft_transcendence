@@ -357,15 +357,20 @@ export class MatchLobby
         } else {
             console.error("Cannot start game: missing players.");
             this.stopGame();
-             }
-if (player1?.connection.readyState === WebSocket.OPEN) {
+            return;
+        }
+
+        const initialGameState = game!.getState();
+
+        if (player1?.connection.readyState === WebSocket.OPEN) {
             player1.connection.send(JSON.stringify({
                 type: "playerJoined",
                 matchId: matchId,
                 gameState: initialGameState
             }));
             console.log(`[Backend] Sent playerJoined to Player 1 (User ID: ${player1.userId}) for match ${matchId}`);
-       
+        }
+
         if (player2?.connection.readyState === WebSocket.OPEN) {
             player2.connection.send(JSON.stringify({
                 type: "playerJoined",
@@ -389,10 +394,6 @@ if (player1?.connection.readyState === WebSocket.OPEN) {
             gameState: game!.getState(),
             matchId: matchId
         });
-
-        const initialGameState = game!.getState();
-
-        
     }
 
     // this._dbGame nicht direkt aufrufen, sondern über funktionen aus MatchService.ts

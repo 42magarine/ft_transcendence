@@ -120,28 +120,30 @@ export default class PongService {
 
         switch (data.type) {
             case 'playerJoined':
-
-                if (data.matchId === this.matchId)
+                console.log("playerjoined case reached. handed over info: ", data);
+                if (data.gameState)
                 {
-                    this.gameState = data.gameState!;
-
-                    if (window.currentUser?.id === this.gameState.player1Id) {
-                        this.isPlayer1Paddle = true;
-                        this.isPlayer2Paddle = false;
-                        console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
-                    }
-                    else if (window.currentUser?.id === this.gameState.player2Id) {
-                        this.isPlayer1Paddle = false;
-                        this.isPlayer2Paddle = true;
-                        console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
-                    }
-                    else {
-                        this.isPlayer1Paddle = false;
-                        this.isPlayer2Paddle = false;
-                        console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
+                    this.gameState = data.gameState;
+                    {
+                        console.log("window current user:", window.currentUser?.id, " window gamestate player1id", this.gameState.player1Id)
+                        console.log("window current user:", window.currentUser?.id, " window gamestate player2id", this.gameState.player2Id)
+                        if (window.currentUser?.id === this.gameState.player1Id) {
+                            this.isPlayer1Paddle = true;
+                            this.isPlayer2Paddle = false;
+                            console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
+                        }
+                        else if (window.currentUser?.id === this.gameState.player2Id) {
+                            this.isPlayer1Paddle = false;
+                            this.isPlayer2Paddle = true;
+                            console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
+                        }
+                        else {
+                            this.isPlayer1Paddle = false;
+                            this.isPlayer2Paddle = false;
+                            console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
+                        }
                     }
                 }
-
                 // NEW: Start the client-side input loop when the game is joined
                 if (this.animationFrameId === null) {
                     this.clientLoop();
@@ -157,9 +159,9 @@ export default class PongService {
             case 'gameStateUpdate':
                 if (data.activeGamesStates && Array.isArray(data.activeGamesStates))
                 {
-                    console.log('Received gameStateUpdate. Looking for matchId:', this.matchId, 'in states:', data.activeGamesStates)
+                    // console.log('Received gameStateUpdate. Looking for matchId:', this.matchId, 'in states:', data.activeGamesStates)
                     const relevantGameState = data.activeGamesStates.find(gs => gs.matchId === this.matchId)
-                    console.log('found relevantGameState:', relevantGameState);
+                    // console.log('found relevantGameState:', relevantGameState);
                     if (relevantGameState)
                     {
                         this.gameState = relevantGameState;
@@ -195,9 +197,9 @@ export default class PongService {
             direction = 'down';
         }
 
-        if (direction && window.messageHandler) {
+        if (direction && window.messageHandler && this.matchId) {
             if (this.isPlayer1Paddle || this.isPlayer2Paddle) {
-                window.messageHandler.movePaddle(window.currentUser?.id, direction);
+                window.messageHandler.movePaddle(window.currentUser?.id, this.matchId, direction);
             }
         }
 
