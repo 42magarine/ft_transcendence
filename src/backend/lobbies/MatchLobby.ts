@@ -357,7 +357,22 @@ export class MatchLobby
         } else {
             console.error("Cannot start game: missing players.");
             this.stopGame();
-            return;
+            if (player1?.connection.readyState === WebSocket.OPEN) {
+            player1.connection.send(JSON.stringify({
+                type: "playerJoined",
+                matchId: matchId,
+                gameState: initialGameState
+            }));
+            console.log(`[Backend] Sent playerJoined to Player 1 (User ID: ${player1.userId}) for match ${matchId}`);
+        }
+
+        if (player2?.connection.readyState === WebSocket.OPEN) {
+            player2.connection.send(JSON.stringify({
+                type: "playerJoined",
+                matchId: matchId,
+                gameState: initialGameState
+            }));
+            console.log(`[Backend] Sent playerJoined to Player 2 (User ID: ${player2.userId}) for match ${matchId}`);
         }
 
         game!.startGameLoop();
@@ -377,23 +392,7 @@ export class MatchLobby
 
         const initialGameState = game!.getState();
 
-        if (player1?.connection.readyState === WebSocket.OPEN) {
-            player1.connection.send(JSON.stringify({
-                type: "playerJoined",
-                matchId: matchId,
-                gameState: initialGameState
-            }));
-            console.log(`[Backend] Sent playerJoined to Player 1 (User ID: ${player1.userId}) for match ${matchId}`);
-        }
-
-        if (player2?.connection.readyState === WebSocket.OPEN) {
-            player2.connection.send(JSON.stringify({
-                type: "playerJoined",
-                matchId: matchId,
-                gameState: initialGameState
-            }));
-            console.log(`[Backend] Sent playerJoined to Player 2 (User ID: ${player2.userId}) for match ${matchId}`);
-        }
+        
     }
 
     // this._dbGame nicht direkt aufrufen, sondern über funktionen aus MatchService.ts
