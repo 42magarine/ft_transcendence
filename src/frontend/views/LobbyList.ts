@@ -12,13 +12,14 @@ export default class LobbyList extends AbstractView {
 
     async getHtml(): Promise<string> {
         let lobbies: ILobbyState[] = [];
-        if (window.lobbyListService && window.lobbyListService.getLobbies) {
-            lobbies = await window.lobbyListService.getLobbies();
-            lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers);
-        }
+        lobbies = await window.lobbyListService.getLobbies();
+
+        lobbies = lobbies.filter(
+            (lobby) => lobby.currentPlayers !== lobby.maxPlayers && !lobby.isStarted
+        );
 
         const lobbyListCard = await new Card().renderCard({
-            title: 'Available Lobbies',
+            title: window.ls.__('Available Lobbies'),
             contentBlocks: [
                 {
                     type: 'button',
@@ -45,21 +46,21 @@ export default class LobbyList extends AbstractView {
                         text: 'Tournament (8 Players)',
                         type: 'button',
                         className: 'btn btn-primary'
-                    },
+                    }
                 },
                 {
                     type: 'table',
                     props: {
                         id: 'lobby-list',
-                        title: 'Lobby List',
+                        title: window.ls.__('Lobby List'),
                         height: '400px',
                         data: lobbies,
                         columns: [
-                            { key: 'id', label: 'ID' },
-                            { key: 'type', label: 'Type' },
-                            { key: 'players', label: 'Players' },
-                            { key: 'status', label: 'Status' },
-                            { key: 'actions', label: 'Actions' }
+                            { key: 'id', label: window.ls.__('ID') },
+                            { key: 'creatorId', label: window.ls.__('Creator') },
+                            { key: 'players', label: window.ls.__('Players') },
+                            { key: 'status', label: window.ls.__('Status') },
+                            { key: 'actions', label: window.ls.__('Actions') }
                         ],
                         rowLayout: (lobby) => [
                             {
@@ -87,15 +88,16 @@ export default class LobbyList extends AbstractView {
                                 type: 'stat',
                                 props: {
                                     label: '',
-                                    value: lobby.isStarted ? 'Started' : 'Waiting'
+                                    value: lobby.isStarted ? window.ls.__('Started') : window.ls.__('Waiting')
                                 }
                             },
                             {
                                 type: 'button',
-                                props:
-                                {
-                                    text: 'Join Lobby',
-                                    className: 'joinLobbyBtn btn btn-primary ' + ((lobby.currentPlayers == lobby.maxPlayers) ? "disabled" : ""),
+                                props: {
+                                    text: window.ls.__('Join Lobby'),
+                                    className:
+                                        'joinLobbyBtn btn btn-primary ' +
+                                        (lobby.currentPlayers == lobby.maxPlayers ? 'disabled' : ''),
                                     dataAttributes: {
                                         'lobby-id': lobby.lobbyId
                                     }
@@ -138,7 +140,10 @@ export default class LobbyList extends AbstractView {
 
             const joinButtons = document.querySelectorAll('.joinLobbyBtn');
             joinButtons.forEach((btn: Element) => {
-                btn.removeEventListener('click', window.lobbyListService.handleJoinLobbyClick);
+                btn.removeEventListener(
+                    'click',
+                    window.lobbyListService.handleJoinLobbyClick
+                );
             });
         }
     }

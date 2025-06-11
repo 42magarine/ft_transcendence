@@ -1,8 +1,9 @@
 import AbstractView from '../../utils/AbstractView.js';
-import Modal from '../components/Modal.js'
+import Modal from '../components/Modal.js';
 import Card from '../components/Card.js';
 import UserService from '../services/UserService.js';
 import { FriendList } from '../../interfaces/userManagementInterfaces.js';
+import __ from '../services/LanguageService.js';
 
 export default class Friends extends AbstractView {
     constructor() {
@@ -13,7 +14,7 @@ export default class Friends extends AbstractView {
         const friends: FriendList[] = await UserService.getFriends?.() ?? [];
 
         const friendsCard = await new Card().renderCard({
-            title: 'Friends',
+            title: window.ls.__('Friends'),
             formId: 'friend-form',
             contentBlocks: [
                 {
@@ -23,8 +24,8 @@ export default class Friends extends AbstractView {
                             {
                                 id: 'friend-username',
                                 name: 'username',
-                                label: 'Username',
-                                placeholder: 'Search for a friend...'
+                                label: window.ls.__('Username'),
+                                placeholder: window.ls.__('Search for a friend...')
                             }
                         ]
                     }
@@ -35,7 +36,7 @@ export default class Friends extends AbstractView {
                         buttons: [
                             {
                                 id: 'add-friend-btn',
-                                text: 'Add as Friend',
+                                text: window.ls.__('Add as Friend'),
                                 type: 'button',
                                 icon: 'user-plus',
                                 color: 'green'
@@ -58,21 +59,21 @@ export default class Friends extends AbstractView {
                         htmlFor: 'friend-feedback',
                         id: 'friend-feedback',
                         text: '',
-                        className: 'text-sm text-red-500 hidden'
+                        className: 'hidden'
                     }
                 },
                 {
                     type: 'table',
                     props: {
                         id: 'friends-list',
-                        title: 'Your Friends',
+                        title: window.ls.__('Your Friends'),
                         height: '300px',
                         data: friends,
                         columns: [
-                            { key: 'id', label: 'ID' },
-                            { key: 'username', label: 'Username' },
-                            { key: 'status', label: 'Status' },
-                            { key: 'actions', label: 'Actions' }
+                            { key: 'id', label: window.ls.__('ID') },
+                            { key: 'username', label: window.ls.__('Username') },
+                            { key: 'status', label: window.ls.__('Status') },
+                            { key: 'actions', label: window.ls.__('Actions') }
                         ],
                         rowLayout: (friend) => [
                             {
@@ -92,7 +93,7 @@ export default class Friends extends AbstractView {
                             {
                                 type: 'label',
                                 props: {
-                                    text: friend.status === 'online' ? '🟢 Online' : '🔘 Offline',
+                                    text: friend.online === true ? window.ls.__('🟢 Online') : window.ls.__('🔘 Offline'),
                                     htmlFor: `friend-${friend.id}-status`
                                 }
                             },
@@ -103,7 +104,7 @@ export default class Friends extends AbstractView {
                                         {
                                             id: `remove-friend-${friend.id}`,
                                             icon: 'user-minus',
-                                            text: 'Remove',
+                                            text: window.ls.__('Remove'),
                                             type: 'button'
                                         }
                                     ]
@@ -111,33 +112,33 @@ export default class Friends extends AbstractView {
                             }
                         ]
                     }
-                },
-
+                }
             ]
         });
 
         const deleteModal = await new Modal().renderModal({
             id: 'confirm-remove-modal',
-            title: 'Remove Friend',
+            title: window.ls.__('Remove Friend'),
             content: `
-                <p>Are you sure you want to remove this friend?<br>
-                <strong>This action cannot be undone.</strong></p>
+                <p>${window.ls.__('Are you sure you want to remove this friend?')}<br>
+                <strong>${window.ls.__('This action cannot be undone.')}</strong></p>
             `,
             footerButtons: [
                 {
                     id: 'cancel-remove-btn',
-                    text: 'Cancel',
+                    text: window.ls.__('Cancel'),
                     className: 'btn btn-secondary',
                     onClick: `document.getElementById('confirm-remove-modal').classList.add('hidden')`
                 },
                 {
                     id: 'confirm-remove-btn',
-                    text: 'Yes, Remove',
+                    text: window.ls.__('Yes, Remove'),
                     className: 'btn btn-red'
                 }
             ],
             closableOnOutsideClick: true
         });
+
         const html = await this.render(`${friendsCard}${deleteModal}`);
         setTimeout(() => UserService.attachFriendHandlers(), 0);
         return html;

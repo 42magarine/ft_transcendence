@@ -2,12 +2,13 @@ import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Router from '../../utils/Router.js';
 import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
+import __ from '../services/LanguageService.js';
 
 export default class Lobby extends AbstractView {
     private lobbyId: string;
     private lobby!: ILobbyState;
-    private player1: IPlayerState;
-    private player2: IPlayerState;
+    private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isReady: false };
+    private player2: IPlayerState = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
 
     constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
@@ -26,10 +27,8 @@ export default class Lobby extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        this.lobby = window.lobbyService!.getLobby();
+        this.lobby = window.lobbyService.getLobby();
         if (this.lobby.lobbyPlayers) {
-            this.player1 = { userName: 'Waiting for Opponent...', playerNumber: 1, userId: 1, isReady: false };
-            this.player2 = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
             if (this.lobby.lobbyPlayers[0]) {
                 this.player1 = this.lobby.lobbyPlayers[0];
             }
@@ -46,7 +45,6 @@ export default class Lobby extends AbstractView {
                         {
                             type: 'separator',
                         },
-                        // Matchup buttons
                         {
                             type: 'matchup',
                             props:
@@ -57,9 +55,8 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player1',
-                                        text: this.player1.userName,
-                                        className:
-                                            `btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
+                                        text: window.ls.__(this.player1.userName),
+                                        className: `btn state-btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 },
                                 player2:
@@ -68,9 +65,9 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player2',
-                                        text: this.player2.userName || "Waiting for Opponent...",
+                                        text: window.ls.__(this.player2.userName),
                                         className:
-                                            `btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
+                                            `btn state-btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 }
                             }
@@ -78,7 +75,6 @@ export default class Lobby extends AbstractView {
                         {
                             type: 'separator',
                         },
-                        // Action buttons
                         {
                             type: 'buttongroup',
                             props:
@@ -87,13 +83,13 @@ export default class Lobby extends AbstractView {
                                     [
                                         {
                                             id: 'startGameBtn',
-                                            text: 'Click when Ready',
+                                            text: window.ls.__('Click when Ready'),
                                             className: 'btn btn-primary',
                                             type: 'button'
                                         },
                                         {
                                             id: 'leaveBtn',
-                                            text: 'Leave Lobby',
+                                            text: window.ls.__('Leave Lobby'),
                                             type: 'button',
                                             href: '/lobbylist'
                                         }

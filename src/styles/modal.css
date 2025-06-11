@@ -1,15 +1,18 @@
 /* modal.css */
 
 .modal-overlay {
-	@apply fixed inset-0 z-50 bg-black/50 flex justify-center items-center hidden;
+    @apply fixed inset-[calc(var(--spacing)*_0)] z-50 items-center justify-center bg-[color-mix(in_srgb,#000_50%,transparent)] left-0 top-0;
 }
 
-.modal-box {
-	@apply bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative;
+.modal-overlay .card{
+    @apply w-[600px] m-auto mt-[200px] h-[300px] overflow-y-scroll p-6 relative pointer-events-none;
+}
+.modal-overlay .card .btn{
+    pointer-events: all;
 }
 
 .modal-title {
-	@apply text-2xl font-bold mb-4;
+	@apply text-2xl font-bold mb-4 text-center;
 }
 
 .modal-content {

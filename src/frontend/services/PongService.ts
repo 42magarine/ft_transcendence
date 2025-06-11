@@ -13,11 +13,14 @@ export default class PongService {
     private canvas!: HTMLCanvasElement;
     private overlay!: HTMLElement;
     private ctx!: CanvasRenderingContext2D;
+    private playerOneNameTag!: HTMLElement;
+    private playerTwoNameTag!: HTMLElement;
 
     private wPressed: boolean = false;
     private sPressed: boolean = false;
 
     private animationFrameId: number | null = null;
+    private countdownActive: boolean = false;
 
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
@@ -74,6 +77,18 @@ export default class PongService {
             throw new Error("Canvas context not available.");
         }
 
+        this.playerOneNameTag = document.getElementById("playerOneNameTag") as HTMLElement;
+        if (!this.playerOneNameTag) {
+            console.error("[PongService] Could not find playerOneNameTag element.");
+            throw new Error("playerOneNameTag element not found.");
+        }
+
+        this.playerTwoNameTag = document.getElementById("playerTwoNameTag") as HTMLElement;
+        if (!this.playerTwoNameTag) {
+            console.error("[PongService] Could not find playerTwoNameTag element.");
+            throw new Error("playerTwoNameTag element not found.");
+        }
+
         this.ctx = ctx;
 
         document.addEventListener('keydown', this.handleKeyDown);
@@ -114,9 +129,6 @@ export default class PongService {
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        //console.log("frontend received: " + data.type);
-
-        console.log("PongService msg received: " + data.type)
 
         switch (data.type) {
             case 'playerJoined':
@@ -170,6 +182,11 @@ export default class PongService {
                             this.clientLoop();
                         }
                     }
+                }
+                // NEU: Wenn das Spiel vorbei ist, stoppe die Loop explizit
+                else if (this.gameState.gameIsOver && this.animationFrameId !== null) {
+                    cancelAnimationFrame(this.animationFrameId);
+                    this.animationFrameId = null;
                 }
                 break;
             case "playerLeft":

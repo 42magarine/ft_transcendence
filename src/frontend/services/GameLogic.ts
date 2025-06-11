@@ -22,7 +22,9 @@ export class LocalGameLogic {
             score2: 0,
             paused: true,
             running: false,
-            gameIsOver: false
+            gameIsOver: false,
+            player1Left: false,
+            player2Left: false
         };
     }
 

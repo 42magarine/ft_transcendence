@@ -34,7 +34,7 @@ export interface User {
 export interface FriendList {
     id?: number;
     username: string;
-    status: 'online' | 'offline';
+    online: boolean;
 }
 
 export interface UserList {

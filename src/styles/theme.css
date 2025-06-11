@@ -1,10 +1,30 @@
-#app {
+main {
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
     transition: background-image 0.01s ease-in-out;
+    background-image: url(/assets/backgrounds/stars.png);
 }
 
-#app {
-    background-image: url(/assets/backgrounds/stars.png);
+.high-contrast main {
+    background-image: none;
+    background-color: white;
+}
+
+.high-contrast header,
+.high-contrast footer {
+	@apply bg-white text-black border-b-2 border-black;
+}
+
+/* Force black text for all form labels and descriptions in high contrast mode */
+.high-contrast label,
+.high-contrast .text-label,
+.high-contrast .text-sm,
+.high-contrast .form-label,
+.high-contrast td,
+.high-contrast th,
+.high-contrast span,
+.high-contrast p,
+.high-contrast div {
+	@apply text-black;
 }

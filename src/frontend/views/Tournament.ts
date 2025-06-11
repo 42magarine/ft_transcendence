@@ -1,18 +1,17 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
+import __ from '../services/LanguageService.js';
 
 export default class Tournament extends AbstractView {
-    constructor() {
-        super();
+	constructor(routeParams: Record<string, string>, queryParams: URLSearchParams = new URLSearchParams()) {
+		super();
 
         this.initEvents = this.setupEvents.bind(this);
         this.destroyEvents = this.cleanupEvents.bind(this);
     }
 
     async getHtml(): Promise<string> {
-        const tournamentCard = await new Card().renderCard({
-
-        });
+        const tournamentCard = await new Card().renderCard({});
         return this.render(`${tournamentCard}`);
     }
 

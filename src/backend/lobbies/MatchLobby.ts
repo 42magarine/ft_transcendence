@@ -73,9 +73,9 @@ export class MatchLobby
         }
     }
 
-    public getGameState(matchId: number): IGameState | null {
+    public getGameState(matchId: number): IGameState | undefined {
         const game = this._games.get(matchId)
-        return game ? game.getState() : null;
+        return game ? game.getState() : undefined;
     }
 
     public getAllActiveGames(): IGameState[]

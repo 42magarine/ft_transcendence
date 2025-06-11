@@ -1,5 +1,9 @@
+/*
+  Based on TailwindCSS recommendations,
+  consider using classes instead of the `@apply` directive
+  @see https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction
+*/
 @import "tailwindcss";
-
 @utility input-glass {
   width: 100%;
   padding: 0.5rem 1rem;
@@ -11,43 +15,104 @@
   color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(255, 255, 255, 0.2);
   transition: box-shadow 0.2s, outline-color 0.2s;
-
 }
 
 /* optional base style for placeholder color (v4 uses currentColor/50) */
 @layer base {
   input.input-glass::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+    @apply text-[rgba(255,255,255,0.6)];
   }
 }
 
 .detail-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+    @apply flex flex-col gap-1 py-2 sm:flex-row sm:justify-between sm:items-center sm:gap-3;
 }
 
 .label {
-  width: 160px;
-  font-weight: bold;
-  color: #ccc;
-  text-align: right;
+    @apply leading-[1em] text-left w-full text-[#ccc] font-bold text-gray-600 sm:w-40 sm:text-right md:text-right lg:text-right;
 }
-
 .value,
 .input {
-  flex: 1;
+  @apply flex-1;
 }
 
 /* Remove spinners in Chrome, Safari, Edge */
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  @apply m-0;
+  -webkit-appearance: none;
 }
 
 /* Remove spinners in Firefox */
-input[type=number] {
-	-moz-appearance: textfield;
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* === HIGH CONTRAST STYLES FOR SLIDERS === */
+.high-contrast input[type="range"] {
+  @apply border border-black outline-none w-full bg-transparent;
+}
+
+/* Track */
+.high-contrast input[type="range"]::-webkit-slider-runnable-track {
+  @apply h-1 h-1 rounded-sm;
+  background: black;
+}
+.high-contrast input[type="range"]::-moz-range-track {
+  @apply h-1 h-1 rounded-sm;
+  background: black;
+}
+
+/* Thumb */
+.high-contrast input[type="range"]::-webkit-slider-thumb {
+  @apply w-4 h-4 -mt-1.5 rounded-full border-2 border-solid border-[black] h-4 w-4 cursor-pointer -mt-1.5 rounded-full border-2 border-solid border-[black];
+  -webkit-appearance: none;
+  background: white;
+
+  /* Align thumb with track */
+}
+.high-contrast input[type="range"]::-moz-range-thumb {
+  @apply w-4 h-4 rounded-full border-2 border-solid border-[black] h-4 w-4 cursor-pointer rounded-full border-2 border-solid border-[black];
+  background: white;
+}
+
+/* MAIN SELECTOR */
+.high-contrast input[type="range"] {
+  @apply appearance-none w-full border border-solid border-[black];
+  -webkit-appearance: none;
+  background: transparent;
+  outline: none;
+}
+
+/* SLIDER TRACK (Webkit) */
+.high-contrast input[type="range"]::-webkit-slider-runnable-track {
+  background: black;
+}
+
+/* SLIDER THUMB (Webkit) */
+.high-contrast input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: white;
+}
+
+/* SLIDER TRACK (Firefox) */
+.high-contrast input[type="range"]::-moz-range-track {
+  background: black;
+}
+
+/* SLIDER THUMB (Firefox) */
+.high-contrast input[type="range"]::-moz-range-thumb {
+  background: white;
+}
+
+/* Ensure input fields scale with body text size */
+body.big-textSize input,
+body.big-textSize textarea,
+body.big-textSize select {
+  @apply text-2xl;
+}
+body.huge-textSize input,
+body.huge-textSize textarea,
+body.huge-textSize select {
+  @apply text-[2rem];
 }

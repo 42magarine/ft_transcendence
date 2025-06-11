@@ -21,103 +21,92 @@ export default class PasswordReset extends AbstractView {
             try {
                 await window.userManagementService.verifyPasswordResetToken(token);
 
-                const resetCard = await new Card().renderCard(
-                    {
-                        title: 'Reset Your Password',
-                        formId: 'password-reset-form',
-                        inputs:
-                            [
-                                {
-                                    name: 'password',
-                                    type: 'password',
-                                    placeholder: 'New Password'
-                                },
-                                {
-                                    name: 'confirmPassword',
-                                    type: 'password',
-                                    placeholder: 'Confirm New Password'
-                                }
-                            ],
-                        buttonGroup:
-                            [
-                                {
-                                    text: 'Reset Password',
-                                    type: 'submit',
-                                    className: "btn btn-primary",
-                                },
-                                {
-                                    id: 'login-redirect',
-                                    type: 'text-with-button',
-                                    text: 'Log in',
-                                    textBefore: 'Remember your password?',
-                                    href: '/login',
-                                    className: 'btn-link text-sm underline',
-                                    align: 'center',
-                                }
-                            ]
-                    });
+                const resetCard = await new Card().renderCard({
+                    title: window.ls.__('Reset Your Password'),
+                    formId: 'password-reset-form',
+                    inputs: [
+                        {
+                            name: 'password',
+                            type: 'password',
+                            placeholder: window.ls.__('New Password')
+                        },
+                        {
+                            name: 'confirmPassword',
+                            type: 'password',
+                            placeholder: window.ls.__('Confirm New Password')
+                        }
+                    ],
+                    buttonGroup: [
+                        {
+                            text: window.ls.__('Reset Password'),
+                            type: 'submit',
+                            className: "btn btn-primary",
+                        },
+                        {
+                            id: 'login-redirect',
+                            type: 'text-with-button',
+                            text: window.ls.__('Log in'),
+                            textBefore: window.ls.__('Remember your password?'),
+                            href: '/login',
+                            className: 'underline',
+                            align: 'center',
+                        }
+                    ]
+                });
 
                 return this.render(`${resetCard}`);
-            }
-            catch (error) {
-                const errorCard = await new Card().renderCard(
-                    {
-                        title: 'Invalid or Expired Link',
-                        prefix: '<p class="text-red-500">This password reset link is invalid or has expired.</p>',
-                        formId: '',
-                        inputs: [],
-                        buttonGroup:
-                            [
-                                {
-                                    text: '',
-                                    type: 'button',
-                                    className: 'hidden'
-                                },
-                                {
-                                    id: 'reset-request',
-                                    type: 'text-with-button',
-                                    text: 'password reset page',
-                                    textBefore: 'Please request a new password reset link from the',
-                                    href: '/password-reset',
-                                    className: 'btn-link text-sm underline',
-                                    align: 'center'
-                                }
-                            ]
-                    });
-                return this.render(` ${errorCard} `);
-            }
-        }
-        else {
-            const requestCard = await new Card().renderCard(
-                {
-                    title: 'Password Reset',
-                    formId: 'password-reset-request-form',
-                    inputs:
-                        [
-                            {
-                                name: 'email',
-                                type: 'email',
-                                placeholder: 'E-Mail'
-                            }
-                        ],
-                    buttonGroup:
-                        [
-                            {
-                                text: 'Request Password Reset',
-                                type: 'submit',
-                                className: "btn btn-primary",
-                            },
-                            {
-                                id: 'login-redirect',
-                                type: 'text-with-button',
-                                text: 'Log in',
-                                textBefore: 'Remember your password?',
-                                href: '/login',
-                                className: 'btn-link text-sm underline',
-                                align: 'center'
-                            }
-                        ]
+            } catch (error) {
+                const errorCard = await new Card().renderCard({
+                    title: window.ls.__('Invalid or Expired Link'),
+                    prefix: `<p class="text-red-500">${window.ls.__('This password reset link is invalid or has expired.')}</p>`,
+                    formId: '',
+                    inputs: [],
+                    buttonGroup: [
+                        {
+                            text: '',
+                            type: 'button',
+                            className: 'hidden'
+                        },
+                        {
+                            id: 'reset-request',
+                            type: 'text-with-button',
+                            text: window.ls.__('password reset page'),
+                            textBefore: window.ls.__('Please request a new password reset link from the'),
+                            href: '/password-reset',
+                            className: 'underline',
+                            align: 'center'
+                        }
+                    ]
                 });
+                return this.render(`${errorCard}`);
+            }
+        } else {
+            const requestCard = await new Card().renderCard({
+                title: window.ls.__('Password Reset'),
+                formId: 'password-reset-request-form',
+                inputs: [
+                    {
+                        name: 'email',
+                        type: 'email',
+                        placeholder: window.ls.__('E-Mail')
+                    }
+                ],
+                buttonGroup: [
+                    {
+                        text: window.ls.__('Request Password Reset'),
+                        type: 'submit',
+                    },
+                    {
+                        id: 'login-redirect',
+                        type: 'text-with-button',
+                        text: window.ls.__('Log in'),
+                        textBefore: window.ls.__('Remember your password?'),
+                        href: '/login',
+                        className: 'underline',
+                        align: 'center'
+                    }
+                ]
+            });
 
             return this.render(`${requestCard}`);
         }

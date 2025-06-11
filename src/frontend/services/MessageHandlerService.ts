@@ -86,10 +86,11 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async leaveLobby(lobbyId: string) {
+    public async leaveLobby(lobbyId: string, gameIsOver: boolean) {
         const msg: IClientMessage = {
             type: 'leaveLobby',
-            lobbyId
+            lobbyId,
+            gameIsOver
         };
         await this.safeSend(msg);
     }

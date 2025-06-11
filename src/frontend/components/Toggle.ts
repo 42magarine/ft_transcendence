@@ -11,20 +11,10 @@ export default class Toggle extends AbstractView {
 			<div class="detail-row">
 				<label class="label block mb-1" for="${id}">${label}</label>
 				<div id="${id}-toggle-group" class="flex gap-4">
-					<button type="button" id="${id}-yes"
-						class="toggle-btn px-4 py-1 rounded-full border text-sm font-semibold ${checked ? 'active bg-green-500 text-white' : ''}"
-						${readonly ? 'disabled' : ''}>
-						Yes
-					</button>
-					<button type="button" id="${id}-no"
-						class="toggle-btn px-4 py-1 rounded-full border text-sm font-semibold ${!checked ? 'active bg-red-500 text-white' : ''}"
-						${readonly ? 'disabled' : ''}>
-						No
-					</button>
-					${!readonly ? `<input type="hidden" id="${id}" name="${name}" value="${checked ? 'true' : 'false'}" />` : ''}
-				</div>
-			</div>
-		`);
+					<input type="checkbox" id="${id}" name="${name}" ${checked ? 'checked' : ''} value = "${checked ? 'on' : ''}" />
+            </div>
+            </div>
+                `);
     }
 
     async getHtml(): Promise<string> {
@@ -38,12 +28,12 @@ export default class Toggle extends AbstractView {
     }
 
     async mountToggle(id: string): Promise<void> {
-        const yesBtn = document.getElementById(`${id}-yes`);
-        const noBtn = document.getElementById(`${id}-no`);
+        const yesBtn = document.getElementById(`${id} -yes`);
+        const noBtn = document.getElementById(`${id} -no`);
         const input = document.getElementById(id) as HTMLInputElement;
 
         if (!yesBtn || !noBtn || !input) {
-            //console.warn(`[Toggle] Missing elements for toggle ID: ${id}`);
+            //console.warn(`[Toggle] Missing elements for toggle ID: ${ id } `);
             return;
         }
 

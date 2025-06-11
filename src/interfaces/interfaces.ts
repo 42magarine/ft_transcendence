@@ -7,6 +7,7 @@ import type UserService from '../frontend/services/UserService.js';
 import PongService from '../frontend/services/PongService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
 import AbstractView from "../utils/AbstractView.js";
+import LanguageService from '../frontend/services/LanguageService.js';
 
 export interface RouteHookContext {
     route: Route;
@@ -34,14 +35,16 @@ declare global {
         currentUser: User | null;
         ft_socket?: WebSocket;
         socketReady: Promise<void>;
+        ls: LanguageService;
         messageHandler: MessageHandlerService;
         lobbyListService: LobbyListService;
         lobbyService: LobbyService;
-        tournamentService: TournamentService;
-        // tournamentListService: TournamentListService;
-        userService: UserService;
+		tournamentService: TournamentService;
+		userService: UserService;
         userManagementService: UserManagementService;
         pongService: PongService;
+        __: (key: string) => string;
+        handleModalOutsideClick: (event: Event, id: string) => void;
     }
 }
 
@@ -76,6 +79,9 @@ export interface IGameState {
     matchId?: number
     player1Id?: number
     player2Id?: number
+    player1Left: boolean;
+    player2Left: boolean;
+    winnerName?: string;
 }
 
 export interface ILobbyState {
@@ -129,7 +135,7 @@ export interface ITournamentRound
 // MESSAGE INTERFACES
 
 export interface IClientMessage {
-    type: "createLobby" | "joinLobby" | "leaveLobby" | "movePaddle" | "ready" | "startGame" | "getLobbyList" | "getLobbyState";
+    type: "createLobby" | "joinLobby" | "leaveLobby" | "movePaddle" | "ready" | "startGame" | "getLobbyList" | "getLobbyState" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
     lobbyId?: string;
     userId?: number;
     lobbyType?: 'game' | 'tournament';
@@ -137,10 +143,13 @@ export interface IClientMessage {
     direction?: IPaddleDirection;
     ready?: boolean;
     matchId?: number;
+    message?: string;
+    gameIsOver?: boolean;
+    [key: string]: any;
 }
 
 export interface IServerMessage {
-    type: "connection" | "error" | "lobbyCreated" | "joinedLobby" | "playerJoined" | "playerLeft" | "lobbyList" | "lobbyState" | "playerReady" | "gameStarted" | "gameStateUpdate" | "gameOver" | "leftLobby" | "tournamentStarted" | "tournamentRoundStart" | "tournamentMatchStart" | "tournamentMatchOver" | "tournamentFinished" | "tournamentCancelled";
+    type: "connection" | "error" | "lobbyCreated" | "joinedLobby" | "playerJoined" | "playerLeft" | "lobbyList" | "lobbyState" | "playerReady" | "gameStarted" | "gameStateUpdate" | "gameOver" | "leftLobby" | "tournamentStarted" | "tournamentRoundStart" | "tournamentMatchStart" | "tournamentMatchOver" | "tournamentFinished" | "tournamentCancelled" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
     message?: string;
     lobbyId?: string;
     owner?: number;

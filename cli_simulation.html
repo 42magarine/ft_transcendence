@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong CLI Simulator</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a1a;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .terminal {
+            background-color: #000;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            height: 90vh;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            color: #0099ff;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .controls button {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #555;
+            padding: 8px 15px;
+            margin: 3px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .controls button:hover {
+            background: #555;
+        }
+
+        .controls button:active {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .game-field {
+            font-family: monospace;
+            white-space: pre;
+            font-size: 12px;
+            line-height: 1;
+            margin: 10px 0;
+            color: #ffffff;
+        }
+
+        .status {
+            color: #ffff00;
+            margin: 5px 0;
+        }
+
+        .error {
+            color: #ff4444;
+        }
+
+        .success {
+            color: #44ff44;
+        }
+
+        .input-area {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-area input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            flex: 1;
+            outline: none;
+            padding: 5px;
+        }
+
+        .prompt {
+            color: #0099ff;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal" id="terminal">
+        <div class="header">
+            🏓 Pong CLI Simulator v1.0
+            <br>
+            Type 'help' for available commands
+        </div>
+        <div id="output"></div>
+        <div class="input-area">
+            <span class="prompt">pong-cli></span>
+            <input type="text" id="commandInput" placeholder="Enter command..." autofocus>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div style="margin-bottom: 10px; color: #0099ff;">Game Controls:</div>
+        <button onclick="sendCommand('move up')">↑ UP</button>
+        <button onclick="sendCommand('move down')">↓ DOWN</button>
+        <br>
+        <button onclick="sendCommand('connect')">Connect</button>
+        <button onclick="sendCommand('join lobby123')">Join Lobby</button>
+        <button onclick="sendCommand('ready')">Ready</button>
+    </div>
+
+    <script>
+        class PongCLI {
+            constructor() {
+                this.ws = null;
+                this.userId = Math.floor(Math.random() * 1000);
+                this.username = `player_${this.userId}`;
+                this.connected = false;
+                this.inGame = false;
+                this.currentLobby = null;
+
+                // Simulate game state for demo
+                this.gameState = {
+                    ball: { x: 400, y: 200, radius: 8 },
+                    paddle1: { x: 50, y: 150, width: 20, height: 100 },
+                    paddle2: { x: 730, y: 250, width: 20, height: 100 },
+                    score1: 0,
+                    score2: 0,
+                    running: false,
+                    gameIsOver: false
+                };
+
+                this.setupEventHandlers();
+                this.log("CLI initialized. Type 'connect' to start.");
+            }
+
+            setupEventHandlers() {
+                const input = document.getElementById('commandInput');
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const command = input.value.trim();
+                        if (command) {
+                            this.handleCommand(command);
+                            input.value = '';
+                        }
+                    }
+                });
+
+                // Simulate periodic game updates when in game
+                setInterval(() => {
+                    if (this.inGame && this.gameState.running) {
+                        this.simulateGameUpdate();
+                    }
+                }, 100);
+            }
+
+            handleCommand(command) {
+                this.log(`> ${command}`, 'input');
+
+                const [cmd, ...args] = command.toLowerCase().split(' ');
+
+                switch(cmd) {
+                    case 'help':
+                        this.showHelp();
+                        break;
+                    case 'connect':
+                        this.connect();
+                        break;
+                    case 'disconnect':
+                        this.disconnect();
+                        break;
+                    case 'join':
+                        this.joinLobby(args[0] || 'lobby123');
+                        break;
+                    case 'leave':
+                        this.leaveLobby();
+                        break;
+                    case 'move':
+                        this.sendPaddleMove(args[0]);
+                        break;
+                    case 'ready':
+                        this.setReady();
+                        break;
+                    case 'status':
+                        this.showStatus();
+                        break;
+                    case 'clear':
+                        this.clearOutput();
+                        break;
+                    case 'start':
+                        this.startGame();
+                        break;
+                    default:
+                        this.log(`Unknown command: ${cmd}. Type 'help' for available commands.`, 'error');
+                }
+            }
+
+            connect() {
+                if (this.connected) {
+                    this.log("Already connected!", 'error');
+                    return;
+                }
+
+                this.log("Connecting to WebSocket server...", 'status');
+
+                // Simulate connection
+                setTimeout(() => {
+                    this.connected = true;
+                    this.log("✓ Connected to Pong server", 'success');
+                    this.log(`✓ Authenticated as ${this.username} (ID: ${this.userId})`, 'success');
+                }, 1000);
+            }
+
+            disconnect() {
+                if (!this.connected) {
+                    this.log("Not connected!", 'error');
+                    return;
+                }
+
+                this.connected = false;
+                this.inGame = false;
+                this.currentLobby = null;
+                this.log("✓ Disconnected from server", 'status');
+            }
+
+            joinLobby(lobbyId) {
+                if (!this.connected) {
+                    this.log("Not connected! Use 'connect' first.", 'error');
+                    return;
+                }
+
+                this.log(`Joining lobby: ${lobbyId}...`, 'status');
+
+                // Simulate join
+                setTimeout(() => {
+                    this.currentLobby = lobbyId;
+                    this.log(`✓ Joined lobby: ${lobbyId}`, 'success');
+                    this.log("Players in lobby: player_123, player_456", 'status');
+                    this.log("Type 'ready' when you're ready to play", 'status');
+                }, 500);
+            }
+
+            leaveLobby() {
+                if (!this.currentLobby) {
+                    this.log("Not in a lobby!", 'error');
+                    return;
+                }
+
+                this.log(`Left lobby: ${this.currentLobby}`, 'status');
+                this.currentLobby = null;
+                this.inGame = false;
+            }
+
+            setReady() {
+                if (!this.currentLobby) {
+                    this.log("Not in a lobby!", 'error');
+                    return;
+                }
+
+                this.log("✓ Marked as ready", 'success');
+
+                // Simulate game start
+                setTimeout(() => {
+                    this.log("🎮 Game starting in 3...", 'status');
+                    setTimeout(() => this.log("🎮 Game starting in 2...", 'status'), 1000);
+                    setTimeout(() => this.log("🎮 Game starting in 1...", 'status'), 2000);
+                    setTimeout(() => this.startGame(), 3000);
+                }, 1000);
+            }
+
+            startGame() {
+                this.inGame = true;
+                this.gameState.running = true;
+                this.log("🎮 Game started! Use 'move up' or 'move down' to control your paddle", 'success');
+                this.renderGameState();
+            }
+
+            sendPaddleMove(direction) {
+                if (!this.inGame) {
+                    this.log("Not in game!", 'error');
+                    return;
+                }
+
+                if (direction === 'up') {
+                    this.gameState.paddle1.y = Math.max(0, this.gameState.paddle1.y - 20);
+                    this.log("↑ Paddle moved up", 'status');
+                } else if (direction === 'down') {
+                    this.gameState.paddle1.y = Math.min(300, this.gameState.paddle1.y + 20);
+                    this.log("↓ Paddle moved down", 'status');
+                } else {
+                    this.log("Invalid direction! Use 'up' or 'down'", 'error');
+                    return;
+                }
+
+                // Re-render after move
+                setTimeout(() => this.renderGameState(), 50);
+            }
+
+            simulateGameUpdate() {
+                // Simple ball movement simulation
+                this.gameState.ball.x += 2;
+                this.gameState.ball.y += 1;
+
+                // Bounce off walls
+                if (this.gameState.ball.y <= 0 || this.gameState.ball.y >= 400) {
+                    // Reverse Y direction (simplified)
+                }
+
+                // Reset ball position occasionally
+                if (this.gameState.ball.x > 800) {
+                    this.gameState.ball.x = 400;
+                    this.gameState.ball.y = 200;
+                    this.gameState.score2++;
+                }
+                if (this.gameState.ball.x < 0) {
+                    this.gameState.ball.x = 400;
+                    this.gameState.ball.y = 200;
+                    this.gameState.score1++;
+                }
+
+                // Re-render every few updates
+                if (Math.random() < 0.3) {
+                    this.renderGameState();
+                }
+            }
+
+            renderGameState() {
+                if (!this.inGame) return;
+
+                const field = this.drawPongField();
+                const gameDisplay = `
+<div class="game-field">${field}</div>
+<div class="status">Score: ${this.gameState.score1} - ${this.gameState.score2}</div>
+<div class="status">Ball: (${Math.round(this.gameState.ball.x)}, ${Math.round(this.gameState.ball.y)})</div>`;
+
+                this.updateLastGameDisplay(gameDisplay);
+            }
+
+            drawPongField() {
+                const width = 60;
+                const height = 20;
+                let field = '';
+
+                for (let y = 0; y < height; y++) {
+                    let line = '';
+                    for (let x = 0; x < width; x++) {
+                        // Ball position
+                        const ballX = Math.round((this.gameState.ball.x / 800) * width);
+                        const ballY = Math.round((this.gameState.ball.y / 400) * height);
+
+                        // Paddle positions
+                        const p1Y = Math.round((this.gameState.paddle1.y / 400) * height);
+                        const p2Y = Math.round((this.gameState.paddle2.y / 400) * height);
+
+                        if (x === ballX && y === ballY) {
+                            line += '●';
+                        } else if (x === 2 && y >= p1Y && y < p1Y + 5) {
+                            line += '█';
+                        } else if (x === width - 3 && y >= p2Y && y < p2Y + 5) {
+                            line += '█';
+                        } else if (x === Math.floor(width / 2)) {
+                            line += '│';
+                        } else if (y === 0 || y === height - 1) {
+                            line += '─';
+                        } else {
+                            line += ' ';
+                        }
+                    }
+                    field += line + '\n';
+                }
+                return field;
+            }
+
+            showStatus() {
+                this.log("=== CLI Status ===", 'status');
+                this.log(`Connected: ${this.connected}`, 'status');
+                this.log(`Username: ${this.username}`, 'status');
+                this.log(`User ID: ${this.userId}`, 'status');
+                this.log(`Current Lobby: ${this.currentLobby || 'None'}`, 'status');
+                this.log(`In Game: ${this.inGame}`, 'status');
+            }
+
+            showHelp() {
+                const commands = [
+                    'connect - Connect to the Pong server',
+                    'disconnect - Disconnect from server',
+                    'join <lobbyId> - Join a lobby (default: lobby123)',
+                    'leave - Leave current lobby',
+                    'ready - Mark yourself as ready',
+                    'move up/down - Move your paddle',
+                    'status - Show connection status',
+                    'start - Start game (demo)',
+                    'clear - Clear output',
+                    'help - Show this help'
+                ];
+
+                this.log("=== Available Commands ===", 'status');
+                commands.forEach(cmd => this.log(`  ${cmd}`, 'status'));
+            }
+
+            clearOutput() {
+                document.getElementById('output').innerHTML = '';
+            }
+
+            log(message, type = 'normal') {
+                const output = document.getElementById('output');
+                const div = document.createElement('div');
+                div.className = type;
+
+                if (type === 'input') {
+                    div.innerHTML = `<span style="color: #0099ff;">pong-cli></span> ${message}`;
+                } else {
+                    div.textContent = message;
+                }
+
+                output.appendChild(div);
+
+                // Auto-scroll to bottom
+                const terminal = document.getElementById('terminal');
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+
+            updateLastGameDisplay(gameDisplay) {
+                const output = document.getElementById('output');
+                const lastGame = output.querySelector('.last-game-display');
+
+                if (lastGame) {
+                    lastGame.innerHTML = gameDisplay;
+                } else {
+                    const div = document.createElement('div');
+                    div.className = 'last-game-display';
+                    div.innerHTML = gameDisplay;
+                    output.appendChild(div);
+                }
+
+                // Auto-scroll to bottom
+                const terminal = document.getElementById('terminal');
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        }
+
+        // Initialize CLI
+        const cli = new PongCLI();
+
+        // Helper function for control buttons
+        function sendCommand(command) {
+            const input = document.getElementById('commandInput');
+            input.value = command;
+            input.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter' }));
+        }
+
+        // Focus input on page load
+        window.addEventListener('load', () => {
+            document.getElementById('commandInput').focus();
+        });
+    </script>
+</body>
+</html>
