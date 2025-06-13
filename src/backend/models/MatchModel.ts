@@ -1,4 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance, ManyToMany, JoinTable, OneToMany, ChildEntity } from "typeorm";
+import { ITournamentRound } from "../../interfaces/interfaces.js";
+import { JsonColumnTransformer } from "../transformers/JsonTransformer.js";
 
 @Entity()
 export class UserModel {
@@ -87,10 +89,10 @@ export class MatchModel {
 
     @ManyToOne(() => UserModel)
     @JoinColumn()
-    winner?: typeof UserModel.prototype
+    winner?: UserModel;
 
     @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
+    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing';
 
     @CreateDateColumn({ type: 'datetime' })
     createdAt!: Date;
@@ -106,7 +108,7 @@ export class MatchModel {
 
     @ManyToMany(() => UserModel)
     @JoinTable()
-    lobbyParticipants!: typeof UserModel.prototype[];
+    lobbyParticipants!: UserModel[];
 
     @Column({ nullable: true })
     gameAdminId?: number;
@@ -122,4 +124,70 @@ export class MatchModel {
 
     @Column("simple-array", { nullable: true })
     invitedUserIds?: number[];
+
+    @ManyToOne(() => TournamentModel, tournament => tournament.matches, { nullable: true })
+    @JoinColumn({ name: 'tournamentId' })
+    tournament?: TournamentModel | null;
+
+    @Column({ nullable: true })
+    tournamentId?: number;
+
+}
+
+
+@Entity()
+export class TournamentModel
+{
+    @PrimaryGeneratedColumn()
+    id!: number;
+
+    @Column({unique: true})
+    lobbyId!: string;
+
+    @Column()
+    name!:string
+
+    @ManyToOne(() => UserModel)
+    @JoinColumn({ name: 'creatorId'})
+    creator!: UserModel;
+
+    @Column()
+    maxPlayers!: number;
+
+    @Column({ default: 'pending'})
+    status!: 'pending' | 'ongoing' | 'completed' | 'cancelled';
+
+     @CreateDateColumn({ type: 'datetime' })
+    createdAt!: Date;
+
+    @Column({ type: 'datetime', nullable: true })
+    startedAt?: Date;
+
+    @Column({ type: 'datetime', nullable: true })
+    endedAt?: Date;
+
+    @ManyToMany(() => UserModel)
+    @JoinTable({
+        name: "tournament_participants"
+    })
+    lobbyParticipants!: UserModel[];
+
+    @OneToMany(() => MatchModel, (match) => match.tournament)
+    matches!: MatchModel[];
+
+    @Column({ type: 'text', transformer: new JsonColumnTransformer() })
+    playerScores?: { [userId: number]: number }; // Stores points for each player
+
+    @Column({ default: 1 })
+    currentRound!: number;
+
+    @Column({type: 'text', transformer: new JsonColumnTransformer() })
+    matchSchedule?: ITournamentRound[]; // Array of rounds, each containing array of matches for that round
+
+    @ManyToOne(() => UserModel, { nullable: true })
+    @JoinColumn({ name: 'winnerUserId' })
+    winner?: UserModel; // The winner of the tournament
+
+    @Column({name: 'winnerUserId', nullable: true })
+    winnerId!: number | null; // Store the ID of the winner
 }

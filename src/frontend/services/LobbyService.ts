@@ -71,19 +71,32 @@ export default class LobbyService {
                         this.lobbyState = receivedLobbyInfo;
                         Router.update();
                     }
-                    if (this.lobbyState) {
-                        if (this.lobbyState.lobbyPlayers) {
-                            if (this.lobbyState.lobbyPlayers[0].isReady && this.lobbyState.lobbyPlayers[1].isReady) {
-                                window.messageHandler.joinGame(this.lobbyState.lobbyId, this.lobbyState.lobbyPlayers[0], this.lobbyState.lobbyPlayers[1]);
-                                Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
-                            }
-                        }
-                    }
+                    // if (this.lobbyState) {
+                    //     if (this.lobbyState.lobbyPlayers) {
+                    //         if (this.lobbyState.lobbyPlayers[0].isReady && this.lobbyState.lobbyPlayers[1].isReady) {
+                    //             window.messageHandler.joinGame(this.lobbyState.lobbyId, this.lobbyState.lobbyPlayers[0], this.lobbyState.lobbyPlayers[1]);
+                    //             Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
+                    //         }
+                    //     }
+                    // }
                 }
                 break;
-            case 'gameJoined':
-                // Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
-                break;
+            case 'gameStarted':
+                if (data.lobby && data.gameState && data.matchId)
+                {
+                    const receivedLobbyInfo: ILobbyState = {
+                        ...data.lobby,
+                        createdAt: new Date(data.lobby.createdAt),
+                        lobbyPlayers: data.lobby.lobbyPlayers || []
+                    }
+
+                    if (receivedLobbyInfo.lobbyId === currentUrlLobbyId)
+                    {
+                        this.lobbyState = receivedLobbyInfo;
+                        Router.update();
+                    }
+                    Router.redirect(`/pong/${data.lobby.lobbyId}/${data.matchId}`)
+                }
             default:
                 break;
         }

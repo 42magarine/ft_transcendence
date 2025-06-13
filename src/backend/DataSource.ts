@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import { UserModel } from "./models/MatchModel.js";
 import { MatchModel } from "./models/MatchModel.js";
+import { TournamentModel } from "./models/MatchModel.js";
 
 export const AppDataSource = new DataSource({
     type: "better-sqlite3",
@@ -8,6 +9,7 @@ export const AppDataSource = new DataSource({
     entities: [
         UserModel,
         MatchModel,
+        TournamentModel
     ],
     synchronize: true,
     logging: false

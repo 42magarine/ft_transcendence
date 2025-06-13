@@ -4,8 +4,8 @@ import AbstractView from '../../utils/AbstractView.js';
 export default class Card extends AbstractView {
     private contextData: Record<string, any> = {};
 
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     setContextData(data: Record<string, any>): void {

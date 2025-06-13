@@ -5,8 +5,8 @@ import renderGoogleSignInButton from './GoogleSignIn.js';
 import Router from '../../utils/Router.js';
 
 export default class Button extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     async renderButton({

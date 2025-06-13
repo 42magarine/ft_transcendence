@@ -4,13 +4,13 @@ import localGameService from '../services/LocalGameService.js';
 import __ from '../services/LanguageService.js';
 
 export default class PongLocal extends AbstractView {
-    constructor(params: URLSearchParams) {
-        super();
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
         this.params = params;
     }
 
     async getHtml(): Promise<string> {
-        const gameCard = await new Card(this.params).renderCard({
+        const gameCard = await new Card().renderCard({
             title: window.ls.__('Pong Arena'),
             contentBlocks: [
                 { type: 'separator' },
