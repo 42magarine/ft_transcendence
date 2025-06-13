@@ -11,18 +11,28 @@ export default class PongLocal extends AbstractView {
 
     async getHtml(): Promise<string> {
         const gameCard = await new Card(this.params).renderCard({
-            title: window.ls.__('Pong Arena'),
+            title: window.ls.__('Local Pong Arena'),
             contentBlocks: [
-                { type: 'separator' },
                 {
                     type: 'slider',
                     props: {
-                        id: 'paddleSpeedInput',
-                        label: window.ls.__('Paddle Speed'),
+                        id: 'winScoreInput',
+                        label: window.ls.__('Win Score'),
                         min: 1,
                         max: 20,
                         step: 1,
-                        value: 5
+                        value: 10
+                    }
+                },
+                {
+                    type: 'slider',
+                    props: {
+                        id: 'paddleWidthInput',
+                        label: window.ls.__('Paddle Width'),
+                        min: 5,
+                        max: 50,
+                        step: 1,
+                        value: 20
                     }
                 },
                 {
@@ -31,7 +41,7 @@ export default class PongLocal extends AbstractView {
                         id: 'paddleHeightInput',
                         label: window.ls.__('Paddle Height'),
                         min: 10,
-                        max: 200,
+                        max: 250,
                         step: 5,
                         value: 100
                     }
@@ -39,8 +49,8 @@ export default class PongLocal extends AbstractView {
                 {
                     type: 'slider',
                     props: {
-                        id: 'ballSpeedInput',
-                        label: window.ls.__('Ball Speed'),
+                        id: 'paddleSpeedInput',
+                        label: window.ls.__('Paddle Speed'),
                         min: 1,
                         max: 20,
                         step: 1,
@@ -61,42 +71,19 @@ export default class PongLocal extends AbstractView {
                 {
                     type: 'slider',
                     props: {
-                        id: 'paddleWidthInput',
-                        label: window.ls.__('Paddle Width'),
-                        min: 5,
-                        max: 50,
-                        step: 1,
-                        value: 20
-                    }
-                },
-                {
-                    type: 'slider',
-                    props: {
-                        id: 'winScoreInput',
-                        label: window.ls.__('Win Score'),
+                        id: 'ballSpeedInput',
+                        label: window.ls.__('Ball Speed'),
                         min: 1,
-                        max: 20,
+                        max: 10,
                         step: 1,
-                        value: 5
+                        value: 3
                     }
                 },
-                { type: 'separator' },
-                {
-                    type: 'html',
-                    props: {
-                        html: `
-							<div class="flex justify-center">
-								<canvas id="gameCanvas" width="800" height="600" class="bg-black border-4 border-white rounded-lg shadow-lg"></canvas>
-							</div>
-						`
-                    }
-                },
-                { type: 'separator' },
                 {
                     type: 'buttongroup',
                     props: {
                         layout: 'group',
-                        align: 'left',
+                        align: 'center',
                         buttons: [
                             {
                                 id: 'startGameButton',
@@ -105,30 +92,35 @@ export default class PongLocal extends AbstractView {
                                 color: 'green'
                             },
                             {
-                                id: 'pauseGameButton',
-                                icon: 'pause',
-                                text: window.ls.__('Pause'),
-                                color: 'yellow'
-                            },
-                            {
-                                id: 'resumeGameButton',
-                                icon: 'play-circle',
-                                text: window.ls.__('Resume'),
-                                color: 'blue'
+                                id: 'stopGameButton',
+                                icon: 'stop',
+                                text: window.ls.__('Stop'),
+                                color: 'red'
                             },
                             {
                                 id: 'resetGameButton',
                                 icon: 'rotate-right',
                                 text: window.ls.__('Reset'),
-                                color: 'red'
+                                color: 'blue'
                             }
                         ]
+                    }
+                },
+                { type: 'separator', },
+                {
+                    type: 'html',
+                    props: {
+                        html: `
+                            <div class="flex justify-center">
+                                <canvas id="gameCanvas" width="800" height="600" class="bg-black border-4 border-white rounded-lg shadow-lg"></canvas>
+                            </div>
+                        `
                     }
                 }
             ]
         });
 
-        setTimeout(() => localGameService.onCanvasReady(), 0);
+        setTimeout(() => localGameService.onCanvasReady(), 50);
         return this.render(`${gameCard}`);
     }
 }

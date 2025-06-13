@@ -1,13 +1,13 @@
 import type MessageHandlerService from '../frontend/services/MessageHandlerService.js';
-import type LobbyListService from '../frontend/services/LobbyListService.js';
 import type LobbyService from '../frontend/services/LobbyService.js';
-import type TournamentListService from '../frontend/services/TournamentListService.js';
+import type LobbyListService from '../frontend/services/LobbyListService.js';
 import type TournamentService from '../frontend/services/TournamentService.js';
+import type TournamentListService from '../frontend/services/TournamentListService.js';
 import type UserService from '../frontend/services/UserService.js';
-import PongService from '../frontend/services/PongService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
+import type PongService from '../frontend/services/PongService.js';
+import type LanguageService from '../frontend/services/LanguageService.js';
 import AbstractView from "../utils/AbstractView.js";
-import LanguageService from '../frontend/services/LanguageService.js';
 
 export interface RouteHookContext {
     route: Route;
@@ -58,6 +58,7 @@ export interface IPaddleState {
     y: number;
     width: number;
     height: number;
+    speed?: number;
 }
 
 export interface IBallState {
@@ -91,7 +92,7 @@ export interface ILobbyState {
     createdAt: Date;
     lobbyPlayers?: IPlayerState[];
     lobbyType: "game" | "tournament"
-    isStarted: boolean;
+    isStarted: boolean; 
 }
 
 export interface IPlayerState {
