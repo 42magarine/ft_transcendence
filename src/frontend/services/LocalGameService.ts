@@ -141,11 +141,13 @@ class LocalGameService {
     private handleGameState(): void {
         switch (this.gameState) {
             case GameState.STOPPED:
+                this.processInput();
                 this.localGameLogic.draw();
                 this.localGameLogic.drawStatusText("PRESS START", "#00FF00");
                 break;
 
             case GameState.COUNTDOWN:
+                this.processInput();
                 this.localGameLogic.draw();
                 this.localGameLogic.drawStatusText(this.countdownNumber.toString(), "#FFFF00");
 

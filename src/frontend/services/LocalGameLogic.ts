@@ -13,9 +13,27 @@ export default class LocalGameLogic {
     private score2: number = 0;
     private gameOver: boolean = false;
 
+    private backgroundImages: HTMLImageElement[] = [];
+    private currentBackgroundIndex: number = 0;
+
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
+        this.loadBackgroundImages();
+    }
+
+    private loadBackgroundImages(): void {
+        const imagePaths = [
+            '/assets/backgrounds/1.jpg',
+            '/assets/backgrounds/2.jpg',
+            '/assets/backgrounds/3.jpg'
+        ];
+
+        imagePaths.forEach((path) => {
+            const img = new Image();
+            img.src = path;
+            this.backgroundImages.push(img);
+        });
     }
 
     public initializeGame(settings: {
@@ -30,6 +48,8 @@ export default class LocalGameLogic {
         this.score1 = 0;
         this.score2 = 0;
         this.gameOver = false;
+
+        this.selectRandomBackground();
 
         this.ball = {
             x: this.canvas.width / 2,
@@ -56,6 +76,12 @@ export default class LocalGameLogic {
             height: settings.paddleHeight,
             speed: settings.paddleSpeed
         };
+    }
+
+    private selectRandomBackground(): void {
+        if (this.backgroundImages.length > 0) {
+            this.currentBackgroundIndex = Math.floor(Math.random() * this.backgroundImages.length);
+        }
     }
 
     public update(): void {
@@ -123,8 +149,8 @@ export default class LocalGameLogic {
 
     public draw(): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = "#FFFFFF";
-        
+
+        this.drawBackground();
         this.drawBall();
         this.drawPaddles();
         this.drawScores();
@@ -136,32 +162,68 @@ export default class LocalGameLogic {
         }
     }
 
+    private drawBackground(): void {
+        if (this.backgroundImages[this.currentBackgroundIndex]) {
+            const img = this.backgroundImages[this.currentBackgroundIndex];
+
+            // Bild auf Canvas-Größe skalieren und zeichnen
+            this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+
+            // Semi-transparente Overlay für bessere Sichtbarkeit der Spielelemente
+            this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)"; // 30% schwarzer Overlay
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        else {
+            this.ctx.fillStyle = "#000000";
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+
     private drawBall(): void {
         this.ctx.beginPath();
         this.ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = "#FFFFFF";
         this.ctx.fill();
+
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
         this.ctx.closePath();
     }
 
     private drawPaddles(): void {
+        this.ctx.fillStyle = "#FFFFFF";
         this.ctx.fillRect(this.paddle1.x, this.paddle1.y, this.paddle1.width, this.paddle1.height);
         this.ctx.fillRect(this.paddle2.x, this.paddle2.y, this.paddle2.width, this.paddle2.height);
+
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(this.paddle1.x, this.paddle1.y, this.paddle1.width, this.paddle1.height);
+        this.ctx.strokeRect(this.paddle2.x, this.paddle2.y, this.paddle2.width, this.paddle2.height);
     }
 
     private drawScores(): void {
         this.ctx.font = "32px Arial";
+        this.ctx.fillStyle = "#FFFFFF";
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 3;
+
         this.ctx.textAlign = "left";
+        this.ctx.strokeText(`Player 1: ${this.score1}`, 50, 40);
         this.ctx.fillText(`Player 1: ${this.score1}`, 50, 40);
+
         this.ctx.textAlign = "right";
+        this.ctx.strokeText(`Player 2: ${this.score2}`, this.canvas.width - 50, 40);
         this.ctx.fillText(`Player 2: ${this.score2}`, this.canvas.width - 50, 40);
     }
 
     private drawCenterLine(): void {
-        this.ctx.setLineDash([5, 5]);
+        this.ctx.setLineDash([10, 10]);
         this.ctx.beginPath();
         this.ctx.moveTo(this.canvas.width / 2, 0);
         this.ctx.lineTo(this.canvas.width / 2, this.canvas.height);
         this.ctx.strokeStyle = "#FFFFFF";
+        this.ctx.lineWidth = 3;
         this.ctx.stroke();
         this.ctx.setLineDash([]);
     }
@@ -170,10 +232,14 @@ export default class LocalGameLogic {
         this.ctx.save();
         this.ctx.font = "64px Arial";
         this.ctx.fillStyle = color;
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 4;
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
         this.ctx.shadowColor = "#000000";
         this.ctx.shadowBlur = 10;
+
+        this.ctx.strokeText(text, this.canvas.width / 2, this.canvas.height / 2);
         this.ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
         this.ctx.restore();
     }
