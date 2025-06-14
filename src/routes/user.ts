@@ -91,4 +91,11 @@ export default async function (fastify: FastifyInstance) {
         preHandler: authenticate,
         handler: userController.removeFriend.bind(userController)
     });
+
+    fastify.route<{ Params: {id: number}}>({
+        method: 'GET',
+        url: 'api/users/:id/matchHistory',
+        preHandler: authenticate,
+        handler: userController.getMatchHistory.bind(userController)
+    })
 }
