@@ -712,7 +712,7 @@ export class MatchLobby {
             }
 
         }
-        else {
+        else { // DASSSSSS muesst ihr noch im Frontend Abfangen und anzeigen !!!!!! und dann wieder auf lobbylist oder so redirecten keine ahnung euer ding
             this._broadcast({
                 type: "gameOver",
                 winnerId: winnerId,
