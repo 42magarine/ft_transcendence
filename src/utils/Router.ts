@@ -289,7 +289,7 @@ export default class Router {
 
     public async render(): Promise<void> {
         const fromPath = location.pathname;
-
+        const queryParams = new URLSearchParams(window.location.search);
         // Execute onLeave hook for current route before navigation
         const canLeave = await this.executeOnLeave(fromPath);
         if (!canLeave) {
@@ -358,7 +358,8 @@ export default class Router {
         }
 
         // Get URL query parameters
-        const queryParams = new URLSearchParams(window.location.search);
+        // const queryParams = new URLSearchParams(window.location.search);
+        const view = new match.route.view(match.params, queryParams);
 
         // Create merged params object (route params + query params)
         const allParams = new URLSearchParams();
@@ -372,9 +373,6 @@ export default class Router {
         for (const [key, value] of Object.entries(match.params)) {
             allParams.append(key, value);
         }
-
-        // Create view with all parameters
-        const view = new match.route.view(allParams);
 
         // Store the current path before potentially changing it
         const currentPath = this.currentRoute ?

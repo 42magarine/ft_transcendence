@@ -1,8 +1,9 @@
 import type MessageHandlerService from '../frontend/services/MessageHandlerService.js';
 import type LobbyService from '../frontend/services/LobbyService.js';
 import type LobbyListService from '../frontend/services/LobbyListService.js';
+import type LobbyService from '../frontend/services/LobbyService.js';
+// import type TournamentListService from '../frontend/services/TournamentListService.js';
 import type TournamentService from '../frontend/services/TournamentService.js';
-import type TournamentListService from '../frontend/services/TournamentListService.js';
 import type UserService from '../frontend/services/UserService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
 import type PongService from '../frontend/services/PongService.js';
@@ -20,7 +21,7 @@ export interface RouteHookContext {
 
 export interface Route {
     path: string | RegExp;
-    view: new (params: URLSearchParams) => AbstractView;
+    view: new (routeParams: Record<string,string>, queryParams: URLSearchParams) => AbstractView;
     metadata?: {
         title?: string;
         description?: string;
@@ -39,9 +40,8 @@ declare global {
         messageHandler: MessageHandlerService;
         lobbyListService: LobbyListService;
         lobbyService: LobbyService;
-        tournamentService: TournamentService;
-        tournamentListService: TournamentListService;
-        userService: UserService;
+		tournamentService: TournamentService;
+		userService: UserService;
         userManagementService: UserManagementService;
         pongService: PongService;
         __: (key: string) => string;
@@ -78,6 +78,9 @@ export interface IGameState {
     paused: boolean;
     running: boolean;
     gameIsOver: boolean;
+    matchId?: number
+    player1Id?: number
+    player2Id?: number
     player1Left: boolean;
     player2Left: boolean;
     winnerName?: string;
@@ -86,13 +89,18 @@ export interface IGameState {
 export interface ILobbyState {
     lobbyId: string;
     name: string;
-    creatorId: number | undefined;
+    creatorId: number;
     maxPlayers: number;
     currentPlayers: number;
     createdAt: Date;
-    lobbyPlayers?: IPlayerState[];
-    lobbyType: "game" | "tournament"
-    isStarted: boolean; 
+    lobbyType: 'game' | 'tournament';
+    lobbyPlayers: IPlayerState[];
+    isStarted: boolean; // Is game/tournament started
+    tournamentStatus?: 'pending' | 'ongoing' | 'completed' | 'cancelled';
+    currentRound?: number;
+    playerPoints?: { [userId: number]: number }; // userId -> points
+    matchSchedule?: ITournamentRound[]; // Full tournament schedule
+    activeGames: IActiveGameInfo[];
 }
 
 export interface IPlayerState {
@@ -100,34 +108,67 @@ export interface IPlayerState {
     userId: number;
     userName: string;
     isReady: boolean;
+    points?: number;
+}
+
+export interface IActiveGameInfo
+{
+    matchId: number;
+    player1Id?: number;
+    player2Id?: number;
+    score1: number;
+    score2: number;
+}
+
+export interface ITournamentMatchPairing
+{
+    player1Id: number;
+    player2Id: number;
+    matchId: number | null;
+    isCompleted: boolean
+}
+
+export interface ITournamentRound
+{
+    roundNumber: number;
+    matches: ITournamentMatchPairing[];
 }
 
 // MESSAGE INTERFACES
 
 export interface IClientMessage {
-    type: string;
-    userId?: number;
-    targetUserId?: number;
-    inviteId?: string;
+    type: "createLobby" | "joinLobby" | "leaveLobby" | "movePaddle" | "ready" | "startGame" | "getLobbyList" | "getLobbyState" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
     lobbyId?: string;
+    userId?: number;
+    lobbyType?: 'game' | 'tournament';
+    maxPlayers?: number;
     direction?: IPaddleDirection;
+    ready?: boolean;
+    matchId?: number;
     message?: string;
     gameIsOver?: boolean;
     [key: string]: any;
 }
 
 export interface IServerMessage {
-    type: string;
+    type: "connection" | "error" | "lobbyCreated" | "joinedLobby" | "playerJoined" | "playerLeft" | "lobbyList" | "lobbyState" | "playerReady" | "gameStarted" | "gameStateUpdate" | "gameOver" | "leftLobby" | "tournamentStarted" | "tournamentRoundStart" | "tournamentMatchStart" | "tournamentMatchOver" | "tournamentFinished" | "tournamentCancelled" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
     message?: string;
-    playerNumber?: number;
-    playerCount?: number;
     lobbyId?: string;
-    userId?: number;
-    direction?: IPaddleDirection;
-    timestamp?: string;
-    lobbies?: ILobbyState[]
+    owner?: number;
+    lobbyType?: 'game' | 'tournament';
+    maxPlayers?: number;
+    lobby?: ILobbyState;
+    lobbies?: ILobbyState[];
     gameState?: IGameState;
-    [key: string]: any;
+    activeGamesStates?: IGameState[];
+    winningUserId?: number | null;
+    winnerId?: number | null;
+    player1Score?: number;
+    player2Score?: number;
+    matchId?: number;
+    player1Name?: string;
+    player2Name?: string;
+    winnerUserName?: string | null;
 }
 
 export interface User {

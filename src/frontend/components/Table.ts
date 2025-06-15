@@ -2,8 +2,8 @@ import AbstractView from '../../utils/AbstractView.js';
 import { TableProps, ContentBlock } from '../../interfaces/componentInterfaces.js';
 
 export default class Table extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     // Renders the entire table layout

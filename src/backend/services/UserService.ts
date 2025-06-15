@@ -3,14 +3,16 @@ import speakeasy from 'speakeasy';
 import { OAuth2Client } from 'google-auth-library';
 
 import { AppDataSource } from "../DataSource.js";
-import { UserModel } from "../models/MatchModel.js";
+import { MatchModel, UserModel } from "../models/MatchModel.js";
 import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from "../../interfaces/userManagementInterfaces.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, hashPW, verifyPW } from "../middleware/security.js";
 import { deleteAvatar } from "../services/FileService.js";
 import { EmailService } from "../services/EmailService.js";
+import { match } from 'assert';
 
 export class UserService {
     private userRepo = AppDataSource.getRepository(UserModel);
+    private matchRepo = AppDataSource.getRepository(MatchModel);
     private emailService = new EmailService();
     private googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -475,5 +477,26 @@ export class UserService {
 
         user.friends = user.friends.filter(friend => friend.id !== friendId);
         await this.userRepo.save(user);
+    }
+
+    async getAllFinishedMatchesByUserId(userId: number)
+    {
+        const userExists = await this.userRepo.exists({ where: {id: userId}})
+        if (!userExists)
+        {
+            throw new Error("User not found")
+        }
+
+        const matchHistory = await this.matchRepo.find({
+            where: [
+                { player1: {id: userId}, status: 'completed' },
+                { player2: { id: userId}, status: 'completed'},
+            ],
+            relations: ['player1', 'player2', 'winner'],
+            order: {
+                createdAt: 'DESC',
+            },
+        });
+        return matchHistory;
     }
 }

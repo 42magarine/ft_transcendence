@@ -25,10 +25,11 @@ export default class MessageHandlerService {
         window.ft_socket.send(JSON.stringify(msg));
     }
 
-    public async createLobby(userId: number) {
+    public async createLobby(userId: number, maxPlayers: number) {
         const msg: IClientMessage = {
             type: 'createLobby',
-            userId
+            userId,
+            maxPlayers
         };
         await this.safeSend(msg);
     }
@@ -42,15 +43,15 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async joinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
-        const msg: IClientMessage = {
-            type: 'joinGame',
-            player1,
-            player2,
-            lobbyId,
-        };
-        await this.safeSend(msg);
-    }
+    // public async joinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
+    //     const msg: IClientMessage = {
+    //         type: 'joinGame',
+    //         player1,
+    //         player2,
+    //         lobbyId,
+    //     };
+    //     await this.safeSend(msg);
+    // }
 
     public async startGame(lobbyId: string) {
         const msg: IClientMessage = {
@@ -60,12 +61,13 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async movePaddle(userId: number, direction: IPaddleDirection) {
+    public async movePaddle(userId: number, matchId: number, direction: IPaddleDirection) {
         const msg: IClientMessage = {
             type: 'movePaddle',
             direction,
-            userId
-        };
+            userId,
+            matchId
+        }
         await this.safeSend(msg);
     }
 
@@ -108,18 +110,20 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async getTournamentList() {
-        const msg: IClientMessage = {
-            type: 'getTournamentList',
-        };
-        await this.safeSend(msg);
-    }
+    // public async getTournamentList() {
+    //     const msg: IClientMessage = {
+    //         type: 'getTournamentList',
+    //     };
+    //     await this.safeSend(msg);
+    // }
 
-    public async createTournament(userId: number) {
-        const msg: IClientMessage = {
-            type: 'createTournament',
-            userId
-        };
-        await this.safeSend(msg);
-    }
+    // public async createTournament(userId: number) {
+    //     const msg: IClientMessage = {
+    //         type: 'createLobby',
+    //         userId,
+    //          lobbyType: 'tournament'
+    // awdadwadawd
+    //     };
+    //     await this.safeSend(msg);
+    // }
 }

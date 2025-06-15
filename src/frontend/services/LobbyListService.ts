@@ -46,9 +46,19 @@ export default class LobbyListService {
     }
 
     public setupCreateLobbyButtonListener(): void {
-        const button = document.getElementById('createLobbyBtn');
-        if (button) {
-            button.addEventListener('click', this.handleCreateLobbyClick);
+        const createGameBtn = document.getElementById('createGameBtn');
+        if (createGameBtn) {
+            createGameBtn.addEventListener('click', this.handleCreateGameClick);
+        }
+
+        const createTournamentButton4 = document.getElementById('createTournamentBtn4');
+        if (createTournamentButton4) {
+            createTournamentButton4.addEventListener('click', this.handleCreateTournamentClick4);
+        }
+
+        const createTournamentButton8 = document.getElementById('createTournamentBtn8');
+        if (createTournamentButton8) {
+            createTournamentButton8.addEventListener('click', this.handleCreateTournamentClick8);
         }
     }
 
@@ -59,7 +69,7 @@ export default class LobbyListService {
         });
     }
 
-    public handleCreateLobbyClick = async (e: MouseEvent) => {
+    public handleCreateGameClick = async (e: MouseEvent) => {
         e.preventDefault();
 
         if (!window.currentUser) {
@@ -70,7 +80,53 @@ export default class LobbyListService {
         if (window.currentUser) {
             if (window.messageHandler && window.currentUser.id) {
                 try {
-                    await window.messageHandler.createLobby(window.currentUser.id);
+                    await window.messageHandler.createLobby(window.currentUser.id, 2);
+                }
+                catch (error) {
+                    console.error("LobbyListService: Error calling createLobby:", error);
+                }
+            }
+        }
+        else {
+            console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
+        }
+    }
+
+    public handleCreateTournamentClick4 = async (e: MouseEvent) => {
+        e.preventDefault();
+
+        if (!window.currentUser) {
+            console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
+            return;
+        }
+
+        if (window.currentUser) {
+            if (window.messageHandler && window.currentUser.id) {
+                try {
+                    await window.messageHandler.createLobby(window.currentUser.id, 4);
+                }
+                catch (error) {
+                    console.error("LobbyListService: Error calling createLobby:", error);
+                }
+            }
+        }
+        else {
+            console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
+        }
+    }
+
+    public handleCreateTournamentClick8 = async (e: MouseEvent) => {
+        e.preventDefault();
+
+        if (!window.currentUser) {
+            console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
+            return;
+        }
+
+        if (window.currentUser) {
+            if (window.messageHandler && window.currentUser.id) {
+                try {
+                    await window.messageHandler.createLobby(window.currentUser.id, 4);
                 }
                 catch (error) {
                     console.error("LobbyListService: Error calling createLobby:", error);

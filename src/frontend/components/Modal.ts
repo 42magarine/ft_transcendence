@@ -3,8 +3,8 @@ import Button from './Button.js';
 import type { ButtonProps, ModalProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Modal extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     private async renderFooter(footer: string, footerButtons: ButtonProps[]): Promise<string> {
