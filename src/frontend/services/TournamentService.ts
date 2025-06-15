@@ -71,16 +71,16 @@ export default class TournamentService {
                         this.lobbyState = receivedLobbyInfo;
                         Router.update();
                     }
-                    if (this.lobbyState) {
-                        if (this.lobbyState.lobbyPlayers) {
-                            if (this.lobbyState.lobbyPlayers.length === 4 && this.arePlayersReady(this.lobbyState.lobbyPlayers, 4)) {
-                                window.messageHandler.joinGame(this.lobbyState.lobbyId,this.lobbyState.lobbyPlayers);
-                                Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
-                            }
-                        }
-                    }
                 }
                 break;
+
+            case 'tournamentMatchStart':
+                if (data.lobby && data.lobby.lobbyType === 'tournament') {
+                    if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
+                        Router.redirect(`/pong/${data.lobby.lobbyId}/${data.matchId}`);
+                    }
+
+                }
             default:
                 break;
         }
