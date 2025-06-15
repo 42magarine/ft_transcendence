@@ -40,31 +40,33 @@ export default class Modal extends AbstractView {
         footer = '',
         footerButtons = [],
         showCloseButton = true,
-        closableOnOutsideClick = true
+        closableOnOutsideClick = true,
+        hidden = true
     }: ModalProps): Promise<string> {
         const closableAttr = closableOnOutsideClick ? `data-close-on-outside="true"` : '';
         const footerHtml = await this.renderFooter(footer, footerButtons);
+        const hiddenClass = hidden ? 'hidden' : '';
 
         return this.render(`
-			<div
-				id="${id}"
-				class="modal-overlay"
-				${closableAttr}
-				onclick="window.handleModalOutsideClick(event, '${id}')"
-			>
-				<div
-					class="card"
-					onclick="event.stopPropagation();"
-				>
-					${showCloseButton ? this.renderCloseButton(id) : ''}
-					${title ? `<h2 class="modal-title"">${title}</h2>` : ''}
-					<div class="modal-content text-base leading-relaxed text-gray-700 dark:text-gray-300 mb-4">
-						${content}
-					</div>
-					${footerHtml}
-				</div>
-			</div>
-		`);
+            <div
+                id="${id}"
+                class="modal-overlay ${hiddenClass}"
+                ${closableAttr}
+                onclick="window.handleModalOutsideClick(event, '${id}')"
+            >
+                <div
+                    class="card"
+                    onclick="event.stopPropagation();"
+                >
+                    ${showCloseButton ? this.renderCloseButton(id) : ''}
+                    ${title ? `<h2 class="modal-title">${title}</h2>` : ''}
+                    <div class="modal-content text-base leading-relaxed text-gray-700 dark:text-gray-300 mb-4">
+                        ${content}
+                    </div>
+                    ${footerHtml}
+                </div>
+            </div>
+        `);
     }
 
     async renderDeleteModal({
