@@ -4,6 +4,7 @@ import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
 
 export default class LobbyListService {
     private lobbyData: ILobbyState[] = [];
+    private lobbyDataResolvers: ((lobbies: ILobbyState[]) => void)[] = [];
 
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
@@ -11,6 +12,8 @@ export default class LobbyListService {
         switch (data.type) {
             case 'lobbyList':
                 this.lobbyData = data.lobbies || [];
+                this.resolveLobbyDataPromises(this.lobbyData);
+                // Router.update();
                 break;
             case 'lobbyCreated':
                 // console.log(window.currentUser)
@@ -151,4 +154,37 @@ export default class LobbyListService {
     public getLobbyList(): ILobbyState[] {
         return this.lobbyData;
     }
+
+
+    private resolveLobbyDataPromises(lobbies: ILobbyState[]): void {
+        this.lobbyDataResolvers.forEach(resolve => resolve(lobbies));
+        this.lobbyDataResolvers = [];
+    }
+
+    public async getLobbies(): Promise<ILobbyState[]> {
+        if (!window.messageHandler) {
+            console.warn("LobbyListService getLobbies: messageHandler not found.");
+            return Promise.resolve(this.lobbyData);
+        }
+
+        if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
+            console.warn("LobbyListService getLobbies: WebSocket not open.");
+            return Promise.resolve(this.lobbyData);
+        }
+
+        const promise = new Promise<ILobbyState[]>((resolve) => {
+            this.lobbyDataResolvers.push(resolve);
+        });
+
+        try {
+            await window.messageHandler.requestLobbyList();
+        }
+        catch (error) {
+            console.error("LobbyListService getLobbies: Error during socket readiness or requesting list:", error);
+            this.resolveLobbyDataPromises(this.lobbyData);
+        }
+
+        return promise;
+    }
 }
+

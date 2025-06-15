@@ -14,7 +14,7 @@ export default class Tournament extends AbstractView {
 
         this.initEvents = this.setupEvents.bind(this);
 
-        this.lobbyId = queryParams.get('id') || '';
+        this.lobbyId = routeParams['id'];
         if (!this.lobbyId) {
             console.error("Lobby ID is missing!");
             Router.redirect('/lobbylist');
