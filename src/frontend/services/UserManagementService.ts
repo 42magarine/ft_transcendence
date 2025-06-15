@@ -3,11 +3,9 @@ import Router from '../../utils/Router.js';
 import { User, ApiErrorResponse, LoginCredentials, AuthResponse, QRResponse } from "../../interfaces/userManagementInterfaces.js";
 import UserService from "./UserService.js";
 import Toggle from "../components/Toggle.js"
-export default class UserManagementService {
 
-    constructor() {
-        this.initialize();
-    }
+export default class UserManagementService {
+    constructor() { }
 
     async registerUser(userData: User, avatarFile?: File): Promise<string> {
         try {
@@ -95,6 +93,7 @@ export default class UserManagementService {
                 });
 
                 if (!response.ok) {
+                    console.log(response);
                     const errorData = await response.json() as ApiErrorResponse;
                     throw new Error(errorData.error || 'Registration failed');
                 }
@@ -103,6 +102,7 @@ export default class UserManagementService {
                 return await response.text();
             }
             else {
+                console.log(userData);
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: {
@@ -112,6 +112,7 @@ export default class UserManagementService {
                 });
 
                 if (!response.ok) {
+                    console.log(response);
                     const errorData = await response.json() as ApiErrorResponse;
                     throw new Error(errorData.error || 'Registration failed');
                 }
@@ -309,7 +310,8 @@ export default class UserManagementService {
 
             if (response.ok) {
                 return true;
-            } else {
+            }
+            else {
                 const data = await response.json();
                 throw new Error(data.error || 'Email verification failed');
             }
@@ -324,7 +326,6 @@ export default class UserManagementService {
         this.setupCreateForm();
         this.setupDeleteButtons();
         this.setupLoginForm();
-        this.setupSignupForm();
         this.setupPasswordResetRequestForm();
         this.setupPasswordResetForm();
         this.setupResendVerificationForm();
@@ -349,8 +350,7 @@ export default class UserManagementService {
                         email: formData.get('email') as string,
                         password: formData.get('password') as string,
                         role: formData.get('role') as string,
-                        emailVerified: (document.getElementById('emailVerified') as HTMLInputElement)?.value === 'true',
-                        twoFAEnabled: formData.get('twoFAEnabled') as string,
+                        emailVerified: true,
                         status: 'offline'
                     };
 
@@ -505,166 +505,6 @@ export default class UserManagementService {
                 }
                 catch (error) {
                     console.error('Two-factor verification failed:', error);
-                }
-            });
-        }
-    }
-
-    private setupSignupForm(): void {
-        const signupForm = document.getElementById('signup-form') as HTMLFormElement | null;
-        if (signupForm) {
-            const avatarInput = signupForm.querySelector('input[name="avatar"]') as HTMLInputElement;
-            if (avatarInput) {
-                avatarInput.setAttribute('accept', 'image/jpeg, image/png');
-            }
-
-            const usernameInput = signupForm.querySelector("input[name=username]");
-            const signupavatar = signupForm.querySelector(".signup-avatar");
-            const enableTwoFactor = signupForm.querySelector("input[name=enableTwoFactor]");
-            const qrDisplay = document.querySelector("#qr-display");
-            const twoFactorInterface = document.querySelector("#twoFactorInterface");
-            const secHidden = document.querySelector("input[type=hidden][name=secret]") as HTMLInputElement;
-
-            if (enableTwoFactor && qrDisplay && twoFactorInterface) {
-                enableTwoFactor.addEventListener("click", async function (e) {
-                    const clickedElement = e.target as HTMLInputElement;
-                    if (clickedElement.checked) {
-                        twoFactorInterface.classList.add('active')
-                        try {
-                            const response = await fetch('/api/generate-qr');
-                            if (!response.ok) {
-                                throw new Error(`Error: ${response.status}`);
-                            }
-                            let qr_response = await response.json() as QRResponse;
-                            if (qr_response) {
-                                let qrImg = `<img src="${qr_response.qr}"/>`
-                                qrDisplay.innerHTML = qrImg;
-                                secHidden.value = qr_response.secret
-                            }
-                        }
-                        catch (error) {
-                            console.error('Failed to fetch users:', error);
-                            return [];
-                        }
-                    }
-                    else {
-                        twoFactorInterface?.classList.remove('active')
-                        qrDisplay.innerHTML = '';
-                        secHidden.value = ''
-                    }
-                })
-            }
-
-            if (usernameInput && signupavatar && avatarInput) {
-                usernameInput.addEventListener("keyup", function (e) {
-                    if (e.target && (avatarInput.value == "" || avatarInput.value == null)) {
-                        const inputElement = e.target as HTMLInputElement;
-                        const seed = inputElement.value;
-
-                        const seedSvg = generateTextVisualization(seed, {
-                            width: 100,
-                            height: 100,
-                            useShapes: true,
-                            maxShapes: 50,
-                            showText: false,
-                            backgroundColor: '#f0f0f0'
-                        });
-                        signupavatar.innerHTML = seedSvg;
-                    }
-                });
-            }
-
-            if (avatarInput && signupavatar) {
-                avatarInput.addEventListener("change", function () {
-                    if (this.files && this.files[0]) {
-                        const file = this.files[0];
-
-                        if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
-                            this.value = '';
-                            return;
-                        }
-
-                        if (file.size > 2 * 1024 * 1024) {
-                            this.value = '';
-                            return;
-                        }
-
-                        const reader = new FileReader();
-
-                        reader.onload = function (e) {
-                            if (signupavatar && e.target) {
-                                const img = document.createElement('img');
-                                img.src = e.target.result as string;
-
-                                signupavatar.innerHTML = '';
-                                signupavatar.appendChild(img);
-                            }
-                        };
-
-                        reader.readAsDataURL(file);
-                    }
-                    else if (usernameInput) {
-                        const inputElement = usernameInput as HTMLInputElement;
-                        const seed = inputElement.value;
-
-                        const seedSvg = generateTextVisualization(seed, {
-                            width: 100,
-                            height: 100,
-                            useShapes: true,
-                            maxShapes: 50,
-                            showText: false,
-                            backgroundColor: '#f0f0f0'
-                        });
-                        signupavatar.innerHTML = seedSvg;
-                    }
-                });
-            }
-
-            signupForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                try {
-                    const formData = new FormData(signupForm);
-
-                    const password = formData.get('password') as string;
-                    const repeatPassword = formData.get('repeat-password') as string;
-
-                    if (password !== repeatPassword) {
-                        return;
-                    }
-
-                    const userData: User = {
-                        name: formData.get('name') as string,
-                        username: formData.get('username') as string,
-                        email: formData.get('email') as string,
-                        password: password,
-                        role: "user",
-                        tf_one: formData.get('tf_one') as string,
-                        tf_two: formData.get('tf_two') as string,
-                        tf_three: formData.get('tf_three') as string,
-                        tf_four: formData.get('tf_four') as string,
-                        tf_five: formData.get('tf_five') as string,
-                        tf_six: formData.get('tf_six') as string,
-                        secret: formData.get('secret') as string,
-                        status: 'offline'
-                    };
-
-                    const avatarFile = formData.get('avatar') as File;
-                    let result;
-
-                    if (avatarFile && avatarFile.size > 0) {
-                        result = await this.registerUser(userData, avatarFile);
-                    }
-                    else {
-                        result = await this.registerUser(userData);
-                    }
-
-                    signupForm.reset();
-                    Router.redirect('/login');
-
-                }
-                catch (error) {
-                    console.error('Failed to register user:', error);
                 }
             });
         }
@@ -884,9 +724,6 @@ export default class UserManagementService {
         document.head.appendChild(script);
     }
 
-    initialize(): void {
-    }
-
     async updateProfile(userId: string, payload: Record<string, any>): Promise<boolean> {
         try {
             const response = await fetch(`/api/user/${userId}`, {
@@ -929,7 +766,7 @@ export default class UserManagementService {
                     try {
                         const success = await UserService.deleteUser(Number(selectedUserId));
                         if (success) {
-                            window.location.reload();
+                            Router.update();
                         }
                         else {
                             console.error('Failed to delete user');

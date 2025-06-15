@@ -1,3 +1,4 @@
+import { FastifyReply, FastifyRequest } from "fastify";
 import { WebSocket } from "ws";
 import { randomUUID } from "crypto";
 import { IClientMessage, IServerMessage, IPaddleDirection, IPlayerState, ITournamentRound, ILobbyState } from "../../interfaces/interfaces.js";
@@ -23,9 +24,8 @@ export class MatchController {
         await this.initOpenLobbies();
     }
 
-
     private async initOpenLobbies() {
-const openDbLobbies = await this._matchService.getOpenLobbies();
+        const openDbLobbies = await this._matchService.getOpenLobbies();
 
         for (const lobbyData of openDbLobbies) {
             let lobby: MatchLobby;
@@ -69,7 +69,7 @@ const openDbLobbies = await this._matchService.getOpenLobbies();
         }
     }
 
-    public handleConnection(connection: WebSocket) {
+    public handleConnection(connection: WebSocket, request: FastifyRequest) {
         this._clients.set(connection, null);
 
         connection.on("message", (message: string | Buffer) => {
@@ -77,8 +77,12 @@ const openDbLobbies = await this._matchService.getOpenLobbies();
         });
 
         connection.on("close", () => {
-            this.handleCloseSocket(connection);
+            this.handleCloseSocket(connection, request);
         });
+
+        // Set online status
+        this._matchService.userService.setUserOnline(request.user!.id, true);
+        this.broadcastToAll({ type: "updateFriendlist" });
 
         this.sendMessage(connection, {
             type: "connection",
@@ -104,8 +108,8 @@ const openDbLobbies = await this._matchService.getOpenLobbies();
                 this.handleCreateLobby(connection, data.userId!, data.lobbyType, data.maxPlayers)
                 break;
             case "leaveLobby":
-                if (player)
-                    this.handleLeaveLobby(connection, data.lobbyId!)
+                if (player) //todo fix in frontend leave route and button sends this twice
+                    this.handleLeaveLobby(connection, data.lobbyId!, data.gameIsOver!)
                 break;
             case "movePaddle":
                 if (player && data.matchId !== undefined && data.direction !== undefined) {
@@ -134,30 +138,25 @@ const openDbLobbies = await this._matchService.getOpenLobbies();
         }
     }
 
-private handleCloseSocket(connection: WebSocket) {
+    private handleCloseSocket(connection: WebSocket, request: FastifyRequest) {
         const player = this._clients.get(connection);
 
         if (player && player.lobbyId) {
             const lobby = this._lobbies.get(player.lobbyId);
 
-            if (lobby) {
-                lobby.removePlayer(player);
-
-                if (lobby.isEmpty()) {
-                    this._lobbies.delete(player.lobbyId);
-                    if (lobby._lobbyType === 'game') {
-                         this._matchService.deleteMatchByLobbyId(lobby.getLobbyId()); // Delete if regular game and empty
-                    }
-                    // For tournaments, it's already cancelled and DB matches deleted by removePlayer -> cancelTournament
-                } else {
-                    this.broadcastToLobby(player.lobbyId, {
-                        type: "playerLeft",
-                        lobby: lobby.getLobbyState()
-                    });
-                }
+            // Check if any game is started in the lobby
+            if (lobby && lobby.isGameStarted()) {
+                this.handleLeaveLobby(connection, player.lobbyId, true)
+            }
+            else {
+                this.handleLeaveLobby(connection, player.lobbyId, false)
             }
         }
         this._clients.delete(connection);
+
+        // Set online status
+        this._matchService.userService.setUserOnline(request.user!.id, false);
+        this.broadcastToAll({ type: "updateFriendlist" });
     }
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
@@ -169,6 +168,8 @@ private handleCloseSocket(connection: WebSocket) {
 
     private broadcastToAll(data: IServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
+            // console.log(`Client ${sentCount + 1}: readyState=${connection.readyState}, player=${player?.userId || 'no player'}`);
+
             if (connection.readyState === WebSocket.OPEN) {
                 this.sendMessage(connection, data);
             }
@@ -187,7 +188,7 @@ private handleCloseSocket(connection: WebSocket) {
         }
     }
 
-private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType: 'game' | 'tournament' = 'game', maxPlayers?: number) {
+    private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType: 'game' | 'tournament' = 'game', maxPlayers?: number) {
         const lobbyId = randomUUID();
         const options = {
             lobbyType: lobbyType,
@@ -224,7 +225,7 @@ private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType
         }
     }
 
-  private async handleJoinLobby(connection: WebSocket, userId: number, lobbyId: string) {
+    private async handleJoinLobby(connection: WebSocket, userId: number, lobbyId: string) {
         if (!userId || !lobbyId) {
             console.error("Matchcontroller - handleJoinLobby(): UserId and LobbyId are required");
             return;
@@ -255,7 +256,7 @@ private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType
         }
     }
 
-    private async handleLeaveLobby(connection: WebSocket, lobbyId: string) {
+    private async handleLeaveLobby(connection: WebSocket, lobbyId: string, gameIsOver: boolean) {
         const lobby = this._lobbies.get(lobbyId);
         if (!lobby) {
             console.error("Matchcontroller - handleLeaveLobby(): Couldn't find Lobby");
@@ -269,6 +270,12 @@ private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType
         }
 
         try {
+            if (gameIsOver) {
+                // Broadcast that a player left the game
+                this.broadcastToLobby(lobbyId, {
+                    type: "playerLeftGame"
+                });
+            }
             await lobby.removePlayer(player);
 
             if (lobby.isEmpty()) {
@@ -294,7 +301,6 @@ private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType
             console.error("Matchcontroller - handleLeaveLobby(): Player failed to leave Lobby", error);
         }
     }
-
 
     private async handleGetLobbyState(lobbyId: string) {
         const lobby = this._lobbies.get(lobbyId);
@@ -379,6 +385,7 @@ private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType
         } else {
             lobby.startGame();
         }
+        //implement broadcasts here
     }
 
     private handleMovePaddle(player: Player, matchId: number, direction: IPaddleDirection): void {
@@ -400,4 +407,3 @@ private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType
         }
     }
 }
-

@@ -4,8 +4,8 @@ import AbstractView from '../../utils/AbstractView.js';
 export default class Card extends AbstractView {
     private contextData: Record<string, any> = {};
 
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     setContextData(data: Record<string, any>): void {
@@ -91,12 +91,17 @@ export default class Card extends AbstractView {
 
             case 'twofactor': {
                 const renderTwoFactor = (await import('./TwoFactor.js')).default;
-                return renderTwoFactor();
+                return await renderTwoFactor(); // <- ensure this is being called!
             }
 
             case 'signup-footer': {
                 const renderSignupFooter = (await import('./SignupFooter.js')).default;
                 return renderSignupFooter();
+            }
+
+            case 'avatar': {
+                const renderAvatar = (await import('./Avatar.js')).default;
+                return renderAvatar(block.props);
             }
 
             case 'html': {
@@ -127,7 +132,7 @@ export default class Card extends AbstractView {
         }: CardProps): Promise<string> {
         const titleHtml = title
             ? `<div class="card-header px-6 pt-6 py-2 text-center">
-                    <h3 class="text-xl font-bold text-white mb-2">${title}</h3>
+                    <h3 text-inherit font-bold text-white mb-2">${title}</h3>
                 </div>`
             : '';
 

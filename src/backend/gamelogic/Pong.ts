@@ -22,6 +22,10 @@ export class PongGame {
     private _matchId: number | null = null;
     public _player1: Player | null = null;
     public _player2: Player | null = null;
+    private _gameId: number | null = null;
+    private _player1Left: boolean = false;
+    private _player2Left: boolean = false;
+    private _winner: Player | null = null;
     private _gameService?: MatchService;
     private _onGameOverCallback: (matchId: number) => void; // Callback for MatchLobby
 
@@ -33,7 +37,9 @@ export class PongGame {
         this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
         this._scoreLimit = SCORE_LIMIT;
         this._onGameOverCallback = onGameOverCallback;
+        this._ball.randomizeDirection();
     }
+
 
     public startGameLoop(): void {
         if (this._running) {
@@ -59,6 +65,19 @@ export class PongGame {
         }, 1000 / 60); // 60 frames per second
     }
 
+    public checkWin(): void {
+        if (this._gameIsOver) {
+            if (this._player1Left) {
+                this._winner = this.player2;
+            }
+            if (this._player2Left) {
+                this._winner = this.player1;
+            }
+            this.updateGameRecord();
+            this.stopGameLoop();
+        }
+    }
+
     public stopGameLoop(): void {
         if (this._intervalId) {
             clearInterval(this._intervalId);
@@ -71,7 +90,11 @@ export class PongGame {
         this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
         this._paddle1 = new Paddle(10, this._height / 2 - 50);
         this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
-        this._gameIsOver = false; 
+        this._gameIsOver = false;
+        this._ball.randomizeDirection();
+        this._ball.randomizeDirection();
+        //this._paddle1 = new Paddle(10, this._height / 2 - 50);
+        //this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
     }
 
     public resetScores(): void {
@@ -81,7 +104,24 @@ export class PongGame {
     }
 
     private endGame(): void {
-        this._gameIsOver = true;
+		this._gameIsOver = true;
+    }
+
+    private async updateGameRecord() {
+        if (this._gameService && this._gameId) {
+            try {
+                const WinnerId = this._score1 > this._score2 ? this._player1?.userId : this._player2?.userId;
+
+                await this._gameService.updateScore(
+                    this._gameId,
+                    this._score1,
+                    this._score2,
+                    this._winner?.userId
+                );
+            } catch (error) {
+                console.error("Failed to update db", error)
+            }
+        }
     }
 
     public update(): void {
@@ -96,7 +136,7 @@ export class PongGame {
             const ballY = this._ball.y;
             const ballRadius = this._ball.radius;
 
-            
+
             if (ballY - ballRadius <= 0) {
                 this._ball.y = ballRadius;
                 this._ball.revY();
@@ -106,7 +146,7 @@ export class PongGame {
                 this._ball.revY();
             }
 
-            
+
             if (this._ball.speedX < 0 && this.isColliding(this._ball, this._paddle1)) {
                 this._ball.x = this._paddle1.x + this._paddle1.width + ballRadius;
                 this._ball.revX();
@@ -122,11 +162,13 @@ export class PongGame {
                 this._ball.speedY += overlapY * 0.05;
             }
 
-            
+
             if (ballX < 0) {
                 this._score2++;
                 if (this._score2 >= this._scoreLimit) {
                     this.endGame();
+                    this._gameIsOver = true;
+                    this._winner = this.player2;
                 }
                 else {
                     this.resetGame();
@@ -137,6 +179,8 @@ export class PongGame {
                 this._score1++;
                 if (this._score1 >= this._scoreLimit) {
                     this.endGame();
+                    this._gameIsOver = true;
+                    this._winner = this.player1;
                 }
                 else {
                     this.resetGame();
@@ -193,7 +237,7 @@ export class PongGame {
         this._player2 = null;
     }
 
-    public setMatchId(matchId: number): void { 
+    public setMatchId(matchId: number): void {
         this._matchId = matchId;
     }
 
@@ -231,7 +275,66 @@ public getState(): IGameState {
             gameIsOver: this._gameIsOver,
             matchId: this._matchId || undefined,
             player1Id: this._player1?.userId,
-            player2Id: this._player2?.userId
+            player2Id: this._player2?.userId,
+            player1Left: this.player1Left,
+            player2Left: this.player2Left,
+            winnerName: this._winner?._name,
         };
+    }
+
+    public get score1(): number {
+        return this._score1;
+    }
+
+    public get score2(): number {
+        return this._score2;
+    }
+
+    public get isRunning(): boolean {
+        return this._running;
+    }
+
+    public get isPaused(): boolean {
+        return this._paused;
+    }
+
+    public get player1(): Player | null {
+        return this._player1;
+    }
+
+    public get player2(): Player | null {
+        return this._player2;
+    }
+
+    public get isGameOver(): boolean {
+        return this._gameIsOver;
+    }
+
+    public set score1(score: number) {
+        this._score1 = score;
+    }
+
+    public set score2(score: number) {
+        this._score2 = score;
+    }
+
+    public set isRunning(state: boolean) {
+        this._running = state;
+    }
+
+    public set isPaused(state: boolean) {
+        this._paused = state;
+    }
+
+    public set isGameOver(state: boolean) {
+        this._gameIsOver = state;
+    }
+
+    public set player1Left(state: boolean) {
+        this._player1Left = state;
+    }
+
+    public set player2Left(state: boolean) {
+        this._player2Left = state;
     }
 }

@@ -14,11 +14,4 @@
 	@apply max-w-lg mx-auto;
   }
 
-  .detail-row {
-	@apply flex justify-between py-2 border-b border-gray-200;
-  }
-
-  .label {
-	@apply font-bold text-gray-600;
-  }
 

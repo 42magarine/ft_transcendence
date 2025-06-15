@@ -40,9 +40,14 @@ export class UserService {
 
     async createUser(userData: RegisterCredentials & { password: string, avatar?: string }): Promise<UserModel> {
         try {
-            const existingUser = await this.findUserByEmail(userData.email);
-            if (existingUser) {
+            const existingEmail = await this.findUserByEmail(userData.email);
+            if (existingEmail) {
                 throw new Error('Email already exists');
+            }
+
+            const existingUsername = await this.findUserByUsername(userData.username);
+            if (existingUsername) {
+                throw new Error('Username already exists');
             }
 
             let user: RegisterCredentials;
@@ -70,11 +75,15 @@ export class UserService {
                     role: 'user',
                 });
             }
-
+            console.log(user);
             const savedUser = await this.userRepo.save(user);
             return savedUser;
+
         }
-        catch (error) {
+        catch (error: any) {
+            if (error.message === 'Email already exists' || error.message === 'Username already exists') {
+                throw error;
+            }
             throw new Error('Failed to create user');
         }
     }
@@ -258,39 +267,42 @@ export class UserService {
         }
     }
 
-    // for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
     async register(credentials: RegisterCredentials & { avatar?: string, secret?: string }) {
-        const hashedPW = await hashPW(credentials.password);
+        try {
+            const hashedPW = await hashPW(credentials.password);
 
-        // Create user data with potential 2FA settings
-        const userData: any = {
-            ...credentials,
-            password: hashedPW
-        };
+            // Create user data with potential 2FA settings
+            const userData: any = {
+                ...credentials,
+                password: hashedPW
+            };
 
-        // If secret is provided and 2FA token is valid, enable 2FA
-        if (credentials.secret) {
-            // Get the token from the tf_ fields if they exist
-            const token = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
-                credentials.tf_four && credentials.tf_five && credentials.tf_six ?
-                `${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` : '';
+            // If secret is provided and 2FA token is valid, enable 2FA
+            if (credentials.secret) {
+                // Get the token from the tf_ fields if they exist
+                const token = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
+                    credentials.tf_four && credentials.tf_five && credentials.tf_six ?
+                    `${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` : '';
 
-            if (token) {
-                const verified = speakeasy.totp.verify({
-                    secret: credentials.secret,
-                    encoding: 'base32',
-                    token: token
-                });
+                if (token) {
+                    const verified = speakeasy.totp.verify({
+                        secret: credentials.secret,
+                        encoding: 'base32',
+                        token: token
+                    });
 
-                if (verified) {
-                    userData.twoFAEnabled = true;
-                    userData.twoFASecret = credentials.secret;
+                    if (verified) {
+                        userData.twoFAEnabled = true;
+                        userData.twoFASecret = credentials.secret;
+                    }
                 }
             }
+            const user = await this.createUser(userData);
+            return this.generateTokens(user);
         }
-
-        const user = await this.createUser(userData);
-        return this.generateTokens(user);
+        catch (error) {
+            throw error;
+        }
     }
 
     async login(credentials: LoginCredentials) {
@@ -313,6 +325,9 @@ export class UserService {
                 username: user.username
             };
         }
+
+        // Set user online status to true
+        await this.setUserOnline(user.id, true);
 
         // If no 2FA, proceed with normal login
         return this.generateTokens(user);
@@ -356,8 +371,19 @@ export class UserService {
             });
         }
 
+        // Set user online status to true
+        await this.setUserOnline(user.id, true);
+
         // Generate and return JWTs
         return this.generateTokens(user);
+    }
+
+    async logout(userId: number): Promise<void> {
+        await this.setUserOnline(userId, false);
+    }
+
+    async setUserOnline(userId: number, online: boolean): Promise<void> {
+        await this.userRepo.update(userId, { online });
     }
 
     // Add new method to verify 2FA code

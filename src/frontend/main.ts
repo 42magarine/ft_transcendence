@@ -2,7 +2,6 @@
 // 🌐 ROUTES & SERVICES
 // ====================
 import routes from './routeInit.js';
-import './services/LanguageService.js';
 import LobbyListService from './services/LobbyListService.js';
 import LobbyService from './services/LobbyService.js';
 import TournamentService from './services/TournamentService.js';
@@ -25,6 +24,9 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
+// import TournamentListService from './services/TournamentListService.js';
+import { AccessibilityService } from './services/AccessibilityService.js';
+import LanguageService from './services/LanguageService.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -37,7 +39,13 @@ globalTemplateEngine.registerComponent('Button', Button);
 // 🧩 GLOBAL SINGLETONS
 // =====================
 window.userService = new UserService();
+window.ls = new LanguageService();
 window.userManagementService = new UserManagementService();
+window.handleModalOutsideClick = (event: Event, id: string) => {
+    event.preventDefault();
+    let modal = document.getElementById(id);
+    modal?.remove();
+}
 
 // ==============================
 // 📦 FOOTER + HEADER RENDERING
@@ -58,7 +66,7 @@ async function renderFooter(): Promise<void> {
 }
 
 async function renderHeader(): Promise<void> {
-    const header = new Header(new URLSearchParams(window.location.search));
+    const header = new Header({}, new URLSearchParams(window.location.search));
     const headerHtml = await header.getHtml();
     const headerElement = document.getElementById('header-root');
     if (headerElement)
@@ -91,6 +99,12 @@ async function initSocket(): Promise<void> {
 
     window.ft_socket = socket;
 
+    socket.addEventListener('close', (event) =>
+    {
+        console.warn("websocket closed", event.code, event.reason)
+        setTimeout(() => socketUpdateOnSession(), 3000)
+    })
+
     try {
         const readyPromise = webSocketWrapper(socket);
         window.socketReady = readyPromise;
@@ -109,6 +123,7 @@ async function initSocket(): Promise<void> {
                 window.lobbyService.handleSocketMessage(messageEvent);
                 window.tournamentService.handleSocketMessage(messageEvent);
                 window.pongService.handleSocketMessage(messageEvent);
+                window.userService.handleSocketMessage(messageEvent);
             })
         }
     }
@@ -143,6 +158,7 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();
@@ -151,10 +167,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 document.addEventListener('RouterContentLoaded', async () => {
     await socketUpdateOnSession();
+    window.ls.initialize();
     window.userManagementService.setupEventListeners();
     window.userManagementService.twoFactorNumberActions();
     window.userManagementService.setupUserManagementView();
     window.userManagementService.initializeGoogleScript();
+    AccessibilityService.initialize();
 });
 
 // =======================

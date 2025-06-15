@@ -2,18 +2,19 @@ import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Router from '../../utils/Router.js';
 import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
+import __ from '../services/LanguageService.js';
 
 export default class Lobby extends AbstractView {
     private lobbyId: string;
     private lobby!: ILobbyState;
     private players: IPlayerState[] = [];
 
-    constructor(params: URLSearchParams) {
-        super();
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
 
         this.initEvents = this.setupEvents.bind(this);
 
-        this.lobbyId = params.get('id') || '';
+        this.lobbyId = routeParams.id || '';
         if (!this.lobbyId) {
             console.error("Lobby ID is missing!");
             Router.redirect('/lobbylist');
@@ -54,7 +55,6 @@ export default class Lobby extends AbstractView {
                         {
                             type: 'separator',
                         },
-                        // Matchup buttons
                         {
                             type: 'matchup',
                             props:
@@ -65,9 +65,8 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player1',
-                                        text: this.players[0].userName,
-                                        className:
-                                            `btn ${this.players[0].isReady ? 'btn-green' : 'btn-yellow'}`
+                                        text: window.ls.__(this.players[0].userName),
+                                        className: `btn state-btn ${this.players[0].isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 },
                                 player2:
@@ -76,9 +75,9 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player2',
-                                        text: this.players[1].userName || "Waiting for Opponent...",
+                                        text: window.ls.__(this.players[1].userName),
                                         className:
-                                            `btn ${this.players[1].isReady ? 'btn-green' : 'btn-yellow'}`
+                                            `btn state-btn ${this.players[1].isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 }
                             }
@@ -86,7 +85,6 @@ export default class Lobby extends AbstractView {
                         {
                             type: 'separator',
                         },
-                        // Action buttons
                         {
                             type: 'buttongroup',
                             props:
@@ -95,13 +93,13 @@ export default class Lobby extends AbstractView {
                                     [
                                         {
                                             id: 'startGameBtn',
-                                            text: 'Click when Ready',
+                                            text: window.ls.__('Click when Ready'),
                                             className: 'btn btn-primary',
                                             type: 'button'
                                         },
                                         {
                                             id: 'leaveBtn',
-                                            text: 'Leave Lobby',
+                                            text: window.ls.__('Leave Lobby'),
                                             type: 'button',
                                             href: '/lobbylist'
                                         }

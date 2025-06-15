@@ -25,7 +25,7 @@ const routes: Route[] = [
         }
     },
     {
-        path: '/pong/:id',
+        path: '/pong/:lobbyId/:matchId',
         role: 'user',
         view: Pong,
         metadata: {
@@ -33,7 +33,7 @@ const routes: Route[] = [
             description: 'Welcome to Pong'
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
-            window.messageHandler!.leaveLobby(params.id);
+            window.messageHandler!.leaveLobby(params.lobbyId, true);
             return true;
         }
     },
@@ -56,7 +56,7 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
-                window.messageHandler!.leaveLobby(params.id);
+                window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
         }
@@ -71,7 +71,7 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
-                window.messageHandler!.leaveLobby(params.id);
+                window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
         }

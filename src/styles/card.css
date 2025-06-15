@@ -1,94 +1,143 @@
 /* === BASE CARD === */
 .card {
-	@apply w-full max-w-full rounded-2xl overflow-hidden shadow-xl border border-gray-700 text-white;
-	@apply mt-2 mb-2;
-@apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80
- text-white backdrop-blur-md border border-white/10
- shadow-xl rounded-xl p-6;
+    @apply w-full max-w-full rounded-2xl overflow-hidden shadow-xl border border-gray-700 text-white;
+    @apply mt-2 mb-2;
+    @apply bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80
+      text-white backdrop-blur-md border border-white/10
+      shadow-xl rounded-xl p-6;
+    @apply sm:p-6 p-1;
 }
 
-.card-image {
-	@apply w-full h-48 object-cover;
-}
+  /* High Contrast Card */
+  .high-contrast .card {
+    @apply bg-white text-black border-4 border-black shadow-2xl;
+    background: #ffffff;
+    backdrop-filter: none;
+  }
+  .card-image {
+    @apply w-full h-48 object-cover;
+  }
 
-.card-body {
-	@apply px-6 py-4;
-}
+  /* High Contrast Card Image */
+  .high-contrast .card-image {
+    @apply border-4 border-black;
+  }
 
-.card-title {
-	@apply font-semibold text-2xl text-white mb-2 tracking-wide;
-}
+  /* High Contrast Card Body */
+  .high-contrast .card-body {
+    @apply px-8 py-6;
+  }
+  .card-title {
+    @apply font-semibold text-2xl text-white mb-2 tracking-wide;
+  }
 
-.card-text {
-	@apply text-gray-300 text-base leading-relaxed;
-}
+  /* High Contrast Card Title */
+  .high-contrast .card-title {
+    @apply font-black text-3xl text-black mb-4 tracking-wider;
+  }
+  .card-text {
+    @apply text-gray-300 text-base leading-relaxed;
+  }
 
-.card-footer {
-	@apply px-6 pt-4 pb-6 flex flex-wrap gap-2;
-}
+  /* High Contrast Card Text */
+  .high-contrast .card-text {
+    @apply text-black text-lg leading-relaxed font-semibold;
+  }
+  .card-footer {
+    @apply px-6 pt-4 pb-6 flex flex-wrap gap-2;
+  }
 
-.card-tag {
-	@apply inline-block bg-blue-700 text-white rounded-full px-3 py-1 text-sm font-medium;
-}
+  /* High Contrast Card Footer */
+  .high-contrast .card-footer {
+    @apply px-8 pt-6 pb-8 gap-4 border-t-4 border-black;
+  }
+  .card-tag {
+    @apply inline-block bg-blue-700 text-white rounded-full px-3 py-1 text-sm font-medium;
+  }
 
-.card input {
-	@apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
-}
+  /* High Contrast Card Tags */
+  .high-contrast .card-tag {
+    @apply bg-black text-white border-2 border-black rounded-lg px-4 py-2 text-base font-bold;
+  }
+  .card input {
+    @apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
+  }
 
-.card input[type=checkbox] {
-	/* Base checkbox size */
-	height: 1em;
-	width: 1em;
+  /* High Contrast Card Inputs */
+  .high-contrast .card input {
+    @apply bg-white text-black border-4 border-black focus:ring-4 focus:ring-blue-600 focus:border-blue-600 font-bold;
+    backdrop-filter: none;
+  }
+  .card input[type="checkbox"] {
+    background-color: red;
+    @apply h-[1em] w-[1em] bg-[rgba(255,255,255,0.05)] border backdrop-blur-md text-[white] shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-shadow duration-[0.2s,outline-color] delay-[0.2s] appearance-none cursor-pointer rounded-xl border-solid border-[rgba(255,255,255,0.2)]; /* Base checkbox size */ /* Card styling */ /* Transition effects */ /* Remove default checkbox appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+  }
 
-	/* Card styling */
-	border-radius: 0.75rem;
-	background-color: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	backdrop-filter: blur(12px);
-	color: white;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-	/* Transition effects */
-	transition: box-shadow 0.2s, outline-color 0.2s;
-
-	/* Remove default checkbox appearance */
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	outline: none;
-	cursor: pointer;
+  /* High Contrast Checkbox */
+  .high-contrast .card input[type="checkbox"] {
+    @apply h-[1.5em] w-[1.5em] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.3)] rounded-lg border-4 border-solid border-black;
+    backdrop-filter: none;
   }
 
   /* Style for checked state with white marker */
-  .card input[type=checkbox]:checked {
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: 0.7em;
+  .card input[type="checkbox"]:checked {
+    background-color: green;
+  }
+
+  /* High Contrast Checked Checkbox */
+  .high-contrast .card input[type="checkbox"]:checked {
+    @apply bg-black bg-[url("data:image/svg+xml,%3Csvg_xmlns='http://www.w3.org/2000/svg'_viewBox='0_0_24_24'_fill='white'%3E%3Cpath_d='M9_16.17L4.83_12l-1.42_1.41L9_19_21_7l-1.41-1.41L9_16.17z'/%3E%3C/svg%3E")] bg-[1em] border-black;
   }
 
   /* Add focus state for accessibility */
-  .card input[type=checkbox]:focus {
-	outline: 2px solid rgba(255, 255, 255, 0.4);
+  .card input[type="checkbox"]:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.4);
   }
 
-.card select {
-	@apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
-}
+  /* High Contrast Checkbox Focus */
+  .high-contrast .card input[type="checkbox"]:focus {
+    @apply outline-offset-2;
+    outline: 4px solid #0066cc;
+  }
+  .card select {
+    @apply input-glass focus:outline-hidden focus:ring-3 focus:ring-blue-400 focus:border-white/40;
+  }
 
-/* === GROUP STYLES === */
-.card-group {
-	@apply w-full;
-}
+  /* High Contrast Card Select */
+  .high-contrast .card select {
+    @apply bg-white text-black border-4 border-black focus:ring-4 focus:ring-blue-600 focus:border-blue-600 font-bold;
+    backdrop-filter: none;
+  }
 
-.card-group .card {
-	@apply transition-transform hover:scale-[1.015];
-}
+  /* === GROUP STYLES === */
+  .card-group {
+    @apply w-full;
+  }
+  .card-group .card {
+    @apply transition-transform hover:scale-[1.015];
+  }
 
-.card-group.grid {
-	@apply gap-6;
-}
+  /* High Contrast Card Group Hover */
+  .high-contrast .card-group .card {
+    @apply hover:scale-[1.02] hover:shadow-2xl;
+  }
+  .card-group.grid {
+    @apply gap-6;
+  }
 
-.card-group.flex {
-	@apply gap-6 flex-wrap justify-center;
-}
+  /* High Contrast Card Grid */
+  .high-contrast .card-group.grid {
+    @apply gap-8;
+  }
+  .card-group.flex {
+    @apply gap-6 flex-wrap justify-center;
+  }
+
+  /* High Contrast Card Flex */
+  .high-contrast .card-group.flex {
+    @apply gap-8;
+  }
+

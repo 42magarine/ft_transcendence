@@ -1,5 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
+import __ from '../services/LanguageService.js';
 import Router from '../../utils/Router.js';
 import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
 
@@ -8,12 +9,12 @@ export default class Tournament extends AbstractView {
     private lobby!: ILobbyState;
     private players: IPlayerState[] = [];
 
-    constructor(params: URLSearchParams) {
-        super();
+	constructor(routeParams: Record<string, string>, queryParams: URLSearchParams = new URLSearchParams()) {
+		super();
 
         this.initEvents = this.setupEvents.bind(this);
 
-        this.lobbyId = params.get('id') || '';
+        this.lobbyId = queryParams.get('id') || '';
         if (!this.lobbyId) {
             console.error("Lobby ID is missing!");
             Router.redirect('/lobbylist');

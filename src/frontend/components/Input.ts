@@ -2,8 +2,8 @@ import AbstractView from '../../utils/AbstractView.js';
 import { InputProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Input extends AbstractView {
-    constructor(params: URLSearchParams = new URLSearchParams()) {
-        super(params);
+    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
     }
 
     async renderInput({
@@ -20,10 +20,10 @@ export default class Input extends AbstractView {
         const finalClass = className || 'input';
 
         const inputField = type === 'select'
-            ? `<select name="${name}" id="${id}" class="${finalClass}">${value}</select>`
+            ? `<select name="${name}" ${(id) ? 'id="' + id + '"' : ''} class="${finalClass}">${value}</select>`
             : `<input
 					type="${type}"
-					id="${id}"
+					${(id) ? 'id="' + id + '"' : ''}
 					name="${name}"
 					placeholder="${placeholder}"
 					value="${value}"
@@ -33,11 +33,11 @@ export default class Input extends AbstractView {
         let confirmInput = '';
         if (withConfirm && type === 'password') {
             confirmInput = `
-				<div class="detail-row hidden" id="${id}-confirm-row">
-					<label class="label">Confirm Password:</label>
-					<input class="input" type="password" name="${name}Confirm" placeholder="Repeat ${placeholder}" />
-				</div>
-			`;
+                <div class="detail-row hidden" ${(id) ? 'id="' + id + '-confirm-row"' : ''}>
+                    <label class="label">Confirm Password:</label>
+                    <input class="input" type="password" name="passwordConfirm" placeholder="Repeat ${placeholder}" />
+                </div>
+            `;
         }
 
         // Auto-bind show/hide logic after render
@@ -80,26 +80,28 @@ export default class Input extends AbstractView {
 
     async renderNumericGroup(count: number, baseId: string): Promise<string> {
         const inputs: string[] = [];
-
+        const nameMap = ['one', 'two', 'three', 'four', 'five', 'six'];
+        console.log('emter renderNunericgroup');
         for (let i = 0; i < count; i++) {
-            const id = `${baseId}_${i + 1}`;
+            const id = `${baseId}_${nameMap[i]}`;
+            console.log(id);
             inputs.push(await this.renderInput({
                 id,
-                name: id,
-                type: 'number',
+                name: id, // <-- this is critical!
+                type: 'tel',
                 bare: true,
                 className: 'tf_numeric w-12 h-12 text-center text-xl border border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white',
             }));
         }
 
         const halfway = Math.floor(count / 2);
-        return this.render(`
-			<div class="flex justify-center space-x-2">
-				${inputs.slice(0, halfway).join('\n')}
-				<div class="spacer w-4"></div>
-				${inputs.slice(halfway).join('\n')}
-			</div>
-		`);
+        return `
+            <div class="flex justify-center space-x-2">
+                ${inputs.slice(0, halfway).join('\n')}
+                <div class="spacer w-4"></div>
+                ${inputs.slice(halfway).join('\n')}
+            </div>
+        `;
     }
 
     async renderInputGroup(inputs: InputProps[]): Promise<string> {

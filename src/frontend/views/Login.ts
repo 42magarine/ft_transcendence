@@ -1,6 +1,6 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
-import __ from "../services/LanguageService.js";
+import __ from '../services/LanguageService.js';
 
 export default class Login extends AbstractView {
     constructor() {
@@ -10,7 +10,7 @@ export default class Login extends AbstractView {
     async getHtml(): Promise<string> {
         const loginCard = await new Card().renderCard(
             {
-                title: __('Login'),
+                title: window.ls.__('Login'),
                 formId: 'login-form',
                 contentBlocks:
                     [
@@ -23,12 +23,12 @@ export default class Login extends AbstractView {
                                         {
                                             name: 'email',
                                             type: 'text',
-                                            placeholder: __('E-Mail')
+                                            placeholder: window.ls.__('E-Mail')
                                         },
                                         {
                                             name: 'password',
                                             type: 'password',
-                                            placeholder: __('Password')
+                                            placeholder: window.ls.__('Password')
                                         }
                                     ]
                             }
@@ -40,26 +40,30 @@ export default class Login extends AbstractView {
                                 buttons:
                                     [
                                         {
-                                            text: __('Login'),
+                                            text: window.ls.__('Login'),
                                             type: 'submit',
                                             className: 'btn btn-primary',
+                                            aria: {
+                                                "description": "Submit Login Form",
+                                                "describedby": "login-form"
+                                            },
                                         },
                                         {
                                             id: 'signup-redirect',
                                             type: 'text-with-button',
-                                            text: __('sign up'),
-                                            textBefore: __('May want to'),
+                                            text: window.ls.__('sign up'),
+                                            textBefore: window.ls.__('May want to'),
                                             href: '/signup',
-                                            className: 'btn-link text-sm underline',
+                                            className: 'underline text-btn',
                                             align: 'center',
                                         },
                                         {
                                             id: 'reset-password',
                                             type: 'text-with-button',
-                                            text: __('Reset Password'),
-                                            textBefore: __('Did you forget your Password?'),
+                                            text: window.ls.__('Reset Password'),
+                                            textBefore: window.ls.__('Did you forget your Password?'),
                                             href: '/password-reset',
-                                            className: 'btn-link text-sm underline',
+                                            className: 'underline text-btn',
                                             align: 'center',
                                         },
                                         {
