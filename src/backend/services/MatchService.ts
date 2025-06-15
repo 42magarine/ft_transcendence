@@ -32,8 +32,7 @@ export class MatchService {
         })
     }
 
-    async getTournamentById(tournamentId: number): Promise<TournamentModel | null>
-    {
+    async getTournamentById(tournamentId: number): Promise<TournamentModel | null> {
         return await this.tournamentRepo.findOne({
             where: { id: tournamentId },
             relations: ['creator', 'lobbyParticipants']
@@ -99,11 +98,9 @@ export class MatchService {
         }
     }
 
-    async deleteAllMatchesForTournament(tournamentId: number)
-    {
-        try
-        {
-            await this.matchRepo.delete({tournament: {id: tournamentId}})
+    async deleteAllMatchesForTournament(tournamentId: number) {
+        try {
+            await this.matchRepo.delete({ tournament: { id: tournamentId } })
             console.log("bladlaldlawdlalwd")
         }
         catch (error) {
@@ -318,19 +315,19 @@ export class MatchService {
         if (!creator)
             throw new Error("Wirf Junge WIRF den FEHLER DU BASTARD")
 
-       const tournament = new TournamentModel();
-       tournament.lobbyId = lobbyId;
-       tournament.creator = creator;
-       tournament.name = name;
-       tournament.maxPlayers = maxPlayers;
-       tournament.createdAt = new Date();
-       tournament.status = 'pending';
-       tournament.currentRound = 0;
-       tournament.playerScores = {};
-       tournament.matchSchedule = [];
-       tournament.lobbyParticipants = [creator];
+        const tournament = new TournamentModel();
+        tournament.lobbyId = lobbyId;
+        tournament.creator = creator;
+        tournament.name = name;
+        tournament.maxPlayers = maxPlayers;
+        tournament.createdAt = new Date();
+        tournament.status = 'pending';
+        tournament.currentRound = 0;
+        tournament.playerScores = {};
+        tournament.matchSchedule = [];
+        tournament.lobbyParticipants = [creator];
 
-       console.log("calling tournament.save from createTournament function");
+        console.log("calling tournament.save from createTournament function");
         return await this.tournamentRepo.save(tournament);
     }
 
@@ -426,10 +423,6 @@ export class MatchService {
         if (ongoingRegularMatches.length > 0) {
             const matchIds = ongoingRegularMatches.map(m => m.matchModelId);
             await this.matchRepo.delete(matchIds);
-            console.log("deletion wrks")
-        }
-        else {
-            console.log("deletion nix gut oder einfach nix am laufen gewesen(dann alles gut)")
         }
     }
 }
