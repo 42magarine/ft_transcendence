@@ -407,7 +407,6 @@ export class MatchLobby {
                     lobby: this.getLobbyState()
                 });
             }
-            this.saveCurrentScores();
         }, 1000 / 30);
     }
 
@@ -726,13 +725,6 @@ export class MatchLobby {
         }
     }
 
-    private async saveCurrentScores() {
-        for (const [matchId, game] of this._games.entries()) {
-            const state = game.getState();
-            await this._matchService.updateScore(matchId, state.score1, state.score2, 0);
-        }
-    }
-
     private async finishTournament() {
         this._tournamentStatus = 'completed';
         this._gameStarted = false;
@@ -818,29 +810,6 @@ export class MatchLobby {
                     this._matchService.matchRepo.save(game);
                 }
             });
-        }
-    }
-
-    private async handleGameWin(winningPlayerId: number, player1Score: number, player2Score: number) {
-        this.stopGame();
-
-        const winningPlayer = this._players.get(winningPlayerId);
-        if (!winningPlayer?.userId || !this._gameId || !this._matchService) {
-            return;
-        }
-
-        await this._matchService.updateScore(
-            this._gameId,
-            player1Score,
-            player2Score,
-            winningPlayer.userId
-        )
-
-        const game = await this._matchService.getMatchById(this._gameId)
-        if (game) {
-            game.status = 'completed'
-            game.endedAt = new Date()
-            await this._matchService.matchRepo.save(game);
         }
     }
 
