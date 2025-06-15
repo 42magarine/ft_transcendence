@@ -192,6 +192,12 @@ export default class PongService {
                     Router.redirect("/lobbylist")
                 }, 10000)
                 break;
+            case "tournamentMatchOver":
+                //placeholder redirect back to lobby
+                break;
+            case "tournamentCancelled":
+                //placeholder redirect to lobbylist, lobby will be deleted
+                break;
         }
     }
 

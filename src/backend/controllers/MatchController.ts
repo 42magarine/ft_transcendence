@@ -171,8 +171,7 @@ export class MatchController {
 
     private broadcastToAll(data: IServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
-            // console.log(`Client ${sentCount + 1}: readyState=${connection.readyState}, player=${player?.userId || 'no player'}`);
-
+            console.log(data);
             if (connection.readyState === WebSocket.OPEN) {
                 this.sendMessage(connection, data);
             }
@@ -245,6 +244,10 @@ export class MatchController {
         if (player) {
             this._clients.set(connection, player);
 
+
+            console.log(lobby._lobbyType)
+            console.log(lobbyId)
+            console.log(userId)
             this.broadcastToAll({
                 type: "joinedLobby",
                 lobbyId: lobbyId,

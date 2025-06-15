@@ -132,11 +132,12 @@ export interface ITournamentRound {
 // MESSAGE INTERFACES
 
 export interface IClientMessage {
-    type: "createLobby" | "joinLobby" | "leaveLobby" | "movePaddle" | "ready" | "startGame" | "getLobbyList" | "getLobbyState" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
+    type: "createLobby" | "joinLobby" | "joinGame" | "leaveLobby" | "movePaddle" | "ready" | "startGame" | "getLobbyList" | "getLobbyState" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
     lobbyId?: string;
     userId?: number;
     lobbyType?: 'game' | 'tournament';
     maxPlayers?: number;
+    players?: IPlayerState[];
     direction?: IPaddleDirection;
     ready?: boolean;
     matchId?: number;

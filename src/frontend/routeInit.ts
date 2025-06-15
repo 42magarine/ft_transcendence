@@ -2,7 +2,7 @@ import Home from './views/Home.js';
 import Pong from './views/Pong.js';
 import LobbyList from './views/LobbyList.js';
 import Lobby from './views/Lobby.js';
-import Tournament from './views/Tournament.js';
+import Tournament from "./views/Tournament.js"
 import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';

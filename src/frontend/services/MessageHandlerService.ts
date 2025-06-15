@@ -25,10 +25,11 @@ export default class MessageHandlerService {
         window.ft_socket.send(JSON.stringify(msg));
     }
 
-    public async createLobby(userId: number, maxPlayers: number) {
+    public async createLobby(userId: number, lobbyType: "game" | "tournament", maxPlayers: number) {
         const msg: IClientMessage = {
             type: 'createLobby',
             userId,
+            lobbyType,
             maxPlayers
         };
         await this.safeSend(msg);
@@ -43,15 +44,14 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    // public async joinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
-    //     const msg: IClientMessage = {
-    //         type: 'joinGame',
-    //         player1,
-    //         player2,
-    //         lobbyId,
-    //     };
-    //     await this.safeSend(msg);
-    // }
+    public async joinGame(lobbyId: string, players: IPlayerState[]) {
+        const msg: IClientMessage = {
+            type: 'joinGame',
+            lobbyId,
+            players,
+        };
+        await this.safeSend(msg);
+    }
 
     public async startGame(lobbyId: string) {
         const msg: IClientMessage = {
