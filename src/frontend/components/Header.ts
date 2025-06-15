@@ -4,7 +4,7 @@ import UserService from '../services/UserService.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 
 export default class Header extends AbstractView {
-    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
     }
 
@@ -41,63 +41,14 @@ export default class Header extends AbstractView {
                     icon: 'list',
                     href: '/lobbylist'
                 },
-                {
-                    id: 'tournament-list-btn',
-                    text: window.ls.__('Tournament List'),
-                    icon: 'list',
-                    href: '/tournamentlist'
-                }
             ];
-
             if (currentUser.role === 'master') {
-                buttonSet = [
-                    {
-                        id: 'friends-btn',
-                        text: 'Friends List',
-                        icon: 'user-group',
-                        href: '/friends',
-                    },
-                    {
-                        id: 'user-management-btn',
-                        text: 'User Management',
-                        icon: 'users',
-                        href: '/user-mangement'
-                    },
-                    {
-                        id: 'localpong-btn',
-                        text: 'Local Pong',
-                        icon: 'table-tennis-paddle-ball',
-                        href: '/localpong'
-                    },
-                    {
-                        id: 'lobby-list-btn',
-                        text: 'Lobby List',
-                        icon: 'list',
-                        href: '/lobbylist'
-                    }
-                ];
-            }
-            else {
-                buttonSet = [
-                    {
-                        id: 'friends-btn',
-                        text: 'Friends List',
-                        icon: 'user-group',
-                        href: '/friends',
-                    },
-                    {
-                        id: 'localpong-btn',
-                        text: 'Local Pong',
-                        icon: 'table-tennis-paddle-ball',
-                        href: '/localpong'
-                    },
-                    {
-                        id: 'lobby-list-btn',
-                        text: 'Lobby List',
-                        icon: 'list',
-                        href: '/lobbylist'
-                    },
-                ];
+                buttonSet.unshift({
+                    id: 'user-management-btn',
+                    text: window.ls.__('User Management'),
+                    icon: 'users',
+                    href: '/user-mangement'
+                });
             }
         }
 

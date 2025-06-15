@@ -24,7 +24,7 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
-// import TournamentListService from './services/TournamentListService.js';
+import TournamentService from './services/TournamentService.js';
 import { AccessibilityService } from './services/AccessibilityService.js';
 import LanguageService from './services/LanguageService.js';
 
@@ -99,9 +99,8 @@ async function initSocket(): Promise<void> {
 
     window.ft_socket = socket;
 
-    socket.addEventListener('close', (event) =>
-    {
-        console.warn("websocket closed", event.code, event.reason)
+    socket.addEventListener('close', (event) => {
+        // console.warn("websocket closed", event.code, event.reason);
         setTimeout(() => socketUpdateOnSession(), 3000)
     })
 
@@ -158,7 +157,6 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();

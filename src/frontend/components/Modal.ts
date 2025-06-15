@@ -3,7 +3,7 @@ import Button from './Button.js';
 import type { ButtonProps, ModalProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Modal extends AbstractView {
-    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
     }
 

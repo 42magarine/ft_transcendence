@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance, ManyToMany, JoinTable, OneToMany, ChildEntity } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance, ManyToMany, JoinTable, OneToMany } from "typeorm";
 import { ITournamentRound } from "../../interfaces/interfaces.js";
 import { JsonColumnTransformer } from "../transformers/JsonTransformer.js";
 
@@ -131,33 +131,30 @@ export class MatchModel {
 
     @Column({ nullable: true })
     tournamentId?: number;
-
 }
 
-
 @Entity()
-export class TournamentModel
-{
+export class TournamentModel {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({unique: true})
+    @Column({ unique: true })
     lobbyId!: string;
 
     @Column()
-    name!:string
+    name!: string
 
     @ManyToOne(() => UserModel)
-    @JoinColumn({ name: 'creatorId'})
+    @JoinColumn({ name: 'creatorId' })
     creator!: UserModel;
 
     @Column()
     maxPlayers!: number;
 
-    @Column({ default: 'pending'})
+    @Column({ default: 'pending' })
     status!: 'pending' | 'ongoing' | 'completed' | 'cancelled';
 
-     @CreateDateColumn({ type: 'datetime' })
+    @CreateDateColumn({ type: 'datetime' })
     createdAt!: Date;
 
     @Column({ type: 'datetime', nullable: true })
@@ -181,13 +178,13 @@ export class TournamentModel
     @Column({ default: 1 })
     currentRound!: number;
 
-    @Column({type: 'text', transformer: new JsonColumnTransformer() })
+    @Column({ type: 'text', transformer: new JsonColumnTransformer() })
     matchSchedule?: ITournamentRound[]; // Array of rounds, each containing array of matches for that round
 
     @ManyToOne(() => UserModel, { nullable: true })
     @JoinColumn({ name: 'winnerUserId' })
     winner?: UserModel; // The winner of the tournament
 
-    @Column({name: 'winnerUserId', nullable: true })
+    @Column({ name: 'winnerUserId', nullable: true })
     winnerId!: number | null; // Store the ID of the winner
 }

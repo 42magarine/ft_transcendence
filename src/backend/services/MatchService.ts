@@ -3,9 +3,7 @@ import { AppDataSource } from "../DataSource.js";
 import { MatchModel } from "../models/MatchModel.js";
 import { UserService } from "./UserService.js";
 import { TournamentModel } from "../models/MatchModel.js";
-import { match } from "assert";
 import { ITournamentRound } from "../../interfaces/interfaces.js";
-import { SchemaDropCommand } from "typeorm/commands/SchemaDropCommand.js";
 
 export class MatchService {
     public tournamentRepo: Repository<TournamentModel>
@@ -33,20 +31,17 @@ export class MatchService {
             relations: ['player1', 'player2', 'winner', 'lobbyParticipants', 'tournament']
         })
     }
-    
-    async getTournamentById(tournamentId: number): Promise<TournamentModel | null>
-    {
+
+    async getTournamentById(tournamentId: number): Promise<TournamentModel | null> {
         return await this.tournamentRepo.findOne({
             where: { id: tournamentId },
             relations: ['creator', 'lobbyParticipants']
         })
     }
 
-
     //update score of match / do winner update in DB
     async updateScore(matchId: number, player1Score: number, player2Score: number, winnerId?: number) {
         const match = await this.getMatchById(matchId);
-
         if (!match) {
             throw new Error("match not found");
         }
@@ -69,16 +64,14 @@ export class MatchService {
         return await this.matchRepo.save(match);
     }
 
-    async updateMatchStatus(matchId: number, status: 'pending' | 'ongoing' |'completed'| 'cancelled', endedAt?: Date)
-    {
+    async updateMatchStatus(matchId: number, status: 'pending' | 'ongoing' | 'completed' | 'cancelled', endedAt?: Date) {
         const match = await this.getMatchById(matchId);
-        if (!match)
-        {
+        if (!match) {
             throw new Error("no match found")
         }
+
         match.status = status;
-        if (endedAt)
-        {
+        if (endedAt) {
             match.endedAt = endedAt;
         }
         return await this.matchRepo.save(match);
@@ -103,15 +96,12 @@ export class MatchService {
         }
     }
 
-    async deleteAllMatchesForTournament(tournamentId: number)
-    {
-        try 
-        {
-            await this.matchRepo.delete({tournament: {id: tournamentId}})
+    async deleteAllMatchesForTournament(tournamentId: number) {
+        try {
+            await this.matchRepo.delete({ tournament: { id: tournamentId } })
             console.log("bladlaldlawdlalwd")
         }
-        catch (error)
-        {
+        catch (error) {
             console.error("fkin error ig (Penis)")
             throw error;
         }
@@ -198,27 +188,31 @@ export class MatchService {
                         match.player1 = match.player2;
                         match.player2 = null;
                         await this.matchRepo.save(match);
-                    } else {
+                    }
+                    else {
                         await this.matchRepo.delete({ lobbyId });
                     }
                     return true;
-                } else if (match.player2?.id === userId) {
+                }
+                else if (match.player2?.id === userId) {
                     match.player2 = null;
                     await this.matchRepo.save(match);
                     return true;
-                } else {
+                }
+                else {
                     console.warn(`awdawd player not funden`);
                     return false;
                 }
-            } else {
+            }
+            else {
                 console.log(`alle raus ihr huans.`);
                 return false;
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error("wasn hier los?", error);
             return false;
         }
-            
     }
 
     //function that should return score values / playerInfo of specified Match!
@@ -310,39 +304,35 @@ export class MatchService {
 
     // new tournier funkies now
 
-    async createTournament(lobbyId: string, creatorId: number, maxPlayers: number, name:string)
-    {
-       const creator = await this.userService.findUserById(creatorId)
-       if (!creator)
+    async createTournament(lobbyId: string, creatorId: number, maxPlayers: number, name: string) {
+        const creator = await this.userService.findUserById(creatorId)
+        if (!creator)
             throw new Error("Wirf Junge WIRF den FEHLER DU BASTARD")
-        
-       const tournament = new TournamentModel();
-       tournament.lobbyId = lobbyId;
-       tournament.creator = creator;
-       tournament.name = name;
-       tournament.maxPlayers = maxPlayers;
-       tournament.createdAt = new Date();
-       tournament.status = 'pending';
-       tournament.currentRound = 0;
-       tournament.playerScores = {};
-       tournament.matchSchedule = [];
-       tournament.lobbyParticipants = [creator];
 
-       return await this.tournamentRepo.save(tournament);
+        const tournament = new TournamentModel();
+        tournament.lobbyId = lobbyId;
+        tournament.creator = creator;
+        tournament.name = name;
+        tournament.maxPlayers = maxPlayers;
+        tournament.createdAt = new Date();
+        tournament.status = 'pending';
+        tournament.currentRound = 0;
+        tournament.playerScores = {};
+        tournament.matchSchedule = [];
+        tournament.lobbyParticipants = [creator];
+
+        return await this.tournamentRepo.save(tournament);
     }
 
-    async addPlayerToTournament(tournamentId: number, userId: number)
-    {
+    async addPlayerToTournament(tournamentId: number, userId: number) {
         const tournament = await this.getTournamentById(tournamentId)
         const user = await this.userService.findUserById(userId)
 
-        if (!tournament || !user)
-        {
+        if (!tournament || !user) {
             throw new Error("irgendwas uwrde nicht angelegt")
         }
 
-        if (!tournament.lobbyParticipants)
-        {
+        if (!tournament.lobbyParticipants) {
             tournament.lobbyParticipants = []
         }
 
@@ -353,15 +343,12 @@ export class MatchService {
         return await this.tournamentRepo.save(tournament);
     }
 
-
-    async createTournamentMatch(lobbyId: string, player1Id: number, player2Id: number, tournamentId: number)
-    {
+    async createTournamentMatch(lobbyId: string, player1Id: number, player2Id: number, tournamentId: number) {
         const player1 = await this.userService.findUserById(player1Id)
         const player2 = await this.userService.findUserById(player2Id)
         const tournament = await this.getTournamentById(tournamentId);
 
-        if (!player1 || !player2 || !tournament)
-        {
+        if (!player1 || !player2 || !tournament) {
             throw new Error("??????????????dawdawd awad AHHHHHHHHHHHHHHHHHHHH ich ahsse typescript")
         }
 
@@ -384,8 +371,7 @@ export class MatchService {
         return await this.matchRepo.save(match);
     }
 
-    async updateTournamentStatus(tournamentId: number, status: 'pending' | 'cancelled' | 'completed' | 'ongoing', endedAt: Date)
-    {
+    async updateTournamentStatus(tournamentId: number, status: 'pending' | 'cancelled' | 'completed' | 'ongoing', endedAt: Date) {
         const tournament = await this.getTournamentById(tournamentId);
         if (!tournament) {
             throw new Error(`Tournament with ID ${tournamentId} not found.`);
@@ -397,54 +383,42 @@ export class MatchService {
         return await this.tournamentRepo.save(tournament);
     }
 
-    async updateTournamentCompletion(tournamentId: number, winnerId: number | undefined, endedAt: Date)
-    {
+    async updateTournamentCompletion(tournamentId: number, winnerId: number | undefined, endedAt: Date) {
         const tournament = await this.getTournamentById(tournamentId)
-        if (!tournament)
-        {
+        if (!tournament) {
             throw new Error("Oh hell nah bruv")
         }
 
         tournament.status = 'completed'
         tournament.endedAt = endedAt;
-        if (winnerId)
-        {
+        if (winnerId) {
             const winner = await this.userService.findUserById(winnerId)
-            if (winner)
-            {
+            if (winner) {
                 tournament.winner = winner;
             }
         }
         return await this.tournamentRepo.save(tournament);
     }
 
-
-    async updateTournamentSchedule(tournamentId: number, schedule: ITournamentRound[])
-    {
-        await this.tournamentRepo.update(tournamentId, {matchSchedule: schedule})
+    async updateTournamentSchedule(tournamentId: number, schedule: ITournamentRound[]) {
+        await this.tournamentRepo.update(tournamentId, { matchSchedule: schedule })
     }
 
-    async updateTournamentPlayerPoints(tournamentId: number, playerPoints: { [userId: number]: number})
-    {
-        await this.tournamentRepo.update(tournamentId, {playerScores: playerPoints})
+    async updateTournamentPlayerPoints(tournamentId: number, playerPoints: { [userId: number]: number }) {
+        await this.tournamentRepo.update(tournamentId, { playerScores: playerPoints })
     }
 
-    public async cleanupCrashed()
-    {
+    public async cleanupCrashed() {
         const ongoingRegularMatches = await this.matchRepo.find({
-            where: {status: 'ongoing', tournament: undefined}
+            where: { status: 'ongoing', tournament: undefined }
         })
-        if(ongoingRegularMatches.length > 0)
-        {
+        if (ongoingRegularMatches.length > 0) {
             const matchIds = ongoingRegularMatches.map(m => m.matchModelId);
             await this.matchRepo.delete(matchIds);
             console.log("deletion wrks")
         }
-        else
-        {
+        else {
             console.log("deletion nix gut oder einfach nix am laufen gewesen(dann alles gut)")
         }
     }
-
-
 }

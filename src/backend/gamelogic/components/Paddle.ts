@@ -1,11 +1,11 @@
-import { PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_MOVE_SPEED } from "../../../types/constants.js";
+import { PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED } from "../../../types/constants.js";
 
 export class Paddle {
     private _x: number;
     private _y: number;
     private _height: number = PADDLE_HEIGHT;
     private _width: number = PADDLE_WIDTH;
-    private _movespeed: number = PADDLE_MOVE_SPEED;
+    private _movespeed: number = PADDLE_SPEED;
 
     constructor(x: number, y: number) {
         this._x = x;

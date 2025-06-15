@@ -1,204 +1,198 @@
-import type { IGameState, IBallState } from "../../interfaces/interfaces.js";
-import LocalGameLogic from "./GameLogic.js";
+import LocalGameLogic from "./LocalGameLogic.js";
+import { SCORE_LIMIT, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED, BALL_RADIUS, BALL_SPEED } from "../../types/constants.js";
+
+enum GameState {
+    STOPPED = 'stopped',
+    COUNTDOWN = 'countdown',
+    RUNNING = 'running',
+    PAUSED = 'paused',
+    GAME_OVER = 'gameOver'
+}
 
 class LocalGameService {
-    private canvas!: HTMLCanvasElement;
-    private ctx!: CanvasRenderingContext2D;
-    private paddleSpeed: number = 5;
-    private winScore: number = 5;
-    private gameLogic: LocalGameLogic | null = null;
-    private initialized = false;
+    private localGameLogic!: LocalGameLogic;
     private keysPressed: Record<string, boolean> = {};
-
-    constructor() { }
-
-    // Initialization
+    private gameState: GameState = GameState.STOPPED;
+    private countdownNumber: number = 3;
 
     public onCanvasReady(): void {
-        if (this.initialized) return;
-        this.initialized = true;
-
-        this.canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-        if (!this.canvas) throw new Error("Canvas not found");
-        this.ctx = this.canvas.getContext("2d")!;
+        const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+        if (!canvas) {
+            throw new Error("Canvas not found");
+        }
+        this.localGameLogic = new LocalGameLogic(canvas);
 
         this.setupSliderListeners();
         this.setupButtonListeners();
         this.setupKeyboardListeners();
-        this.resetGame();
 
-        requestAnimationFrame(this.gameLoop.bind(this));
-    }
-
-    private resetGame(): void {
-        const paddleSpeed = parseInt((document.getElementById('paddleSpeedInput') as HTMLInputElement)?.value || '5');
-        const paddleHeight = parseInt((document.getElementById('paddleHeightInput') as HTMLInputElement)?.value || '100');
-        const ballSpeed = parseInt((document.getElementById('ballSpeedInput') as HTMLInputElement)?.value || '5');
-        const winScore = parseInt((document.getElementById('winScoreInput') as HTMLInputElement)?.value || '5');
-
-        this.paddleSpeed = isNaN(paddleSpeed) ? 5 : paddleSpeed;
-        this.winScore = isNaN(winScore) ? 5 : winScore;
-
-        this.gameLogic = new LocalGameLogic(this.canvas, this.paddleSpeed, this.winScore);
-        this.gameLogic.updateBallSpeed(ballSpeed);
-        this.gameLogic.updatePaddleSize(paddleHeight, 20);
-    }
-
-    // DOM Event Listeners
-
-    private setupButtonListeners(): void {
-        const startBtn = document.getElementById('startGameButton');
-        const pauseBtn = document.getElementById('pauseGameButton');
-        const resetBtn = document.getElementById('resetGameButton');
-        const resumeBtn = document.getElementById('resumeGameButton');
-
-        if (startBtn) {
-            startBtn.addEventListener('click', () => {
-                console.debug('[Button] Start clicked');
-                this.resetGame();
-                this.gameLogic?.startCountdown(() => {
-                    console.debug("[Countdown] Game started");
-                });
-            });
-        }
-
-        if (pauseBtn) {
-            pauseBtn.addEventListener('click', () => {
-                console.debug('[Button] Pause clicked');
-                this.gameLogic?.setPaused(true);
-            });
-        }
-
-        if (resumeBtn) {
-            resumeBtn.addEventListener('click', () => {
-                console.debug('[Button] Resume clicked');
-                this.gameLogic?.startCountdown(() => {
-                    console.debug("[Countdown] Game started");
-                });
-            });
-        }
-
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
-                console.debug('[Button] Reset clicked');
-                this.resetGame();
-            });
-        }
-    }
-
-    private setupKeyboardListeners(): void {
-        window.addEventListener('keydown', (e) => {
-            this.keysPressed[e.key.toLowerCase()] = true;
-        });
-
-        window.addEventListener('keyup', (e) => {
-            this.keysPressed[e.key.toLowerCase()] = false;
-        });
+        this.localGameLogic.initializeGame(this.getAllSettings());
+        this.startMainLoop();
     }
 
     private setupSliderListeners(): void {
-        const map = {
-            paddleSpeedInput: (val: number) => this.updatePaddleSpeed(val),
-            paddleHeightInput: (val: number) => this.updatePaddleHeight(val),
-            paddleWidthInput: (val: number) => this.updatePaddleWidth(val),
-            ballSpeedInput: (val: number) => this.updateBallSpeed(val),
-            ballSizeInput: (val: number) => this.updateBallSize(val),
-            winScoreInput: (val: number) => this.updateWinScore(val)
-        };
+        const sliderMap = new Map<string, (value: number) => void>([
+            ['winScoreInput', (value) => this.localGameLogic.setWinScore(value)],
+            ['paddleWidthInput', (value) => this.localGameLogic.setPaddleWidth(value)],
+            ['paddleHeightInput', (value) => this.localGameLogic.setPaddleHeight(value)],
+            ['paddleSpeedInput', (value) => this.localGameLogic.setPaddleSpeed(value)],
+            ['ballSizeInput', (value) => this.localGameLogic.setBallSize(value)],
+            ['ballSpeedInput', (value) => this.localGameLogic.setBallSpeed(value)]
+        ]);
 
-        type InputId = keyof typeof map;
-
-        for (const id in map) {
-            const input = document.getElementById(id) as HTMLInputElement;
+        sliderMap.forEach((setterFn, sliderId) => {
+            const input = document.getElementById(sliderId) as HTMLInputElement;
             if (input) {
                 input.addEventListener('input', () => {
-                    const val = parseFloat(input.value);
-                    if (!isNaN(val)) map[id as InputId](val);
+                    const value = parseInt(input.value);
+                    if (!isNaN(value)) {
+                        setterFn(value);
+                    }
                 });
             }
+        });
+    }
+
+    private setupButtonListeners(): void {
+        const startBtn = document.getElementById('startGameButton');
+        const stopBtn = document.getElementById('stopGameButton');
+        const resetBtn = document.getElementById('resetGameButton');
+
+        startBtn?.addEventListener('click', () => this.startGame());
+        stopBtn?.addEventListener('click', () => this.stopGame());
+        resetBtn?.addEventListener('click', () => this.resetGame());
+    }
+
+    private setupKeyboardListeners(): void {
+        const preventDefaultKeys = ['ArrowUp', 'ArrowDown', 'KeyW', 'KeyS'];
+
+        window.addEventListener('keydown', (e) => {
+            if (preventDefaultKeys.includes(e.code)) {
+                e.preventDefault();
+            }
+            this.keysPressed[e.code.toLowerCase()] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (preventDefaultKeys.includes(e.code)) {
+                e.preventDefault();
+            }
+            this.keysPressed[e.code.toLowerCase()] = false;
+        });
+    }
+
+    private startGame(): void {
+        if (this.gameState === GameState.RUNNING || this.gameState === GameState.COUNTDOWN) {
+            return;
+        }
+
+        if (this.gameState === GameState.PAUSED) {
+            this.gameState = GameState.RUNNING;
+            return;
+        }
+
+        this.gameState = GameState.COUNTDOWN;
+        this.countdownNumber = 3;
+        this.localGameLogic.initializeGame(this.getAllSettings());
+    }
+
+    private stopGame(): void {
+        if (this.gameState === GameState.RUNNING) {
+            this.gameState = GameState.PAUSED;
+        }
+        else if (this.gameState === GameState.COUNTDOWN) {
+            this.gameState = GameState.STOPPED;
         }
     }
 
-    // Game Loop
+    private resetGame(): void {
+        this.gameState = GameState.STOPPED;
+        this.localGameLogic.initializeGame(this.getAllSettings());
+    }
 
-    private gameLoop(): void {
-        if (this.gameLogic) {
-            // Player 1 movement (W/S)
-            if (this.keysPressed['w']) this.gameLogic.movePaddle(1, "up");
-            if (this.keysPressed['s']) this.gameLogic.movePaddle(1, "down");
+    private startMainLoop(): void {
+        const loop = () => {
+            this.handleGameState();
+            requestAnimationFrame(loop);
+        };
+        loop();
+    }
 
-            // Player 2 movement (Arrow keys)
-            if (this.keysPressed['arrowup']) this.gameLogic.movePaddle(2, "up");
-            if (this.keysPressed['arrowdown']) this.gameLogic.movePaddle(2, "down");
+    private getAllSettings() {
+        return {
+            winScore: this.getSliderValue('winScoreInput', SCORE_LIMIT),
+            paddleWidth: this.getSliderValue('paddleWidthInput', PADDLE_WIDTH),
+            paddleHeight: this.getSliderValue('paddleHeightInput', PADDLE_HEIGHT),
+            paddleSpeed: this.getSliderValue('paddleSpeedInput', PADDLE_SPEED),
+            ballSize: this.getSliderValue('ballSizeInput', BALL_RADIUS),
+            ballSpeed: this.getSliderValue('ballSpeedInput', BALL_SPEED)
+        };
+    }
 
-            this.gameLogic.update();
-            this.gameLogic.draw();
+    private getSliderValue(id: string, defaultValue: number): number {
+        const input = document.getElementById(id) as HTMLInputElement;
+        if (!input) {
+            return defaultValue;
         }
-        requestAnimationFrame(this.gameLoop.bind(this));
+        const value = parseInt(input.value);
+        return isNaN(value) ? defaultValue : value;
     }
 
-    // Setter Delegates
+    private handleGameState(): void {
+        switch (this.gameState) {
+            case GameState.STOPPED:
+                this.processInput();
+                this.localGameLogic.draw();
+                this.localGameLogic.drawStatusText("PRESS START", "#00FF00");
+                break;
 
-    public updatePaddleSpeed(speed: number): void {
-        this.paddleSpeed = speed;
-        if (this.gameLogic) this.gameLogic.updatePaddleSpeed(speed);
-    }
+            case GameState.COUNTDOWN:
+                this.processInput();
+                this.localGameLogic.draw();
+                this.localGameLogic.drawStatusText(this.countdownNumber.toString(), "#FFFF00");
 
-    public updatePaddleHeight(height: number): void {
-        if (this.gameLogic) {
-            const width = this.getPaddleWidth();
-            this.gameLogic.updatePaddleSize(height, width);
+                if (Date.now() % 1000 < 17) {
+                    this.countdownNumber--;
+                    if (this.countdownNumber <= 0) {
+                        this.gameState = GameState.RUNNING;
+                    }
+                }
+                break;
+
+            case GameState.RUNNING:
+                this.processInput();
+                this.localGameLogic.update();
+                this.localGameLogic.draw();
+
+                if (this.localGameLogic.isGameOver()) {
+                    this.gameState = GameState.GAME_OVER;
+                }
+                break;
+
+            case GameState.PAUSED:
+                this.localGameLogic.draw();
+                this.localGameLogic.drawStatusText("PAUSED", "#FFFF00");
+                break;
+
+            case GameState.GAME_OVER:
+                this.localGameLogic.draw();
+                break;
         }
     }
 
-    public updatePaddleWidth(width: number): void {
-        if (this.gameLogic) {
-            const height = this.getPaddleHeight();
-            this.gameLogic.updatePaddleSize(height, width);
+    private processInput(): void {
+        if (this.keysPressed['keyw']) {
+            this.localGameLogic.movePaddle(1, "up");
         }
-    }
-
-    public updateBallSpeed(speed: number): void {
-        if (this.gameLogic) this.gameLogic.updateBallSpeed(speed);
-    }
-
-    public updateBallSize(size: number): void {
-        if (this.gameLogic) this.gameLogic.updateBallSize(size);
-    }
-
-    public updateWinScore(score: number): void {
-        this.winScore = score;
-        if (this.gameLogic) this.gameLogic.updateWinScore(score);
-    }
-
-    // Getter Methods
-
-    public getGameState(): IGameState | null {
-        return this.gameLogic?.state || null;
-    }
-
-    public getCanvas(): HTMLCanvasElement {
-        return this.canvas;
-    }
-
-    public getContext(): CanvasRenderingContext2D {
-        return this.ctx;
-    }
-
-    public getPaddleSpeed(): number {
-        return this.paddleSpeed;
-    }
-
-    public getPaddleHeight(): number {
-        return this.gameLogic?.state?.paddle1?.height || 100;
-    }
-
-    public getPaddleWidth(): number {
-        return this.gameLogic?.state?.paddle1?.width || 20;
-    }
-
-    public getWinScore(): number {
-        return this.winScore;
+        if (this.keysPressed['keys']) {
+            this.localGameLogic.movePaddle(1, "down");
+        }
+        if (this.keysPressed['arrowup']) {
+            this.localGameLogic.movePaddle(2, "up");
+        }
+        if (this.keysPressed['arrowdown']) {
+            this.localGameLogic.movePaddle(2, "down");
+        }
     }
 }
 

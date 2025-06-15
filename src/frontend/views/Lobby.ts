@@ -9,7 +9,7 @@ export default class Lobby extends AbstractView {
     private lobby!: ILobbyState;
     private players: IPlayerState[] = [];
 
-    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
 
         this.initEvents = this.setupEvents.bind(this);

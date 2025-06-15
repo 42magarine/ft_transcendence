@@ -2,9 +2,9 @@ import AbstractView from '../../utils/AbstractView.js';
 import { StatProps } from '../../interfaces/componentInterfaces.js';
 
 export default class Stat extends AbstractView {
-  constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
-    super(routeParams, params);
-}
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
+    }
 
     async renderStat({ label, value, className = '' }: StatProps): Promise<string> {
         return this.render(`

@@ -2,7 +2,6 @@ import { Ball } from "../gamelogic/components/Ball.js";
 import { Paddle } from "../gamelogic/components/Paddle.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IBallState, IGameState, IPaddleDirection, IPaddleState } from "../../interfaces/interfaces.js";
-import { IServerMessage } from "../../interfaces/interfaces.js";
 import { GAME_WIDTH, GAME_HEIGHT, STEPS, SCORE_LIMIT } from "../../types/constants.js";
 import { MatchService } from "../services/MatchService.js";
 
@@ -40,7 +39,6 @@ export class PongGame {
         this._ball.randomizeDirection();
     }
 
-
     public startGameLoop(): void {
         if (this._running) {
             return;
@@ -50,7 +48,9 @@ export class PongGame {
         this._paused = false;
 
         this._intervalId = setInterval(() => {
-            if (this._paused) return;
+            if (this._paused) {
+                return;
+            }
 
             this.update();
 
@@ -58,7 +58,8 @@ export class PongGame {
                 this.stopGameLoop();
                 if (this._matchId !== null) {
                     this._onGameOverCallback(this._matchId); // Trigger callback on game over
-                } else {
+                }
+                else {
                     console.error("PongGame: Game over but matchId is null, cannot trigger callback.");
                 }
             }
@@ -104,7 +105,7 @@ export class PongGame {
     }
 
     private endGame(): void {
-		this._gameIsOver = true;
+        this._gameIsOver = true;
     }
 
     private async updateGameRecord() {
@@ -118,7 +119,8 @@ export class PongGame {
                     this._score2,
                     this._winner?.userId
                 );
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("Failed to update db", error)
             }
         }
@@ -204,7 +206,8 @@ export class PongGame {
 
         if (playerNumber === 1) {
             paddleToMove = this._paddle1;
-        } else if (playerNumber === 2) {
+        }
+        else if (playerNumber === 2) {
             paddleToMove = this._paddle2;
         }
 
@@ -241,7 +244,7 @@ export class PongGame {
         this._matchId = matchId;
     }
 
-public getState(): IGameState {
+    public getState(): IGameState {
         const ballState: IBallState = {
             x: this._ball.x,
             y: this._ball.y,

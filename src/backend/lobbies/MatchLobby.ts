@@ -4,11 +4,9 @@ import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState } from "../../interfaces/interfaces.js";
 import { PongGame } from "../gamelogic/Pong.js";
-import Pong from "../../frontend/views/Pong.js";
 import { UserModel } from "../models/MatchModel.js";
 
-export class MatchLobby
-{
+export class MatchLobby {
     private _games: Map<number, PongGame> = new Map();
     private _gameId!: number;
     private _saveScoreInterval: NodeJS.Timeout | null = null;
@@ -18,7 +16,7 @@ export class MatchLobby
     private _gameStarted: boolean = false;
     private _lobbyName: string;
     private _createdAt: Date;
-    public  _lobbyType: 'game' | 'tournament';
+    public _lobbyType: 'game' | 'tournament';
     private _readyPlayers: Set<number> = new Set();
     private _creatorId!: number;
     private _matchService: MatchService;
@@ -28,7 +26,7 @@ export class MatchLobby
     private _tournamentStatus: 'pending' | 'ongoing' | 'completed' | 'cancelled' = 'pending';
     private _currentRound: number = 0;
     private _tournamentSchedule: ITournamentRound[] = [];
-    private _playerPoints: Map<number,number> = new Map();
+    private _playerPoints: Map<number, number> = new Map();
 
     private _gameBroadcastInterval: NodeJS.Timeout | null = null;
 
@@ -55,19 +53,16 @@ export class MatchLobby
         this._lobbyType = options?.lobbyType || 'game';
         this._broadcast = broadcast;
 
-        if (this._lobbyType === 'tournament')
-        {
+        if (this._lobbyType === 'tournament') {
             this._tournamentId = options?.tournamentId || null;
             this._tournamentStatus = options?.tournamentStatus || 'pending';
             this._currentRound = options?.currentRound || 0;
-            if (options?.playerPoints)
-            {
+            if (options?.playerPoints) {
                 this._playerPoints = new Map(Object.entries(options.playerPoints).map(([key, value]) => [Number(key), value]))
             }
             this._tournamentSchedule = options?.matchSchedule || []
 
-            if (this._maxPlayers < 4 || this._maxPlayers > 8)
-            {
+            if (this._maxPlayers < 4 || this._maxPlayers > 8) {
                 this._maxPlayers = 8;
             }
         }
@@ -78,26 +73,22 @@ export class MatchLobby
         return game ? game.getState() : undefined;
     }
 
-    public getAllActiveGames(): IGameState[]
-    {
+    public getAllActiveGames(): IGameState[] {
         return Array.from(this._games.values()).map(game => game.getState());
     }
 
-    public getPongGame(matchId: number): PongGame | undefined
-    {
+    public getPongGame(matchId: number): PongGame | undefined {
         return this._games.get(matchId);
     }
 
     public getGameId(): number | null {
-        if (this._games.size > 0)
-        {
+        if (this._games.size > 0) {
             return Array.from(this._games.keys())[0];
         }
         return null;
     }
 
-    public getTournamentId(): number | null
-    {
+    public getTournamentId(): number | null {
         return this._tournamentId;
     }
 
@@ -117,16 +108,15 @@ export class MatchLobby
             if (!user) {
                 return null;
             }
+
             const player = new Player(connection, playerNumber, userId, this._lobbyId, user.username);
             this._players.set(playerNumber, player);
 
-            if (this._lobbyType === 'tournament' && !this._playerPoints.has(userId))
-            {
-                this._playerPoints.set(userId,0);
+            if (this._lobbyType === 'tournament' && !this._playerPoints.has(userId)) {
+                this._playerPoints.set(userId, 0);
             }
 
-            if (this._lobbyType === 'game')
-            {
+            if (this._lobbyType === 'game') {
                 if (playerNumber === 1) {
                     const newMatch = await this._matchService.createMatch(this._lobbyId, userId, this._maxPlayers, this._lobbyName);
                     const game = new PongGame(this.handleGameEndCallback.bind(this, newMatch.matchModelId));
@@ -134,21 +124,24 @@ export class MatchLobby
                     this._games.set(newMatch.matchModelId, game);
                     game.setPlayer(1, player);
                     this._creatorId = userId;
-                } else if (playerNumber === 2) {
+                }
+                else if (playerNumber === 2) {
                     await this._matchService.addPlayerToMatch(this._lobbyId, userId);
                     const match = await this._matchService.getMatchById(this.getGameId()!);
                     if (match && this._games.has(match.matchModelId)) {
                         this._games.get(match.matchModelId)?.setPlayer(2, player);
                     }
                 }
-            } else if (this._lobbyType === 'tournament' && playerNumber === 1) {
+            }
+            else if (this._lobbyType === 'tournament' && playerNumber === 1) {
                 if (!this._tournamentId) {
                     const tournament = await this._matchService.createTournament(this._lobbyId, userId, this._maxPlayers, this._lobbyName);
                     this._tournamentId = tournament.id;
                     this._creatorId = userId;
                     await this._matchService.addPlayerToTournament(tournament.id, userId);
                 }
-            } else if (this._lobbyType === 'tournament' && this._tournamentId) {
+            }
+            else if (this._lobbyType === 'tournament' && this._tournamentId) {
                 await this._matchService.addPlayerToTournament(this._tournamentId, userId);
             }
 
@@ -161,7 +154,6 @@ export class MatchLobby
 
     public async removePlayer(player: Player): Promise<void> {
         try {
-
             this._players.delete(player._playerNumber);
             this._readyPlayers.delete(player.userId); // Use userId for readyPlayers set
 
@@ -169,10 +161,9 @@ export class MatchLobby
             if (this._lobbyType === 'tournament') {
                 console.log(`Player ${player._name} left tournament lobby ${this._lobbyId}. Cancelling tournament.`);
                 await this.cancelTournament("A player left the tournament.");
-            } else {
-
+            }
+            else {
                 await this._matchService.removePlayerFromMatch(this._lobbyId, player.userId);
-
 
                 for (const [matchId, game] of this._games.entries()) {
                     if (game._player1?._userId === player.userId || game._player2?._userId === player.userId) {
@@ -192,8 +183,8 @@ export class MatchLobby
                     this._creatorId = nextPlayer.userId;
                 }
             }
-
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Error removing player from lobby:", error);
             throw error;
         }
@@ -252,7 +243,8 @@ export class MatchLobby
         const allPlayersReady = this._readyPlayers.size === this._players.size;
         if (this._lobbyType === 'tournament' && this._players.size >= 4 && allPlayersReady && !this._gameStarted && this._tournamentStatus === 'pending') {
             this.startTournament();
-        } else if (this._lobbyType === 'game' && this._players.size === this._maxPlayers && allPlayersReady && !this._gameStarted) {
+        }
+        else if (this._lobbyType === 'game' && this._players.size === this._maxPlayers && allPlayersReady && !this._gameStarted) {
             this.startGame();
         }
     }
@@ -291,7 +283,7 @@ export class MatchLobby
 
     public getLobbyState(): ILobbyState {
         return {
-             lobbyId: this._lobbyId,
+            lobbyId: this._lobbyId,
             name: this._lobbyName,
             creatorId: this._creatorId!,
             maxPlayers: this._maxPlayers,
@@ -330,7 +322,7 @@ export class MatchLobby
     /* GAME LOGIC FROM HERE */
 
     public async startGame() {
-         if (this._gameStarted || this._lobbyType === 'tournament') {
+        if (this._gameStarted || this._lobbyType === 'tournament') {
             console.warn("Game already started or is a tournament lobby.");
             return;
         }
@@ -354,7 +346,8 @@ export class MatchLobby
             game!.setPlayer(1, player1);
             game!.setPlayer(2, player2);
             game!.setMatchId(matchId!);
-        } else {
+        }
+        else {
             console.error("Cannot start game: missing players.");
             this.stopGame();
             return;
@@ -402,8 +395,7 @@ export class MatchLobby
         return Array.from(this._games.values()).map(game => game.getState());
     }
 
-    private startPeriodicGameBroadcast()
-    {
+    private startPeriodicGameBroadcast() {
         if (this._gameBroadcastInterval) {
             clearInterval(this._gameBroadcastInterval);
         }
@@ -442,10 +434,12 @@ export class MatchLobby
             console.warn("Tournament already started, game active, or not a tournament lobby.");
             return;
         }
+
         if (this._players.size < 4) {
             console.error("Not enough players to start tournament (min 4).");
             return;
         }
+
         if (this._readyPlayers.size !== this._players.size) {
             console.error("Not all players are ready for the tournament.");
             return;
@@ -482,7 +476,9 @@ export class MatchLobby
         const n = playersArray.length;
         const schedule: ITournamentRound[] = [];
 
-        if (n < 2) return [];
+        if (n < 2) {
+            return [];
+        }
 
         let participants = [...playersArray];
         let hasBye = false;
@@ -520,7 +516,6 @@ export class MatchLobby
         console.log("Generated Tournament Schedule:", schedule);
         return schedule;
     }
-
 
     private async startNextTournamentRound() {
         this._currentRound++;
@@ -612,7 +607,9 @@ export class MatchLobby
 
     private async handleGameEnd(matchId: number, player1Score: number, player2Score: number) {
         const game = this._games.get(matchId);
-        if (!game) return;
+        if (!game) {
+            return;
+        }
 
         game.stopGameLoop();
         this._games.delete(matchId);
@@ -625,7 +622,8 @@ export class MatchLobby
             winningPlayer = game._player1!;
             losingPlayer = game._player2!;
             winnerId = winningPlayer?.userId || null;
-        } else if (player2Score > player1Score) {
+        }
+        else if (player2Score > player1Score) {
             winningPlayer = game._player2!;
             losingPlayer = game._player1!;
             winnerId = winningPlayer?.userId || null;
@@ -658,10 +656,12 @@ export class MatchLobby
                 if (player1Score > player2Score) {
                     p1Points += 3;
                     p2Points += 0;
-                } else if (player2Score > player1Score) {
+                }
+                else if (player2Score > player1Score) {
                     p2Points += 3;
                     p1Points += 0;
-                } else {
+                }
+                else {
                     p1Points += 1;
                     p2Points += 1;
                 }
@@ -702,16 +702,18 @@ export class MatchLobby
             if (allMatchesInRoundCompleted) {
                 console.log(`All matches in Round ${this._currentRound} completed.`);
                 if (this._games.size === 0) {
-                     setTimeout(() => {
+                    setTimeout(() => {
                         this.stopPeriodicGameBroadcast();
                         this.startNextTournamentRound();
                     }, 3000);
                 }
-            } else {
-                 console.log(`Round ${this._currentRound} still has active matches. Remaining: ${currentRoundSchedule.matches.filter(m => !m.isCompleted).length}`);
+            }
+            else {
+                console.log(`Round ${this._currentRound} still has active matches. Remaining: ${currentRoundSchedule.matches.filter(m => !m.isCompleted).length}`);
             }
 
-        } else {
+        }
+        else {
             this._broadcast({
                 type: "gameOver",
                 winnerId: winnerId,
@@ -746,7 +748,8 @@ export class MatchLobby
             if (points > maxPoints) {
                 maxPoints = points;
                 winnerUserIds = [userId];
-            } else if (points === maxPoints) {
+            }
+            else if (points === maxPoints) {
                 winnerUserIds.push(userId);
             }
         }

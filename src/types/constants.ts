@@ -1,15 +1,15 @@
-//PADDLE.ts
+// Paddle
 export const PADDLE_WIDTH = 10;
 export const PADDLE_HEIGHT = 100;
-export const PADDLE_MOVE_SPEED = 10;
+export const PADDLE_SPEED = 10;
 
-//BALL.ts
+// Ball
 export const BALL_RADIUS = 10;
+export const BALL_SPEED = 3;
 export const STEPSIZE = 0.25;
 
-//PONG.ts
+// Pong
 export const GAME_WIDTH = 800;
 export const GAME_HEIGHT = 600;
 export const STEPS = 4;
-export const SCORE_LIMIT = 9999999999;
-
+export const SCORE_LIMIT = 10;

@@ -2,7 +2,7 @@ import { TemplateEngine } from "./TemplateEngine.js"
 
 export default abstract class AbstractView {
     protected params: URLSearchParams;
-    protected routeParams: Record<string,string>
+    protected routeParams: Record<string, string>
     protected title?: string;
     protected description: string;
     protected templateEngine: TemplateEngine;
@@ -11,7 +11,7 @@ export default abstract class AbstractView {
     public destroyEvents: (() => void) | null = null;
     public mount?(): void | Promise<void>;
 
-    constructor(routeParams: Record<string,string> = {}, queryParams: URLSearchParams = new URLSearchParams(window.location.search)) {
+    constructor(routeParams: Record<string, string> = {}, queryParams: URLSearchParams = new URLSearchParams(window.location.search)) {
         this.routeParams = routeParams;
         this.params = queryParams;
         this.props = {

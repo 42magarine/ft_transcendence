@@ -1,10 +1,8 @@
-// Pong.ts (view)
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
-import Router from '../../utils/Router.js';
 
 export default class Pong extends AbstractView {
-    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
         this.initEvents = this.setupEvents.bind(this);
     }
@@ -38,30 +36,30 @@ export default class Pong extends AbstractView {
 
     async afterRender(): Promise<void> {
         console.log('--- DEBUGGING PONG.TS AFTERRENDER ---');
-    console.log('Current URL:', window.location.href); // Verify the full URL
-    console.log('Raw this.params object:', this.routeParams); // Log the URLSearchParams object itself
+        console.log('Current URL:', window.location.href); // Verify the full URL
+        console.log('Raw this.params object:', this.routeParams); // Log the URLSearchParams object itself
 
-    this.params.forEach((value, key) => {
-        console.log(`this.params entry - Key: "<span class="math-inline">\{key\}", Value\: "</span>{value}"`);
-    });
+        this.params.forEach((value, key) => {
+            console.log(`this.params entry - Key: "<span class="math-inline">\{key\}", Value\: "</span>{value}"`);
+        });
 
-    const matchIdString = this.routeParams['matchId'];
-    const lobbyIdString = this.routeParams['lobbyId'];
+        const matchIdString = this.routeParams['matchId'];
+        const lobbyIdString = this.routeParams['lobbyId'];
 
-    console.log('Extracted matchIdString:', matchIdString);
-    console.log('Extracted lobbyIdString:', lobbyIdString);
+        console.log('Extracted matchIdString:', matchIdString);
+        console.log('Extracted lobbyIdString:', lobbyIdString);
 
-    const matchId = Number(matchIdString);
-    console.log('Converted matchId:', matchId);
+        const matchId = Number(matchIdString);
+        console.log('Converted matchId:', matchId);
 
-    if (window.pongService) {
-        window.pongService.initializeGame(matchId);
-        console.log('Called window.pongService.initializeGame with matchId:', matchId);
-    } else {
-        console.error('window.pongService is not initialized!');
+        if (window.pongService) {
+            window.pongService.initializeGame(matchId);
+            console.log('Called window.pongService.initializeGame with matchId:', matchId);
+        } else {
+            console.error('window.pongService is not initialized!');
+        }
+        console.log('--- END DEBUGGING PONG.TS AFTERRENDER ---');
     }
-    console.log('--- END DEBUGGING PONG.TS AFTERRENDER ---');
-}
 
     private setupEvents(): void {
         window.pongService.setupEventListener();

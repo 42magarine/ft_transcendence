@@ -2,10 +2,9 @@ import AbstractView from '../../utils/AbstractView.js';
 import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps } from '../../interfaces/componentInterfaces.js';
 import Input from './Input.js';
 import renderGoogleSignInButton from './GoogleSignIn.js';
-import Router from '../../utils/Router.js';
 
 export default class Button extends AbstractView {
-    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
     }
 
@@ -79,7 +78,6 @@ export default class Button extends AbstractView {
         return this.render(`<div class="${alignClass}">${combined}</div>`);
     }
 
-
     async renderButtonGroup({
         buttons = [],
         inputs = [],
@@ -152,7 +150,6 @@ export default class Button extends AbstractView {
         return dropdownHtml;
     }
 
-
     async renderDropdownGroup({
         id,
         head,
@@ -202,7 +199,6 @@ export default class Button extends AbstractView {
             </div>
         `);
     }
-
 
     async getHtml(): Promise<string> {
         return this.render(`<button aria-label="Default Button" class="btn">Default Button</button>`);

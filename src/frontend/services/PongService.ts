@@ -32,11 +32,9 @@ export default class PongService {
 
     public initializeGame(
         matchId: number,
-    )
-    {
+    ) {
         const canvasElement = document.getElementById('gameCanvas') as HTMLCanvasElement
-        if (!canvasElement)
-        {
+        if (!canvasElement) {
             console.error("canvasElement not found correctly")
             throw new Error("DAWDAWD")
         }
@@ -54,7 +52,7 @@ export default class PongService {
         this.overlay = document.getElementById('gameCanvasWrap-overlay') as HTMLElement;
         console.log(this.overlay);
         if (!this.overlay) {
-             console.error("PongService: Game overlay element not found.");
+            console.error("PongService: Game overlay element not found.");
         }
     }
 
@@ -133,8 +131,7 @@ export default class PongService {
         switch (data.type) {
             case 'playerJoined':
                 console.log("playerjoined case reached. handed over info: ", data);
-                if (data.gameState)
-                {
+                if (data.gameState) {
                     this.gameState = data.gameState;
                     {
                         console.log("window current user:", window.currentUser?.id, " window gamestate player1id", this.gameState.player1Id)
@@ -169,13 +166,11 @@ export default class PongService {
                 break;
 
             case 'gameStateUpdate':
-                if (data.activeGamesStates && Array.isArray(data.activeGamesStates))
-                {
+                if (data.activeGamesStates && Array.isArray(data.activeGamesStates)) {
                     // console.log('Received gameStateUpdate. Looking for matchId:', this.matchId, 'in states:', data.activeGamesStates)
                     const relevantGameState = data.activeGamesStates.find(gs => gs.matchId === this.matchId)
                     // console.log('found relevantGameState:', relevantGameState);
-                    if (relevantGameState)
-                    {
+                    if (relevantGameState) {
                         this.gameState = relevantGameState;
                         this.draw();
                         if (!this.gameState.paused && !this.gameState.gameIsOver && this.animationFrameId === null) {
