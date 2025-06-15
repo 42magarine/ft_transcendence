@@ -5,7 +5,7 @@ import { TournamentModel } from "./models/MatchModel.js";
 
 export const AppDataSource = new DataSource({
     type: "better-sqlite3",
-    database: "./db.sqlite",
+    database: "/app/data/db.sqlite",
     entities: [
         UserModel,
         MatchModel,
