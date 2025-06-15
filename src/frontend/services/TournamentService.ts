@@ -81,6 +81,13 @@ export default class TournamentService {
                     }
 
                 }
+            case "tournamentCancelled":
+                //placeholder redirect to lobbylist, lobby will be deleted
+                //maybe need 2nd case? idk
+                break;
+            case "tournamentFinished":
+                //placeholder redirect to winning screen or sth
+                break;
             default:
                 break;
         }
