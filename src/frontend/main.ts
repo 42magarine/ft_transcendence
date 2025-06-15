@@ -24,7 +24,6 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
-import TournamentService from './services/TournamentService.js';
 import { AccessibilityService } from './services/AccessibilityService.js';
 import LanguageService from './services/LanguageService.js';
 

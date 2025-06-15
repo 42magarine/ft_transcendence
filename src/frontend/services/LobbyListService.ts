@@ -38,8 +38,9 @@ export default class LobbyListService {
                     window.messageHandler!.requestLobbyList();
                     Router.update()
                 }
-                if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler && data.lobbyType === 'game') {
+                if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
+                    console.log(data.lobbyType);
                     if (data.lobbyType === "game") {
                         Router.redirect(`/lobby/${data.lobbyId}`);
                     }
