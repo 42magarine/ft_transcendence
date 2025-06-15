@@ -62,6 +62,7 @@ export class MatchService {
             match.endedAt = new Date();
         }
 
+        console.log("calling matchrepo.save from updateScore function");
         return await this.matchRepo.save(match);
     }
 
@@ -75,6 +76,7 @@ export class MatchService {
         if (endedAt) {
             match.endedAt = endedAt;
         }
+        console.log("calling matchrepo.save from updateMatchStatus function");
         return await this.matchRepo.save(match);
     }
 
@@ -157,6 +159,7 @@ export class MatchService {
         match.player2Score = 0;
         match.readyStatusMap = [];
 
+        console.log("calling matchrepo.save from createMatch function");
         return await this.matchRepo.save(match);
     }
 
@@ -174,7 +177,7 @@ export class MatchService {
         match.player2 = player2;
         // match.lobbyParticipants.push(player2);
         // match.status = "waiting_for_ready";
-
+        console.log("calling matchrepo.save from addPlayerToMatch function");
         return await this.matchRepo.save(match);
     }
 
@@ -257,6 +260,7 @@ export class MatchService {
             if (match.lobbyParticipants.length === 2 && !match.player2?.id && match.player1?.id !== userId) {
                 match.player2 = user;
             }
+            console.log("calling matchrepo.save from addLobbyParticipant function");
             return await this.matchRepo.save(match)
         }
         catch (error) {
@@ -272,6 +276,7 @@ export class MatchService {
         }
         match.isLobbyOpen = false;
 
+        console.log("calling matchrepo.save from closeLobby function");
         return await this.matchRepo.save(match);
     }
 
@@ -325,6 +330,7 @@ export class MatchService {
        tournament.matchSchedule = [];
        tournament.lobbyParticipants = [creator];
 
+       console.log("calling tournament.save from createTournament function");
         return await this.tournamentRepo.save(tournament);
     }
 
@@ -344,6 +350,7 @@ export class MatchService {
         if (!exisitingParticipant)
             tournament.lobbyParticipants.push(user);
 
+        console.log("calling tournamentRepo.save from addPlayertoTournament function");
         return await this.tournamentRepo.save(tournament);
     }
 

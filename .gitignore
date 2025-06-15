@@ -141,3 +141,4 @@ src/*.sqlite
 src/package-lock.json
 src/uploads
 client_secret_google.json
+src/data
