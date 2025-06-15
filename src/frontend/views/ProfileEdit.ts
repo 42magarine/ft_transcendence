@@ -8,9 +8,9 @@ import __ from '../services/LanguageService.js';
 export default class ProfileEdit extends AbstractView {
     private userId: string;
 
-    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
-        this.userId = params.get('id') || 'unknown';
+        this.userId = routeParams["id"];
     }
 
     async getHtml(): Promise<string> {

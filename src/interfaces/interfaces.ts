@@ -1,8 +1,6 @@
 import type MessageHandlerService from '../frontend/services/MessageHandlerService.js';
 import type LobbyService from '../frontend/services/LobbyService.js';
 import type LobbyListService from '../frontend/services/LobbyListService.js';
-import type LobbyService from '../frontend/services/LobbyService.js';
-// import type TournamentListService from '../frontend/services/TournamentListService.js';
 import type TournamentService from '../frontend/services/TournamentService.js';
 import type UserService from '../frontend/services/UserService.js';
 import type UserManagementService from '../frontend/services/UserManagementService.js';
@@ -21,7 +19,7 @@ export interface RouteHookContext {
 
 export interface Route {
     path: string | RegExp;
-    view: new (routeParams: Record<string,string>, queryParams: URLSearchParams) => AbstractView;
+    view: new (routeParams: Record<string, string>, queryParams: URLSearchParams) => AbstractView;
     metadata?: {
         title?: string;
         description?: string;
@@ -40,8 +38,8 @@ declare global {
         messageHandler: MessageHandlerService;
         lobbyListService: LobbyListService;
         lobbyService: LobbyService;
-		tournamentService: TournamentService;
-		userService: UserService;
+        tournamentService: TournamentService;
+        userService: UserService;
         userManagementService: UserManagementService;
         pongService: PongService;
         __: (key: string) => string;
@@ -111,8 +109,7 @@ export interface IPlayerState {
     points?: number;
 }
 
-export interface IActiveGameInfo
-{
+export interface IActiveGameInfo {
     matchId: number;
     player1Id?: number;
     player2Id?: number;
@@ -120,16 +117,14 @@ export interface IActiveGameInfo
     score2: number;
 }
 
-export interface ITournamentMatchPairing
-{
+export interface ITournamentMatchPairing {
     player1Id: number;
     player2Id: number;
     matchId: number | null;
     isCompleted: boolean
 }
 
-export interface ITournamentRound
-{
+export interface ITournamentRound {
     roundNumber: number;
     matches: ITournamentMatchPairing[];
 }

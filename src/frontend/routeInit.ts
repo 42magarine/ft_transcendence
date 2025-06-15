@@ -7,7 +7,6 @@ import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';
 import Login from './views/Login.js';
-import Settings from './views/Settings.js';
 import Signup from './views/Signup.js';
 import PasswordReset from './views/PasswordReset.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
@@ -74,15 +73,6 @@ const routes: Route[] = [
                 window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
-        }
-    },
-    {
-        path: '/lobbylist',
-        role: 'user',
-        view: Tournament,
-        metadata: {
-            title: 'Transcendence - Tournament',
-            description: 'Welcome to Pong'
         }
     },
     {
@@ -155,15 +145,6 @@ const routes: Route[] = [
         metadata: {
             title: 'Transcendence - Signup',
             description: 'Welcome to Signup'
-        }
-    },
-    {
-        path: '/settings',
-        role: 'user_id',
-        view: Settings,
-        metadata: {
-            title: 'Transcendence - settings',
-            description: 'Welcome to Settings'
         }
     },
     {

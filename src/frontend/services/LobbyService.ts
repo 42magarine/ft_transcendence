@@ -1,6 +1,5 @@
 import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
-import UserService from './UserService.js';
 
 export default class LobbyService {
     private lobbyState!: ILobbyState;
@@ -82,23 +81,19 @@ export default class LobbyService {
                 }
                 break;
             case 'gameStarted':
-                if (data.lobby && data.gameState && data.matchId)
-                {
+                if (data.lobby && data.gameState && data.matchId) {
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
                         lobbyPlayers: data.lobby.lobbyPlayers || []
                     }
 
-                    if (receivedLobbyInfo.lobbyId === currentUrlLobbyId)
-                    {
+                    if (receivedLobbyInfo.lobbyId === currentUrlLobbyId) {
                         this.lobbyState = receivedLobbyInfo;
                         Router.update();
                     }
                     Router.redirect(`/pong/${data.lobby.lobbyId}/${data.matchId}`)
                 }
-            default:
-                break;
         }
     }
 

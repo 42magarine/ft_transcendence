@@ -23,7 +23,6 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
-// import TournamentListService from './services/TournamentListService.js';
 import TournamentService from './services/TournamentService.js';
 import { AccessibilityService } from './services/AccessibilityService.js';
 import LanguageService from './services/LanguageService.js';
@@ -99,9 +98,8 @@ async function initSocket(): Promise<void> {
 
     window.ft_socket = socket;
 
-    socket.addEventListener('close', (event) =>
-    {
-        console.warn("websocket closed", event.code, event.reason)
+    socket.addEventListener('close', (event) => {
+        // console.warn("websocket closed", event.code, event.reason);
         setTimeout(() => socketUpdateOnSession(), 3000)
     })
 
@@ -114,7 +112,6 @@ async function initSocket(): Promise<void> {
         window.messageHandler = new MessageHandlerService();
         window.lobbyListService = new LobbyListService();
         window.lobbyService = new LobbyService();
-        // window.tournamentListService = new TournamentListService();
         window.tournamentService = new TournamentService();
         window.pongService = new PongService();
 
@@ -122,7 +119,6 @@ async function initSocket(): Promise<void> {
             window.ft_socket.addEventListener('message', function (messageEvent) {
                 window.lobbyListService.handleSocketMessage(messageEvent);
                 window.lobbyService.handleSocketMessage(messageEvent);
-                // window.tournamentListService.handleSocketMessage(messageEvent);
                 window.tournamentService.handleSocketMessage(messageEvent);
                 window.pongService.handleSocketMessage(messageEvent);
                 window.userService.handleSocketMessage(messageEvent);
@@ -160,7 +156,6 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();

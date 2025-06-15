@@ -2,7 +2,7 @@ import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class PasswordReset extends AbstractView {
-    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
         this.params = params;
     }

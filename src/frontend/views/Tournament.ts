@@ -3,8 +3,8 @@ import Card from '../components/Card.js';
 import __ from '../services/LanguageService.js';
 
 export default class Tournament extends AbstractView {
-	constructor(routeParams: Record<string, string>, queryParams: URLSearchParams = new URLSearchParams()) {
-		super();
+    constructor(routeParams: Record<string, string>, queryParams: URLSearchParams = new URLSearchParams()) {
+        super();
 
         this.initEvents = this.setupEvents.bind(this);
         this.destroyEvents = this.cleanupEvents.bind(this);

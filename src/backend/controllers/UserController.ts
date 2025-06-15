@@ -617,26 +617,20 @@ export class UserController {
         }
     }
 
-    async getMatchHistory(request: FastifyRequest, reply: FastifyReply)
-    {
-        try
-        {
-        const userId = request.user?.id;
+    async getMatchHistory(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const userId = request.user?.id;
+            if (!request.user || userId == null) {
+                return reply.code(403).send({ message: "Forbidden: Cannot view others match History currently" });
+            }
 
-        if (!request.user || userId == null)
-        {
-            return reply.code(403).send({ message: "Forbidden: Cannot view others match History currently"});
+            const matchHistory = await this._userService.getAllFinishedMatchesByUserId(userId);
+
+            return reply.send(matchHistory);
         }
-
-        const matchHistory = await this._userService.getAllFinishedMatchesByUserId(userId);
-
-        return reply.send(matchHistory);
-        }
-        catch (error: any)
-        {
-            if (error.message && error.message.includes('not found'))
-            {
-                return reply.code(404).send({ message: error.message});
+        catch (error: any) {
+            if (error.message && error.message.includes('not found')) {
+                return reply.code(404).send({ message: error.message });
             }
             console.error("Error fetching match History: ", error);
             return reply.code(500).send("Internal Server Error");

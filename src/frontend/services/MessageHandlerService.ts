@@ -109,21 +109,4 @@ export default class MessageHandlerService {
         };
         await this.safeSend(msg);
     }
-
-    // public async getTournamentList() {
-    //     const msg: IClientMessage = {
-    //         type: 'getTournamentList',
-    //     };
-    //     await this.safeSend(msg);
-    // }
-
-    // public async createTournament(userId: number) {
-    //     const msg: IClientMessage = {
-    //         type: 'createLobby',
-    //         userId,
-    //          lobbyType: 'tournament'
-    // awdadwadawd
-    //     };
-    //     await this.safeSend(msg);
-    // }
 }

@@ -1,12 +1,12 @@
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class Footer extends AbstractView {
-	constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
     }
 
-	async getHtml(): Promise<string> {
-		return super.render(`
+    async getHtml(): Promise<string> {
+        return super.render(`
 			<footer class="w-full py-1 px-5 text-inherit text-center">
 				<div class="flex flex-col md:flex-row justify-between items-center text-inherit w-full">
 					<p class="text-inherit">&copy; {{props.year || '2025'}} Transcendence Project</p>
@@ -22,5 +22,5 @@ export default class Footer extends AbstractView {
 				</div>
 			</footer>
 		`);
-	}
+    }
 }

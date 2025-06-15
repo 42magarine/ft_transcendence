@@ -48,7 +48,8 @@ export class MatchController {
                         matchSchedule: tournamentData.matchSchedule as ITournamentRound[]
                     }
                 );
-            } else {
+            }
+            else {
                 const matchData = lobbyData as MatchModel;
                 lobby = new MatchLobby(
                     matchData.lobbyId,
@@ -94,7 +95,8 @@ export class MatchController {
         let data: IClientMessage;
         try {
             data = JSON.parse(message.toString()) as IClientMessage;
-        } catch (error: unknown) {
+        }
+        catch (error: unknown) {
             console.error("Invalid message format", error)
             return;
         }
@@ -114,7 +116,8 @@ export class MatchController {
             case "movePaddle":
                 if (player && data.matchId !== undefined && data.direction !== undefined) {
                     this.handleMovePaddle(player, data.matchId, data.direction);
-                } else {
+                }
+                else {
                     console.error("MatchController - handleMovePaddle(): Missing player, matchId, or direction.");
                 }
                 break;
@@ -219,7 +222,8 @@ export class MatchController {
                 type: "lobbyState",
                 lobby: lobby.getLobbyState()
             });
-        } else {
+        }
+        else {
             console.error("Failed to add player to new lobby.");
             this._lobbies.delete(lobbyId);
         }
@@ -251,7 +255,8 @@ export class MatchController {
                 type: "playerJoined",
                 lobby: lobby.getLobbyState()
             });
-        } else {
+        }
+        else {
             console.error("Matchcontroller - handleJoinLobby(): Couldn't join Lobby");
         }
     }
@@ -281,9 +286,10 @@ export class MatchController {
             if (lobby.isEmpty()) {
                 this._lobbies.delete(lobbyId);
                 if (lobby._lobbyType === 'game') {
-                     await this._matchService.deleteMatchByLobbyId(lobbyId);
+                    await this._matchService.deleteMatchByLobbyId(lobbyId);
                 }
-            } else {
+            }
+            else {
                 if (this._lobbies.has(lobbyId)) {
                     this.broadcastToLobby(lobbyId, {
                         type: "playerLeft",
@@ -297,7 +303,8 @@ export class MatchController {
                 type: "leftLobby",
                 lobbyId: lobbyId
             });
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Matchcontroller - handleLeaveLobby(): Player failed to leave Lobby", error);
         }
     }
@@ -365,13 +372,13 @@ export class MatchController {
             console.error("Matchcontroller - handlePlayerReady(): Couldn't find Lobby");
             return;
         }
+
         lobby.setPlayerReady(player.userId, isReady);
 
         this.broadcastToLobby(player.lobbyId, {
             type: "playerReady",
             lobby: lobby.getLobbyState()
         });
-
     }
 
     private handleStartGame(lobbyId: string) {
@@ -380,9 +387,11 @@ export class MatchController {
             console.error("Matchcontroller - handleStartGame(): Couldn't find Lobby");
             return;
         }
+
         if (lobby._lobbyType === 'tournament') {
             lobby.startTournament();
-        } else {
+        }
+        else {
             lobby.startGame();
         }
         //implement broadcasts here
@@ -399,10 +408,12 @@ export class MatchController {
             const pongGame = lobby.getPongGame(matchId);
             if (pongGame) {
                 pongGame.movePaddle(player._playerNumber, direction);
-            } else {
+            }
+            else {
                 console.warn(`PongGame for matchId ${matchId} not found in lobby ${player.lobbyId}.`);
             }
-        } else {
+        }
+        else {
             console.error(`Lobby ${player.lobbyId} not found or game not started for player ${player.id} during movePaddle.`);
         }
     }

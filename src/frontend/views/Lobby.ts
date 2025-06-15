@@ -10,7 +10,7 @@ export default class Lobby extends AbstractView {
     private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isReady: false };
     private player2: IPlayerState = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
 
-    constructor(routeParams: Record<string,string> = {}, params: URLSearchParams = new URLSearchParams()) {
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
 
         this.initEvents = this.setupEvents.bind(this);
@@ -123,5 +123,4 @@ export default class Lobby extends AbstractView {
             }
         }
     }
-
 }

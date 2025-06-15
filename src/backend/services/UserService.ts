@@ -8,7 +8,6 @@ import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from ".
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, hashPW, verifyPW } from "../middleware/security.js";
 import { deleteAvatar } from "../services/FileService.js";
 import { EmailService } from "../services/EmailService.js";
-import { match } from 'assert';
 
 export class UserService {
     private userRepo = AppDataSource.getRepository(UserModel);
@@ -479,18 +478,16 @@ export class UserService {
         await this.userRepo.save(user);
     }
 
-    async getAllFinishedMatchesByUserId(userId: number)
-    {
-        const userExists = await this.userRepo.exists({ where: {id: userId}})
-        if (!userExists)
-        {
+    async getAllFinishedMatchesByUserId(userId: number) {
+        const userExists = await this.userRepo.exists({ where: { id: userId } })
+        if (!userExists) {
             throw new Error("User not found")
         }
 
         const matchHistory = await this.matchRepo.find({
             where: [
-                { player1: {id: userId}, status: 'completed' },
-                { player2: { id: userId}, status: 'completed'},
+                { player1: { id: userId }, status: 'completed' },
+                { player2: { id: userId }, status: 'completed' },
             ],
             relations: ['player1', 'player2', 'winner'],
             order: {
