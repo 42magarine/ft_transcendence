@@ -255,6 +255,7 @@ export interface ModalProps {
     footerButtons?: ButtonProps[];
     showCloseButton?: boolean;
     closableOnOutsideClick?: boolean;
+    hidden?: boolean;
 }
 
 // TOOLBAR INTERFACE
