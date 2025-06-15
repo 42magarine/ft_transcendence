@@ -166,7 +166,7 @@ export class MatchLobby {
                 await this._matchService.removePlayerFromMatch(this._lobbyId, player.userId);
 
                 for (const [matchId, game] of this._games.entries()) {
-                    if (game._player1?._userId === player.userId || game._player2?._userId === player.userId) {
+                    if ((game._player1?._userId === player.userId || game._player2?._userId === player.userId) && game.isRunning == true) {
                         game.stopGameLoop();
                         this._games.delete(matchId);
 

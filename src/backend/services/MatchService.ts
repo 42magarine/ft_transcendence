@@ -32,7 +32,8 @@ export class MatchService {
         })
     }
 
-    async getTournamentById(tournamentId: number): Promise<TournamentModel | null> {
+    async getTournamentById(tournamentId: number): Promise<TournamentModel | null>
+    {
         return await this.tournamentRepo.findOne({
             where: { id: tournamentId },
             relations: ['creator', 'lobbyParticipants']
@@ -96,9 +97,11 @@ export class MatchService {
         }
     }
 
-    async deleteAllMatchesForTournament(tournamentId: number) {
-        try {
-            await this.matchRepo.delete({ tournament: { id: tournamentId } })
+    async deleteAllMatchesForTournament(tournamentId: number)
+    {
+        try
+        {
+            await this.matchRepo.delete({tournament: {id: tournamentId}})
             console.log("bladlaldlawdlalwd")
         }
         catch (error) {
@@ -213,6 +216,7 @@ export class MatchService {
             console.error("wasn hier los?", error);
             return false;
         }
+
     }
 
     //function that should return score values / playerInfo of specified Match!
@@ -309,17 +313,17 @@ export class MatchService {
         if (!creator)
             throw new Error("Wirf Junge WIRF den FEHLER DU BASTARD")
 
-        const tournament = new TournamentModel();
-        tournament.lobbyId = lobbyId;
-        tournament.creator = creator;
-        tournament.name = name;
-        tournament.maxPlayers = maxPlayers;
-        tournament.createdAt = new Date();
-        tournament.status = 'pending';
-        tournament.currentRound = 0;
-        tournament.playerScores = {};
-        tournament.matchSchedule = [];
-        tournament.lobbyParticipants = [creator];
+       const tournament = new TournamentModel();
+       tournament.lobbyId = lobbyId;
+       tournament.creator = creator;
+       tournament.name = name;
+       tournament.maxPlayers = maxPlayers;
+       tournament.createdAt = new Date();
+       tournament.status = 'pending';
+       tournament.currentRound = 0;
+       tournament.playerScores = {};
+       tournament.matchSchedule = [];
+       tournament.lobbyParticipants = [creator];
 
         return await this.tournamentRepo.save(tournament);
     }
