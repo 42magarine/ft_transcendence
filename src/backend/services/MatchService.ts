@@ -101,7 +101,7 @@ export class MatchService {
     async deleteAllMatchesForTournament(tournamentId: number) {
         try {
             await this.matchRepo.delete({ tournament: { id: tournamentId } })
-            console.log("bladlaldlawdlalwd")
+            // console.log("deleteAllMatchesForTournament")
         }
         catch (error) {
             console.error("fkin error ig (Penis)")

@@ -86,7 +86,7 @@ export default class TournamentService {
                 //maybe need 2nd case? idk
                 break;
             case "tournamentFinished":
-                //placeholder redirect to winning screen or sth
+                Router.redirect(`/tournamentwinner`);
                 break;
             default:
                 break;

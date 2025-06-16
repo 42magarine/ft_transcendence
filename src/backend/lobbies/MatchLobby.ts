@@ -691,6 +691,8 @@ export class MatchLobby {
                 winnerId: winnerId,
                 player1Score,
                 player2Score,
+                player1Name: game._player1?._name,
+                player2Name: game._player2?._name,
                 lobby: this.getLobbyState(),
                 message: winnerId ? `${winningPlayer?._name} won the match!` : "It's a tie!"
             });
