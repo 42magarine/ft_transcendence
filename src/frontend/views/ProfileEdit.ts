@@ -146,7 +146,7 @@ export default class ProfileEdit extends AbstractView {
     async mount(): Promise<void> {
         const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
         if (!form) {
-            console.warn(`Form with ID edit-profile-form not found`);
+            console.log(`Form with ID edit-profile-form not found`);
             return;
         }
 
@@ -178,36 +178,36 @@ export default class ProfileEdit extends AbstractView {
             try {
                 let success;
                 if (avatarFile && avatarFile.size > 0) {
-                    console.log('[ProfileEdit] Avatar file selected:', {
-                        name: avatarFile.name,
-                        size: avatarFile.size,
-                        type: avatarFile.type,
-                    });
+                    // console.log('[ProfileEdit] Avatar file selected:', {
+                    //     name: avatarFile.name,
+                    //     size: avatarFile.size,
+                    //     type: avatarFile.type,
+                    // });
 
                     const uploadFormData = new FormData();
 
                     for (const [key, value] of Object.entries(payload)) {
                         if (typeof value === 'string' || value instanceof Blob) {
-                            console.log(`[FormData] Appending field "${key}" as`, value);
+                            // console.log(`[FormData] Appending field "${key}" as`, value);
                             uploadFormData.append(key, value);
                         } else {
-                            console.log(`[FormData] Coercing and appending field "${key}" as`, String(value));
+                            // console.log(`[FormData] Coercing and appending field "${key}" as`, String(value));
                             uploadFormData.append(key, String(value));
                         }
                     }
 
-                    console.log('[FormData] Appending avatar file');
+                    // console.log('[FormData] Appending avatar file');
                     uploadFormData.append('avatar', avatarFile);
 
                     for (const pair of uploadFormData.entries()) {
-                        console.log(`[FormData] Final entry:`, pair[0], pair[1]);
+                        // console.log(`[FormData] Final entry:`, pair[0], pair[1]);
                     }
 
                     success = await UserService.updateUser(this.userId, uploadFormData);
                 } else {
-                    console.log('[ProfileEdit] No avatar selected, removing avatar from payload');
+                    // console.log('[ProfileEdit] No avatar selected, removing avatar from payload');
                     delete payload.avatar;
-                    console.log('[Payload] Final payload before sending:', payload);
+                    // console.log('[Payload] Final payload before sending:', payload);
 
                     success = await UserService.updateUser(this.userId, payload);
                 }

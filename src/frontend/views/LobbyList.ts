@@ -103,14 +103,14 @@ export default class LobbyList extends AbstractView {
     }
 
     private setupEvents(): void {
-        console.log('[LobbyList] setupEvents()');
+        // console.log('[LobbyList] setupEvents()');
 
         window.lobbyListService?.setupCreateLobbyButtonListener();
         window.lobbyListService?.setupJoinLobbyButtonListener();
     }
 
     private cleanupEvents(): void {
-        console.log('[LobbyList] cleanupEvents()');
+        // console.log('[LobbyList] cleanupEvents()');
 
         if (window.lobbyListService) {
             const createBtn = document.getElementById('createLobbyBtn');

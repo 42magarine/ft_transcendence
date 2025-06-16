@@ -112,13 +112,13 @@ export default class Lobby extends AbstractView {
     }
 
     private setupEvents(): void {
-        console.log('[LobbyView] setupEvents()');
+        // console.log('[LobbyView] setupEvents()');
 
         window.lobbyService?.setupEventListener();
     }
 
     private cleanupEvents(): void {
-        console.log('[LobbyView] cleanupEvents()');
+        // console.log('[LobbyView] cleanupEvents()');
 
         if (window.lobbyService) {
             const startButton = document.getElementById('startGameBtn');

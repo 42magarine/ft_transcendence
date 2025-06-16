@@ -41,7 +41,7 @@ export default class PongService {
         this.canvas = canvasElement;
         this.ctx = this.canvas.getContext('2d')!;
         this.matchId = matchId;
-        console.log("pongService matchId: ", this.matchId)
+        // console.log("pongService matchId: ", this.matchId)
         this.canvas.width = 800;
         this.canvas.height = 600;
 
@@ -50,7 +50,7 @@ export default class PongService {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.overlay = document.getElementById('gameCanvasWrap-overlay') as HTMLElement;
-        console.log(this.overlay);
+        // console.log(this.overlay);
         if (!this.overlay) {
             console.error("PongService: Game overlay element not found.");
         }
@@ -130,26 +130,26 @@ export default class PongService {
 
         switch (data.type) {
             case 'playerJoined':
-                console.log("playerjoined case reached. handed over info: ", data);
+                // console.log("playerjoined case reached. handed over info: ", data);
                 if (data.gameState) {
                     this.gameState = data.gameState;
                     {
-                        console.log("window current user:", window.currentUser?.id, " window gamestate player1id", this.gameState.player1Id)
-                        console.log("window current user:", window.currentUser?.id, " window gamestate player2id", this.gameState.player2Id)
+                        // console.log("window current user:", window.currentUser?.id, " window gamestate player1id", this.gameState.player1Id)
+                        // console.log("window current user:", window.currentUser?.id, " window gamestate player2id", this.gameState.player2Id)
                         if (window.currentUser?.id === this.gameState.player1Id) {
                             this.isPlayer1Paddle = true;
                             this.isPlayer2Paddle = false;
-                            console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
+                            // console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
                         }
                         else if (window.currentUser?.id === this.gameState.player2Id) {
                             this.isPlayer1Paddle = false;
                             this.isPlayer2Paddle = true;
-                            console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
+                            // console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
                         }
                         else {
                             this.isPlayer1Paddle = false;
                             this.isPlayer2Paddle = false;
-                            console.warn(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
+                            console.log(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
                         }
                     }
                 }

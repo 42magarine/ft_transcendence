@@ -40,7 +40,7 @@ export default class LobbyListService {
                 }
                 if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
-                    console.log(data.lobbyType);
+                    // console.log(data.lobbyType);
                     if (data.lobbyType === "game") {
                         Router.redirect(`/lobby/${data.lobbyId}`);
                     }
@@ -81,7 +81,7 @@ export default class LobbyListService {
         e.preventDefault();
 
         if (!window.currentUser) {
-            console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
+            console.log("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
             return;
         }
 
@@ -96,7 +96,7 @@ export default class LobbyListService {
             }
         }
         else {
-            console.warn("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
+            console.log("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
         }
     }
 
@@ -104,7 +104,7 @@ export default class LobbyListService {
         e.preventDefault();
 
         if (!window.currentUser) {
-            console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
+            console.log("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
             return;
         }
 
@@ -120,7 +120,7 @@ export default class LobbyListService {
             }
         }
         else {
-            console.warn("LobbyListService: createTournamentBtn clicked, but messageHandler is not available.");
+            console.log("LobbyListService: createTournamentBtn clicked, but messageHandler is not available.");
         }
     }
 
@@ -136,7 +136,7 @@ export default class LobbyListService {
 
         const user = await UserService.getCurrentUser();
         if (!user) {
-            console.warn("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
+            console.log("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
             return;
         }
 
@@ -149,7 +149,7 @@ export default class LobbyListService {
             }
         }
         else {
-            console.warn("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
+            console.log("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
         }
     }
     public getLobbyList(): ILobbyState[] {
@@ -164,12 +164,12 @@ export default class LobbyListService {
 
     public async getLobbies(): Promise<ILobbyState[]> {
         if (!window.messageHandler) {
-            console.warn("LobbyListService getLobbies: messageHandler not found.");
+            console.log("LobbyListService getLobbies: messageHandler not found.");
             return Promise.resolve(this.lobbyData);
         }
 
         if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-            console.warn("LobbyListService getLobbies: WebSocket not open.");
+            console.log("LobbyListService getLobbies: WebSocket not open.");
             return Promise.resolve(this.lobbyData);
         }
 
@@ -188,4 +188,3 @@ export default class LobbyListService {
         return promise;
     }
 }
-

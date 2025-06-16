@@ -144,13 +144,13 @@ export default class Tournament extends AbstractView {
     }
 
     private setupEvents(): void {
-        console.log('[TournamentView] setupEvents()');
+        // console.log('[TournamentView] setupEvents()');
 
         window.tournamentService?.setupEventListener();
     }
 
     private cleanupEvents(): void {
-        console.log('[TournamentView] cleanupEvents()');
+        // console.log('[TournamentView] cleanupEvents()');
 
         if (window.tournamentService) {
             const startButton = document.getElementById('startGameBtn');

@@ -99,7 +99,7 @@ async function initSocket(): Promise<void> {
     window.ft_socket = socket;
 
     socket.addEventListener('close', (event) => {
-        // console.warn("websocket closed", event.code, event.reason);
+        // console.log("websocket closed", event.code, event.reason);
         setTimeout(() => socketUpdateOnSession(), 3000)
     })
 

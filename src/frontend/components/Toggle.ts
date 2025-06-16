@@ -33,7 +33,7 @@ export default class Toggle extends AbstractView {
         const input = document.getElementById(id) as HTMLInputElement;
 
         if (!yesBtn || !noBtn || !input) {
-            //console.warn(`[Toggle] Missing elements for toggle ID: ${ id } `);
+            //console.log(`[Toggle] Missing elements for toggle ID: ${ id } `);
             return;
         }
 

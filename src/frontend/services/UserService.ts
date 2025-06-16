@@ -127,7 +127,7 @@ export default class UserService {
     static attachProfileFormHandlers(formId: string, userId: string): void {
         const form = document.getElementById(formId) as HTMLFormElement | null;
         if (!form) {
-            console.warn(`Form with ID ${formId} not found`);
+            console.log(`Form with ID ${formId} not found`);
             return;
         }
 

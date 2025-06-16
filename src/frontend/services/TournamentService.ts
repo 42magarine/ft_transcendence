@@ -17,7 +17,7 @@ export default class TournamentService {
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    console.log(data.lobby)
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -30,7 +30,7 @@ export default class TournamentService {
                 }
             case 'playerJoined':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    console.log(data.lobby)
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -45,7 +45,7 @@ export default class TournamentService {
                 break;
             case 'playerLeft':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    console.log(data.lobby)
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -60,7 +60,7 @@ export default class TournamentService {
                 break;
             case 'playerReady':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    console.log(data.lobby)
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -113,7 +113,7 @@ export default class TournamentService {
         e.preventDefault();
         const currentTournamentId = this.getCurrentLobbyIdFromUrl();
         if (!currentTournamentId) {
-            console.warn("[LobbyService] Cannot start game: current lobby ID not found.");
+            console.log("[LobbyService] Cannot start game: current lobby ID not found.");
             return;
         }
 

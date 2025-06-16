@@ -171,7 +171,7 @@ export class MatchController {
 
     private broadcastToAll(data: IServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
-            console.log(data);
+            // console.log(data);
             if (connection.readyState === WebSocket.OPEN) {
                 this.sendMessage(connection, data);
             }
@@ -245,9 +245,9 @@ export class MatchController {
             this._clients.set(connection, player);
 
 
-            console.log(lobby._lobbyType)
-            console.log(lobbyId)
-            console.log(userId)
+            // console.log(lobby._lobbyType)
+            // console.log(lobbyId)
+            // console.log(userId)
             this.broadcastToAll({
                 type: "joinedLobby",
                 lobbyId: lobbyId,
@@ -326,7 +326,7 @@ export class MatchController {
     }
 
     private async handleGetLobbyList(connection: WebSocket) {
-        console.log("handleGetLobbyList")
+        // console.log("handleGetLobbyList")
         const openDbLobbies = await this._matchService.getOpenLobbies();
 
         const lobbyStates: ILobbyState[] = openDbLobbies.map(dbLobby => {
@@ -413,7 +413,7 @@ export class MatchController {
                 pongGame.movePaddle(player._playerNumber, direction);
             }
             else {
-                console.warn(`PongGame for matchId ${matchId} not found in lobby ${player.lobbyId}.`);
+                console.log(`PongGame for matchId ${matchId} not found in lobby ${player.lobbyId}.`);
             }
         }
         else {
