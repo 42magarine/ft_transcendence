@@ -1,8 +1,4 @@
 FRONTEND:
-    1. Alle 'alerts' entfernen und durch sichtbare Meldungen ersetzen.
-    2. Signup View überarbeiten
-        - man kann fast nichts lesen wegen dem Hintergrund
-        - es gibt 3 Passwort-Felder?!
     3. User Management View (als MASTER)
         - Create User funktioniert nicht, wenn eine ungültige E-Mail eingegeben wird (vielleicht liegt der Fehler im Backend, weil der E-Mail Serive einen Fehler wirft)
     4. User View (als Master)
@@ -33,3 +29,4 @@ Flo:
     delete btn prf edit
     username unique
     add friend triggerer
+    checkbox width
