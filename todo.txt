@@ -1,8 +1,4 @@
 FRONTEND:
-    1. Alle 'alerts' entfernen und durch sichtbare Meldungen ersetzen.
-    2. Signup View überarbeiten
-        - man kann fast nichts lesen wegen dem Hintergrund
-        - es gibt 3 Passwort-Felder?!
     3. User Management View (als MASTER)
         - Create User funktioniert nicht, wenn eine ungültige E-Mail eingegeben wird (vielleicht liegt der Fehler im Backend, weil der E-Mail Serive einen Fehler wirft)
     4. User View (als Master)
@@ -27,3 +23,4 @@ TESTS:
     2. Test auth processes themselves
     3. Open a lobby or tournament with or without its coresponsing game and test leaves by router and window.
     4. Launch different games with different customizations and test their effects
+    5. SPA testen: haben wir noch "window.location.href" im code anstatt Router.update und Router.redirect?

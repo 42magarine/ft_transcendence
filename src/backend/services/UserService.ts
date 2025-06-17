@@ -96,6 +96,11 @@ export class UserService {
                 throw new Error('User not found');
             }
 
+            // Hash password if it's being updated
+            if (user.password) {
+                user.password = await hashPW(user.password);
+            }
+
             // Check if avatar has changed, delete old avatar if needed
             if (user.avatar !== currentUser.avatar && currentUser.avatar) {
                 try {
