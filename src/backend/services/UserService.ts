@@ -76,7 +76,7 @@ export class UserService {
                     role: 'user',
                 });
             }
-            // console.log(user);
+
             const savedUser = await this.userRepo.save(user);
             return savedUser;
 
@@ -278,40 +278,67 @@ export class UserService {
         }
     }
 
-    async register(credentials: RegisterCredentials & { avatar?: string, secret?: string }) {
+    async register(credentials: RegisterCredentials & {
+        avatar?: string,
+        secret?: string,
+        tf_one?: string,
+        tf_two?: string,
+        tf_three?: string,
+        tf_four?: string,
+        tf_five?: string,
+        tf_six?: string
+    }) {
+
         try {
             const hashedPW = await hashPW(credentials.password);
 
-            // Create user data with potential 2FA settings
+            // Create base user data
             const userData: any = {
-                ...credentials,
-                password: hashedPW
+                username: credentials.username,
+                email: credentials.email,
+                password: hashedPW,
+                name: credentials.name,
+                role: credentials.role || 'user',
+                avatar: credentials.avatar
             };
 
-            // If secret is provided and 2FA token is valid, enable 2FA
+            // Handle 2FA setup if provided
             if (credentials.secret) {
-                // Get the token from the tf_ fields if they exist
-                const token = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
+                const tfCode = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
                     credentials.tf_four && credentials.tf_five && credentials.tf_six ?
-                    `${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` : '';
+                    `${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` :
+                    null;
 
-                if (token) {
+                if (tfCode) {
+                    // Verify the 2FA token
                     const verified = speakeasy.totp.verify({
                         secret: credentials.secret,
                         encoding: 'base32',
-                        token: token
+                        token: tfCode,
+                        window: 2 // Allow some time drift
                     });
 
                     if (verified) {
                         userData.twoFAEnabled = true;
                         userData.twoFASecret = credentials.secret;
+                        console.log('2FA successfully enabled for user:', credentials.username);
+                    }
+                    else {
+                        console.log('2FA verification failed for user:', credentials.username);
+                        throw new Error('Two-factor authentication code is invalid');
                     }
                 }
+                else {
+                    console.log('2FA secret provided but code incomplete for user:', credentials.username);
+                }
             }
+
+            // Create user and generate tokens
             const user = await this.createUser(userData);
             return this.generateTokens(user);
         }
         catch (error) {
+            console.error('Registration error in service:', error);
             throw error;
         }
     }

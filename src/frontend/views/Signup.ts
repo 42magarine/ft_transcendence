@@ -75,8 +75,9 @@ export default class Signup extends AbstractView {
     private setupSignupForm(): void {
         try {
             const form = document.getElementById('signup-form') as HTMLFormElement | null;
-            if (!form) throw new Error('Signup form element not found.');
-
+            if (!form) {
+                throw new Error('Signup form element not found.');
+            }
             const enableTwoFactor = form.querySelector("input[name=enableTwoFactor]") as HTMLInputElement | null;
             const twoFactorInterface = document.getElementById("twoFactorInterface");
             const qrDisplay = document.getElementById("qr-display");
@@ -92,16 +93,20 @@ export default class Signup extends AbstractView {
 
                         try {
                             const response = await fetch('/api/generate-qr');
-                            if (!response.ok) throw new Error(`QR API error: ${response.status}`);
+                            if (!response.ok) {
+                                throw new Error(`QR API error: ${response.status}`);
+                            }
 
                             const qr_response = await response.json();
                             const qr_alt_text = window.ls.__("QR Code for 2FA");
                             qrDisplay.innerHTML = `<img alt="${qr_alt_text}" src="${qr_response.qr}" />`;
                             secHidden.value = qr_response.secret;
-                        } catch (err) {
-                            console.error('[2FA] Failed to fetch QR:', err);
                         }
-                    } else {
+                        catch (error) {
+                            console.error('[2FA] Failed to fetch QR:', error);
+                        }
+                    }
+                    else {
                         twoFactorInterface.classList.add('hidden');
                         twoFactorInterface.style.display = 'none';
                         qrDisplay.innerHTML = '';
@@ -114,7 +119,9 @@ export default class Signup extends AbstractView {
             const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
             const signupAvatar = form.querySelector('.signup-avatar');
 
-            if (!signupAvatar) throw new Error('Signup avatar container not found.');
+            if (!signupAvatar) {
+                throw new Error('Signup avatar container not found.');
+            }
 
             if (usernameInput && !avatarInput?.files?.length) {
                 signupAvatar.innerHTML = generateTextVisualization(usernameInput.value || '', {
@@ -190,10 +197,12 @@ export default class Signup extends AbstractView {
                 e.preventDefault();
 
                 const formData = new FormData(form);
-                const password = formData.get('password') as string;
+                const getStr = (key: string) => String(formData.get(key) || '');
 
-                const tfFields = ['tf_one', 'tf_two', 'tf_three', 'tf_four', 'tf_five', 'tf_six'];
-                if ((form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked) {
+                // Check if 2FA is enabled and validate code
+                const twoFactorEnabled = (form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked;
+                if (twoFactorEnabled) {
+                    const tfFields = ['tf_one', 'tf_two', 'tf_three', 'tf_four', 'tf_five', 'tf_six'];
                     const missing = tfFields.some(name => {
                         const val = formData.get(name) as string;
                         return !val || val.trim() === '';
@@ -209,57 +218,46 @@ export default class Signup extends AbstractView {
                     }
                 }
 
-
-                const getStr = (key: string) => String(formData.get(key) || '');
-
-                const twoFactorEnabled = (form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked;
-                // const userData: User = {
-                // 	name: getStr('name'),
-                // 	username: getStr('username'),
-                // 	email: getStr('email'),
-                // 	password: password,
-                // 	role: 'user',
-                // 	secret: getStr('secret'),
-                // 	status: 'offline',
-                // 	...(twoFactorEnabled && {
-                // 		tf_one: getStr('tf_one'),
-                // 		tf_two: getStr('tf_two'),
-                // 		tf_three: getStr('tf_three'),
-                // 		tf_four: getStr('tf_four'),
-                // 		tf_five: getStr('tf_five'),
-                // 		tf_six: getStr('tf_six'),
-                // 	}),
-                // };
-
-
-                const avatarFile = formData.get('avatar') as File;
-
                 try {
                     const userData: User = {
                         name: getStr('name'),
                         username: getStr('username'),
                         email: getStr('email'),
-                        password: password,
-                        role: 'userasdasdasd',
-                        secret: getStr('secret'),
-                        status: 'offline',
-                        tf_one: getStr('tf_one'),
-                        tf_two: getStr('tf_two'),
-                        tf_three: getStr('tf_three'),
-                        tf_four: getStr('tf_four'),
-                        tf_five: getStr('tf_five'),
-                        tf_six: getStr('tf_six')
+                        password: getStr('password'),
+                        role: 'user',
+                        status: 'offline'
                     };
+
+                    // Only add 2FA fields if 2FA is enabled
+                    if (twoFactorEnabled) {
+                        userData.secret = getStr('secret');
+                        userData.tf_one = getStr('tf_one');
+                        userData.tf_two = getStr('tf_two');
+                        userData.tf_three = getStr('tf_three');
+                        userData.tf_four = getStr('tf_four');
+                        userData.tf_five = getStr('tf_five');
+                        userData.tf_six = getStr('tf_six');
+                    }
+
+                    const avatarFile = formData.get('avatar') as File;
                     let result;
+
                     if (avatarFile && avatarFile.size > 0) {
                         result = await window.userManagementService.registerUser(userData, avatarFile);
-                    } else {
+                    }
+                    else {
                         result = await window.userManagementService.registerUser(userData);
                     }
+
                     form.reset();
                     Router.update();
-                    if (result) Router.redirect('/login');
-                } catch (error) {
+
+                    if (result) {
+                        Router.redirect('/login');
+                    }
+
+                }
+                catch (error) {
                     console.error('Signup failed:', error);
                     await new Modal().renderInfoModal({
                         id: 'signup-failed',
@@ -268,12 +266,13 @@ export default class Signup extends AbstractView {
                     });
                 }
             });
-        } catch (err) {
-            console.error('Signup form setup error:', err);
+        }
+        catch (error) {
+            console.error('Signup form setup error:', error);
             new Modal().renderInfoModal({
                 id: 'signup-setup-error',
                 title: window.ls.__('Signup Error'),
-                message: `${window.ls.__('An unexpected error occurred while setting up the signup form.')}\n\n${(err as Error).message}`
+                message: `${window.ls.__('An unexpected error occurred while setting up the signup form.')}\n\n${(error as Error).message}`
             });
         }
     }
