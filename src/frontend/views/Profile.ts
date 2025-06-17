@@ -64,6 +64,23 @@ export default class Profile extends AbstractView {
                         }
                     },
                     {
+                        type: 'stat',
+                        props: {
+                            checkbox: true,
+                            label: window.ls.__('Two Factor Verified'),
+                            value: userData.emailVerified === true ? 'true' : 'false'
+                        }
+                    },
+                    {
+                        type: 'stat',
+                        props: {
+                            checkbox: true,
+                            label: window.ls.__('Email Verified'),
+                            value: userData.emailVerified?.toString() ?? 'false'
+                        }
+                    },
+
+                    {
                         type: 'buttongroup',
                         props: {
                             layout: 'stack',

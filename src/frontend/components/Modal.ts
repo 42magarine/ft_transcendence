@@ -78,39 +78,47 @@ export default class Modal extends AbstractView {
         userId: string;
         onConfirm: () => Promise<void>;
     }): Promise<void> {
-        const modalHtml = await this.renderModal({
-            id,
-            title: 'Confirm Deletion',
-            content: `<p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>`,
-            footerButtons: [
-                {
-                    id: 'cancel-delete-btn',
-                    text: 'Cancel',
-                    className: 'btn btn-secondary',
-                    onClick: `document.getElementById('${id}').classList.add('hidden')`
-                },
-                {
-                    id: 'confirm-delete-btn',
-                    text: 'Yes, Delete',
-                    className: 'btn btn-red'
-                }
-            ],
-            closableOnOutsideClick: true
-        });
-
-        const container = document.createElement('div');
-        container.innerHTML = modalHtml;
-        document.body.appendChild(container);
-
-        document.getElementById('confirm-delete-btn')?.addEventListener('click', async () => {
-            await onConfirm();
-            document.getElementById(id)?.classList.add('hidden');
-        });
-
-        document.getElementById('cancel-delete-btn')?.addEventListener('click', () => {
-            document.getElementById(id)?.classList.add('hidden');
-        });
-    }
+        let modalEl = document.getElementById(id);
+    
+        if (!modalEl) {
+            const modalHtml = await this.renderModal({
+                id,
+                title: 'Confirm Deletion',
+                content: `<p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>`,
+                footerButtons: [
+                    {
+                        id: 'cancel-delete-btn',
+                        text: 'Cancel',
+                        className: 'btn btn-secondary',
+                        onClick: `document.getElementById('${id}').classList.add('hidden')`
+                    },
+                    {
+                        id: 'confirm-delete-btn',
+                        text: 'Yes, Delete',
+                        className: 'btn btn-red'
+                    }
+                ],
+                closableOnOutsideClick: true
+            });
+    
+            const container = document.createElement('div');
+            container.innerHTML = modalHtml;
+            document.body.appendChild(container);
+    
+            modalEl = document.getElementById(id);
+    
+            document.getElementById('confirm-delete-btn')?.addEventListener('click', async () => {
+                await onConfirm();
+                modalEl?.classList.add('hidden');
+            });
+    
+            document.getElementById('cancel-delete-btn')?.addEventListener('click', () => {
+                modalEl?.classList.add('hidden');
+            });
+        } else {
+            modalEl.classList.remove('hidden'); // Re-show existing modal
+        }
+    }    
 
     async renderRemoveFriendModal({
         id,

@@ -30,9 +30,6 @@ TESTS:
     4. Launch different games with different customizations and test their effects
 
 Flo:
-    pwd check profile edit + signup
-    verified table 
     delete btn prf edit
-    profile 2fa vrf sichtbar
     username unique
     add friend triggerer

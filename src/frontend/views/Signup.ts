@@ -81,6 +81,9 @@ export default class Signup extends AbstractView {
             const twoFactorInterface = document.getElementById("twoFactorInterface");
             const qrDisplay = document.getElementById("qr-display");
             const secHidden = form.querySelector("input[type=hidden][name=secret]") as HTMLInputElement | null;
+            const usernameInput = form.querySelector('input[name="username"]') as HTMLInputElement;
+            const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
+            const signupAvatar = form.querySelector('.signup-avatar');
 
             // 2FA QR logic
             if (enableTwoFactor && twoFactorInterface && qrDisplay && secHidden) {
@@ -110,23 +113,8 @@ export default class Signup extends AbstractView {
                 });
             }
 
-            const usernameInput = form.querySelector('input[name="username"]') as HTMLInputElement;
-            const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
-            const signupAvatar = form.querySelector('.signup-avatar');
-
+            // avatar logic
             if (!signupAvatar) throw new Error('Signup avatar container not found.');
-
-            if (usernameInput && !avatarInput?.files?.length) {
-                signupAvatar.innerHTML = generateTextVisualization(usernameInput.value || '', {
-                    width: 100,
-                    height: 100,
-                    useShapes: true,
-                    maxShapes: 50,
-                    showText: false,
-                    backgroundColor: '#f0f0f0'
-                });
-            }
-
             if (usernameInput && avatarInput) {
                 usernameInput.addEventListener('input', () => {
                     if (!avatarInput.value) {
@@ -190,15 +178,28 @@ export default class Signup extends AbstractView {
                 e.preventDefault();
 
                 const formData = new FormData(form);
-                const password = formData.get('password') as string;
 
+                const password = formData.get('password')?.toString().trim() || '';
+
+                // password check, modal if error
+                const confirmPassword = formData.get('passwordConfirm')?.toString().trim() || '';
+                
+                if (password !== confirmPassword || (!password && confirmPassword) || (password && !confirmPassword)) {
+                    await new Modal().renderInfoModal({
+                        id: 'password-mismatch-modal',
+                        title: window.ls.__('Validation Error'),
+                        message: window.ls.__('Passwords do not match.')
+                    });
+                    return;
+                }
+                
                 const tfFields = ['tf_one', 'tf_two', 'tf_three', 'tf_four', 'tf_five', 'tf_six'];
                 if ((form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked) {
                     const missing = tfFields.some(name => {
                         const val = formData.get(name) as string;
                         return !val || val.trim() === '';
                     });
-
+                
                     if (missing) {
                         await new Modal().renderInfoModal({
                             id: 'incomplete-2fa',
@@ -207,32 +208,26 @@ export default class Signup extends AbstractView {
                         });
                         return;
                     }
-                }
-
+                }                
 
                 const getStr = (key: string) => String(formData.get(key) || '');
 
-                const twoFactorEnabled = (form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked;
-                // const userData: User = {
-                // 	name: getStr('name'),
-                // 	username: getStr('username'),
-                // 	email: getStr('email'),
-                // 	password: password,
-                // 	role: 'user',
-                // 	secret: getStr('secret'),
-                // 	status: 'offline',
-                // 	...(twoFactorEnabled && {
-                // 		tf_one: getStr('tf_one'),
-                // 		tf_two: getStr('tf_two'),
-                // 		tf_three: getStr('tf_three'),
-                // 		tf_four: getStr('tf_four'),
-                // 		tf_five: getStr('tf_five'),
-                // 		tf_six: getStr('tf_six'),
-                // 	}),
-                // };
-
-
                 const avatarFile = formData.get('avatar') as File;
+                
+                const requiredFields = ['name', 'username', 'email', 'password'];
+                const missingFields = requiredFields.filter(field => {
+                    const val = formData.get(field)?.toString().trim();
+                    return !val;
+                });
+
+                if (missingFields.length > 0) {
+                    await new Modal().renderInfoModal({
+                        id: 'missing-fields-modal',
+                        title: window.ls.__('Validation Error'),
+                        message: window.ls.__('Please fill in all required fields.')
+                    });
+                    return;
+                }
 
                 try {
                     const userData: User = {

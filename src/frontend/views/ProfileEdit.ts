@@ -8,6 +8,7 @@ import Router from '../../utils/Router.js';
 
 export default class ProfileEdit extends AbstractView {
     private userId: string;
+    private originalUsername: string = '';
 
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
@@ -24,8 +25,7 @@ export default class ProfileEdit extends AbstractView {
                 </div>
             `);
         }
-        console.log('userdata');
-        console.log(userData);
+        this.originalUsername = userData?.username ?? '';
         const isMaster = userData.role === 'master';
 
         const profileEditCard = await new Card().renderCard({
@@ -127,6 +127,7 @@ export default class ProfileEdit extends AbstractView {
     }
 
     async mount(): Promise<void> {
+        document.getElementById('confirm-delete-modal')?.remove();
         const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
         if (!form) {
             console.log(`Form with ID edit-profile-form not found`);
@@ -173,7 +174,7 @@ export default class ProfileEdit extends AbstractView {
             const password = formData.get('password')?.toString().trim() || '';
             const confirmPassword = formData.get('passwordConfirm')?.toString().trim() || '';
         
-            if (password !== confirmPassword || !password) {
+            if (password !== confirmPassword || (!password && confirmPassword) || (password && !confirmPassword)) {
                 await new Modal().renderInfoModal({
                     id: 'password-mismatch-modal',
                     title: window.ls.__('Validation Error'),
@@ -181,11 +182,20 @@ export default class ProfileEdit extends AbstractView {
                 });
                 return;
             }
-            payload.password = password;
+            if (!password && !confirmPassword)
+                delete payload.password;
+            else
+                payload.password = password;
             delete payload.passwordConfirm;
             const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
             const avatarFile = avatarInput?.files?.[0];
-        
+
+            const name = formData.get('name')?.toString().trim() || '';
+            if (name == this.originalUsername)
+                delete payload.name;
+            if (Object.keys(payload).length === 0) {
+                return;
+            }            
             try {
                 let success;
                 if (avatarFile && avatarFile.size > 0) {
@@ -214,24 +224,25 @@ export default class ProfileEdit extends AbstractView {
             }
         });        
 
-        // Setup modal for deletion
-        const modal = new Modal();
-
-        await modal.renderDeleteModal({
-            id: 'confirm-delete-modal',
-            userId: this.userId,
-            onConfirm: async () => {
-                try {
-                    await UserService.deleteUser(Number(this.userId));
-                    Router.redirect('/login');
-                } catch (error) {
-                    console.error(error);
-                }
+        document.getElementById('delete-user-btn')?.addEventListener('click', async () => {
+            const existingModal = document.getElementById('confirm-delete-modal');
+            
+            if (!existingModal) {
+                await new Modal().renderDeleteModal({
+                    id: 'confirm-delete-modal',
+                    userId: this.userId,
+                    onConfirm: async () => {
+                        try {
+                            await UserService.deleteUser(Number(this.userId));
+                            Router.redirect('/login');
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    }
+                });
+            } else {
+                existingModal.classList.remove('hidden');
             }
-        });
-
-        document.getElementById('delete-user-btn')?.addEventListener('click', () => {
-            document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
-        });
+        });        
     }
 }
