@@ -27,6 +27,6 @@ TESTS:
 
 Flo:
     delete btn prf edit
-    username unique
+    username unique optischer kram
     add friend triggerer
     checkbox width
