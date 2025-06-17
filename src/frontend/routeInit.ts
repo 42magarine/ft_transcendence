@@ -12,6 +12,8 @@ import PasswordReset from './views/PasswordReset.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
 import PongLocal from './views/PongLocal.js';
 import Friends from './views/FriendList.js';
+import TournamentWaitingRoom from './views/TournamentWaitingRoom.js';
+import TournamentWinner from './views/TournamentWinner.js';
 import { Route, RouteHookContext } from '../interfaces/interfaces.js';
 
 const routes: Route[] = [
@@ -32,6 +34,7 @@ const routes: Route[] = [
             description: 'Welcome to Pong'
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
+            console.log("params /pong/:lobbyId/:matchId' route:" + params)
             window.messageHandler!.leaveLobby(params.lobbyId, true);
             return true;
         }
@@ -55,6 +58,7 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
+                console.log("params '/lobby/:id' route:" + params);
                 window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
@@ -70,9 +74,28 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
+                console.log("params '/tournament/:id' route:" + params);
                 window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
+        }
+    },
+    {
+        path: '/tournamentwaitingroom',
+        role: 'user',
+        view: TournamentWaitingRoom,
+        metadata: {
+            title: 'Tournament Waiting Room',
+            description: 'Wait for next round to start'
+        }
+    },
+    {
+        path: '/tournamentwinner',
+        role: 'user',
+        view: TournamentWinner,
+        metadata: {
+            title: 'Tournament Waiting Room',
+            description: 'Wait for next round to start'
         }
     },
     {
