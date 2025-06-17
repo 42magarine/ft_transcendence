@@ -20,6 +20,7 @@ BACKEND:
 SONSTIGES:
     1. eine Interface für alle Userdaten? oder wie bisher je nach Fall ein eigenes Interface?
     2. Interfaces nach Frontend und Backend aufteilen?
+    3. ctrl+C transcendende gibt error, handlen?
 
 
 TESTS:
@@ -27,3 +28,11 @@ TESTS:
     2. Test auth processes themselves
     3. Open a lobby or tournament with or without its coresponsing game and test leaves by router and window.
     4. Launch different games with different customizations and test their effects
+
+Flo:
+    pwd check profile edit + signup
+    verified table 
+    delete btn prf edit
+    profile 2fa vrf sichtbar
+    username unique
+    add friend triggerer
