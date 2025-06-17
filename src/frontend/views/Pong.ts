@@ -40,7 +40,7 @@ export default class Pong extends AbstractView {
         // console.log('Raw this.params object:', this.routeParams); // Log the URLSearchParams object itself
 
         this.params.forEach((value, key) => {
-            console.log(`this.params entry - Key: "<span class="math-inline">\{key\}", Value\: "</span>{value}"`);
+            // console.log(`this.params entry - Key: "<span class="math-inline">\{key\}", Value\: "</span>{value}"`);
         });
 
         const matchIdString = this.routeParams['matchId'];

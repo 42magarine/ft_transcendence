@@ -93,7 +93,7 @@ export default class UserManagementService {
                 });
 
                 if (!response.ok) {
-                    console.log(response);
+                    // console.log(response);
                     const errorData = await response.json() as ApiErrorResponse;
                     throw new Error(errorData.error || 'Registration failed');
                 }
@@ -102,7 +102,7 @@ export default class UserManagementService {
                 return await response.text();
             }
             else {
-                console.log(userData);
+                // console.log(userData);
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: {
@@ -112,7 +112,7 @@ export default class UserManagementService {
                 });
 
                 if (!response.ok) {
-                    console.log(response);
+                    // console.log(response);
                     const errorData = await response.json() as ApiErrorResponse;
                     throw new Error(errorData.error || 'Registration failed');
                 }

@@ -16,7 +16,7 @@ export default class LobbyService {
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby && data.lobby.lobbyType === 'game') {
-                    console.log(data.lobby)
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -29,7 +29,7 @@ export default class LobbyService {
                 }
             case 'playerJoined':
                 if (data.lobby && data.lobby.lobbyType === 'game') {
-                    console.log(data.lobby)
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -44,7 +44,7 @@ export default class LobbyService {
                 break;
             case 'playerLeft':
                 if (data.lobby && data.lobby.lobbyType === 'game') {
-                    console.log(data.lobby)
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -59,7 +59,7 @@ export default class LobbyService {
                 break;
             case 'playerReady':
                 if (data.lobby && data.lobby.lobbyType === 'game') {
-                    console.log(data.lobby)
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -127,7 +127,7 @@ export default class LobbyService {
         e.preventDefault();
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
         if (!currentLobbyId) {
-            console.warn("[LobbyService] Cannot start game: current lobby ID not found.");
+            console.log("[LobbyService] Cannot start game: current lobby ID not found.");
             return;
         }
 

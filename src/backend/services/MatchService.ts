@@ -61,7 +61,7 @@ export class MatchService {
             match.endedAt = new Date();
         }
 
-        console.log("calling matchrepo.save from updateScore function");
+        // console.log("calling matchrepo.save from updateScore function");
         return await this.matchRepo.save(match);
     }
 
@@ -75,7 +75,7 @@ export class MatchService {
         if (endedAt) {
             match.endedAt = endedAt;
         }
-        console.log("calling matchrepo.save from updateMatchStatus function");
+        // console.log("calling matchrepo.save from updateMatchStatus function");
         return await this.matchRepo.save(match);
     }
 
@@ -101,7 +101,6 @@ export class MatchService {
     async deleteAllMatchesForTournament(tournamentId: number) {
         try {
             await this.matchRepo.delete({ tournament: { id: tournamentId } })
-            // console.log("deleteAllMatchesForTournament")
         }
         catch (error) {
             console.error("fkin error ig (Penis)")
@@ -156,7 +155,7 @@ export class MatchService {
         match.player2Score = 0;
         match.readyStatusMap = [];
 
-        console.log("calling matchrepo.save from createMatch function");
+        // console.log("calling matchrepo.save from createMatch function");
         return await this.matchRepo.save(match);
     }
 
@@ -174,7 +173,7 @@ export class MatchService {
         match.player2 = player2;
         // match.lobbyParticipants.push(player2);
         // match.status = "waiting_for_ready";
-        console.log("calling matchrepo.save from addPlayerToMatch function");
+        // console.log("calling matchrepo.save from addPlayerToMatch function");
         return await this.matchRepo.save(match);
     }
 
@@ -203,12 +202,12 @@ export class MatchService {
                     return true;
                 }
                 else {
-                    console.warn(`awdawd player not funden`);
+                    console.log(`awdawd player not funden`);
                     return false;
                 }
             }
             else {
-                console.log(`alle raus ihr huans.`);
+                // console.log(`alle raus ihr huans.`);
                 return false;
             }
         }
@@ -257,7 +256,7 @@ export class MatchService {
             if (match.lobbyParticipants.length === 2 && !match.player2?.id && match.player1?.id !== userId) {
                 match.player2 = user;
             }
-            console.log("calling matchrepo.save from addLobbyParticipant function");
+            // console.log("calling matchrepo.save from addLobbyParticipant function");
             return await this.matchRepo.save(match)
         }
         catch (error) {
@@ -273,7 +272,7 @@ export class MatchService {
         }
         match.isLobbyOpen = false;
 
-        console.log("calling matchrepo.save from closeLobby function");
+        // console.log("calling matchrepo.save from closeLobby function");
         return await this.matchRepo.save(match);
     }
 
@@ -327,7 +326,7 @@ export class MatchService {
         tournament.matchSchedule = [];
         tournament.lobbyParticipants = [creator];
 
-        console.log("calling tournament.save from createTournament function");
+        // console.log("calling tournament.save from createTournament function");
         return await this.tournamentRepo.save(tournament);
     }
 
@@ -347,7 +346,7 @@ export class MatchService {
         if (!exisitingParticipant)
             tournament.lobbyParticipants.push(user);
 
-        console.log("calling tournamentRepo.save from addPlayertoTournament function");
+        // console.log("calling tournamentRepo.save from addPlayertoTournament function");
         return await this.tournamentRepo.save(tournament);
     }
 

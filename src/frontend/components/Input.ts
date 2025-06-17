@@ -81,10 +81,10 @@ export default class Input extends AbstractView {
     async renderNumericGroup(count: number, baseId: string): Promise<string> {
         const inputs: string[] = [];
         const nameMap = ['one', 'two', 'three', 'four', 'five', 'six'];
-        console.log('emter renderNunericgroup');
+        // console.log('emter renderNunericgroup');
         for (let i = 0; i < count; i++) {
             const id = `${baseId}_${nameMap[i]}`;
-            console.log(id);
+            // console.log(id);
             inputs.push(await this.renderInput({
                 id,
                 name: id, // <-- this is critical!
