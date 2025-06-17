@@ -15,23 +15,42 @@ export default class TournamentWaitingRoom extends AbstractView {
 
     async getHtml(): Promise<string> {
 
-        // const msg = await window.TournamentWaitingRoomService.getMessage;
+        const matchWinMessage = window.tournamentService.getMatchWinMessage;
+        const matchScoreMessage = window.tournamentService.getMatchScoreMessage;
 
+        const profileCard = await new Card().renderCard({
+            contentBlocks: [
+                {
+                    type: 'heading',
+                    props: {
+                        text: `${matchWinMessage}`,
+                        level: 1,
+                        className: 'text-2xl font-bold text-center mb-4'
+                    }
+                },
+                {
+                    type: 'heading',
+                    props: {
+                        text: `${matchScoreMessage}`,
+                        level: 1,
+                        className: 'text-2xl font-bold text-center mb-4'
+                    }
+                },
+                {
+                    type: 'separator',
+                },
+                {
+                    type: 'heading',
+                    props: {
+                        text: `Waiting for the next round to start`,
+                        level: 1,
+                        className: 'text-2xl font-bold text-center mb-4'
+                    }
+                },
+            ]
+        });
 
-            const profileCard = await new Card().renderCard({
-                contentBlocks: [
-                    {
-                        type: 'heading',
-                        props: {
-                            text: `Waiting for the next round to start`,
-                            level: 1,
-                            className: 'text-2xl font-bold text-center mb-4'
-                        }
-                    },
-                ]
-            });
-
-            return this.render(profileCard);
+        return this.render(profileCard);
     }
 }
 

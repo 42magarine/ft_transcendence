@@ -192,14 +192,6 @@ export default class PongService {
                     Router.redirect("/lobbylist")
                 }, 10000)
                 break;
-            case "tournamentMatchOver":
-                if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
-                    Router.redirect(`/tournamentwaitingroom`);
-                }
-                break;
-            // case "tournamentCancelled":
-            //     Router.redirect("/lobbylist");
-                // break;
         }
     }
 

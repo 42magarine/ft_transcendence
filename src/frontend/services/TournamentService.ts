@@ -4,7 +4,8 @@ import UserService from './UserService.js';
 
 export default class TournamentService {
     private lobbyState!: ILobbyState;
-
+    private matchWinMessage!: string;
+    private matchScoreMessage!: string;
     private getCurrentLobbyIdFromUrl(): string {
         const match = window.location.pathname.match(/\/tournament\/([^/]+)/);
         return match?.[1] || '';
@@ -88,6 +89,21 @@ export default class TournamentService {
             case "tournamentFinished":
                 Router.redirect(`/tournamentwinner`);
                 break;
+            case "tournamentMatchOver":
+                if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
+                    if (data.player1Name === window.currentUser?.name) {
+                        if (data.player1Score! > data.player2Score!) {
+                            this.matchWinMessage = data.player1Name + " won against " + data.player2Name
+                            this.matchScoreMessage = "Score: " +  data.player1Score + " : " + data.player2Score
+                        }
+                        else {
+                            this.matchWinMessage = data.player2Name + " won against " + data.player1Name
+                            this.matchScoreMessage = "Score: " +  data.player2Score + " : " + data.player1Score
+                        }
+                    }
+                    Router.redirect(`/tournamentwaitingroom`);
+                }
+                break;
             default:
                 break;
         }
@@ -129,5 +145,13 @@ export default class TournamentService {
 
     public getLobby(): ILobbyState {
         return this.lobbyState;
+    }
+
+    public getMatchWinMessage(): string {
+        return this.matchWinMessage;
+    }
+
+    public getMatchScoreMessage(): string {
+        return this.matchScoreMessage;
     }
 }
