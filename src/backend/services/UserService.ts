@@ -96,9 +96,14 @@ export class UserService {
                 throw new Error('User not found');
             }
 
-            // Hash password if it's being updated
-            if (user.password) {
+            // Hash password if it's being updated (only if not empty)
+            if (user.password && user.password.trim().length > 0) {
                 user.password = await hashPW(user.password);
+            }
+            else {
+                // Remove password field from update if it's empty
+                const { password, ...userWithoutPassword } = user;
+                user = userWithoutPassword as UserModel;
             }
 
             // Check if avatar has changed, delete old avatar if needed
