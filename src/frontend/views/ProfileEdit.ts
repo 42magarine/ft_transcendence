@@ -128,10 +128,8 @@ export default class ProfileEdit extends AbstractView {
 
     async mount(): Promise<void> {
         const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
-        if (!form) {
-            console.log(`Form with ID edit-profile-form not found`);
+        if (!form)
             return;
-        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -174,11 +172,9 @@ export default class ProfileEdit extends AbstractView {
                     }
         
                     uploadFormData.append('avatar', avatarFile);
-                    console.log(uploadFormData);
                     success = await UserService.updateUser(this.userId, uploadFormData);
                 } else {
                     delete payload.avatar;
-                    console.log(payload);
                     success = await UserService.updateUser(this.userId, payload);
                 }
         
@@ -194,9 +190,6 @@ export default class ProfileEdit extends AbstractView {
 
         document.getElementById('delete-user-btn')?.addEventListener('click', async () =>
             {
-                console.log('[DeleteUser] Delete button clicked.');
-            
-                // Always remove any existing modal to keep logic clean
                 document.getElementById('confirm-delete-modal')?.remove();
             
                 const modal = new Modal();
@@ -206,20 +199,11 @@ export default class ProfileEdit extends AbstractView {
                     userId: this.userId,
                     onConfirm: async () =>
                     {
-                        console.log('[DeleteUser] Confirm delete triggered.');
-                        try
-                        {
-                            const success = await UserService.deleteUser(Number(this.userId));
-                            console.log('[DeleteUser] Delete success:', success);
-                            Router.redirect('/login');
-                        }
-                        catch (error)
-                        {
-                            console.log('[DeleteUser] Error during deletion:', error);
-                        }
+                        const success = await UserService.deleteUser(Number(this.userId));
+                        console.log('[DeleteUser] Delete success:', success);
+                        Router.redirect('/login');
                     }
                 });
-            
                 document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
             });            
     }

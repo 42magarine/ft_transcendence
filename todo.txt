@@ -26,7 +26,5 @@ TESTS:
     4. Launch different games with different customizations and test their effects
 
 Flo:
-    delete btn prf edit
     username unique optischer kram
-    add friend triggerer
     checkbox width

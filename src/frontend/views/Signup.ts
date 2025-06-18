@@ -29,13 +29,14 @@ export default class Signup extends AbstractView {
                     }
                 },
                 {
-                    type: 'input',
+                    type: 'toggle',
                     props: {
+                        id: 'enableTwoFactor',
                         name: 'enableTwoFactor',
-                        type: 'checkbox',
-                        placeholder: window.ls.__('Enable 2FA (Requires Mobile App)')
+                        label: window.ls.__('Enable 2FA (Requires Mobile App)'),
+                        checked: false
                     }
-                },
+                },                
                 {
                     type: 'twofactor',
                     props: {}
@@ -212,7 +213,9 @@ export default class Signup extends AbstractView {
 
                 const getStr = (key: string) => String(formData.get(key) || '');
 
-                const avatarFile = formData.get('avatar') as File;
+                const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
+                const avatarFile = avatarInput?.files?.[0];
+
                 
                 const requiredFields = ['name', 'username', 'email', 'password'];
                 const missingFields = requiredFields.filter(field => {
@@ -228,14 +231,15 @@ export default class Signup extends AbstractView {
                     });
                     return;
                 }
-
-                try {
+                try
+                {
+                
                     const userData: User = {
                         name: getStr('name'),
                         username: getStr('username'),
                         email: getStr('email'),
                         password: password,
-                        role: 'userasdasdasd',
+                        role: 'user',
                         secret: getStr('secret'),
                         status: 'offline',
                         tf_one: getStr('tf_one'),
@@ -245,23 +249,26 @@ export default class Signup extends AbstractView {
                         tf_five: getStr('tf_five'),
                         tf_six: getStr('tf_six')
                     };
-                    let result;
-                    if (avatarFile && avatarFile.size > 0) {
-                        result = await window.userManagementService.registerUser(userData, avatarFile);
-                    } else {
-                        result = await window.userManagementService.registerUser(userData);
-                    }
+                    console.log('dd');
+                    console.log('[DEBUG] Uploading avatar file:', avatarFile?.name, avatarFile?.size, avatarFile?.type);
+                    const result = await window.userManagementService.registerUser(userData, avatarFile);
+                
                     form.reset();
                     Router.update();
-                    if (result) Router.redirect('/login');
-                } catch (error) {
+                    if (result)
+                    {
+                        Router.redirect('/login');
+                    }
+                }
+                catch (error)
+                {
                     console.error('Signup failed:', error);
                     await new Modal().renderInfoModal({
                         id: 'signup-failed',
                         title: window.ls.__('Signup Failed'),
                         message: window.ls.__('Something went wrong while creating your account. Please try again.')
                     });
-                }
+                }                
             });
         } catch (err) {
             console.error('Signup form setup error:', err);
