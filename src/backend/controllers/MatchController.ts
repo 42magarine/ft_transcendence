@@ -115,7 +115,7 @@ export class MatchController {
                 break;
             case "movePaddle":
                 if (player && data.matchId !== undefined && data.direction !== undefined) {
-                    this.handleMovePaddle(player, data.matchId, data.direction);
+                    this.handleMovePaddle(player, data.matchId, data.playerNumber!, data.direction);
                 }
                 else {
                     console.error("MatchController - handleMovePaddle(): Missing player, matchId, or direction.");
@@ -400,7 +400,7 @@ export class MatchController {
         //implement broadcasts here
     }
 
-    private handleMovePaddle(player: Player, matchId: number, direction: IPaddleDirection): void {
+    private handleMovePaddle(player: Player, matchId: number, playerNumber: number, direction: IPaddleDirection): void {
         if (!player.lobbyId) {
             console.error("Matchcontroller - handleMovePaddle(): Player not in Lobby");
             return;
@@ -409,15 +409,18 @@ export class MatchController {
         const lobby = this._lobbies.get(player.lobbyId);
         if (lobby && lobby.isGameStarted()) {
             const pongGame = lobby.getPongGame(matchId);
+            if (matchId !== pongGame?.matchId) {
+                return ;
+            }
             if (pongGame) {
-                pongGame.movePaddle(player._playerNumber, direction);
+                pongGame.movePaddle(playerNumber, direction);
             }
             else {
                 console.log(`PongGame for matchId ${matchId} not found in lobby ${player.lobbyId}.`);
             }
         }
         else {
-            console.error(`Lobby ${player.lobbyId} not found or game not started for player ${player.id} during movePaddle.`);
+            console.error(`Lobby ${player.lobbyId} not found or game not started for player ${playerNumber} during movePaddle.`);
         }
     }
 }

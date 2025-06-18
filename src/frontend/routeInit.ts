@@ -12,9 +12,9 @@ import PasswordReset from './views/PasswordReset.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
 import PongLocal from './views/PongLocal.js';
 import Friends from './views/FriendList.js';
-import TournamentWaitingRoom from './views/TournamentWaitingRoom.js';
 import TournamentWinner from './views/TournamentWinner.js';
 import { Route, RouteHookContext } from '../interfaces/interfaces.js';
+import TournamentTransition from './views/TournamentTransition.js';
 
 const routes: Route[] = [
     {
@@ -81,11 +81,11 @@ const routes: Route[] = [
         }
     },
     {
-        path: '/tournamentwaitingroom',
+        path: '/tournamenttransition',
         role: 'user',
-        view: TournamentWaitingRoom,
+        view: TournamentTransition,
         metadata: {
-            title: 'Tournament Waiting Room',
+            title: 'Tournament Transition',
             description: 'Wait for next round to start'
         }
     },
@@ -94,8 +94,8 @@ const routes: Route[] = [
         role: 'user',
         view: TournamentWinner,
         metadata: {
-            title: 'Tournament Waiting Room',
-            description: 'Wait for next round to start'
+            title: 'Tournament Winner',
+            description: 'I guess someone actually won the tournament'
         }
     },
     {

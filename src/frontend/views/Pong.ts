@@ -8,6 +8,9 @@ export default class Pong extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
+        // kA wie man die variablen da in den div kack rein kriegt ${player1} nix funktioniert diese @jonathan
+        const player1: string = window.pongService.getPlayer1Name();
+        const player2: string = window.pongService.getPlayer2Name();
         const gameCard = await new Card({}, this.params).renderCard(
             {
                 title: window.ls.__('Pong Arena'),
@@ -19,8 +22,8 @@ export default class Pong extends AbstractView {
                             {
                                 html: `
                                     <div id="playerCanvasWrap">
-                                        <div id="playerOneNameTag" class="player-name player1"></div>
-                                        <div id="playerTwoNameTag" class="player-name player2"></div>
+                                        <div id="playerOneNameTag" class="player-name player1}"></div>
+                                        <div id="playerTwoNameTag" class="player-name player2}"></div>
                                     </div>
                                     <div id="gameCanvasWrap" class="m-auto">
                                         <div id="gameCanvasWrap-overlay">3</div>

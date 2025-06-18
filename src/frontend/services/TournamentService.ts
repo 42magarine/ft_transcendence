@@ -6,6 +6,7 @@ export default class TournamentService {
     private lobbyState!: ILobbyState;
     private matchWinMessage!: string;
     private matchScoreMessage!: string;
+    private tournamentWinnerMessage!: string;
     private getCurrentLobbyIdFromUrl(): string {
         const match = window.location.pathname.match(/\/tournament\/([^/]+)/);
         return match?.[1] || '';
@@ -29,6 +30,7 @@ export default class TournamentService {
                         this.lobbyState = receivedLobbyInfo;
                     }
                 }
+                break;
             case 'playerJoined':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
                     // console.log(data.lobby)
@@ -82,27 +84,36 @@ export default class TournamentService {
                     }
 
                 }
-            case "tournamentCancelled":
-                //placeholder redirect to lobbylist, lobby will be deleted
-                //maybe need 2nd case? idk
                 break;
             case "tournamentFinished":
+                this.tournamentWinnerMessage = data.winnerUserName!;
+
                 Router.redirect(`/tournamentwinner`);
+                setTimeout(() => {
+                    if (/\/tournamentwinner/.test(window.location.pathname)) {
+                        Router.redirect('/lobbylist');
+                    }
+                }, 15000);
                 break;
             case "tournamentMatchOver":
                 if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
-                    if (data.player1Name === window.currentUser?.name) {
-                        if (data.player1Score! > data.player2Score!) {
-                            this.matchWinMessage = data.player1Name + " won against " + data.player2Name
-                            this.matchScoreMessage = "Score: " +  data.player1Score + " : " + data.player2Score
-                        }
-                        else {
-                            this.matchWinMessage = data.player2Name + " won against " + data.player1Name
-                            this.matchScoreMessage = "Score: " +  data.player2Score + " : " + data.player1Score
-                        }
+                    if (data.player1Score! > data.player2Score!) {
+                        this.matchWinMessage = data.player1Name + " won against " + data.player2Name
+                        this.matchScoreMessage = "Score: " +  data.player1Score + " : " + data.player2Score
                     }
-                    Router.redirect(`/tournamentwaitingroom`);
+                    else if (data.player2Score! > data.player1Score!) {
+                        this.matchWinMessage = data.player2Name + " won against " + data.player1Name
+                        this.matchScoreMessage = "Score: " +  data.player2Score + " : " + data.player1Score
+                    } else {
+                        this.matchWinMessage = "Its a tie! How do you even tie in Pong?";
+                        this.matchScoreMessage = " ";
+                    }
+                    Router.redirect(`/tournamenttransition`);
                 }
+                break;
+            case "tournamentCancelled":
+                //placeholder redirect to lobbylist, lobby will be deleted
+                //maybe need 2nd case? idk
                 break;
             default:
                 break;
@@ -153,5 +164,9 @@ export default class TournamentService {
 
     public getMatchScoreMessage(): string {
         return this.matchScoreMessage;
+    }
+
+    public getTournamentWinnerMessage(): string {
+        return this.tournamentWinnerMessage;
     }
 }
