@@ -83,8 +83,7 @@ export default class Profile extends AbstractView {
                     {
                         type: 'buttongroup',
                         props: {
-                            layout: 'stack',
-                            align: 'center',
+                            layout: 'group',
                             buttons: [
                                 {
                                     id: 'edit-profile',

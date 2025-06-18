@@ -225,22 +225,29 @@ export default class ProfileEdit extends AbstractView {
         });        
 
         document.getElementById('delete-user-btn')?.addEventListener('click', async () => {
+            console.log('[DeleteUser] Delete button clicked.');
+        
             const existingModal = document.getElementById('confirm-delete-modal');
-            
+            console.log('[DeleteUser] Existing modal:', existingModal ? 'found' : 'not found');
+        
             if (!existingModal) {
+                console.log('[DeleteUser] Creating new delete modal...');
                 await new Modal().renderDeleteModal({
                     id: 'confirm-delete-modal',
                     userId: this.userId,
                     onConfirm: async () => {
+                        console.log('[DeleteUser] Confirm delete triggered.');
                         try {
-                            await UserService.deleteUser(Number(this.userId));
+                            const success = await UserService.deleteUser(Number(this.userId));
+                            console.log('[DeleteUser] Delete success:', success);
                             Router.redirect('/login');
                         } catch (error) {
-                            console.error(error);
+                            console.log('[DeleteUser] Error during deletion:', error);
                         }
                     }
                 });
             } else {
+                console.log('[DeleteUser] Showing existing modal.');
                 existingModal.classList.remove('hidden');
             }
         });        

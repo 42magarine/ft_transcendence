@@ -221,6 +221,13 @@ export default class UserService {
                     feedback.textContent = '';
                 }
             });
+
+            input.addEventListener('keydown', async (e: KeyboardEvent) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addBtn.click();
+                }
+            });
         }
 
         // Handle Remove Friend buttons
