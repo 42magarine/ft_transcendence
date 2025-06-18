@@ -127,43 +127,11 @@ export default class ProfileEdit extends AbstractView {
     }
 
     async mount(): Promise<void> {
-        document.getElementById('confirm-delete-modal')?.remove();
         const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
         if (!form) {
             console.log(`Form with ID edit-profile-form not found`);
             return;
         }
-
-        // static attachDeleteHandler(buttonId: string, modalId: string, confirmButtonId: string, userId: string): void {
-        //     const deleteBtn = document.getElementById(buttonId);
-        //     const confirmBtn = document.getElementById(confirmButtonId);
-        //     const modal = document.getElementById(modalId);
-
-        //     if (deleteBtn && modal) {
-        //         deleteBtn.addEventListener('click', () => {
-        //             modal.classList.remove('hidden');
-        //         });
-        //     }
-
-        //     if (confirmBtn && modal) {
-        //         confirmBtn.addEventListener('click', async () => {
-        //             try {
-        //                 const success = await UserService.deleteUser(Number(userId));
-        //                 if (success) {
-        //                     window.location.href = '/user-mangement';
-        //                 }
-        //                 else {
-        //                     console.error('Failed to delete user.');
-        //                     modal.classList.add('hidden');
-        //                 }
-        //             }
-        //             catch (error) {
-        //                 console.error('Delete failed:', error);
-        //                 modal.classList.add('hidden');
-        //             }
-        //         });
-        //     }
-        // }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -224,32 +192,35 @@ export default class ProfileEdit extends AbstractView {
             }
         });        
 
-        document.getElementById('delete-user-btn')?.addEventListener('click', async () => {
-            console.log('[DeleteUser] Delete button clicked.');
-        
-            const existingModal = document.getElementById('confirm-delete-modal');
-            console.log('[DeleteUser] Existing modal:', existingModal ? 'found' : 'not found');
-        
-            if (!existingModal) {
-                console.log('[DeleteUser] Creating new delete modal...');
-                await new Modal().renderDeleteModal({
+        document.getElementById('delete-user-btn')?.addEventListener('click', async () =>
+            {
+                console.log('[DeleteUser] Delete button clicked.');
+            
+                // Always remove any existing modal to keep logic clean
+                document.getElementById('confirm-delete-modal')?.remove();
+            
+                const modal = new Modal();
+            
+                await modal.renderDeleteModal({
                     id: 'confirm-delete-modal',
                     userId: this.userId,
-                    onConfirm: async () => {
+                    onConfirm: async () =>
+                    {
                         console.log('[DeleteUser] Confirm delete triggered.');
-                        try {
+                        try
+                        {
                             const success = await UserService.deleteUser(Number(this.userId));
                             console.log('[DeleteUser] Delete success:', success);
                             Router.redirect('/login');
-                        } catch (error) {
+                        }
+                        catch (error)
+                        {
                             console.log('[DeleteUser] Error during deletion:', error);
                         }
                     }
                 });
-            } else {
-                console.log('[DeleteUser] Showing existing modal.');
-                existingModal.classList.remove('hidden');
-            }
-        });        
+            
+                document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
+            });            
     }
 }
