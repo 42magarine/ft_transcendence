@@ -5,6 +5,7 @@ import __ from '../services/LanguageService.js';
 import Router from '../../utils/Router.js';
 import { generateTextVisualization } from '../../utils/Avatar.js';
 import { User } from '../../interfaces/userManagementInterfaces.js';
+
 export default class Signup extends AbstractView {
     constructor() {
         super();
@@ -38,7 +39,6 @@ export default class Signup extends AbstractView {
                 },
                 {
                     type: 'twofactor',
-                    props: {}
                 },
                 {
                     type: 'buttongroup',
@@ -78,6 +78,7 @@ export default class Signup extends AbstractView {
             if (!form) {
                 throw new Error('Signup form element not found.');
             }
+
             const enableTwoFactor = form.querySelector("input[name=enableTwoFactor]") as HTMLInputElement | null;
             const twoFactorInterface = document.getElementById("twoFactorInterface");
             const qrDisplay = document.getElementById("qr-display");

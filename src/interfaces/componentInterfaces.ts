@@ -161,7 +161,7 @@ export type ContentBlock =
     | { type: 'heading'; props: HeadingProps }
     | { type: 'paragraph'; props: ParagraphProps }
     | { type: 'container'; props: ContainerProps }
-    | { type: 'twofactor'; props: { length?: number; namePrefix?: string } }
+    | { type: 'twofactor'; }
     | { type: 'signup-footer'; props?: {} }
     | { type: 'avatar'; props: AvatarProps };
 
