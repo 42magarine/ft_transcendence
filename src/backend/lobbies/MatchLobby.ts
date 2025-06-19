@@ -590,6 +590,16 @@ export class MatchLobby {
             gameState: game.getState(),
             player1Name: player1._name,
             player2Name: player2._name,
+
+            matchId: newMatch.matchModelId
+        });
+        this._broadcast({
+            type: "initMatchStart",
+            lobby: this.getLobbyState(),
+            gameState: game.getState(),
+            player1Name: player1._name,
+            player2Name: player2._name,
+
             matchId: newMatch.matchModelId
         });
     }
@@ -706,7 +716,7 @@ export class MatchLobby {
                     setTimeout(() => {
                         this.stopPeriodicGameBroadcast();
                         this.startNextTournamentRound();
-                    }, 3000);
+                    }, 5000);
                 }
             }
             else {

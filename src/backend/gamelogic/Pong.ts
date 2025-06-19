@@ -301,6 +301,10 @@ export class PongGame {
         return this._paused;
     }
 
+    public get matchId(): number | null {
+        return this._matchId;
+    }
+
     public get player1(): Player | null {
         return this._player1;
     }
