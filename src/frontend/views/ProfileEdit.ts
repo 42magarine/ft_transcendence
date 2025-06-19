@@ -178,19 +178,14 @@ export default class ProfileEdit extends AbstractView {
             try {
                 let success;
                 if (avatarFile && avatarFile.size > 0) {
-                    // console.log('[ProfileEdit] Avatar file selected:', {
-                    //     name: avatarFile.name,
-                    //     size: avatarFile.size,
-                    //     type: avatarFile.type,
-                    // });
-
                     const uploadFormData = new FormData();
 
                     for (const [key, value] of Object.entries(payload)) {
                         if (typeof value === 'string' || value instanceof Blob) {
                             // console.log(`[FormData] Appending field "${key}" as`, value);
                             uploadFormData.append(key, value);
-                        } else {
+                        }
+                        else {
                             // console.log(`[FormData] Coercing and appending field "${key}" as`, String(value));
                             uploadFormData.append(key, String(value));
                         }
@@ -199,12 +194,13 @@ export default class ProfileEdit extends AbstractView {
                     // console.log('[FormData] Appending avatar file');
                     uploadFormData.append('avatar', avatarFile);
 
-                    for (const pair of uploadFormData.entries()) {
-                        // console.log(`[FormData] Final entry:`, pair[0], pair[1]);
-                    }
+                    // for (const pair of uploadFormData.entries()) {
+                    // console.log(`[FormData] Final entry:`, pair[0], pair[1]);
+                    // }
 
                     success = await UserService.updateUser(this.userId, uploadFormData);
-                } else {
+                }
+                else {
                     // console.log('[ProfileEdit] No avatar selected, removing avatar from payload');
                     delete payload.avatar;
                     // console.log('[Payload] Final payload before sending:', payload);
@@ -214,10 +210,12 @@ export default class ProfileEdit extends AbstractView {
 
                 if (success) {
                     window.location.href = `/users/${this.userId}`;
-                } else {
+                }
+                else {
                     console.error('Failed to update profile.');
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.error('Update failed:', error);
             }
         });

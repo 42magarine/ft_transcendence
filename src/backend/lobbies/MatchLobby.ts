@@ -389,8 +389,6 @@ export class MatchLobby {
         });
     }
 
-    // this._dbGame nicht direkt aufrufen, sondern über funktionen aus MatchService.ts
-
     public getAllActiveGameStates(): IGameState[] {
         return Array.from(this._games.values()).map(game => game.getState());
     }
@@ -416,17 +414,6 @@ export class MatchLobby {
             this._gameBroadcastInterval = null;
         }
     }
-
-    //ersetzt durch savecurrentscores!!
-    // //save current score (should only be used for paused game stuff and so on)
-    // private async saveCurrentScore() {
-    //     if (!this._gameId || !this._matchService) {
-    //         return;
-    //     }
-
-    //     const state = this._games.getState();
-    //     await this._matchService.updateScore(this._gameId, state.score1, state.score2, 0)
-    // }
 
     public async startTournament() {
         if (this._tournamentStatus === 'ongoing' || this._gameStarted || this._lobbyType !== 'tournament') {
@@ -714,7 +701,7 @@ export class MatchLobby {
             }
 
         }
-        else { // DASSSSSS muesst ihr noch im Frontend Abfangen und anzeigen !!!!!! und dann wieder auf lobbylist oder so redirecten keine ahnung euer ding
+        else {
             this._broadcast({
                 type: "gameOver",
                 winnerId: winnerId,
@@ -814,8 +801,4 @@ export class MatchLobby {
             });
         }
     }
-
-    // public getGame(): PongGame {
-    //     return this._games.;
-    // }
 }

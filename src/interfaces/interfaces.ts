@@ -93,7 +93,7 @@ export interface ILobbyState {
     createdAt: Date;
     lobbyType: 'game' | 'tournament';
     lobbyPlayers: IPlayerState[];
-    isStarted: boolean; // Is game/tournament started
+    isStarted: boolean;
     tournamentStatus?: 'pending' | 'ongoing' | 'completed' | 'cancelled';
     currentRound?: number;
     playerPoints?: { [userId: number]: number }; // userId -> points

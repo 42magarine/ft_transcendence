@@ -121,10 +121,10 @@ export default class Button extends AbstractView {
         const allHtmlBlocks = [...inputsHtml, ...buttonsHtml, ...togglesHtml].join('\n');
 
         return this.render(`
-			<div class="${layoutClass} ${alignmentClass} ${className}">
-				${allHtmlBlocks}
-			</div>
-		`);
+            <div class="${layoutClass} ${alignmentClass} ${className}">
+                ${allHtmlBlocks}
+            </div>
+        `);
     }
 
     async renderLanguageDropdown(): Promise<string> {

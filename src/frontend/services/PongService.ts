@@ -199,7 +199,7 @@ export default class PongService {
                 break;
             // case "tournamentCancelled":
             //     Router.redirect("/lobbylist");
-                // break;
+            // break;
         }
     }
 

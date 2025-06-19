@@ -97,11 +97,6 @@ export default class TwoFactorLogin extends AbstractView {
                     const twoFactorCode = tfFields.map(field => getStr(field)).join('');
                     const userId = parseInt(this.userId!);
 
-                    console.log("twoFactorCode: ");
-                    console.log(twoFactorCode);
-                    console.log("userId: ");
-                    console.log(this.userId);
-
                     // Call your authentication service
                     const result = await window.userManagementService.verifyTwoFactor(userId, twoFactorCode);
 
@@ -124,12 +119,13 @@ export default class TwoFactorLogin extends AbstractView {
                     });
 
                     // Clear the form inputs
-                    tfFields.forEach(field => {
-                        const input = form.querySelector(`input[name="${field}"]`) as HTMLInputElement;
-                        if (input) {
-                            input.value = '';
-                        }
-                    });
+                    form.reset();
+                    // tfFields.forEach(field => {
+                    //     const input = form.querySelector(`input[name="${field}"]`) as HTMLInputElement;
+                    //     if (input) {
+                    //         input.value = '';
+                    //     }
+                    // });
 
                     // Focus on first input
                     const firstInput = form.querySelector('input[name="tf_one"]') as HTMLInputElement;
@@ -152,6 +148,7 @@ export default class TwoFactorLogin extends AbstractView {
     private setupNumericInputs(): void {
         // Add auto-focus and navigation between numeric inputs
         const inputs = document.querySelectorAll('.tf_numeric') as NodeListOf<HTMLInputElement>;
+        const form = document.getElementById('TwoFactorLogin-form') as HTMLFormElement;
 
         inputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
@@ -172,13 +169,21 @@ export default class TwoFactorLogin extends AbstractView {
             input.addEventListener('keydown', (e) => {
                 const target = e.target as HTMLInputElement;
 
+                // Handle Enter key
+                if (e.key === 'Enter') {
+                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                    e.preventDefault();
+                    return;
+                }
+
                 // Handle backspace
                 if (e.key === 'Backspace' && !target.value && index > 0) {
                     inputs[index - 1].focus();
+                    return;
                 }
 
                 // Only allow numeric input
-                if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab'].includes(e.key)) {
                     e.preventDefault();
                 }
             });

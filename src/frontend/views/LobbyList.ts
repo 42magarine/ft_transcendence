@@ -14,7 +14,7 @@ export default class LobbyList extends AbstractView {
         let lobbies: ILobbyState[] = [];
         if (window.lobbyListService && window.lobbyListService.getLobbies) {
             lobbies = await window.lobbyListService.getLobbies();
-            lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers  && !lobby.isStarted);
+            lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers && !lobby.isStarted);
         }
 
         const lobbyListCard = await new Card().renderCard({
@@ -103,15 +103,11 @@ export default class LobbyList extends AbstractView {
     }
 
     private setupEvents(): void {
-        // console.log('[LobbyList] setupEvents()');
-
         window.lobbyListService?.setupCreateLobbyButtonListener();
         window.lobbyListService?.setupJoinLobbyButtonListener();
     }
 
     private cleanupEvents(): void {
-        // console.log('[LobbyList] cleanupEvents()');
-
         if (window.lobbyListService) {
             const createBtn = document.getElementById('createLobbyBtn');
             if (createBtn) {

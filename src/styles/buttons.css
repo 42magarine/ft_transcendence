@@ -1,14 +1,14 @@
 /* === BUTTON GROUP === */
 .btn-group {
-	@apply flex flex-wrap gap-2;
+    @apply flex flex-wrap gap-2;
 }
 
 .btn-stack {
-	@apply flex flex-col gap-2;
+    @apply flex flex-col gap-2;
 }
 
 .btn-grid {
-	@apply grid gap-2;
+    @apply grid gap-2;
 }
 
 .btn-group-left { @apply justify-start; }
@@ -21,143 +21,143 @@
 
 /* === BASE BUTTON STYLE === */
 .btn {
-	@apply inline-flex items-center justify-center px-4 py-2 text-inherit font-semibold transition duration-150 ease-in-out rounded-xl;
+    @apply inline-flex items-center justify-center px-4 py-2 text-inherit font-semibold transition duration-150 ease-in-out rounded-xl;
 }
 
 .btn.disabled {
-	@apply cursor-not-allowed opacity-25;
+    @apply cursor-not-allowed opacity-25;
 }
 
 .btn i {
-	@apply text-inherit align-middle;
+    @apply text-inherit align-middle;
 }
 
 /* === VARIANTS === */
 /* 🔵 Primary (default action) */
 .btn-primary {
-	@apply bg-blue-900/70 text-white
-		 hover:bg-blue-800/70
-		 active:bg-blue-900/95;
+    @apply bg-blue-900/70 text-white
+         hover:bg-blue-800/70
+         active:bg-blue-900/95;
 }
 
 /* ⚪ Secondary (neutral action) */
 .btn-secondary {
-	@apply bg-gray-200 text-gray-900
-		hover:bg-gray-300
-		active:bg-gray-400;
+    @apply bg-gray-200 text-gray-900
+        hover:bg-gray-300
+        active:bg-gray-400;
 }
 
 /* 🔴 Danger (destructive action) */
 .btn-red {
-	@apply bg-red-800/80 text-white
-		hover:bg-red-900/80
-		active:bg-red-800/80;
+    @apply bg-red-800/80 text-white
+        hover:bg-red-900/80
+        active:bg-red-800/80;
 }
 
 /* 🔵 Blue = Informational */
 .btn-blue {
-	@apply bg-blue-600 text-white
-		hover:bg-blue-700
-		active:bg-blue-800;
+    @apply bg-blue-600 text-white
+        hover:bg-blue-700
+        active:bg-blue-800;
 }
 
 /* ⚫ Black = Strong Emphasis */
 .btn-black {
-	@apply bg-black text-white
-		hover:bg-gray-900
-		active:bg-gray-800;
+    @apply bg-black text-white
+        hover:bg-gray-900
+        active:bg-gray-800;
 }
 
 /* ⚪ White = Inverse */
 .btn-white {
-	@apply bg-white text-black border
-		hover:bg-gray-100
-		active:bg-gray-200;
+    @apply bg-white text-black border
+        hover:bg-gray-100
+        active:bg-gray-200;
 }
 
 /* ⚫⚪ Gray = Subtle Neutral */
 .btn-gray {
-	@apply bg-gray-500 text-white
-		hover:bg-gray-600
-		active:bg-gray-700;
+    @apply bg-gray-500 text-white
+        hover:bg-gray-600
+        active:bg-gray-700;
 }
 
 /* ♻ Transparent background */
 .btn-transparent {
-	@apply bg-transparent text-black
-		hover:bg-gray-100
-		active:bg-gray-200;
+    @apply bg-transparent text-black
+        hover:bg-gray-100
+        active:bg-gray-200;
 }
 
 /* 🔘 Outline variant (border-only) */
 .btn-outline {
-	@apply border border-gray-400 text-gray-700 bg-transparent
-		hover:bg-gray-100
-		active:bg-gray-200;
+    @apply border border-gray-400 text-gray-700 bg-transparent
+        hover:bg-gray-100
+        active:bg-gray-200;
 }
 
 /* 🔗 Link-style button */
 .btn-link {
-	@apply text-blue-600 underline
-		hover:text-blue-700
-		active:text-blue-800;
+    @apply text-blue-600 underline
+        hover:text-blue-700
+        active:text-blue-800;
 }
 
 /* ========================
    === FULL-WIDTH OPTION ===
    ======================== */
 .btn-full {
-	@apply w-full justify-center;
+    @apply w-full justify-center;
 }
 
 /* ========================
    === SIZE MODIFIERS ===
    ======================== */
 .btn-sm {
-	@apply px-3 py-1.5 text-sm;
+    @apply px-3 py-1.5 text-sm;
 }
 
 .btn-md {
-	@apply px-4 py-2 text-base;
+    @apply px-4 py-2 text-base;
 }
 
 .btn-lg {
-	@apply px-5 py-2.5 text-lg;
+    @apply px-5 py-2.5 text-lg;
 }
 
 /* === STATE STYLES === */
 .btn:hover:not(.btn-disabled) {
-	@apply brightness-105;
+    @apply brightness-105;
 }
 
 .btn:active:not(.btn-disabled) {
-	@apply scale-95;
+    @apply scale-95;
 }
 
 /* ✅ Green = Ready */
 .btn-green {
-	@apply bg-green-600 text-white
-		hover:bg-green-700
-		active:bg-green-800;
+    @apply bg-green-600 text-white
+        hover:bg-green-700
+        active:bg-green-800;
 }
 .high-contrast .btn.btn-green {
-	@apply bg-black text-white;
+    @apply bg-black text-white;
 }
 .high-contrast .btn.btn-green span {
-	@apply text-white;
+    @apply text-white;
 }
 
 /* 🟡 Yellow = Waiting */
 .btn-yellow {
-	@apply bg-yellow-400 text-black
-		hover:bg-yellow-500
-		active:bg-yellow-600;
+    @apply bg-yellow-400 text-black
+        hover:bg-yellow-500
+        active:bg-yellow-600;
 }
 
 
 /* Utility */
 .hidden {
-	@apply hidden;
+    @apply hidden;
 }
 /* === STATE BUTTON MODIFICATIONS === */
 /* Entfernt Fokussierbarkeit und alle Interaktionen */
@@ -213,7 +213,7 @@
 /* === FORCE BLACK & WHITE IN HIGH CONTRAST === */
 /* Base: black text on white */
 .high-contrast .btn {
-	@apply bg-white text-black border-black border;
+    @apply bg-white text-black border-black border;
 }
 
 /* Hover: white text on black */
@@ -221,19 +221,19 @@
 .high-contrast .btn:active:not(.btn-disabled),
 .high-contrast .btn.text-inherit:hover:not(.btn-disabled),
 .high-contrast .btn.text-inherit:active:not(.btn-disabled) {
-	@apply bg-black text-white border-white;
+    @apply bg-black text-white border-white;
 }
 
 .high-contrast .btn:hover:not(.btn-disabled) span,
 .high-contrast .btn:active:not(.btn-disabled) span,
 .high-contrast .btn.text-inherit:hover:not(.btn-disabled) span,
 .high-contrast .btn.text-inherit:active:not(.btn-disabled) span {
-	@apply text-white;
+    @apply text-white;
 }
 
 /* Disabled state (optional for clarity) */
 .high-contrast .btn.disabled {
-	@apply opacity-60 bg-white text-gray-500 border-gray-500;
+    @apply opacity-60 bg-white text-gray-500 border-gray-500;
 }
 
 *:focus {
@@ -249,13 +249,13 @@
 /* Ensure dropdown text is black in high contrast mode */
 .high-contrast .dropdown-item a,
 .high-contrast .dropdown-item button {
-	@apply text-black bg-white border-none font-semibold;
+    @apply text-black bg-white border-none font-semibold;
 }
 
 /* Optional: Ensure hover and active are still visible */
 .high-contrast .dropdown-item a:hover,
 .high-contrast .dropdown-item button:hover {
-	@apply bg-black text-white;
+    @apply bg-black text-white;
 }
 
 .btn.btn-primary.text-btn {

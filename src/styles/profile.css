@@ -1,17 +1,15 @@
 .profile-avatar-container {
-	@apply w-48 h-48 mx-auto mb-4 rounded-full overflow-hidden shadow-md;
+    @apply w-48 h-48 mx-auto mb-4 rounded-full overflow-hidden shadow-md;
   }
 
   .profile-avatar-container svg , .profile-avatar-container img {
-	@apply w-full h-full rounded-full object-cover object-center;
+    @apply w-full h-full rounded-full object-cover object-center;
   }
 
   .profile-header {
-	@apply text-center mb-8;
+    @apply text-center mb-8;
   }
 
   .profile-details {
-	@apply max-w-lg mx-auto;
+    @apply max-w-lg mx-auto;
   }
-
-

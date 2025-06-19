@@ -350,9 +350,9 @@ export class UserService {
         }
 
         // Check if email is verified
-        // if (!user.emailVerified) {
-        //     throw new Error('Email not verified. Please check your email for verification link.');
-        // }
+        if (!user.emailVerified) {
+            throw new Error('Email not verified. Please check your email for verification link.');
+        }
 
         // Check if 2FA is enabled for this user
         if (user.twoFAEnabled && user.twoFASecret) {

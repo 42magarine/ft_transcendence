@@ -8,10 +8,10 @@ export default class Toggle extends AbstractView {
 
     async renderToggle({ id, name = '', label = '', checked = false, readonly = false }: ToggleProps): Promise<string> {
         return this.render(`
-			<div class="detail-row">
-				<label class="label block mb-1" for="${id}">${label}</label>
-				<div id="${id}-toggle-group" class="flex gap-4">
-					<input type="checkbox" id="${id}" name="${name}" ${checked ? 'checked' : ''} value = "${checked ? 'on' : ''}" />
+            <div class="detail-row">
+                <label class="label block mb-1" for="${id}">${label}</label>
+                <div id="${id}-toggle-group" class="flex gap-4">
+                    <input type="checkbox" id="${id}" name="${name}" ${checked ? 'checked' : ''} value = "${checked ? 'on' : ''}" />
             </div>
             </div>
                 `);
@@ -33,7 +33,6 @@ export default class Toggle extends AbstractView {
         const input = document.getElementById(id) as HTMLInputElement;
 
         if (!yesBtn || !noBtn || !input) {
-            //console.log(`[Toggle] Missing elements for toggle ID: ${ id } `);
             return;
         }
 

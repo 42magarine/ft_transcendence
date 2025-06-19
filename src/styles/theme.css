@@ -13,7 +13,7 @@ main {
 
 .high-contrast header,
 .high-contrast footer {
-	@apply bg-white text-black border-b-2 border-black;
+    @apply bg-white text-black border-b-2 border-black;
 }
 
 /* Force black text for all form labels and descriptions in high contrast mode */
@@ -26,5 +26,5 @@ main {
 .high-contrast span,
 .high-contrast p,
 .high-contrast div {
-	@apply text-black;
+    @apply text-black;
 }

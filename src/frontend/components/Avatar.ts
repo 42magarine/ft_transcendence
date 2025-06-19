@@ -6,10 +6,10 @@ export default function renderAvatar({
     size = 100,
 }: AvatarProps): string {
     return `
-		<div class="${className} flex justify-center">
-			<div style="width: ${size}px; height: ${size}px;">
-				${src}
-			</div>
-		</div>
-	`;
+        <div class="${className} flex justify-center">
+            <div style="width: ${size}px; height: ${size}px;">
+                ${src}
+            </div>
+        </div>
+    `;
 }

@@ -173,7 +173,7 @@ export class TournamentModel {
     matches!: MatchModel[];
 
     @Column({ type: 'text', transformer: new JsonColumnTransformer() })
-    playerScores?: { [userId: number]: number }; // Stores points for each player
+    playerScores?: { [userId: number]: number };
 
     @Column({ default: 1 })
     currentRound!: number;
@@ -183,8 +183,8 @@ export class TournamentModel {
 
     @ManyToOne(() => UserModel, { nullable: true })
     @JoinColumn({ name: 'winnerUserId' })
-    winner?: UserModel; // The winner of the tournament
+    winner?: UserModel;
 
     @Column({ name: 'winnerUserId', nullable: true })
-    winnerId!: number | null; // Store the ID of the winner
+    winnerId!: number | null;
 }

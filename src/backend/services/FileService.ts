@@ -48,14 +48,12 @@ export async function saveAvatar(file: any): Promise<FileUploadResult> {
  * @returns A promise that resolves when the file is deleted
  */
 export async function deleteAvatar(avatarPath: string): Promise<boolean> {
-    // If there's no avatar path, nothing to delete
     if (!avatarPath) {
         return false;
     }
 
     // Extract just the filename from the path
     const filename = avatarPath.split('/').pop();
-
     if (!filename) {
         return false;
     }

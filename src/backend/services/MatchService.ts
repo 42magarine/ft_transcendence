@@ -202,17 +202,16 @@ export class MatchService {
                     return true;
                 }
                 else {
-                    console.log(`awdawd player not funden`);
+                    console.log("error removePlayerFromMatch");
                     return false;
                 }
             }
             else {
-                // console.log(`alle raus ihr huans.`);
                 return false;
             }
         }
         catch (error) {
-            console.error("wasn hier los?", error);
+            console.error("error removePlayerFromMatch", error);
             return false;
         }
 
@@ -307,12 +306,10 @@ export class MatchService {
             .getMany()
     }
 
-    // new tournier funkies now
-
     async createTournament(lobbyId: string, creatorId: number, maxPlayers: number, name: string) {
         const creator = await this.userService.findUserById(creatorId)
         if (!creator)
-            throw new Error("Wirf Junge WIRF den FEHLER DU BASTARD")
+            throw new Error("error createTournament");
 
         const tournament = new TournamentModel();
         tournament.lobbyId = lobbyId;
@@ -335,7 +332,7 @@ export class MatchService {
         const user = await this.userService.findUserById(userId)
 
         if (!tournament || !user) {
-            throw new Error("irgendwas uwrde nicht angelegt")
+            throw new Error("error addPlayerToTournament");
         }
 
         if (!tournament.lobbyParticipants) {
@@ -343,8 +340,9 @@ export class MatchService {
         }
 
         const exisitingParticipant = tournament.lobbyParticipants.find(p => p.id === userId)
-        if (!exisitingParticipant)
+        if (!exisitingParticipant) {
             tournament.lobbyParticipants.push(user);
+        }
 
         // console.log("calling tournamentRepo.save from addPlayertoTournament function");
         return await this.tournamentRepo.save(tournament);
@@ -356,7 +354,7 @@ export class MatchService {
         const tournament = await this.getTournamentById(tournamentId);
 
         if (!player1 || !player2 || !tournament) {
-            throw new Error("??????????????dawdawd awad AHHHHHHHHHHHHHHHHHHHH ich ahsse typescript")
+            throw new Error("error createTournamentMatch");
         }
 
         const match = new MatchModel()
@@ -393,7 +391,7 @@ export class MatchService {
     async updateTournamentCompletion(tournamentId: number, winnerId: number | undefined, endedAt: Date) {
         const tournament = await this.getTournamentById(tournamentId)
         if (!tournament) {
-            throw new Error("Oh hell nah bruv")
+            throw new Error("error updateTournamentCompletion");
         }
 
         tournament.status = 'completed'

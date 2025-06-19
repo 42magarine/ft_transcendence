@@ -244,7 +244,6 @@ export class MatchController {
         if (player) {
             this._clients.set(connection, player);
 
-
             // console.log(lobby._lobbyType)
             // console.log(lobbyId)
             // console.log(userId)

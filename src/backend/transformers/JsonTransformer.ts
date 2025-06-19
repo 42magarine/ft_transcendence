@@ -17,7 +17,7 @@ export class JsonColumnTransformer implements ValueTransformer {
             return JSON.parse(value)
         }
         catch (e) {
-            console.error("eroereoreor")
+            console.error("error")
             return {}
         }
     }

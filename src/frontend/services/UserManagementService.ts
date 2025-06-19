@@ -289,8 +289,6 @@ export default class UserManagementService {
                     console.error('Failed to register user:', error);
                 }
             });
-            const toggle = new Toggle();
-            toggle.mountToggle('emailVerified');
         }
     }
 

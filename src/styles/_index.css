@@ -1,22 +1,20 @@
-/* _index.css */
 @import 'tailwindcss';
 
 @import './buttons.css';
+@import './canvas.css';
 @import './card.css';
-@import './glass.css';
-@import './header.css';
 @import './footer.css';
-@import './text.css';
-@import './theme.css';
+@import './header.css';
+@import './input_fields.css';
+@import './modal.css';
+@import './profile.css';
 @import './signup.css';
 @import './table.css';
-@import './input_fields.css';
-@import './profile.css';
-@import './modal.css';
-@import './canvas.css';
+@import './text.css';
+@import './theme.css';
 
 * {
-	user-select: none;
+    user-select: none;
 }
 
 main {
@@ -28,75 +26,75 @@ main {
 }
 
 @layer components {
-	.role-tag {
-		@apply px-3 py-1 rounded text-sm bg-blue-300 text-white;
-	}
+    .role-tag {
+        @apply px-3 py-1 rounded text-sm bg-blue-300 text-white;
+    }
 
-	.role-tag.role-admin {
-		@apply bg-yellow-700 text-white;
-	}
-	.role-tag.role-user {
-		@apply bg-green-700 text-white;
-	}
-	.role-tag.role-master {
-		@apply bg-purple-700 text-white;
-	}
+    .role-tag.role-admin {
+        @apply bg-yellow-700 text-white;
+    }
+    .role-tag.role-user {
+        @apply bg-green-700 text-white;
+    }
+    .role-tag.role-master {
+        @apply bg-purple-700 text-white;
+    }
 
 
 /* Scrollbar Styles */
 ::-webkit-scrollbar {
-	@apply w-0.5 h-0.5;
+    @apply w-0.5 h-0.5;
 }
 
 ::-webkit-scrollbar-track {
-	@apply bg-transparent;
+    @apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-	@apply bg-white;
+    @apply bg-white;
 }
 
 
 /* Firefox Scrollbar */
 * {
-	scrollbar-width: thi    font-familyn;
-	scrollbar-color: white transparent;
+    scrollbar-width: thi    font-familyn;
+    scrollbar-color: white transparent;
 }
 
 .high-contrast * {
-	scrollbar-color: black transparent;
+    scrollbar-color: black transparent;
 }
 
 /* Google Sign-in Animation */
 .g_id_signin {
-	@apply opacity-0 animate-[fadeIn_1s_ease-in-out_1s_forwards];
+    @apply opacity-0 animate-[fadeIn_1s_ease-in-out_1s_forwards];
 }
 
 @keyframes fadeIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* Toggle Button Styles */
 .toggle-btn.active.bg-green-500 {
-	@apply bg-green-500 text-white;
+    @apply bg-green-500 text-white;
 }
 
 .toggle-btn.active.bg-red-500 {
-	@apply bg-red-500 text-white;
+    @apply bg-red-500 text-white;
 }
 
 .toggle-btn:not(.active) {
-	@apply bg-transparent text-white/50;
+    @apply bg-transparent text-white/50;
 }
 
 
 .high-contrast .toggle-btn:not(.active) {
-	@apply bg-white text-black border-2 border-black font-bold;
+    @apply bg-white text-black border-2 border-black font-bold;
 }
 
 body {
@@ -111,20 +109,20 @@ body.huge-textSize {
 
 .high-contrast .dropdown-item a,
 .high-contrast .dropdown-item button {
-	@apply text-black hover:bg-black hover:text-white;
+    @apply text-black hover:bg-black hover:text-white;
 }
 
 .high-contrast .dropdown-img img,
 .high-contrast .dropdown-head img {
-	filter: grayscale(100%) contrast(150%);
+    filter: grayscale(100%) contrast(150%);
 }
 
 /* === Header/Footer in High Contrast === */
 .high-contrast header,
 .high-contrast footer {
-	@apply bg-white text-black border-black;
-	background: white !important;
-	color: black !important;
+    @apply bg-white text-black border-black;
+    background: white !important;
+    color: black !important;
 }
 
 .high-contrast h1,
@@ -134,7 +132,7 @@ body.huge-textSize {
 .high-contrast h5,
 .high-contrast h6,
 .high-contrast .text-white {
-	color: black !important;
+    color: black !important;
 }
 
 body.big-textSize input,

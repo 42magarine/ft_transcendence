@@ -217,8 +217,8 @@ export interface StatProps {
 // TEXT / TYPOGRAPHY
 
 export interface TitleProps {
-    title: string;      // Main title
-    subtitle?: string;  // Optional subtitle
+    title: string;
+    subtitle?: string;
 }
 
 export interface HeadingProps {

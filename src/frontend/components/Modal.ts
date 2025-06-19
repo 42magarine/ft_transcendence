@@ -25,12 +25,12 @@ export default class Modal extends AbstractView {
 
     private renderCloseButton(id: string): string {
         return `
-			<button
-				class="absolute top-3 right-3 text-gray-400 hover:text-gray-200 text-xl font-bold"
-				aria-label="Close modal"
-				onclick="document.getElementById('${id}').classList.add('hidden')"
-			>&times;</button>
-		`;
+            <button
+                class="absolute top-3 right-3 text-gray-400 hover:text-gray-200 text-xl font-bold"
+                aria-label="Close modal"
+                onclick="document.getElementById('${id}').classList.add('hidden')"
+            >&times;</button>
+        `;
     }
 
     async renderModal({
