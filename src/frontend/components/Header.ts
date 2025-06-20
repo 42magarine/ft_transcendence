@@ -1,7 +1,8 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
 import UserService from '../services/UserService.js';
-import { generateProfileImage } from '../../utils/Avatar.js';
+import { generateProfileImage,  } from '../../utils/Avatar.js';
+import renderAvatar from '../components/Avatar.js';
 
 export default class Header extends AbstractView {
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
@@ -128,7 +129,11 @@ export default class Header extends AbstractView {
 
         let userDropDown = "";
         if (currentUser) {
-            let dropDownAvatar = generateProfileImage(currentUser, 20, 20);
+            let dropDownAvatar = renderAvatar({
+                src: generateProfileImage(currentUser, 32, 32),
+                size: 32,
+                className: 'dropdown-avatar' // Optional styling hook
+            });
             userDropDown = `
 			<div class="dropdown">
 				<div class="dropdown-head">

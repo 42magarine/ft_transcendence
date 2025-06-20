@@ -27,4 +27,3 @@ TESTS:
 
 Flo:
     username unique optischer kram
-    checkbox width

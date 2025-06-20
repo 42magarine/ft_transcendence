@@ -75,7 +75,6 @@ export default class Toggle extends AbstractView {
     
         // Add listeners only if not readonly
         yesBtn.addEventListener('click', () => {
-            console.log('toggleleeeee');
             if (input.readOnly == true) return;
             input.checked = true;
             input.value = 'true';
