@@ -359,7 +359,7 @@ export class MatchService {
 
         const match = new MatchModel()
         match.lobbyId = lobbyId
-        match.lobbyName = `Random ass fkin name so here you Go ${player1.username} ${player2.username}`
+        match.lobbyName = `LoobyName: ${player1.username} ${player2.username}`
         match.createdAt = new Date()
         match.player1 = player1;
         match.player2 = player2;
