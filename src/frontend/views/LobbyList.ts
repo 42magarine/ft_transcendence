@@ -21,22 +21,22 @@ export default class LobbyList extends AbstractView {
             title: window.ls.__('Available Lobbies'),
             contentBlocks: [
                 {
-                    type: 'button',
+                    type: 'buttongroup',
                     props: {
-                        id: 'createGameBtn',
-                        text: 'Create Game',
-                        type: 'button',
-                        className: 'btn btn-primary'
-                    },
-                },
-                {
-                    type: 'button',
-                    props: {
-                        id: 'createTournamentBtn',
-                        text: 'Create Tournament',
-                        type: 'button',
-                        className: 'btn btn-primary'
-                    },
+                        layout: 'group',
+                        align: 'center',
+                        buttons: [
+                            {
+                                id: 'createGameBtn',
+                                text: window.ls.__('Create Game'),
+                            },
+                            {
+                                id: 'createTournamentBtn',
+                                text: window.ls.__('Create Tournament'),
+                                color: 'blue'
+                            }
+                        ]
+                    }
                 },
                 {
                     type: 'table',

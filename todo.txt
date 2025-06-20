@@ -1,8 +1,4 @@
 FRONTEND:
-    1. Alle 'alerts' entfernen und durch sichtbare Meldungen ersetzen.
-    2. Signup View überarbeiten
-        - man kann fast nichts lesen wegen dem Hintergrund
-        - es gibt 3 Passwort-Felder?!
     3. User Management View (als MASTER)
         - Create User funktioniert nicht, wenn eine ungültige E-Mail eingegeben wird (vielleicht liegt der Fehler im Backend, weil der E-Mail Serive einen Fehler wirft)
     4. User View (als Master)
@@ -20,6 +16,7 @@ BACKEND:
 SONSTIGES:
     1. eine Interface für alle Userdaten? oder wie bisher je nach Fall ein eigenes Interface?
     2. Interfaces nach Frontend und Backend aufteilen?
+    3. ctrl+C transcendende gibt error, handlen?
 
 
 TESTS:
@@ -27,3 +24,6 @@ TESTS:
     2. Test auth processes themselves
     3. Open a lobby or tournament with or without its coresponsing game and test leaves by router and window.
     4. Launch different games with different customizations and test their effects
+
+Flo:
+    username unique optischer kram

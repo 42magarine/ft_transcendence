@@ -477,22 +477,21 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 
 
 function generateProfileImage(userData: any, width: number, height: number): string {
-    if (userData.avatar) {
-        return `<img src="${userData.avatar}" alt="Avatar of ${userData.d}" />`;
+    if (userData.avatar)
+    {
+        return userData.avatar;  // ✅ Just return the URL, not an <img>
     }
-    let seed = "";
-    if (userData.username) {
-        seed = `${userData.username}`;
-    }
-    return generateTextVisualization(seed, {
-        width: width,
-        height: height,
+
+    return generateTextVisualization(userData.username, {
+        width,
+        height,
         useShapes: true,
         maxShapes: 50,
         showText: false,
         backgroundColor: '#f0f0f0'
     });
 }
+
 
 export {
     generateTextVisualization,
