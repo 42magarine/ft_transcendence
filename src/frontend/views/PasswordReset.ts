@@ -1,93 +1,114 @@
 import Card from '../components/Card.js';
-import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
 
 export default class PasswordReset extends AbstractView {
-    constructor(params: URLSearchParams) {
-        super();
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
         this.params = params;
     }
 
     public params: URLSearchParams;
 
     async getHtml(): Promise<string> {
-        const button = new Button();
-        const card = new Card();
-
-        // Extract token from URL params first
         let token = this.params.get('token');
 
-        // If not in params, try to extract from URL path
         if (!token) {
             const pathParts = window.location.pathname.split('/');
             token = pathParts.length > 2 ? pathParts[pathParts.length - 1] : null;
         }
 
-        // If we have a token, show the reset form, otherwise show the request form
         if (token) {
-            // First verify the token is valid
             try {
                 await window.userManagementService.verifyPasswordResetToken(token);
 
-                const resetCard = await card.renderCard({
-                    title: 'Reset Your Password',
+                const resetCard = await new Card().renderCard({
+                    title: window.ls.__('Reset Your Password'),
                     formId: 'password-reset-form',
                     inputs: [
-                        { name: 'password', type: 'password', placeholder: 'New Password' },
-                        { name: 'confirmPassword', type: 'password', placeholder: 'Confirm New Password' }
+                        {
+                            name: 'password',
+                            type: 'password',
+                            placeholder: window.ls.__('New Password')
+                        },
+                        {
+                            name: 'confirmPassword',
+                            type: 'password',
+                            placeholder: window.ls.__('Confirm New Password')
+                        }
                     ],
-                    button: { text: 'Reset Password', type: 'submit', className: "btn btn-primary" },
-                    extra: '<p>Remember your password? <a router href="/login">Log in</a></p>'
+                    buttonGroup: [
+                        {
+                            text: window.ls.__('Reset Password'),
+                            type: 'submit',
+                            className: "btn btn-primary",
+                        },
+                        {
+                            id: 'login-redirect',
+                            type: 'text-with-button',
+                            text: window.ls.__('Log in'),
+                            textBefore: window.ls.__('Remember your password?'),
+                            href: '/login',
+                            className: 'underline',
+                            align: 'center',
+                        }
+                    ]
                 });
 
-                return this.render(`
-                    <div class="flex justify-center items-center min-h-[80vh] px-4">
-                        <div class="w-full max-w-xl space-y-8">
-                            ${resetCard}
-                        </div>
-                    </div>
-                `);
-            }
-            catch (error) {
-                // Invalid or expired token
-                const errorCard = await card.renderCard({
-                    title: 'Invalid or Expired Link',
-                    prefix: '<p class="text-red-500">This password reset link is invalid or has expired.</p>',
+                return this.render(`${resetCard}`);
+            } catch (error) {
+                const errorCard = await new Card().renderCard({
+                    title: window.ls.__('Invalid or Expired Link'),
+                    prefix: `<p class="text-red-500">${window.ls.__('This password reset link is invalid or has expired.')}</p>`,
                     formId: '',
                     inputs: [],
-                    button: { text: '', type: 'button', className: "btn btn-primary" },
-                    extra: '<p>Please request a new password reset link from the <a router href="/password-reset">password reset page</a>.</p>'
+                    buttonGroup: [
+                        {
+                            text: '',
+                            type: 'button',
+                            className: 'hidden'
+                        },
+                        {
+                            id: 'reset-request',
+                            type: 'text-with-button',
+                            text: window.ls.__('password reset page'),
+                            textBefore: window.ls.__('Please request a new password reset link from the'),
+                            href: '/password-reset',
+                            className: 'underline',
+                            align: 'center'
+                        }
+                    ]
                 });
-
-                return this.render(`
-                    <div class="flex justify-center items-center min-h-[80vh] px-4">
-                        <div class="w-full max-w-xl space-y-8">
-                            ${errorCard}
-                        </div>
-                    </div>
-                `);
+                return this.render(`${errorCard}`);
             }
-        }
-        else {
-            // Show the request password reset form
-            const requestCard = await card.renderCard({
-                title: 'Password Reset',
+        } else {
+            const requestCard = await new Card().renderCard({
+                title: window.ls.__('Password Reset'),
                 formId: 'password-reset-request-form',
                 inputs: [
-                    { name: 'email', type: 'email', placeholder: 'E-Mail' }
+                    {
+                        name: 'email',
+                        type: 'email',
+                        placeholder: window.ls.__('E-Mail')
+                    }
                 ],
-                button: { text: 'Request Password Reset', type: 'submit', className: "btn btn-primary" },
-                extra: '<p>Remember your password? <a router href="/login">Log in</a></p>'
+                buttonGroup: [
+                    {
+                        text: window.ls.__('Request Password Reset'),
+                        type: 'submit',
+                    },
+                    {
+                        id: 'login-redirect',
+                        type: 'text-with-button',
+                        text: window.ls.__('Log in'),
+                        textBefore: window.ls.__('Remember your password?'),
+                        href: '/login',
+                        className: 'underline',
+                        align: 'center'
+                    }
+                ]
             });
 
-            // Return without any inline scripts
-            return this.render(`
-                <div class="flex justify-center items-center min-h-[80vh] px-4">
-                    <div class="w-full max-w-xl space-y-8">
-                        ${requestCard}
-                    </div>
-                </div>
-            `);
+            return this.render(`${requestCard}`);
         }
     }
 }

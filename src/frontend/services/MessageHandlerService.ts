@@ -1,21 +1,15 @@
-import { ClientMessage } from '../../interfaces/interfaces.js';
-import UserService from './UserService.js';
+import { IClientMessage, IPaddleDirection, IPlayerState } from '../../interfaces/interfaces.js';
 
 export default class MessageHandlerService {
-    private currentUser: any = null;
+    private readyState: Map<number, boolean> = new Map();
 
-    constructor() {
-    }
-
-    private async safeSend(msg: ClientMessage) {
-        console.log("safeSend -> ", msg)
+    private async safeSend(msg: IClientMessage) {
         if (!window.socketReady) {
             console.error('MessageHandlerService: window.socketReady promise does not exist.');
             throw new Error('Socket readiness promise not available. Cannot send message.');
         }
 
         await window.socketReady;
-
         if (!window.ft_socket) {
             console.error('MessageHandlerService: window.ft_socket is undefined.');
             throw new Error('WebSocket instance not available. Cannot send message.');
@@ -27,23 +21,21 @@ export default class MessageHandlerService {
             throw new Error(errorMessage);
         }
 
+        console.log("safeSend (frontend->backend): ", msg);
         window.ft_socket.send(JSON.stringify(msg));
     }
 
-    public async createLobby() {
-        this.currentUser = await UserService.getCurrentUser();
-        if (!this.currentUser) return;
-
-        const msg: ClientMessage = {
+    public async createLobby(userId: number, maxPlayers: number) {
+        const msg: IClientMessage = {
             type: 'createLobby',
-            userId: this.currentUser.id,
+            userId,
+            maxPlayers
         };
         await this.safeSend(msg);
     }
 
-    public async joinGame(lobbyId: string, userId: number) {
-        console.log("JOINNNN")
-        const msg: ClientMessage = {
+    public async joinLobby(lobbyId: string, userId: number) {
+        const msg: IClientMessage = {
             type: 'joinLobby',
             lobbyId,
             userId
@@ -51,52 +43,69 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
+    // public async joinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
+    //     const msg: IClientMessage = {
+    //         type: 'joinGame',
+    //         player1,
+    //         player2,
+    //         lobbyId,
+    //     };
+    //     await this.safeSend(msg);
+    // }
+
     public async startGame(lobbyId: string) {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'startGame',
             lobbyId,
         };
         await this.safeSend(msg);
     }
 
-    public async markReady(userID: string, lobbyId: string) {
-        const msg: ClientMessage = {
-            type: 'playerReady',
-            userID,
-            lobbyId,
-        };
+    public async movePaddle(userId: number, matchId: number, direction: IPaddleDirection) {
+        const msg: IClientMessage = {
+            type: 'movePaddle',
+            direction,
+            userId,
+            matchId
+        }
         await this.safeSend(msg);
     }
 
-    public async leaveLobby(lobbyId: string) {
-        const msg: ClientMessage = {
+    public async markReady(lobbyId: string, userId: number) {
+        const current = this.readyState.get(userId) ?? false;
+        const next = !current;
+        this.readyState.set(userId, next);
+
+        const msg: IClientMessage = {
+            type: 'ready',
+            userId,
+            lobbyId,
+            ready: next,
+        };
+
+        await this.safeSend(msg);
+    }
+
+    public async leaveLobby(lobbyId: string, gameIsOver: boolean) {
+        const msg: IClientMessage = {
             type: 'leaveLobby',
             lobbyId,
-        };
-        await this.safeSend(msg);
-    }
-
-    public async sendInvite(userID: string, lobbyId: string) {
-        const msg: ClientMessage = {
-            type: 'sendInvite',
-            userID,
-            lobbyId,
-        };
-        await this.safeSend(msg);
-    }
-
-    public async acceptInvite(userID: string, lobbyId: string) {
-        const msg: ClientMessage = {
-            type: 'acceptInvite',
-            userID,
-            lobbyId,
+            gameIsOver
         };
         await this.safeSend(msg);
     }
 
     public async requestLobbyList() {
-        const msg: ClientMessage = {
+        const msg: IClientMessage = {
             type: 'getLobbyList',
+        };
+        await this.safeSend(msg);
+    }
+
+    public async requestLobbyState(lobbyId: string) {
+        const msg: IClientMessage = {
+            type: 'getLobbyState',
+            lobbyId
         };
         await this.safeSend(msg);
     }

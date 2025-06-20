@@ -1,16 +1,23 @@
 import { TemplateEngine } from "./TemplateEngine.js"
 
 export default abstract class AbstractView {
-    async mount(): Promise<void> { }
     protected params: URLSearchParams;
-    protected title: string;
+    protected routeParams: Record<string, string>
+    protected title?: string;
     protected description: string;
     protected templateEngine: TemplateEngine;
     protected props: Record<string, any>;
+    public initEvents: (() => void) | null = null;
+    public destroyEvents: (() => void) | null = null;
+    public mount?(): void | Promise<void>;
 
-    constructor(params: URLSearchParams = new URLSearchParams(window.location.search)) {
-        this.params = params;
-        this.props = Object.fromEntries(params.entries());
+    constructor(routeParams: Record<string, string> = {}, queryParams: URLSearchParams = new URLSearchParams(window.location.search)) {
+        this.routeParams = routeParams;
+        this.params = queryParams;
+        this.props = {
+            ...Object.fromEntries(queryParams.entries()),
+            ...routeParams
+        };
 
         this.title = 'Transcendence';
         this.description = '';
@@ -19,7 +26,6 @@ export default abstract class AbstractView {
         this.setTitle(this.title);
         this.setDescription(this.description);
     }
-
 
     setTitle(title: string): void {
         document.title = title;
@@ -33,7 +39,8 @@ export default abstract class AbstractView {
         const metaDescription = document.querySelector('meta[name="description"]');
         if (metaDescription) {
             metaDescription.setAttribute('content', description);
-        } else if (description) {
+        }
+        else if (description) {
             const meta = document.createElement('meta');
             meta.name = 'description';
             meta.content = description;

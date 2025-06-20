@@ -1,46 +1,67 @@
 import Card from '../components/Card.js';
-import Button from '../components/Button.js';
 import AbstractView from '../../utils/AbstractView.js';
-import { LobbyInfo } from '../../interfaces/interfaces.js';
 
 export default class Pong extends AbstractView {
-    private lobbyId: string;
-
-    constructor(params: URLSearchParams) {
-        super();
-        this.params = params;
-        this.lobbyId = params.get('id') || '';
+    constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
+        super(routeParams, params);
+        this.initEvents = this.setupEvents.bind(this);
     }
 
     async getHtml(): Promise<string> {
-        const buttonGroup = await new Button().renderGroup({
-            layout: 'group',
-            align: 'center',
-            buttons: [
-                { id: 'pauseGameButton', text: 'Pause', className: "btn btn-primary" },
-                { id: 'resumeGameButton', text: 'Resume', className: "btn btn-primary" },
-                { id: 'resetGameButton', text: 'Reset', className: "btn btn-primary" },
-                { id: 'lobbyGameButton', text: 'Back to Lobby', className: "btn btn-primary", href: `/lobby/${this.lobbyId}` }
-            ]
+        const gameCard = await new Card({}, this.params).renderCard(
+            {
+                title: window.ls.__('Pong Arena'),
+                contentBlocks:
+                    [
+                        {
+                            type: 'html',
+                            props:
+                            {
+                                html: `
+                                    <div id="playerCanvasWrap">
+                                        <div id="playerOneNameTag" class="player-name player1"></div>
+                                        <div id="playerTwoNameTag" class="player-name player2"></div>
+                                    </div>
+                                    <div id="gameCanvasWrap" class="m-auto">
+                                        <div id="gameCanvasWrap-overlay">3</div>
+                                        <canvas id="gameCanvas" class="countdown" width="800" height="600"></canvas>
+                                    </div>
+                                `
+                            }
+                        },
+                    ]
+            });
+        return this.render(`${gameCard}`);
+    }
+
+    async afterRender(): Promise<void> {
+        console.log('--- DEBUGGING PONG.TS AFTERRENDER ---');
+        console.log('Current URL:', window.location.href); // Verify the full URL
+        console.log('Raw this.params object:', this.routeParams); // Log the URLSearchParams object itself
+
+        this.params.forEach((value, key) => {
+            console.log(`this.params entry - Key: "<span class="math-inline">\{key\}", Value\: "</span>{value}"`);
         });
 
-        const card = new Card(this.params);
-        const gameCard = await card.renderCard({
-            title: 'Pong Arena',
-            body: `
-				<div class="flex flex-col gap-6 items-center justify-center">
-					<canvas id="gameCanvas" width="800" height="600" class="bg-black border-4 border-white rounded-lg shadow-lg"></canvas>
-					${buttonGroup}
-				</div>
-			`
-        });
+        const matchIdString = this.routeParams['matchId'];
+        const lobbyIdString = this.routeParams['lobbyId'];
 
-        const html = this.render(`
-			<div class="flex justify-center items-center min-h-[80vh] px-4">
-				${gameCard}
-			</div>
-		`);
+        console.log('Extracted matchIdString:', matchIdString);
+        console.log('Extracted lobbyIdString:', lobbyIdString);
 
-        return html;
+        const matchId = Number(matchIdString);
+        console.log('Converted matchId:', matchId);
+
+        if (window.pongService) {
+            window.pongService.initializeGame(matchId);
+            console.log('Called window.pongService.initializeGame with matchId:', matchId);
+        } else {
+            console.error('window.pongService is not initialized!');
+        }
+        console.log('--- END DEBUGGING PONG.TS AFTERRENDER ---');
+    }
+
+    private setupEvents(): void {
+        window.pongService.setupEventListener();
     }
 }

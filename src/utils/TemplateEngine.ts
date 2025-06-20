@@ -1,21 +1,22 @@
 export class TemplateEngine {
-    private cache: Map<string, Function> = new Map();
-    private components: Map<string, any> = new Map();
+    private cache: Map<string, Function> = new Map(); // Reserved for future caching
+    private components: Map<string, any> = new Map(); // Registered custom components
 
     constructor() { }
 
+    // Register a component class for use in templates
     registerComponent(name: string, component: any): void {
         this.components.set(name, component);
     }
 
+    // Main render method: includes, components, and templating logic
     async render(template: string, data: any = {}): Promise<string> {
-        template = await this.processIncludes(template);
-
-        template = await this.processComponents(template, data);
-
-        return this.processTemplate(template, data);
+        template = await this.processIncludes(template);              // Handle <include> tags
+        template = await this.processComponents(template, data);      // Handle custom components
+        return this.processTemplate(template, data);                  // Handle {{ }} and logic
     }
 
+    // Load and embed <include src="..."/> files into the template
     private async processIncludes(template: string): Promise<string> {
         const includeRegex = /<include\s+src=['"](.+?)['"]\s*(?:\s+with=['"](.+?)['"]\s*)?\/>/g;
         let match;
@@ -28,9 +29,9 @@ export class TemplateEngine {
                 if (!response.ok) throw new Error(`Failed to load include: ${src}`);
 
                 let includeTemplate = await response.text();
-
                 processedTemplate = processedTemplate.replace(fullMatch, includeTemplate);
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error processing include ${src}:`, error);
                 processedTemplate = processedTemplate.replace(fullMatch, `<!-- Error loading include ${src} -->`);
             }
@@ -39,6 +40,7 @@ export class TemplateEngine {
         return processedTemplate;
     }
 
+    // Render registered components in the template
     private async processComponents(template: string, data: any): Promise<string> {
         const componentRegex = /<([A-Z][a-zA-Z0-9]*)\s*([^>]*)(?:>([\s\S]*?)<\/\1>|\/?>)/g;
         let match;
@@ -53,7 +55,7 @@ export class TemplateEngine {
                 continue;
             }
 
-            const props: Record<string, any> = this.parseProps(propsString, data);
+            const props: Record<string, any> = this.parseProps(propsString, data); // Parse attributes into props
 
             const ComponentClass = this.components.get(componentName);
             const componentInstance = new ComponentClass(new URLSearchParams());
@@ -62,6 +64,7 @@ export class TemplateEngine {
 
             let componentHTML = await componentInstance.getHtml();
 
+            // Support slot-like <%%%> injection of inner content
             if (children) {
                 componentHTML = componentHTML.replace('<%%%>', children);
             }
@@ -73,13 +76,13 @@ export class TemplateEngine {
                 processedTemplate.substring(endPos);
 
             offset += componentHTML.length - fullMatch.length;
-
             componentRegex.lastIndex = startPos + componentHTML.length;
         }
 
         return processedTemplate;
     }
 
+    // Parse component tag props into key-value pairs
     private parseProps(propsString: string, data: any): Record<string, any> {
         const props: Record<string, any> = {};
 
@@ -92,14 +95,16 @@ export class TemplateEngine {
             if (propName) {
                 if (expressionValue) {
                     try {
-                        const expr = expressionValue.slice(1, -1);
+                        const expr = expressionValue.slice(1, -1); // Remove outer {}
                         const evalFn = new Function(...Object.keys(data), `return ${expr};`);
                         props[propName] = evalFn(...Object.values(data));
-                    } catch (error) {
+                    }
+                    catch (error) {
                         console.error(`Error evaluating prop expression "${expressionValue}":`, error);
                         props[propName] = undefined;
                     }
-                } else {
+                }
+                else {
                     props[propName] = doubleQuotedValue || singleQuotedValue || true;
                 }
             }
@@ -108,16 +113,15 @@ export class TemplateEngine {
         return props;
     }
 
+    // Run final templating pass on static template string
     private processTemplate(template: string, data: any): string {
-        template = this.processConditionals(template, data);
-
-        template = this.processLoops(template, data);
-
-        template = this.processProps(template, data);
-
+        template = this.processConditionals(template, data); // <if condition="...">...</if>
+        template = this.processLoops(template, data);        // <for each="..." as="...">...</for>
+        template = this.processProps(template, data);        // {{ someVar }}
         return template;
     }
 
+    // Handle <if condition="..."> blocks
     private processConditionals(template: string, data: any): string {
         const ifRegex = /<if\s+condition=['"](.+?)['"]\s*>([\s\S]*?)<\/if>/g;
         return template.replace(ifRegex, (match, condition, content) => {
@@ -125,13 +129,15 @@ export class TemplateEngine {
                 const conditionFn = new Function(...Object.keys(data), `return ${condition};`);
                 const result = conditionFn(...Object.values(data));
                 return result ? content : '';
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error evaluating condition "${condition}":`, error);
                 return `<!-- Error in condition: ${condition} -->`;
             }
         });
     }
 
+    // Handle <for each="..." as="..."> blocks
     private processLoops(template: string, data: any): string {
         const forRegex = /<for\s+each=['"](.+?)['"]\s+as=['"](.+?)['"]\s*>([\s\S]*?)<\/for>/g;
         return template.replace(forRegex, (match, itemsExpr, itemVar, content) => {
@@ -147,13 +153,15 @@ export class TemplateEngine {
                     const loopData = { ...data, [itemVar]: item };
                     return this.processTemplate(content, loopData);
                 }).join('');
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error processing for loop "${itemsExpr} as ${itemVar}":`, error);
                 return `<!-- Error in for loop: ${itemsExpr} as ${itemVar} -->`;
             }
         });
     }
 
+    // Replace {{ variable }} expressions with actual values
     private processProps(template: string, data: any): string {
         const propRegex = /\{\{(.+?)\}\}/g;
         return template.replace(propRegex, (match, propExpr) => {
@@ -161,7 +169,8 @@ export class TemplateEngine {
                 const propFn = new Function(...Object.keys(data), `return ${propExpr};`);
                 const value = propFn(...Object.values(data));
                 return value !== undefined && value !== null ? String(value) : '';
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error evaluating property "${propExpr}":`, error);
                 return `<!-- Error in property: ${propExpr} -->`;
             }

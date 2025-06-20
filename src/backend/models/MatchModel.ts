@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance, ManyToMany, JoinTable, OneToMany, ChildEntity } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance, ManyToMany, JoinTable, OneToMany } from "typeorm";
+import { ITournamentRound } from "../../interfaces/interfaces.js";
+import { JsonColumnTransformer } from "../transformers/JsonTransformer.js";
 
 @Entity()
 export class UserModel {
@@ -12,10 +14,13 @@ export class UserModel {
     username!: string;
 
     @Column()
-    password!: string;
+    name!: string;
 
     @Column()
-    displayname!: string;
+    password!: string;
+
+    @Column({ default: false })
+    online!: boolean;
 
     @Column({ default: 'user' })
     role!: string;
@@ -84,10 +89,10 @@ export class MatchModel {
 
     @ManyToOne(() => UserModel)
     @JoinColumn()
-    winner?: typeof UserModel.prototype
+    winner?: UserModel;
 
     @Column({ default: 'pending' })
-    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing' | 'paused';
+    status!: 'pending' | 'cancelled' | 'completed' | 'ongoing';
 
     @CreateDateColumn({ type: 'datetime' })
     createdAt!: Date;
@@ -103,7 +108,7 @@ export class MatchModel {
 
     @ManyToMany(() => UserModel)
     @JoinTable()
-    lobbyParticipants!: typeof UserModel.prototype[];
+    lobbyParticipants!: UserModel[];
 
     @Column({ nullable: true })
     gameAdminId?: number;
@@ -114,119 +119,72 @@ export class MatchModel {
     @Column({ default: '' })
     lobbyName!: string;
 
-    @Column({ default: false })
-    hasPassword!: boolean;
-
-    @Column({ nullable: true })
-    passwordHash?: string;
-
     @Column('simple-json', { nullable: true })
     readyStatusMap?: Record<number, boolean>;
 
     @Column("simple-array", { nullable: true })
     invitedUserIds?: number[];
+
+    @ManyToOne(() => TournamentModel, tournament => tournament.matches, { nullable: true })
+    @JoinColumn({ name: 'tournamentId' })
+    tournament?: TournamentModel | null;
+
+    @Column({ nullable: true })
+    tournamentId?: number;
 }
 
-// @ChildEntity("games")
-// export class GameModel extends MatchModel {
+@Entity()
+export class TournamentModel {
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-//     @Column({ default: false })
-//     isLobbyOpen!: boolean;
+    @Column({ unique: true })
+    lobbyId!: string;
 
-//     @ManyToMany(() => UserModel)
-//     @JoinTable()
-//     lobbyParticipants!: typeof UserModel.prototype[];
+    @Column()
+    name!: string
 
-//     @Column({ nullable: true })
-//     gameAdminId?: number;
+    @ManyToOne(() => UserModel)
+    @JoinColumn({ name: 'creatorId' })
+    creator!: UserModel;
 
-//     @Column({ default: 2 })
-//     maxPlayers!: number;
+    @Column()
+    maxPlayers!: number;
 
-//     @Column({ default: '' })
-//     lobbyName!: string;
+    @Column({ default: 'pending' })
+    status!: 'pending' | 'ongoing' | 'completed' | 'cancelled';
 
-//     @Column({ default: false })
-//     hasPassword!: boolean;
+    @CreateDateColumn({ type: 'datetime' })
+    createdAt!: Date;
 
-//     @Column({ nullable: true })
-//     passwordHash?: string;
+    @Column({ type: 'datetime', nullable: true })
+    startedAt?: Date;
 
-//     @Column('simple-json', { nullable: true })
-//     readyStatusMap?: Record<number, boolean>;
+    @Column({ type: 'datetime', nullable: true })
+    endedAt?: Date;
 
-//     @Column("simple-array", { nullable: true })
-//     invitedUserIds?: number[];
-// }
+    @ManyToMany(() => UserModel)
+    @JoinTable({
+        name: "tournament_participants"
+    })
+    lobbyParticipants!: UserModel[];
 
-// @ChildEntity("tournaments")
-// export class TournamentModel extends MatchModel {
-//   @Column({ default: 8 })
-//   maxParticipants!: number;
+    @OneToMany(() => MatchModel, (match) => match.tournament)
+    matches!: MatchModel[];
 
-//   @ManyToMany(() => UserModel)
-//   @JoinTable()
-//   participants!: UserModel[];
+    @Column({ type: 'text', transformer: new JsonColumnTransformer() })
+    playerScores?: { [userId: number]: number }; // Stores points for each player
 
-//   @ManyToMany(() => GameModel)
-//   @JoinTable()
-//   matches!: GameModel[];
+    @Column({ default: 1 })
+    currentRound!: number;
 
-//   @Column({ default: 'registration' })
-//   tournamentPhase!: 'registration' | 'in_progress' | 'completed';
-// }
+    @Column({ type: 'text', transformer: new JsonColumnTransformer() })
+    matchSchedule?: ITournamentRound[]; // Array of rounds, each containing array of matches for that round
 
-// @Entity('tournament_matches')
-// export class TournamentMatchModel {
-//     @PrimaryGeneratedColumn()
-//     id!: number;
+    @ManyToOne(() => UserModel, { nullable: true })
+    @JoinColumn({ name: 'winnerUserId' })
+    winner?: UserModel; // The winner of the tournament
 
-//     @Column()
-//     tournamentId!: number;
-
-//     @ManyToOne(() => TournamentModel, tournament => tournament.matches)
-//     @JoinColumn({ name: 'tournamentId' })
-//     tournament!: TournamentModel;
-
-//     @ManyToOne(() => UserModel)
-//     @JoinColumn({ name: 'player1Id' })
-//     player1!: UserModel;
-
-//     @Column()
-//     player1Id!: number;
-
-//     @ManyToOne(() => UserModel)
-//     @JoinColumn({ name: 'player2Id' })
-//     player2!: UserModel;
-
-//     @Column()
-//     player2Id!: number;
-
-//     @Column({ default: 0 })
-//     player1Score!: number;
-
-//     @Column({ default: 0 })
-//     player2Score!: number;
-
-//     @ManyToOne(() => UserModel, { nullable: true })
-//     @JoinColumn({ name: 'winnerId' })
-//     winner!: UserModel;
-
-//     @Column({ nullable: true })
-//     winnerId!: number;
-
-//     @Column({ default: 'pending' })
-//     status!: 'pending' | 'ongoing' | 'paused' | 'completed' | 'cancelled';
-
-//     @Column()
-//     matchNumber!: number;
-
-//     @CreateDateColumn()
-//     createdAt!: Date;
-
-//     @Column({ nullable: true, type: 'timestamp' })
-//     startedAt!: Date;
-
-//     @Column({ nullable: true, type: 'timestamp' })
-//     endedAt!: Date;
-// }
+    @Column({ name: 'winnerUserId', nullable: true })
+    winnerId!: number | null; // Store the ID of the winner
+}

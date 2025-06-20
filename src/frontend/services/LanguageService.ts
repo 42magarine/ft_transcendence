@@ -1,56 +1,116 @@
-import Router from '../../utils/Router.js';
+import Router from "../../utils/Router.js";
 
-export class LanguageService {
-    private static translations: Record<string, Record<string, string>> = {};
-    private static isInitialized: boolean = false;
+export default class LanguageService {
+    private isInitialized: boolean = false;
+    private translations: Record<string, Record<string, string>> = {};
 
-    static async loadTranslations() {
+    constructor() {
+        this.initialize();
+        const langSelectActionHandler = () => {
+            this.langSelectAction();
+        };
+        document.addEventListener('RouterContentLoaded', langSelectActionHandler);
+    }
+    private async loadTranslations(): Promise<void> {
         try {
             const httpProtocol = window.location.protocol;
             const response = await fetch(`${httpProtocol}//${window.location.host}/dist/assets/languages/translation.json`);
-            LanguageService.translations = await response.json();
+            this.translations = await response.json();
         }
         catch (error) {
             console.error('Failed to load translations:', error);
         }
     }
 
-    static __(key: string): string {
-        const currentLanguage = LanguageService.getCurrentLanguage?.() || 'en_EN';
+    public __(key: string): string {
+        const currentLanguage = this.getCurrentLanguage() || 'en_EN';
 
-        const keys = Object.keys(LanguageService.translations);
-        for (const k of keys) {
-            const translationObjU = LanguageService.translations[k] as unknown;
-            const translationObj = translationObjU as Record<string, Record<string, string>>;
-
-            if (key in translationObj) {
-                const translation = translationObj[key][currentLanguage];
-                return translation || key;
-            }
-        }
-
-        if (key in LanguageService.translations) {
-            const translation = LanguageService.translations[key][currentLanguage];
+        if (key in this.translations) {
+            const translation = this.translations[key][currentLanguage];
             return translation || key;
         }
 
+        const keys = Object.keys(this.translations);
+        for (const k of keys) {
+            const translationObj = this.translations[k];
+
+            if (typeof translationObj === 'object' && translationObj !== null && key in translationObj) {
+                const nestedTranslation = translationObj[key];
+                if (typeof nestedTranslation === 'object' && nestedTranslation !== null && currentLanguage in nestedTranslation) {
+                    const translation = (nestedTranslation as Record<string, string>)[currentLanguage];
+                    return translation || key;
+                }
+            }
+        }
+        // this tells you if something got no translation yet!
+        if (currentLanguage !== "en_EN") {
+            console.log("(づ ◕‿◕ )づ  " + key)
+        }
         return key;
     }
 
-    static getCurrentLanguage(): string {
+    private getCurrentLanguage(): string {
         const langCookie = document.cookie
             .split('; ')
             .find(row => row.startsWith('language='));
 
-        return langCookie ? langCookie.split('=')[1] : 'en';
+        return langCookie ? langCookie.split('=')[1] : 'en_EN';
     }
 
-    static setupLangSelect() {
-        const activeFlag = document.querySelector('.active[data-lang]') as HTMLImageElement;
-        const passiveFlags = document.querySelectorAll('.passive[data-lang]');
-        const flagSources: Record<string, string> = {};
+    private translateTextElements(): void {
+        const elementsToTranslate = document.querySelectorAll('.__');
+        elementsToTranslate.forEach((element) => {
+            if (!element.getAttribute('data-original-text')) {
+                const currentText = element.textContent?.trim();
+                if (currentText) {
+                    const englishKey = this.findEnglishKeyByTranslation(currentText);
+                    if (englishKey) {
+                        element.setAttribute('data-original-text', englishKey);
+                    } else {
+                        element.setAttribute('data-original-text', currentText);
+                    }
+                }
+            }
 
-        document.querySelectorAll('[data-lang]').forEach(flag => {
+            const englishKey = element.getAttribute('data-original-text');
+            if (englishKey) {
+                const translatedText = this.__(englishKey);
+                element.textContent = translatedText;
+            }
+        });
+    }
+
+    private findEnglishKeyByTranslation(translatedText: string): string | null {
+        const currentLanguage = this.getCurrentLanguage() || 'en_EN';
+
+        for (const key of Object.keys(this.translations)) {
+            const translationObj = this.translations[key];
+
+            if (translationObj[currentLanguage] === translatedText) {
+                return translationObj['en_EN'] || key;
+            }
+
+            if (typeof translationObj === 'object') {
+                for (const nestedKey of Object.keys(translationObj)) {
+                    const nestedTranslation = translationObj[nestedKey];
+                    if (typeof nestedTranslation === 'object' &&
+                        nestedTranslation[currentLanguage] === translatedText) {
+                        return nestedTranslation['en_EN'] || nestedKey;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private langSelectAction(): Record<string, string> {
+        const activeFlag = document.querySelector('.dropdown-head .flag.active') as HTMLImageElement;
+        const passiveButtons = document.querySelectorAll('.dropdown-item button[data-lang]');
+        const flagSources: Record<string, string> = {};
+        const mobileFlags = document.querySelectorAll(".mobilemenu .flag");
+
+        document.querySelectorAll('.flag[data-lang]').forEach(flag => {
             const lang = flag.getAttribute('data-lang');
             const src = flag.getAttribute('src');
             if (lang && src) {
@@ -70,57 +130,58 @@ export class LanguageService {
             const currentLang = activeFlag.getAttribute('data-lang');
 
             if (currentLang !== savedLanguage) {
-                const passiveFlagWithSavedLang = Array.from(passiveFlags).find(
-                    flag => flag.getAttribute('data-lang') === savedLanguage
-                ) as HTMLImageElement | undefined;
+                if (flagSources[savedLanguage]) {
+                    activeFlag.setAttribute('src', flagSources[savedLanguage]);
+                    activeFlag.setAttribute('data-lang', savedLanguage);
 
-                if (passiveFlagWithSavedLang) {
-                    const passiveSrc = passiveFlagWithSavedLang.getAttribute('src');
-                    const passiveLang = passiveFlagWithSavedLang.getAttribute('data-lang');
-                    const activeSrc = activeFlag.getAttribute('src');
-                    const activeLang = activeFlag.getAttribute('data-lang');
-
-                    if (passiveSrc && passiveLang && activeSrc && activeLang) {
-                        activeFlag.setAttribute('src', passiveSrc);
-                        activeFlag.setAttribute('data-lang', passiveLang);
-                        passiveFlagWithSavedLang.setAttribute('src', activeSrc);
-                        passiveFlagWithSavedLang.setAttribute('data-lang', activeLang);
-
-                        LanguageService.loadTranslations().then(() => {
-                            document.dispatchEvent(new CustomEvent('LanguageChanged'));
-                        });
-                    }
+                    this.loadTranslations().then(() => {
+                        this.translateTextElements();
+                    });
                 }
             }
         }
+        mobileFlags.forEach(mobileButton => {
+            mobileButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const clickedButton = e.currentTarget as HTMLButtonElement;
+                const newLang = clickedButton.getAttribute('data-lang');
+                if (!newLang) return;
 
-        passiveFlags.forEach(passiveFlag => {
-            const clone = passiveFlag.cloneNode(true);
-            if (passiveFlag.parentNode) {
-                passiveFlag.parentNode.replaceChild(clone, passiveFlag);
+                document.cookie = `language=${newLang}; path=/; max-age=31536000`;
+                this.loadTranslations().then(() => {
+                    this.translateTextElements();
+                    Router.update();
+                }).catch(error => {
+                    console.error('Error loading translations:', error);
+                });
+            });
+        })
+        passiveButtons.forEach(button => {
+            const clone = button.cloneNode(true) as HTMLButtonElement;
+            if (button.parentNode) {
+                button.parentNode.replaceChild(clone, button);
             }
 
-            clone.addEventListener('click', function (e) {
-                const clickedFlag = e.target as HTMLImageElement;
-                const newLang = clickedFlag.getAttribute('data-lang');
+            clone.addEventListener('click', (e) => {
+                e.preventDefault();
+                const clickedButton = e.currentTarget as HTMLButtonElement;
+                const newLang = clickedButton.getAttribute('data-lang');
+                const clickedFlag = clickedButton.querySelector('.flag') as HTMLImageElement;
 
-                if (!newLang) return;
+                if (!newLang || !clickedFlag) return;
 
                 document.cookie = `language=${newLang}; path=/; max-age=31536000`;
 
                 if (activeFlag) {
-                    const oldActiveLang = activeFlag.getAttribute('data-lang');
-                    const oldActiveSrc = activeFlag.getAttribute('src');
-
                     activeFlag.setAttribute('src', clickedFlag.src);
                     activeFlag.setAttribute('data-lang', newLang);
 
-                    if (oldActiveLang && oldActiveSrc) {
-                        clickedFlag.setAttribute('src', oldActiveSrc);
-                        clickedFlag.setAttribute('data-lang', oldActiveLang);
-                    }
-                    LanguageService.loadTranslations().then(() => {
-                        Router.update()
+                    this.loadTranslations().then(() => {
+                        this.translateTextElements();
+                        Router.update();
+                        this.closeDropdown();
+                    }).catch(error => {
+                        console.error('Error loading translations:', error);
                     });
                 }
             });
@@ -129,24 +190,19 @@ export class LanguageService {
         return flagSources;
     }
 
-    static initialize() {
+    private closeDropdown(): void {
+        const dropdown = document.getElementById('language-dropdown');
+        if (dropdown) {
+            dropdown.classList.remove('active');
+        }
+    }
+
+    public initialize(): void {
         if (this.isInitialized) {
             return;
         }
 
         this.isInitialized = true;
         this.loadTranslations();
-
-        const routerContentLoadedHandler = () => {
-            LanguageService.setupLangSelect();
-            document.removeEventListener('RouterContentLoaded', routerContentLoadedHandler);
-        };
-
-        document.addEventListener('RouterContentLoaded', routerContentLoadedHandler);
     }
 }
-
-const __ = LanguageService.__;
-export default __;
-
-LanguageService.initialize();

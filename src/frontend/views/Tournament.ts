@@ -1,45 +1,34 @@
 import AbstractView from '../../utils/AbstractView.js';
-import Title from '../components/Title.js';
-import Button from '../components/Button.js';
+import Card from '../components/Card.js';
+import __ from '../services/LanguageService.js';
 
 export default class Tournament extends AbstractView {
-    constructor(params: URLSearchParams) {
+    constructor(routeParams: Record<string, string>, queryParams: URLSearchParams = new URLSearchParams()) {
         super();
-        this.params = params;
+
+        this.initEvents = this.setupEvents.bind(this);
+        this.destroyEvents = this.cleanupEvents.bind(this);
     }
 
     async getHtml(): Promise<string> {
-        const title = new Title({ title: 'Tournament Bracket' });
-        const titleSection = await title.getHtml();
+        const tournamentCard = await new Card().renderCard({});
+        return this.render(`${tournamentCard}`);
+    }
 
-        const button = new Button();
-        const backButton = await button.renderButton({
-            id: 'returnLobbyBtn',
-            text: 'Return to Lobby',
-            className: 'btn btn-secondary',
-            href: '/lobby',
-        });
+    private setupEvents(): void {
+        console.log('[Tournament] setupEvents()');
 
-        return this.render(`
-			<div class="container">
-				${titleSection}
-				${backButton}
-				<div class="tournament-bracket">
-					<div class="round round-1">
-						<div class="match"><span>Player A</span><span>Player B</span></div>
-						<div class="match"><span>Player C</span><span>Player D</span></div>
-						<div class="match"><span>Player E</span><span>Player F</span></div>
-						<div class="match"><span>Player G</span><span>Player H</span></div>
-					</div>
-					<div class="round round-2">
-						<div class="match"><span>Winner 1</span><span>Winner 2</span></div>
-						<div class="match"><span>Winner 3</span><span>Winner 4</span></div>
-					</div>
-					<div class="round final">
-						<div class="match"><span>Finalist 1</span><span>Finalist 2</span></div>
-					</div>
-				</div>
-			</div>
-		`);
+        window.tournamentService?.setupEventListener();
+    }
+
+    private cleanupEvents(): void {
+        console.log('[Tournament] cleanupEvents()');
+
+        // if (window.tournamentService) {
+        //     const Button = document.getElementById('');
+        //     if (Button) {
+        //         Button.removeEventListener('click', window.tournamentService.);
+        //     }
+        // }
     }
 }

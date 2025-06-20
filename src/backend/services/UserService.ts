@@ -3,14 +3,15 @@ import speakeasy from 'speakeasy';
 import { OAuth2Client } from 'google-auth-library';
 
 import { AppDataSource } from "../DataSource.js";
-import { UserModel } from "../models/MatchModel.js";
-import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from "../../interfaces/userInterfaces.js";
+import { MatchModel, UserModel } from "../models/MatchModel.js";
+import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from "../../interfaces/userManagementInterfaces.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, hashPW, verifyPW } from "../middleware/security.js";
 import { deleteAvatar } from "../services/FileService.js";
 import { EmailService } from "../services/EmailService.js";
 
 export class UserService {
     private userRepo = AppDataSource.getRepository(UserModel);
+    private matchRepo = AppDataSource.getRepository(MatchModel);
     private emailService = new EmailService();
     private googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -40,43 +41,50 @@ export class UserService {
 
     async createUser(userData: RegisterCredentials & { password: string, avatar?: string }): Promise<UserModel> {
         try {
-            // Check if user already exists by email
-            const existingUser = await this.findUserByEmail(userData.email);
-            if (existingUser) {
+            const existingEmail = await this.findUserByEmail(userData.email);
+            if (existingEmail) {
                 throw new Error('Email already exists');
             }
 
-            // Always set role to 'user'
-            userData.role = 'user';
+            const existingUsername = await this.findUserByUsername(userData.username);
+            if (existingUsername) {
+                throw new Error('Username already exists');
+            }
 
-            // Generate verification token for email verification
-            const verificationToken = this.emailService.generateToken();
+            let user: RegisterCredentials;
 
             // Create user with verification token and emailVerified=false
-            const user = this.userRepo.create({
-                ...userData,
-                emailVerified: false,
-                verificationToken: verificationToken
-            });
+            if (!userData.emailVerified) {
+                const verificationToken = this.emailService.generateToken();
 
-            const savedUser = await this.userRepo.save(user);
-
-            // Send verification email
-            try {
                 await this.emailService.sendVerificationEmail(
                     userData.email,
-                    verificationToken,
-                    userData.username
+                    userData.username,
+                    verificationToken
                 );
-            }
-            catch (error) {
-                console.error('Failed to send verification email:', error);
-                // Continue with user creation even if email fails
-            }
 
+                user = this.userRepo.create({
+                    ...userData,
+                    role: 'user',
+                    emailVerified: false,
+                    verificationToken: verificationToken
+                });
+            }
+            else {
+                user = this.userRepo.create({
+                    ...userData,
+                    role: 'user',
+                });
+            }
+            console.log(user);
+            const savedUser = await this.userRepo.save(user);
             return savedUser;
+
         }
-        catch (error) {
+        catch (error: any) {
+            if (error.message === 'Email already exists' || error.message === 'Username already exists') {
+                throw error;
+            }
             throw new Error('Failed to create user');
         }
     }
@@ -147,10 +155,7 @@ export class UserService {
 
     // Verify user email with token
     async verifyEmail(token: string): Promise<boolean> {
-        const user = await this.userRepo.findOne({
-            where: { verificationToken: token }
-        });
-
+        const user = await this.userRepo.findOne({ where: { verificationToken: token } });
         if (!user) {
             throw new Error('Invalid verification token');
         }
@@ -234,8 +239,7 @@ export class UserService {
 
     private generateTokens(user: UserModel): AuthTokens {
         const payload: JWTPayload = {
-            userID: user.id.toString(),
-            email: user.email,
+            userId: user.id.toString(),
             role: user.role
         };
 
@@ -245,7 +249,7 @@ export class UserService {
         return { accessToken, refreshToken };
     }
 
-    public async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+    async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
         try {
             const { userId } = verifyRefreshToken(refreshToken);
             const user = await this.findUserById(parseInt(userId));
@@ -254,8 +258,7 @@ export class UserService {
             }
 
             const payload: JWTPayload = {
-                userID: user.id.toString(),
-                email: user.email,
+                userId: user.id.toString(),
                 role: user.role
             };
             return { accessToken: generateAccessToken(payload) };
@@ -265,39 +268,42 @@ export class UserService {
         }
     }
 
-    // for return type you will need to register a Promise of type token in form of security token you want(jwt,apikey etc..)
-    async register(credentials: RegisterCredentials & { avatar?: string, secret?: string }, requestingUserRole?: string) {
-        const hashedPW = await hashPW(credentials.password);
+    async register(credentials: RegisterCredentials & { avatar?: string, secret?: string }) {
+        try {
+            const hashedPW = await hashPW(credentials.password);
 
-        // Create user data with potential 2FA settings
-        const userData: any = {
-            ...credentials,
-            password: hashedPW
-        };
+            // Create user data with potential 2FA settings
+            const userData: any = {
+                ...credentials,
+                password: hashedPW
+            };
 
-        // If secret is provided and 2FA token is valid, enable 2FA
-        if (credentials.secret) {
-            // Get the token from the tf_ fields if they exist
-            const token = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
-                credentials.tf_four && credentials.tf_five && credentials.tf_six ?
-                `${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` : '';
+            // If secret is provided and 2FA token is valid, enable 2FA
+            if (credentials.secret) {
+                // Get the token from the tf_ fields if they exist
+                const token = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
+                    credentials.tf_four && credentials.tf_five && credentials.tf_six ?
+                    `${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` : '';
 
-            if (token) {
-                const verified = speakeasy.totp.verify({
-                    secret: credentials.secret,
-                    encoding: 'base32',
-                    token: token
-                });
+                if (token) {
+                    const verified = speakeasy.totp.verify({
+                        secret: credentials.secret,
+                        encoding: 'base32',
+                        token: token
+                    });
 
-                if (verified) {
-                    userData.twoFAEnabled = true;
-                    userData.twoFASecret = credentials.secret;
+                    if (verified) {
+                        userData.twoFAEnabled = true;
+                        userData.twoFASecret = credentials.secret;
+                    }
                 }
             }
+            const user = await this.createUser(userData);
+            return this.generateTokens(user);
         }
-
-        const user = await this.createUser(userData);
-        return this.generateTokens(user);
+        catch (error) {
+            throw error;
+        }
     }
 
     async login(credentials: LoginCredentials) {
@@ -320,6 +326,9 @@ export class UserService {
                 username: user.username
             };
         }
+
+        // Set user online status to true
+        await this.setUserOnline(user.id, true);
 
         // If no 2FA, proceed with normal login
         return this.generateTokens(user);
@@ -349,7 +358,7 @@ export class UserService {
         if (!user) {
             // Create a new user if not found
             const username = payload.name ?? payload.email;
-            const displayname = username;
+            const name = username;
             const avatar = payload.picture ?? '';
             const password = "null";  // todo
 
@@ -357,14 +366,25 @@ export class UserService {
                 username,
                 email: payload.email,
                 password,
-                displayname,
+                name,
                 role: 'user',
                 avatar
             });
         }
 
+        // Set user online status to true
+        await this.setUserOnline(user.id, true);
+
         // Generate and return JWTs
         return this.generateTokens(user);
+    }
+
+    async logout(userId: number): Promise<void> {
+        await this.setUserOnline(userId, false);
+    }
+
+    async setUserOnline(userId: number, online: boolean): Promise<void> {
+        await this.userRepo.update(userId, { online });
     }
 
     // Add new method to verify 2FA code
@@ -406,5 +426,74 @@ export class UserService {
             }
         }
         return null;
+    }
+
+    async findUserFriends(id: number): Promise<UserModel[]> {
+        const user = await this.userRepo.findOne({
+            where: { id },
+            relations: ['friends']
+        });
+        return user?.friends || [];
+    }
+
+    async addFriend(userId: number, username: string): Promise<void> {
+        const user = await this.userRepo.findOne({
+            where: { id: userId },
+            relations: ['friends']
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const friend = await this.findUserByUsername(username);
+        if (!friend) {
+            throw new Error('Friend not found');
+        }
+
+        if (userId === friend.id) {
+            throw new Error('Cannot add yourself as friend');
+        }
+
+        const isAlreadyFriend = user.friends.some(f => f.id === friend.id);
+        if (isAlreadyFriend) {
+            throw new Error('Already friends');
+        }
+
+        user.friends.push(friend);
+        await this.userRepo.save(user);
+    }
+
+    async removeFriend(userId: number, friendId: number): Promise<void> {
+        const user = await this.userRepo.findOne({
+            where: { id: userId },
+            relations: ['friends']
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.friends = user.friends.filter(friend => friend.id !== friendId);
+        await this.userRepo.save(user);
+    }
+
+    async getAllFinishedMatchesByUserId(userId: number) {
+        const userExists = await this.userRepo.exists({ where: { id: userId } })
+        if (!userExists) {
+            throw new Error("User not found")
+        }
+
+        const matchHistory = await this.matchRepo.find({
+            where: [
+                { player1: { id: userId }, status: 'completed' },
+                { player2: { id: userId }, status: 'completed' },
+            ],
+            relations: ['player1', 'player2', 'winner'],
+            order: {
+                createdAt: 'DESC',
+            },
+        });
+        return matchHistory;
     }
 }

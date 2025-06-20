@@ -1,5 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
+import __ from '../services/LanguageService.js';
 
 export default class EmailVerification extends AbstractView {
     constructor() {
@@ -7,61 +8,79 @@ export default class EmailVerification extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        const card = new Card();
-
-        // Extract token from URL path since params doesn't seem to contain it
         const pathParts = window.location.pathname.split('/');
         const token = pathParts.length > 2 ? pathParts[pathParts.length - 1] : null;
 
         if (!token) {
-            // No token provided, show instructions for verification
-            const infoCard = await card.renderCard({
-                title: 'Email Verification',
-                prefix: `
-                    <div class="text-center">
-                        <p>Please check your email for a verification link.</p>
-                        <p class="mt-4">If you haven't received an email, you can request a new verification link using the form below:</p>
-                    </div>
-                `,
+            const infoCard = await new Card().renderCard({
+                title: window.ls.__('Email Verification'),
                 formId: 'resend-verification-form',
-                inputs: [
-                    { name: 'email', type: 'email', placeholder: 'Your Email Address' }
-                ],
-                button: { text: 'Resend Verification Email', type: 'submit', className: "btn btn-primary" },
-                extra: '<p>Already verified? <a router href="/login">Log in</a></p>'
+                contentBlocks: [
+                    {
+                        type: 'html',
+                        props: {
+                            html: `
+                                <div class="text-center">
+                                    <p>${window.ls.__('Please check your email for a verification link.')}</p>
+                                    <p class="mt-4">${window.ls.__('If you haven\'t received an email, you can request a new verification link using the form below:')}</p>
+                                </div>
+                            `
+                        }
+                    },
+                    {
+                        type: 'input',
+                        props: {
+                            name: 'email',
+                            type: 'email',
+                            placeholder: window.ls.__('Your Email Address')
+                        }
+                    },
+                    {
+                        type: 'html',
+                        props: {
+                            html: `<p>${window.ls.__('Already verified?')} <a router href="/login">${window.ls.__('Log in')}</a></p>`
+                        }
+                    },
+                    {
+                        type: 'button',
+                        props: {
+                            text: window.ls.__('Resend Verification Email'),
+                            type: 'submit',
+                            className: 'btn btn-primary'
+                        }
+                    }
+                ]
             });
 
-            return this.render(`
-                <div class="flex justify-center items-center min-h-[80vh] px-4">
-                    <div class="w-full max-w-xl space-y-8">
-                        ${infoCard}
-                    </div>
-                </div>
-            `);
+            return this.render(`${infoCard}`);
         } else {
-            // Token provided, show verification in progress
-            const verifyingCard = await card.renderCard({
-                title: 'Verifying Your Email',
-                prefix: `
-                    <div class="text-center">
-                        <p>Please wait while we verify your email address...</p>
-                        <div class="mt-4">
-                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-                        </div>
-                    </div>
-                `,
-                formId: '',
-                inputs: [],
-                button: { text: '', type: 'button', className: "btn btn-primary" }
+            const verifyingCard = await new Card().renderCard({
+                title: window.ls.__('Verifying Your Email'),
+                contentBlocks: [
+                    {
+                        type: 'html',
+                        props: {
+                            html: `
+                                <div class="text-center">
+                                    <p>${window.ls.__('Please wait while we verify your email address...')}</p>
+                                    <div class="mt-4">
+                                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                                    </div>
+                                </div>
+                            `
+                        }
+                    },
+                    {
+                        type: 'button',
+                        props: {
+                            type: 'button',
+                            className: 'btn btn-primary hidden'
+                        }
+                    }
+                ]
             });
 
-            return this.render(`
-                <div class="flex justify-center items-center min-h-[80vh] px-4">
-                    <div class="w-full max-w-xl space-y-8">
-                        ${verifyingCard}
-                    </div>
-                </div>
-            `);
+            return this.render(`${verifyingCard}`);
         }
     }
 }

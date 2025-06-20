@@ -1,0 +1,37 @@
+/* modal.css */
+
+.modal-overlay {
+    @apply fixed inset-[calc(var(--spacing)*_0)] z-50 items-center justify-center bg-[color-mix(in_srgb,#000_50%,transparent)] left-0 top-0;
+}
+
+.modal-overlay .card{
+    @apply w-[600px] m-auto mt-[200px] h-[300px] overflow-y-scroll p-6 relative pointer-events-none;
+}
+.modal-overlay .card .btn{
+    pointer-events: all;
+}
+
+.modal-title {
+	@apply text-2xl font-bold mb-4 text-center;
+}
+
+.modal-content {
+	@apply text-base leading-relaxed text-center;
+}
+
+.modal-footer {
+	@apply mt-6 flex justify-end gap-4;
+}
+
+.modal-close-btn {
+	@apply absolute top-3 right-3 text-gray-400 hover:text-gray-200 text-xl font-bold;
+}
+
+/* Animations */
+.modal-fade {
+	@apply transition-opacity duration-200 ease-out opacity-0 invisible;
+}
+
+.modal-scale {
+	@apply transform scale-95 opacity-0 transition duration-200 ease-out;
+}

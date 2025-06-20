@@ -1,4 +1,3 @@
-import { FastifyRequest } from "fastify";
 import { createWriteStream, unlink } from "fs";
 import { mkdir } from "fs/promises";
 import { join, extname } from "path";
@@ -69,7 +68,6 @@ export async function deleteAvatar(avatarPath: string): Promise<boolean> {
                 console.error(`Error deleting file ${filepath}:`, err);
                 resolve(false);
             } else {
-                console.log(`Successfully deleted file ${filepath}`);
                 resolve(true);
             }
         });

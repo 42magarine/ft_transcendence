@@ -1,16 +1,70 @@
-export type IPaddleDirection = 'up' | 'down';
+import type MessageHandlerService from '../frontend/services/MessageHandlerService.js';
+import type LobbyService from '../frontend/services/LobbyService.js';
+import type LobbyListService from '../frontend/services/LobbyListService.js';
+import type TournamentService from '../frontend/services/TournamentService.js';
+import type UserService from '../frontend/services/UserService.js';
+import type UserManagementService from '../frontend/services/UserManagementService.js';
+import type PongService from '../frontend/services/PongService.js';
+import type LanguageService from '../frontend/services/LanguageService.js';
+import AbstractView from "../utils/AbstractView.js";
 
-export interface IBallState {
-    x: number;
-    y: number;
-    radius: number;
+export interface RouteHookContext {
+    route: Route;
+    params: Record<string, string>;
+    view: AbstractView;
+    path: string;
+    from: string;
+    to: string;
 }
+
+export interface Route {
+    path: string | RegExp;
+    view: new (routeParams: Record<string, string>, queryParams: URLSearchParams) => AbstractView;
+    metadata?: {
+        title?: string;
+        description?: string;
+    };
+    role?: string;
+    onEnter?: (context: RouteHookContext) => Promise<boolean | void>;
+    onLeave?: (context: RouteHookContext) => Promise<boolean | void>;
+}
+
+declare global {
+    interface Window {
+        currentUser: User | null;
+        ft_socket?: WebSocket;
+        socketReady: Promise<void>;
+        ls: LanguageService;
+        messageHandler: MessageHandlerService;
+        lobbyListService: LobbyListService;
+        lobbyService: LobbyService;
+        tournamentService: TournamentService;
+        userService: UserService;
+        userManagementService: UserManagementService;
+        pongService: PongService;
+        __: (key: string) => string;
+        handleModalOutsideClick: (event: Event, id: string) => void;
+    }
+}
+
+export { };
+
+export type IPaddleDirection = 'up' | 'down';
 
 export interface IPaddleState {
     x: number;
     y: number;
     width: number;
     height: number;
+    speed?: number;
+}
+
+export interface IBallState {
+    x: number;
+    y: number;
+    radius: number;
+    speedX: number;
+    speedY: number;
 }
 
 export interface IGameState {
@@ -22,120 +76,103 @@ export interface IGameState {
     paused: boolean;
     running: boolean;
     gameIsOver: boolean;
+    matchId?: number
+    player1Id?: number
+    player2Id?: number
+    player1Left: boolean;
+    player2Left: boolean;
+    winnerName?: string;
 }
 
-export interface LobbyInfo {
-    id: string;
+export interface ILobbyState {
+    lobbyId: string;
     name: string;
-    creatorId: number | undefined;
+    creatorId: number;
     maxPlayers: number;
     currentPlayers: number;
-    isPublic: boolean;
     createdAt: Date;
-    lobbyType: "game" | "tournament"
-    isStarted: boolean;
+    lobbyType: 'game' | 'tournament';
+    lobbyPlayers: IPlayerState[];
+    isStarted: boolean; // Is game/tournament started
+    tournamentStatus?: 'pending' | 'ongoing' | 'completed' | 'cancelled';
+    currentRound?: number;
+    playerPoints?: { [userId: number]: number }; // userId -> points
+    matchSchedule?: ITournamentRound[]; // Full tournament schedule
+    activeGames: IActiveGameInfo[];
 }
 
-export interface PlayerInfo {
+export interface IPlayerState {
     playerNumber: number;
-    username: string;
-    score: number;
+    userId: number;
+    userName: string;
+    isReady: boolean;
+    points?: number;
 }
 
-export interface GameResult {
-    id: number;
-    player1: PlayerInfo;
-    player2: PlayerInfo;
-    winner: string;
-    date: Date;
+export interface IActiveGameInfo {
+    matchId: number;
+    player1Id?: number;
+    player2Id?: number;
+    score1: number;
+    score2: number;
 }
 
-export interface GameHistoryResponse {
-    id: number;
-    player2: string;
-    playerScore: number;
-    opponentScore: number;
-    result: string;
-    date: Date;
+export interface ITournamentMatchPairing {
+    player1Id: number;
+    player2Id: number;
+    matchId: number | null;
+    isCompleted: boolean
 }
 
-declare module 'fastify' {
-    interface FastifyRequest {
-        user?: {
-            id: number;
-            role: string;
-        }
-    }
+export interface ITournamentRound {
+    roundNumber: number;
+    matches: ITournamentMatchPairing[];
 }
 
-export interface ClientMessage {
-    type: string;
-    userId?: number;
-    targetUserId?: number;
-    inviteId?: string;
+// MESSAGE INTERFACES
+
+export interface IClientMessage {
+    type: "createLobby" | "joinLobby" | "leaveLobby" | "movePaddle" | "ready" | "startGame" | "getLobbyList" | "getLobbyState" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
     lobbyId?: string;
+    userId?: number;
+    lobbyType?: 'game' | 'tournament';
+    maxPlayers?: number;
     direction?: IPaddleDirection;
+    ready?: boolean;
+    matchId?: number;
     message?: string;
+    gameIsOver?: boolean;
     [key: string]: any;
 }
 
-export interface GameActionMessage extends ClientMessage {
-    type: "gameAction";
-    action?: string;
-}
-
-export interface ReadyMessage extends ClientMessage {
-    ready: boolean;
-}
-
-export interface joinLobbyMessage extends ClientMessage {
-    type: "joinLobby";
-}
-
-export interface createLobbyMessage extends ClientMessage {
-    type: "createLobby";
-}
-
-export interface leaveLobbyMessage extends ClientMessage {
-    type: "leaveLobby";
-}
-
-export interface ServerMessage {
-    type: string;
+export interface IServerMessage {
+    type: "connection" | "error" | "lobbyCreated" | "joinedLobby" | "playerJoined" | "playerLeft" | "lobbyList" | "lobbyState" | "playerReady" | "gameStarted" | "gameStateUpdate" | "gameOver" | "leftLobby" | "tournamentStarted" | "tournamentRoundStart" | "tournamentMatchStart" | "tournamentMatchOver" | "tournamentFinished" | "tournamentCancelled" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
     message?: string;
-    playerNumber?: number;
-    playerCount?: number;
     lobbyId?: string;
-    userId?: number;
-    direction?: IPaddleDirection;
-    timestamp?: string;
-    lobbies?: LobbyInfo[]
-    [key: string]: any;
-}
-
-export interface GameStateMessage extends ServerMessage {
-    type: "gameState";
-    gameState: IGameState;
+    owner?: number;
+    lobbyType?: 'game' | 'tournament';
+    maxPlayers?: number;
+    lobby?: ILobbyState;
+    lobbies?: ILobbyState[];
+    gameState?: IGameState;
+    activeGamesStates?: IGameState[];
+    winningUserId?: number | null;
+    winnerId?: number | null;
+    player1Score?: number;
+    player2Score?: number;
+    matchId?: number;
+    player1Name?: string;
+    player2Name?: string;
+    winnerUserName?: string | null;
 }
 
 export interface User {
     id?: number;
     username: string;
     email: string;
-    displayname?: string;
+    name?: string;
     role?: string;
     hasClickedStart?: boolean;
     isJoined?: boolean;
     isCreator?: boolean;
-}
-
-export interface LobbyParticipant extends User {
-    isReady: boolean; // Essential for the UI
-    // isCreator can be derived by comparing id with lobbyData.creatorId
-}
-
-// This is what LobbyService should ideally provide for currentLobbyData
-// when Lobby.ts needs to render the view.
-export interface LobbyDataWithParticipants extends LobbyInfo { // LobbyInfo is your existing interface
-    participants: LobbyParticipant[]; // THE CRUCIAL ADDITION
 }

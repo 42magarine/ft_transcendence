@@ -1,9 +1,10 @@
 import AbstractView from '../../utils/AbstractView.js';
-import Button from '../components/Button.js';
 import Card from '../components/Card.js';
-import Title from '../components/Title.js';
-import { UserList } from '../../interfaces/userInterfaces.js';
-import { generateProfileImage } from '../../utils/Avatar.js';
+import { UserList } from '../../interfaces/userManagementInterfaces.js';
+import Modal from '../components/Modal.js';
+import UserService from '../services/UserService.js';
+import __ from '../services/LanguageService.js';
+import Router from '../../utils/Router.js';
 
 export default class UserManagement extends AbstractView {
     constructor() {
@@ -11,127 +12,132 @@ export default class UserManagement extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-        // Fetch users from API
-        let users = [];
-        try {
-            const response = await fetch('/api/users/');
-            if (response.ok) {
-                users = await response.json();
-            }
-            else {
-                console.error('Failed to fetch users from API');
-            }
-        }
-        catch (error) {
-            console.error('API request error:', error);
-        }
+        const users: UserList[] = await UserService.getAllUsers();
 
-        // Add avatar to each user
-        users.forEach((user: UserList) => {
-            user.listAvatar = generateProfileImage(user, 20, 20);
-        });
-
-        // Title
-        const title = new Title({ title: 'User Management' });
-        const titleSection = await title.getHtml();
-
-        // Optional Button Group
-        const button = new Button();
-        const readAllButtonGroup = await button.renderGroup({
-            layout: 'stack',
-            align: 'center',
-            buttons: [
+        const createUserCard = await new Card().renderCard({
+            title: window.ls.__('Create New User'),
+            formId: 'create-form',
+            contentBlocks: [
                 {
-                    id: 'read-all',
-                    text: 'Read all Users',
-                    onClick: `document.getElementById('user-list').innerHTML = '<li>Loading...</li>'`
+                    type: 'inputgroup',
+                    props: {
+                        inputs: [
+                            { name: 'name', label: window.ls.__('Name'), placeholder: window.ls.__('Name') },
+                            { name: 'username', label: window.ls.__('Username'), placeholder: window.ls.__('Username') },
+                            { name: 'email', type: 'email', label: window.ls.__('E-Mail'), placeholder: window.ls.__('E-Mail') },
+                            {
+                                id: 'password',
+                                name: 'password',
+                                type: 'password',
+                                label: window.ls.__('Password'),
+                                placeholder: window.ls.__('Password'),
+                                withConfirm: true
+                            }
+                        ]
+                    }
+                },
+                {
+                    type: 'buttongroup',
+                    props: {
+                        buttons: [
+                            { text: window.ls.__('Create User'), type: 'submit', className: 'btn btn-green' }
+                        ],
+                        layout: 'stack',
+                        align: 'left'
+                    }
+                },
+                {
+                    type: 'label',
+                    props: {
+                        htmlFor: 'dummy-id',
+                        text: ' ' // spacing only
+                    }
+                },
+                {
+                    type: 'table',
+                    props: {
+                        id: 'user-list',
+                        title: window.ls.__('User Overview'),
+                        height: '300px',
+                        data: users,
+                        columns: [
+                            { key: 'id', label: window.ls.__('ID') },
+                            { key: 'name', label: window.ls.__('Name') },
+                            { key: 'username', label: window.ls.__('Username') },
+                            { key: 'email', label: window.ls.__('Email') },
+                            { key: 'emailVerified', label: window.ls.__('Verified') },
+                            { key: 'twoFAEnabled', label: window.ls.__('2FA') },
+                            { key: 'actions', label: window.ls.__('Actions') }
+                        ],
+                        rowLayout: (user) => [
+                            { type: 'label', props: { text: `${user.id}` } },
+                            { type: 'label', props: { text: `${user.name}` } },
+                            { type: 'label', props: { text: `${user.username}` } },
+                            { type: 'label', props: { text: `${user.email}` } },
+                            { type: 'label', props: { text: user.emailVerified ? window.ls.__('Yes') : window.ls.__('No') } },
+                            { type: 'label', props: { text: user.twoFAEnabled ? window.ls.__('Enabled') : window.ls.__('Disabled') } },
+                            {
+                                type: 'buttongroup',
+                                props: {
+                                    buttons: [
+                                        { icon: 'eye', text: window.ls.__('View'), href: `/users/${user.id}` },
+                                        { icon: 'pen-to-square', text: window.ls.__('Edit'), href: `/users/edit/${user.id}` },
+                                        {
+                                            id: `delete-user-btn-${user.id}`,
+                                            icon: 'trash',
+                                            text: window.ls.__('Delete'),
+                                            color: 'red',
+                                            dataAttributes: {
+                                                'user-id': String(user.id)
+                                            },
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
                 }
             ]
         });
 
-        const card = new Card();
+        return this.render(`${createUserCard}`);
+    }
 
-        // List Card
-        const listCard = await card.renderCard({
-            title: 'Users',
-            extra: `<table class="list" data-height="400px">
-                <thead>
-                    <tr>
-                        <th>Avatar</th>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>E-Mail</th>
-                        <th>Verified</th>
-                        <th>2FA</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <for each="users" as="user">
-                        <tr>
-                            <td>{{user.listAvatar}}</td>
-                            <td>{{user.id}}</td>
-                            <td>{{user.displayname}}</td>
-                            <td>{{user.username}}</td>
-                            <td>{{user.email}}</td>
-                            <td>{{user.emailVerified}}</td>
-                            <td>{{user.twoFAEnabled}}</td>
-                            <td class="text-right">
-                                <a router class="btn" href="/users/{{user.id}}"><i class="fa-solid fa-eye"></i></a>
-                                <a router class="btn" href="/users/edit/{{user.id}}"><i class="fa-solid fa-pen-to-square"></i></a>
-                                <button type="button" class="btn btn-danger delete-user" data-user="{{user.id}}"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    </for>
-                </tbody>
-            </table>`,
-            data: { users }
+    async mount(): Promise<void> {
+        const users: UserList[] = await UserService.getAllUsers();
+        const deleteButtons = document.querySelectorAll('[data-user-id]');
+
+        deleteButtons.forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const userId = btn.getAttribute('data-user-id');
+                if (!userId) return;
+
+                const user = users.find((u) => String(u.id) === userId);
+                if (!user) {
+                    console.error(`User with ID ${userId} not found`);
+                    return;
+                }
+
+                // Remove existing modal if present
+                document.getElementById('confirm-delete-modal')?.remove();
+
+                const modal = new Modal();
+
+                await modal.renderDeleteModal({
+                    id: 'confirm-delete-modal',
+                    userId: userId,
+                    onConfirm: async () => {
+                        try {
+                            await UserService.deleteUser(Number(userId));
+                            Router.update();
+                        } catch (err) {
+                            console.error('Failed to delete user:', err);
+                        }
+                    }
+                });
+
+                document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
+            });
         });
-
-        // Register Card
-        const registerCard = await card.renderCard({
-            title: 'Create User',
-            formId: 'create-form',
-            inputs: [
-                { name: 'displayname', type: 'text', placeholder: 'Name' },
-                { name: 'username', type: 'text', placeholder: 'Username' },
-                { name: 'email', type: 'email', placeholder: 'Email Address' },
-                {
-                    name: 'emailVerified',
-                    type: 'select',
-                    placeholder: 'Mark Email Verified',
-                    value: 'false',
-                    options: [
-                        { label: 'Yes', value: 'true' },
-                        { label: 'No', value: 'false' }
-                    ]
-                },
-                // Hidden value submitted to backend
-                { name: 'twoFAEnabled', type: 'hidden', value: 'false' },
-                // Display-only label row
-                {
-                    name: 'twoFAInfo',
-                    type: 'display',
-                    placeholder: '2FA',
-                    value: '2FA Default Off'
-                },
-                { name: 'password', type: 'password', placeholder: 'Password' }
-            ],
-            button: {
-                text: 'Create',
-                type: 'submit',
-                className: 'btn btn-primary'
-            }
-        });
-
-        // Final layout
-        return this.render(`
-            <div class="container">
-                ${titleSection}
-                ${registerCard}
-                ${listCard}
-            </div>
-        `);
     }
 }
