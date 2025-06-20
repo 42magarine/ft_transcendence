@@ -37,15 +37,15 @@ function generateCircle(x: number, y: number, radius: number, options: ShapeOpti
     const rotate = options.rotate || 0;
 
     return `<circle
-	  cx="${x}"
-	  cy="${y}"
-	  r="${radius}"
-	  fill="${fill}"
-	  stroke="${stroke}"
-	  stroke-width="${strokeWidth}"
-	  opacity="${opacity}"
-	  transform="rotate(${rotate} ${x} ${y})"
-	/>`;
+      cx="${x}"
+      cy="${y}"
+      r="${radius}"
+      fill="${fill}"
+      stroke="${stroke}"
+      stroke-width="${strokeWidth}"
+      opacity="${opacity}"
+      transform="rotate(${rotate} ${x} ${y})"
+    />`;
 }
 
 function generateRect(x: number, y: number, width: number, height: number, options: ShapeOptions = {}): string {
@@ -56,16 +56,16 @@ function generateRect(x: number, y: number, width: number, height: number, optio
     const rotate = options.rotate || 0;
 
     return `<rect
-	  x="${x}"
-	  y="${y}"
-	  width="${width}"
-	  height="${height}"
-	  fill="${fill}"
-	  stroke="${stroke}"
-	  stroke-width="${strokeWidth}"
-	  opacity="${opacity}"
-	  transform="rotate(${rotate} ${x + width / 2} ${y + height / 2})"
-	/>`;
+      x="${x}"
+      y="${y}"
+      width="${width}"
+      height="${height}"
+      fill="${fill}"
+      stroke="${stroke}"
+      stroke-width="${strokeWidth}"
+      opacity="${opacity}"
+      transform="rotate(${rotate} ${x + width / 2} ${y + height / 2})"
+    />`;
 }
 
 function generateTriangle(x: number, y: number, size: number, options: ShapeOptions = {}): string {
@@ -83,13 +83,13 @@ function generateTriangle(x: number, y: number, size: number, options: ShapeOpti
     const y3 = y + size / 2;
 
     return `<polygon
-	  points="${x1},${y1} ${x2},${y2} ${x3},${y3}"
-	  fill="${fill}"
-	  stroke="${stroke}"
-	  stroke-width="${strokeWidth}"
-	  opacity="${opacity}"
-	  transform="rotate(${rotate} ${x} ${y})"
-	/>`;
+      points="${x1},${y1} ${x2},${y2} ${x3},${y3}"
+      fill="${fill}"
+      stroke="${stroke}"
+      stroke-width="${strokeWidth}"
+      opacity="${opacity}"
+      transform="rotate(${rotate} ${x} ${y})"
+    />`;
 }
 
 function generateStar(x: number, y: number, size: number, points: number = 5, options: ShapeOptions = {}): string {
@@ -112,13 +112,13 @@ function generateStar(x: number, y: number, size: number, points: number = 5, op
     }
 
     return `<polygon
-	  points="${pointsStr.trim()}"
-	  fill="${fill}"
-	  stroke="${stroke}"
-	  stroke-width="${strokeWidth}"
-	  opacity="${opacity}"
-	  transform="rotate(${rotate} ${x} ${y})"
-	/>`;
+      points="${pointsStr.trim()}"
+      fill="${fill}"
+      stroke="${stroke}"
+      stroke-width="${strokeWidth}"
+      opacity="${opacity}"
+      transform="rotate(${rotate} ${x} ${y})"
+    />`;
 }
 
 function generateWave(startX: number, startY: number, width: number, height: number, frequency: number, options: ShapeOptions = {}, relativeStrokeWidth: number = 0.008): string {
@@ -139,12 +139,12 @@ function generateWave(startX: number, startY: number, width: number, height: num
     }
 
     return `<path
-	  d="${pathData}"
-	  fill="${fill}"
-	  stroke="${stroke}"
-	  stroke-width="${strokeWidth}"
-	  opacity="${opacity}"
-	/>`;
+      d="${pathData}"
+      fill="${fill}"
+      stroke="${stroke}"
+      stroke-width="${strokeWidth}"
+      opacity="${opacity}"
+    />`;
 }
 
 function generateSpiral(centerX: number, centerY: number, maxRadius: number, turns: number, options: ShapeOptions = {}, relativeStrokeWidth: number = 0.008): string {
@@ -168,12 +168,12 @@ function generateSpiral(centerX: number, centerY: number, maxRadius: number, tur
     }
 
     return `<path
-	  d="${pathData}"
-	  fill="${fill}"
-	  stroke="${stroke}"
-	  stroke-width="${strokeWidth}"
-	  opacity="${opacity}"
-	/>`;
+      d="${pathData}"
+      fill="${fill}"
+      stroke="${stroke}"
+      stroke-width="${strokeWidth}"
+      opacity="${opacity}"
+    />`;
 }
 
 function generatePattern(text: string, width: number, height: number, options: ShapeOptions = {}): PatternResult {
@@ -200,40 +200,40 @@ function generatePattern(text: string, width: number, height: number, options: S
     switch (patternType) {
         case 0: // Dots
             patternSvg = `
-			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<circle cx="${patternSize / 4}" cy="${patternSize / 4}" r="${relativeDotRadius}" fill="${fill}" opacity="0.5" />
-				<circle cx="${patternSize * 3 / 4}" cy="${patternSize * 3 / 4}" r="${relativeDotRadius}" fill="${fill}" opacity="0.5" />
-			</pattern>
-			`;
+            <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+                <circle cx="${patternSize / 4}" cy="${patternSize / 4}" r="${relativeDotRadius}" fill="${fill}" opacity="0.5" />
+                <circle cx="${patternSize * 3 / 4}" cy="${patternSize * 3 / 4}" r="${relativeDotRadius}" fill="${fill}" opacity="0.5" />
+            </pattern>
+            `;
             break;
         case 1: // Diagonal lines
             patternSvg = `
-			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<line x1="0" y1="0" x2="${patternSize}" y2="${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.5" />
-			</pattern>
-			`;
+            <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+                <line x1="0" y1="0" x2="${patternSize}" y2="${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.5" />
+            </pattern>
+            `;
             break;
         case 2: // Grid
             patternSvg = `
-			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<line x1="0" y1="${patternSize / 2}" x2="${patternSize}" y2="${patternSize / 2}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.3" />
-				<line x1="${patternSize / 2}" y1="0" x2="${patternSize / 2}" y2="${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.3" />
-			</pattern>
-			`;
+            <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+                <line x1="0" y1="${patternSize / 2}" x2="${patternSize}" y2="${patternSize / 2}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.3" />
+                <line x1="${patternSize / 2}" y1="0" x2="${patternSize / 2}" y2="${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.3" />
+            </pattern>
+            `;
             break;
         case 3: // Circles
             patternSvg = `
-			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<circle cx="${patternSize / 2}" cy="${patternSize / 2}" r="${patternSize / 4}" fill="none" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.4" />
-			</pattern>
-			`;
+            <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+                <circle cx="${patternSize / 2}" cy="${patternSize / 2}" r="${patternSize / 4}" fill="none" stroke="${fill}" stroke-width="${relativeStrokeWidth}" opacity="0.4" />
+            </pattern>
+            `;
             break;
         case 4: // Zigzag
             patternSvg = `
-			<pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
-				<path d="M0,0 L${patternSize / 2},${patternSize / 2} L0,${patternSize} M${patternSize / 2},0 L${patternSize},${patternSize / 2} L${patternSize / 2},${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" fill="none" opacity="0.4" />
-			</pattern>
-			`;
+            <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="${patternSize}" height="${patternSize}">
+                <path d="M0,0 L${patternSize / 2},${patternSize / 2} L0,${patternSize} M${patternSize / 2},0 L${patternSize},${patternSize / 2} L${patternSize / 2},${patternSize}" stroke="${fill}" stroke-width="${relativeStrokeWidth}" fill="none" opacity="0.4" />
+            </pattern>
+            `;
             break;
     }
 
@@ -339,21 +339,21 @@ function getShapeForChar(char: string, x: number, y: number, size: number, color
     }
     else if ('0123456789'.includes(char)) {
         return `<rect
-		x="${x - size / 2}"
-		y="${y - size / 2}"
-		width="${size}"
-		height="${size}"
-		rx="${size / 4}"
-		ry="${size / 4}"
-		fill="${fill}"
-		opacity="${options.opacity}"
-		transform="rotate(${options.rotate} ${x} ${y})"
-	  />`;
+        x="${x - size / 2}"
+        y="${y - size / 2}"
+        width="${size}"
+        height="${size}"
+        rx="${size / 4}"
+        ry="${size / 4}"
+        fill="${fill}"
+        opacity="${options.opacity}"
+        transform="rotate(${options.rotate} ${x} ${y})"
+      />`;
     }
     else {
         const specialShape = `<g transform="translate(${x - size / 2}, ${y - size / 2}) scale(${size / 100})">
-		<path d="M50,10 L90,50 L50,90 L10,50 Z" fill="${fill}" opacity="${options.opacity}" transform="rotate(${options.rotate} 50 50)" />
-	  </g>`;
+        <path d="M50,10 L90,50 L50,90 L10,50 Z" fill="${fill}" opacity="${options.opacity}" transform="rotate(${options.rotate} 50 50)" />
+      </g>`;
         return specialShape;
     }
 }
@@ -456,18 +456,18 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
         const shadowSize = width * 0.006; // 0.6% of width (quadrupled)
 
         svg += `
-		<text
-		  x="50%"
-		  y="50%"
-		  dominant-baseline="middle"
-		  text-anchor="middle"
-		  font-family="${fontFamily}"
-		  font-size="${fontSize}"
-		  fill="${textColor}"
-		  font-weight="bold"
-		  filter="drop-shadow(0px 0px ${shadowSize}px rgba(255,255,255,0.7))"
-		>${text}</text>
-	  `;
+        <text
+          x="50%"
+          y="50%"
+          dominant-baseline="middle"
+          text-anchor="middle"
+          font-family="${fontFamily}"
+          font-size="${fontSize}"
+          fill="${textColor}"
+          font-weight="bold"
+          filter="drop-shadow(0px 0px ${shadowSize}px rgba(255,255,255,0.7))"
+        >${text}</text>
+      `;
     }
 
     svg += '</svg>';
@@ -475,24 +475,22 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
     return svg;
 }
 
-
 function generateProfileImage(userData: any, width: number, height: number): string {
-    if (userData.avatar) {
-        return `<img src="${userData.avatar}" alt="Avatar of ${userData.d}" />`;
+    if (userData.avatar)
+    {
+        return userData.avatar;  // ✅ Just return the URL, not an <img>
     }
-    let seed = "";
-    if (userData.username) {
-        seed = `${userData.username}`;
-    }
-    return generateTextVisualization(seed, {
-        width: width,
-        height: height,
+
+    return generateTextVisualization(userData.username, {
+        width,
+        height,
         useShapes: true,
         maxShapes: 50,
         showText: false,
         backgroundColor: '#f0f0f0'
     });
 }
+
 
 export {
     generateTextVisualization,

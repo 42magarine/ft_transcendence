@@ -8,19 +8,19 @@ export default class Toolbar extends AbstractView {
 
     async renderToolbar({ buttons, className = '' }: ToolbarProps): Promise<string> {
         const buttonHtml = buttons.map((btn) => `
-			<button
-				${btn.id ? `id="${btn.id}"` : ''}
-				class="btn btn-sm btn-secondary ${btn.className || ''}"
-				${btn.onClick ? `onclick="${btn.onClick}"` : ''}
-			>
-				${btn.text}
-			</button>
-		`).join('\n');
+            <button
+                ${btn.id ? `id="${btn.id}"` : ''}
+                class="btn btn-sm btn-secondary ${btn.className || ''}"
+                ${btn.onClick ? `onclick="${btn.onClick}"` : ''}
+            >
+                ${btn.text}
+            </button>
+        `).join('\n');
 
         return this.render(
             `<div class="toolbar flex gap-2 justify-end ${className}">
-				${buttonHtml}
-			</div>`
+                ${buttonHtml}
+            </div>`
         );
     }
 

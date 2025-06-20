@@ -1,29 +1,28 @@
-FRONTEND:
-    1. Alle 'alerts' entfernen und durch sichtbare Meldungen ersetzen.
-    2. Signup View überarbeiten
-        - man kann fast nichts lesen wegen dem Hintergrund
-        - es gibt 3 Passwort-Felder?!
-    3. User Management View (als MASTER)
-        - Create User funktioniert nicht, wenn eine ungültige E-Mail eingegeben wird (vielleicht liegt der Fehler im Backend, weil der E-Mail Serive einen Fehler wirft)
-    4. User View (als Master)
-        - nach dem löschen eines User wird man (manchmal?) nicht richtig weitergeleitet auf den User Management View
-    6. Token refresh request aus dem Frontend schicken, wenn das Backend 401 (Token abgelaufen) zurückschickt. route: api/users/refresh
-    7. Safari
-
-
-BACKEND:
-    2. User profiles display stats, such as wins and losses.
-    3. Each user has a Match History including 1v1 games, dates, and relevant details, accessible to logged-in users.
-    4. Offer customization features, such as power-ups, attacks, or different maps, that enhance the gameplay experience.
-
-
-SONSTIGES:
-    1. eine Interface für alle Userdaten? oder wie bisher je nach Fall ein eigenes Interface?
-    2. Interfaces nach Frontend und Backend aufteilen?
-
-
 TESTS:
     1. Create different Users with different auth methods and try to add each user attribute (password, avatar etc.). Test uniqueness.
     2. Test auth processes themselves
     3. Open a lobby or tournament with or without its coresponsing game and test leaves by router and window.
     4. Launch different games with different customizations and test their effects
+
+
+
+Offene Punkte:
+
+- Spieler Profil kann nicht gelöscht werden, wenn Relation UserModel/MatchModel. (Marvin)
+
+- Google Sign-In (true/false) wird nicht angezeigt auf dem UserManagement View. In der DB wird der boolean nicht gesetzt. (Mathias)
+
+- Keine Spielername im Game (Freddie oder Jonathan)
+- E-Mail Verifizierungs-Link geht nicht? (Jonathan)
+- Create User funktioniert nicht, wenn eine ungültige E-Mail eingegeben wird (vielleicht liegt der Fehler im Backend, weil der E-Mail Serive einen Fehler wirft) (Jonathan)
+- ggf. Safari (Jonathan)
+- ggf. Token refresh request aus dem Frontend schicken, wenn das Backend 401 (Token abgelaufen) zurückschickt. route: api/users/refresh (Jonathan)
+
+- Match History fehlt noch komplett (Florian/Frontend und Marvin/ggf. Backend)
+    1. User profiles display stats, such as wins and losses.
+    2. Each user has a Match History including 1v1 games, dates, and relevant details, accessible to logged-in users.
+
+- Leave Player Logik individuell fuer tournament/1v1 ggf rework (Freddie)
+- ggf. Offer customization features, such as power-ups, attacks, or different maps, that enhance the gameplay experience. (Freddie)
+
+- Fehlende Übersetzungen ergänzen (Flo)

@@ -12,40 +12,30 @@ export default class LobbyList extends AbstractView {
 
     async getHtml(): Promise<string> {
         let lobbies: ILobbyState[] = [];
-        lobbies = await window.lobbyListService.getLobbies();
-
-        lobbies = lobbies.filter(
-            (lobby) => lobby.currentPlayers !== lobby.maxPlayers && !lobby.isStarted
-        );
+        if (window.lobbyListService && window.lobbyListService.getLobbies) {
+            lobbies = await window.lobbyListService.getLobbies();
+            lobbies = lobbies.filter(lobby => lobby.currentPlayers !== lobby.maxPlayers && !lobby.isStarted);
+        }
 
         const lobbyListCard = await new Card().renderCard({
             title: window.ls.__('Available Lobbies'),
             contentBlocks: [
                 {
-                    type: 'button',
+                    type: 'buttongroup',
                     props: {
-                        id: 'createGameBtn',
-                        text: 'Create Game',
-                        type: 'button',
-                        className: 'btn btn-primary'
-                    },
-                },
-                {
-                    type: 'button',
-                    props: {
-                        id: 'createTournamentBtn4',
-                        text: 'Tournament (4 Players)',
-                        type: 'button',
-                        className: 'btn btn-primary'
-                    },
-                },
-                {
-                    type: 'button',
-                    props: {
-                        id: 'createTournamentBtn8',
-                        text: 'Tournament (8 Players)',
-                        type: 'button',
-                        className: 'btn btn-primary'
+                        layout: 'group',
+                        align: 'center',
+                        buttons: [
+                            {
+                                id: 'createGameBtn',
+                                text: window.ls.__('Create Game'),
+                            },
+                            {
+                                id: 'createTournamentBtn',
+                                text: window.ls.__('Create Tournament'),
+                                color: 'blue'
+                            }
+                        ]
                     }
                 },
                 {
@@ -113,29 +103,20 @@ export default class LobbyList extends AbstractView {
     }
 
     private setupEvents(): void {
-        console.log('[LobbyList] setupEvents()');
-
         window.lobbyListService?.setupCreateLobbyButtonListener();
         window.lobbyListService?.setupJoinLobbyButtonListener();
     }
 
     private cleanupEvents(): void {
-        console.log('[LobbyList] cleanupEvents()');
-
         if (window.lobbyListService) {
-            const createButton = document.getElementById('createLobbyBtn');
-            if (createButton) {
-                createButton.removeEventListener('click', window.lobbyListService.handleCreateGameClick);
+            const createBtn = document.getElementById('createLobbyBtn');
+            if (createBtn) {
+                createBtn.removeEventListener('click', window.lobbyListService.handleCreateGameClick);
             }
 
-            const createTournamentButton4 = document.getElementById('createTournamentBtn4');
-            if (createTournamentButton4) {
-                createTournamentButton4.removeEventListener('click', window.lobbyListService.handleCreateTournamentClick4);
-            }
-
-            const createTournamentButton8 = document.getElementById('createTournamentBtn8');
-            if (createTournamentButton8) {
-                createTournamentButton8.removeEventListener('click', window.lobbyListService.handleCreateTournamentClick4);
+            const createTournamentBtn = document.getElementById('createTournamentBtn');
+            if (createTournamentBtn) {
+                createTournamentBtn.removeEventListener('click', window.lobbyListService.handleCreateTournamentClick);
             }
 
             const joinButtons = document.querySelectorAll('.joinLobbyBtn');

@@ -2,7 +2,7 @@ import Home from './views/Home.js';
 import Pong from './views/Pong.js';
 import LobbyList from './views/LobbyList.js';
 import Lobby from './views/Lobby.js';
-import Tournament from './views/Tournament.js';
+import Tournament from "./views/Tournament.js"
 import Profile from './views/Profile.js';
 import ProfileEdit from './views/ProfileEdit.js';
 import UserMangement from './views/UserManagement.js';
@@ -12,7 +12,9 @@ import PasswordReset from './views/PasswordReset.js';
 import TwoFactorLogin from './views/TwoFactorLogin.js';
 import PongLocal from './views/PongLocal.js';
 import Friends from './views/FriendList.js';
+import TournamentWinner from './views/TournamentWinner.js';
 import { Route, RouteHookContext } from '../interfaces/interfaces.js';
+import TournamentTransition from './views/TournamentTransition.js';
 
 const routes: Route[] = [
     {
@@ -32,6 +34,7 @@ const routes: Route[] = [
             description: 'Welcome to Pong'
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
+            console.log("params /pong/:lobbyId/:matchId' route:" + params)
             window.messageHandler!.leaveLobby(params.lobbyId, true);
             return true;
         }
@@ -55,6 +58,7 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
+                console.log("params '/lobby/:id' route:" + params);
                 window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
@@ -70,9 +74,28 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
+                console.log("params '/tournament/:id' route:" + params);
                 window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
+        }
+    },
+    {
+        path: '/tournamenttransition',
+        role: 'user',
+        view: TournamentTransition,
+        metadata: {
+            title: 'Tournament Transition',
+            description: 'Wait for next round to start'
+        }
+    },
+    {
+        path: '/tournamentwinner',
+        role: 'user',
+        view: TournamentWinner,
+        metadata: {
+            title: 'Tournament Winner',
+            description: 'I guess someone actually won the tournament'
         }
     },
     {

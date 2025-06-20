@@ -25,7 +25,7 @@ export interface User {
     tf_five?: string;
     tf_six?: string;
     secret?: string;
-    twoFAEnabled?: string;
+    twoFAEnabled?: boolean;
     listAvatar?: string;
     googleSignIn?: boolean;
     status: 'online' | 'offline';
@@ -46,22 +46,6 @@ export interface UserList {
     name?: string;
     password?: string;
     role?: string;
-}
-
-export interface RegisterCredentials {
-    username: string;
-    email: string;
-    password: string;
-    displayname?: string;
-    role?: string;
-    avatar?: string;
-    secret?: string;
-    tf_one?: string;
-    tf_two?: string;
-    tf_three?: string;
-    tf_four?: string;
-    tf_five?: string;
-    tf_six?: string;
 }
 
 export interface ApiErrorResponse {
@@ -89,9 +73,9 @@ export interface QRResponse {
 }
 
 export interface RegisterCredentials {
-    name: string;
     username: string;
     email: string;
+    name: string;
     password: string;
     role?: string;
     avatar?: string;

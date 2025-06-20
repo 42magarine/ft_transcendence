@@ -1,4 +1,4 @@
-import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
+import { IServerMessage, ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
 
 export default class LobbyService {
@@ -15,8 +15,8 @@ export default class LobbyService {
         // console.log("LobbyService msg received: " + data)
         switch (data.type) {
             case 'lobbyState':
-                if (data.lobby) {
-                    console.log(data.lobby)
+                if (data.lobby && data.lobby.lobbyType === 'game') {
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -28,8 +28,8 @@ export default class LobbyService {
                     }
                 }
             case 'playerJoined':
-                if (data.lobby) {
-                    console.log(data.lobby)
+                if (data.lobby && data.lobby.lobbyType === 'game') {
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -43,8 +43,8 @@ export default class LobbyService {
                 }
                 break;
             case 'playerLeft':
-                if (data.lobby) {
-                    console.log(data.lobby)
+                if (data.lobby && data.lobby.lobbyType === 'game') {
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -58,8 +58,8 @@ export default class LobbyService {
                 }
                 break;
             case 'playerReady':
-                if (data.lobby) {
-                    console.log(data.lobby)
+                if (data.lobby && data.lobby.lobbyType === 'game') {
+                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -71,10 +71,20 @@ export default class LobbyService {
                         Router.update();
                     }
                     // if (this.lobbyState) {
-                    //     if (this.lobbyState.lobbyPlayers) {
-                    //         if (this.lobbyState.lobbyPlayers[0].isReady && this.lobbyState.lobbyPlayers[1].isReady) {
-                    //             window.messageHandler.joinGame(this.lobbyState.lobbyId, this.lobbyState.lobbyPlayers[0], this.lobbyState.lobbyPlayers[1]);
-                    //             Router.redirect(`/pong/${this.lobbyState.lobbyId}`);
+                    //     const { lobbyType, lobbyPlayers, lobbyId } = this.lobbyState;
+
+                    //     if (lobbyType === 'game' && lobbyPlayers && this.arePlayersReady(lobbyPlayers, 2)) {
+                    //         window.messageHandler.joinGame(lobbyId, lobbyPlayers);
+                    //         Router.redirect(`/pong/${lobbyId}`);
+                    //     }
+
+                    //     if (lobbyType === 'tournament' && lobbyPlayers) {
+                    //         if (lobbyPlayers.length === 4 && this.arePlayersReady(lobbyPlayers, 4)) {
+                    //             window.messageHandler.joinGame(lobbyId, lobbyPlayers);
+                    //             Router.redirect(`/pong/${lobbyId}`);
+                    //         } else if (lobbyPlayers.length === 8 && this.arePlayersReady(lobbyPlayers, 8)) {
+                    //             window.messageHandler.joinGame(lobbyId, lobbyPlayers);
+                    //             Router.redirect(`/pong/${lobbyId}`);
                     //         }
                     //     }
                     // }
@@ -97,6 +107,10 @@ export default class LobbyService {
         }
     }
 
+    public arePlayersReady(players: IPlayerState[], count: number): boolean {
+        return players.length >= count && players.slice(0, count).every(player => player.isReady);
+    }
+
     public setupEventListener(): void {
         const startButton = document.getElementById('startGameBtn');
         if (startButton) {
@@ -113,7 +127,7 @@ export default class LobbyService {
         e.preventDefault();
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
         if (!currentLobbyId) {
-            console.warn("[LobbyService] Cannot start game: current lobby ID not found.");
+            console.log("[LobbyService] Cannot start game: current lobby ID not found.");
             return;
         }
 

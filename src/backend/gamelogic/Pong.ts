@@ -212,7 +212,7 @@ export class PongGame {
         }
 
         if (!paddleToMove) {
-            console.warn(`movePaddle: Player number ${playerNumber} is not active in this game.`);
+            console.log(`movePaddle: Player number ${playerNumber} is not active in this game.`);
             return;
         }
 
@@ -299,6 +299,10 @@ export class PongGame {
 
     public get isPaused(): boolean {
         return this._paused;
+    }
+
+    public get matchId(): number | null {
+        return this._matchId;
     }
 
     public get player1(): Player | null {

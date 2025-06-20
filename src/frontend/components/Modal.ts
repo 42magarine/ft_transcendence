@@ -25,12 +25,12 @@ export default class Modal extends AbstractView {
 
     private renderCloseButton(id: string): string {
         return `
-			<button
-				class="absolute top-3 right-3 text-gray-400 hover:text-gray-200 text-xl font-bold"
-				aria-label="Close modal"
-				onclick="document.getElementById('${id}').classList.add('hidden')"
-			>&times;</button>
-		`;
+            <button
+                class="absolute top-3 right-3 text-gray-400 hover:text-gray-200 text-xl font-bold"
+                aria-label="Close modal"
+                onclick="document.getElementById('${id}').classList.add('hidden')"
+            >&times;</button>
+        `;
     }
 
     async renderModal({
@@ -40,31 +40,33 @@ export default class Modal extends AbstractView {
         footer = '',
         footerButtons = [],
         showCloseButton = true,
-        closableOnOutsideClick = true
+        closableOnOutsideClick = true,
+        hidden = true
     }: ModalProps): Promise<string> {
         const closableAttr = closableOnOutsideClick ? `data-close-on-outside="true"` : '';
         const footerHtml = await this.renderFooter(footer, footerButtons);
+        const hiddenClass = hidden ? 'hidden' : '';
 
         return this.render(`
-			<div
-				id="${id}"
-				class="modal-overlay"
-				${closableAttr}
-				onclick="window.handleModalOutsideClick(event, '${id}')"
-			>
-				<div
-					class="card"
-					onclick="event.stopPropagation();"
-				>
-					${showCloseButton ? this.renderCloseButton(id) : ''}
-					${title ? `<h2 class="modal-title"">${title}</h2>` : ''}
-					<div class="modal-content text-base leading-relaxed text-gray-700 dark:text-gray-300 mb-4">
-						${content}
-					</div>
-					${footerHtml}
-				</div>
-			</div>
-		`);
+            <div
+                id="${id}"
+                class="modal-overlay ${hiddenClass}"
+                ${closableAttr}
+                onclick="window.handleModalOutsideClick(event, '${id}')"
+            >
+                <div
+                    class="card"
+                    onclick="event.stopPropagation();"
+                >
+                    ${showCloseButton ? this.renderCloseButton(id) : ''}
+                    ${title ? `<h2 class="modal-title">${title}</h2>` : ''}
+                    <div class="modal-content text-base leading-relaxed text-gray-700 dark:text-gray-300 mb-4">
+                        ${content}
+                    </div>
+                    ${footerHtml}
+                </div>
+            </div>
+        `);
     }
 
     async renderDeleteModal({
@@ -76,39 +78,47 @@ export default class Modal extends AbstractView {
         userId: string;
         onConfirm: () => Promise<void>;
     }): Promise<void> {
-        const modalHtml = await this.renderModal({
-            id,
-            title: 'Confirm Deletion',
-            content: `<p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>`,
-            footerButtons: [
-                {
-                    id: 'cancel-delete-btn',
-                    text: 'Cancel',
-                    className: 'btn btn-secondary',
-                    onClick: `document.getElementById('${id}').classList.add('hidden')`
-                },
-                {
-                    id: 'confirm-delete-btn',
-                    text: 'Yes, Delete',
-                    className: 'btn btn-red'
-                }
-            ],
-            closableOnOutsideClick: true
-        });
-
-        const container = document.createElement('div');
-        container.innerHTML = modalHtml;
-        document.body.appendChild(container);
-
-        document.getElementById('confirm-delete-btn')?.addEventListener('click', async () => {
-            await onConfirm();
-            document.getElementById(id)?.classList.add('hidden');
-        });
-
-        document.getElementById('cancel-delete-btn')?.addEventListener('click', () => {
-            document.getElementById(id)?.classList.add('hidden');
-        });
-    }
+        let modalEl = document.getElementById(id);
+    
+        if (!modalEl) {
+            const modalHtml = await this.renderModal({
+                id,
+                title: 'Confirm Deletion',
+                content: `<p>Are you sure you want to delete this user?<br><strong>This action cannot be undone.</strong></p>`,
+                footerButtons: [
+                    {
+                        id: 'cancel-delete-btn',
+                        text: 'Cancel',
+                        className: 'btn btn-secondary',
+                        onClick: `document.getElementById('${id}').classList.add('hidden')`
+                    },
+                    {
+                        id: 'confirm-delete-btn',
+                        text: 'Yes, Delete',
+                        className: 'btn btn-red'
+                    }
+                ],
+                closableOnOutsideClick: true
+            });
+    
+            const container = document.createElement('div');
+            container.innerHTML = modalHtml;
+            document.body.appendChild(container);
+    
+            modalEl = document.getElementById(id);
+    
+            document.getElementById('confirm-delete-btn')?.addEventListener('click', async () => {
+                await onConfirm();
+                modalEl?.classList.add('hidden');
+            });
+    
+            document.getElementById('cancel-delete-btn')?.addEventListener('click', () => {
+                modalEl?.classList.add('hidden');
+            });
+        } else {
+            modalEl.classList.remove('hidden'); // Re-show existing modal
+        }
+    }    
 
     async renderRemoveFriendModal({
         id,

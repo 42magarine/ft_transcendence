@@ -76,7 +76,7 @@ export class UserService {
                     role: 'user',
                 });
             }
-            console.log(user);
+
             const savedUser = await this.userRepo.save(user);
             return savedUser;
 
@@ -93,34 +93,56 @@ export class UserService {
         try {
             const currentUser = await this.findUserById(user.id);
             if (!currentUser) {
+                console.error('❌ User not found in DB');
                 throw new Error('User not found');
             }
 
-            // Check if avatar has changed, delete old avatar if needed
-            if (user.avatar !== currentUser.avatar && currentUser.avatar) {
+            // Password hashing
+            if (user.password && user.password.trim().length > 0) {
+                user.password = await hashPW(user.password);
+            }
+            else {
+                const { password, ...userWithoutPassword } = user;
+                user = userWithoutPassword as UserModel;
+            }
+
+            // Avatar handling
+            const isNewAvatarValid = typeof user.avatar === 'string' && user.avatar.trim().length > 0;
+
+            if (isNewAvatarValid && user.avatar !== currentUser.avatar && currentUser.avatar) {
                 try {
                     await deleteAvatar(currentUser.avatar);
+                    currentUser.avatar = undefined;
                 }
                 catch (error) {
-                    console.error('Avatar delete failed:', error);
-                    // Continue with update even if avatar deletion fails
+                    console.error('⚠️ Avatar delete failed:', error);
+                }
+            }
+            else {
+                if (typeof user.avatar !== 'string' || user.avatar.trim() === '') {
+                    user.avatar = currentUser.avatar;
                 }
             }
 
-            // Master role cannot be changed
+            // Ensure master role cannot be overwritten
             if (currentUser.role === 'master') {
                 user.role = 'master';
             }
 
+            if (typeof user.avatar !== 'string') {
+                delete user.avatar;
+            }
+
             await this.userRepo.update(currentUser.id, user);
+
             const updatedUser = await this.findUserById(currentUser.id);
             if (!updatedUser) {
                 throw new Error('Updated user not found');
             }
-
             return updatedUser;
         }
         catch (error) {
+            console.error('❌ Failed to update user:', error);
             throw new Error('Failed to update user');
         }
     }
@@ -268,40 +290,69 @@ export class UserService {
         }
     }
 
-    async register(credentials: RegisterCredentials & { avatar?: string, secret?: string }) {
+    async register(credentials: RegisterCredentials & {
+        avatar?: string,
+        secret?: string,
+        tf_one?: string,
+        tf_two?: string,
+        tf_three?: string,
+        tf_four?: string,
+        tf_five?: string,
+        tf_six?: string
+    }) {
+
         try {
             const hashedPW = await hashPW(credentials.password);
 
-            // Create user data with potential 2FA settings
+            // Create base user data
             const userData: any = {
-                ...credentials,
-                password: hashedPW
+                username: credentials.username,
+                email: credentials.email,
+                password: hashedPW,
+                name: credentials.name,
+                avatar: credentials.avatar,
+                emailVerified: credentials.emailVerified,
+                googleSignIn: credentials.googleSignIn
             };
 
-            // If secret is provided and 2FA token is valid, enable 2FA
+            // Handle 2FA setup if provided
             if (credentials.secret) {
-                // Get the token from the tf_ fields if they exist
-                const token = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
+                const tfCode = credentials.tf_one && credentials.tf_two && credentials.tf_three &&
                     credentials.tf_four && credentials.tf_five && credentials.tf_six ?
-                    `${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` : '';
+                    `${credentials.tf_one}${credentials.tf_two}${credentials.tf_three}${credentials.tf_four}${credentials.tf_five}${credentials.tf_six}` :
+                    null;
 
-                if (token) {
+                if (tfCode) {
+                    // Verify the 2FA token
                     const verified = speakeasy.totp.verify({
                         secret: credentials.secret,
                         encoding: 'base32',
-                        token: token
+                        token: tfCode,
+                        window: 2 // Allow some time drift
                     });
 
                     if (verified) {
                         userData.twoFAEnabled = true;
                         userData.twoFASecret = credentials.secret;
+                        console.log('2FA successfully enabled for user:', credentials.username);
+                    }
+                    else {
+                        console.log('2FA verification failed for user:', credentials.username);
+                        throw new Error('Two-factor authentication code is invalid');
                     }
                 }
+                else {
+                    console.log('2FA secret provided but code incomplete for user:', credentials.username);
+                }
             }
+
+            // Create user and generate tokens
+            console.log(userData);
             const user = await this.createUser(userData);
             return this.generateTokens(user);
         }
         catch (error) {
+            console.error('Registration error in service:', error);
             throw error;
         }
     }
@@ -313,9 +364,9 @@ export class UserService {
         }
 
         // Check if email is verified
-        // if (!user.emailVerified) {
-        //     throw new Error('Email not verified. Please check your email for verification link.');
-        // }
+        if (!user.emailVerified) {
+            throw new Error('Email not verified. Please check your email for verification link.');
+        }
 
         // Check if 2FA is enabled for this user
         if (user.twoFAEnabled && user.twoFASecret) {

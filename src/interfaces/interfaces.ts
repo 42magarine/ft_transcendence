@@ -93,7 +93,7 @@ export interface ILobbyState {
     createdAt: Date;
     lobbyType: 'game' | 'tournament';
     lobbyPlayers: IPlayerState[];
-    isStarted: boolean; // Is game/tournament started
+    isStarted: boolean;
     tournamentStatus?: 'pending' | 'ongoing' | 'completed' | 'cancelled';
     currentRound?: number;
     playerPoints?: { [userId: number]: number }; // userId -> points
@@ -132,11 +132,13 @@ export interface ITournamentRound {
 // MESSAGE INTERFACES
 
 export interface IClientMessage {
-    type: "createLobby" | "joinLobby" | "leaveLobby" | "movePaddle" | "ready" | "startGame" | "getLobbyList" | "getLobbyState" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
+    type: "createLobby" | "joinLobby" | "joinGame" | "leaveLobby" | "movePaddle" | "ready" | "startGame" | "getLobbyList" | "getLobbyState" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
     lobbyId?: string;
     userId?: number;
     lobbyType?: 'game' | 'tournament';
     maxPlayers?: number;
+    players?: IPlayerState[];
+    playerNumber?: number;
     direction?: IPaddleDirection;
     ready?: boolean;
     matchId?: number;
@@ -146,7 +148,7 @@ export interface IClientMessage {
 }
 
 export interface IServerMessage {
-    type: "connection" | "error" | "lobbyCreated" | "joinedLobby" | "playerJoined" | "playerLeft" | "lobbyList" | "lobbyState" | "playerReady" | "gameStarted" | "gameStateUpdate" | "gameOver" | "leftLobby" | "tournamentStarted" | "tournamentRoundStart" | "tournamentMatchStart" | "tournamentMatchOver" | "tournamentFinished" | "tournamentCancelled" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
+    type: "connection" | "error" | "lobbyCreated" | "joinedLobby" | "playerJoined" | "playerLeft" | "lobbyList" | "lobbyState" | "playerReady" | "gameStarted" | "gameStateUpdate" | "gameOver" | "leftLobby" | "tournamentStarted" | "tournamentRoundStart" | "tournamentMatchStart" | "tournamentMatchOver" | "tournamentFinished" | "tournamentCancelled" | "updateFriendlist" | "playerLeftGame" | "initMatchStart";
     message?: string;
     lobbyId?: string;
     owner?: number;

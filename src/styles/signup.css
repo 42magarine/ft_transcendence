@@ -1,43 +1,43 @@
 .signup-avatar {
-	@apply text-white h-75 w-75 mx-auto bg-white rounded-full;
+    @apply text-white h-75 w-75 mx-auto bg-white rounded-full;
 }
 .signup-avatar img{
-	@apply h-75 w-75 rounded-full object-center object-cover;
+    @apply h-75 w-75 rounded-full object-center object-cover;
 }
 .signup-avatar svg{
-	@apply rounded-full;
+    @apply rounded-full;
 }
 
 #tf-code {
-	@apply flex gap-4 justify-between p-4;
+    @apply flex gap-4 justify-between p-4;
 }
 
 #tf-code .spacer{
-	width: 10px;
+    width: 10px;
 }
 
 #tf-code input[type=number] {
-	@apply text-3xl text-white text-center;
-	-moz-appearance: textfield;
-	width: 50px;
+    @apply text-3xl text-white text-center;
+    -moz-appearance: textfield;
+    width: 50px;
     caret-color: transparent;
 }
 
 #tf-code input[type=number]::-webkit-outer-spin-button,
 #tf-code input[type=number]::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 #qr-display {
-	@apply flex gap-4 justify-center p-4;
+    @apply flex gap-4 justify-center p-4;
 }
 
 #qr-display img {
     pointer-events: none;
     user-select: none;
-	filter: invert(1);
-	mix-blend-mode: inherit;
+    filter: invert(1);
+    mix-blend-mode: inherit;
     border-radius: 0.75rem;
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -45,9 +45,9 @@
 }
 
 #twoFactorInterface {
-	@apply hidden;
+    @apply hidden;
 }
 
 #twoFactorInterface.active {
-	@apply block;
+    @apply block;
 }

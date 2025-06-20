@@ -1,12 +1,12 @@
 header {
-	@apply z-20 fixed w-full bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80 text-white backdrop-blur-md border border-white/10 shadow-xl;
+    @apply z-20 fixed w-full bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-gray-900/80 text-white backdrop-blur-md border border-white/10 shadow-xl;
 }
 
 /* === HEADER THEMES === */
 
 header.header {
-	@apply w-full;
-	min-height: 80px;
+    @apply w-full;
+    min-height: 80px;
 }
 
 .mobilemenu {
@@ -18,10 +18,10 @@ header.header {
 }
 
 header .header-nav {
-	@apply flex flex-wrap gap-2;
+    @apply flex flex-wrap gap-2;
 }
 header .header-nav .dropdowns{
-	@apply flex ml-auto;
+    @apply flex ml-auto;
 }
 header .header-nav .btn.btn-primary{
     @apply bg-[none] p-1 text-left;
@@ -32,7 +32,7 @@ header .header-nav .btn.btn-primary span{
     @apply text-left;
 }
 header .dropdown {
-	@apply relative flex flex-col gap-2;
+    @apply relative flex flex-col gap-2;
 }
 
 header .dropdown .dropdown-head:not(a) {
@@ -44,14 +44,14 @@ header .dropdown:hover .dropdown-head, header .dropdown.open .dropdown-head {
 }
 
 header .dropdown-head a{
-	@apply flex gap-2 justify-between items-center;
+    @apply flex gap-2 justify-between items-center;
 }
 header .dropdown .dropdown-body {
-	top: 100%;
-	@apply rounded-tl-none rounded-tr-none hidden absolute p-2 w-max rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white flex flex-col gap-2 justify-between items-center;
+    top: 100%;
+    @apply rounded-tl-none rounded-tr-none hidden absolute p-2 w-max rounded-2xl overflow-hidden shadow-xl bg-gray-900 border border-gray-700 text-white flex flex-col gap-2 justify-between items-center;
 }
 header .dropdown:hover .dropdown-body, header .dropdown.open .dropdown-body {
-	@apply flex;
+    @apply flex;
 }
 
 
@@ -63,39 +63,38 @@ header .dropdown-img svg{
 }
 
 img.flag {
-	cursor: pointer;
-	width: 40px;
-	transition: 0.2s;
+    cursor: pointer;
+    width: 40px;
+    transition: 0.2s;
 }
 img.flag {
-	scale: (1.1);
+    scale: (1.1);
 }
 
 
 /* === High Contrast Header Styles === */
 .high-contrast .header {
-	@apply bg-white text-black border-b-2 border-black;
+    @apply bg-white text-black border-b-2 border-black;
 }
 
 .high-contrast .header a {
-	@apply text-black hover:underline;
+    @apply text-black hover:underline;
 }
 
 .high-contrast .dropdown-head,
 .high-contrast .dropdown-body,
 .high-contrast .dropdown-item {
-	@apply bg-white text-black border border-black;
+    @apply bg-white text-black border border-black;
 }
 
 /* Fix dropdown-name text color in both contrast modes */
 .dropdown-name {
-	@apply text-white font-semibold;
+    @apply text-white font-semibold;
 }
 
 .high-contrast .dropdown-name {
-	@apply text-white; /* Explicit override */
+    @apply text-white; /* Explicit override */
 }
 .high-contrast header .dropdown a.dropdown-head {
     @apply bg-black text-white;
 }
-

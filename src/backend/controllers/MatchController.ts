@@ -115,7 +115,7 @@ export class MatchController {
                 break;
             case "movePaddle":
                 if (player && data.matchId !== undefined && data.direction !== undefined) {
-                    this.handleMovePaddle(player, data.matchId, data.direction);
+                    this.handleMovePaddle(player, data.matchId, data.playerNumber!, data.direction);
                 }
                 else {
                     console.error("MatchController - handleMovePaddle(): Missing player, matchId, or direction.");
@@ -171,8 +171,7 @@ export class MatchController {
 
     private broadcastToAll(data: IServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
-            // console.log(`Client ${sentCount + 1}: readyState=${connection.readyState}, player=${player?.userId || 'no player'}`);
-
+            // console.log(data);
             if (connection.readyState === WebSocket.OPEN) {
                 this.sendMessage(connection, data);
             }
@@ -245,6 +244,9 @@ export class MatchController {
         if (player) {
             this._clients.set(connection, player);
 
+            // console.log(lobby._lobbyType)
+            // console.log(lobbyId)
+            // console.log(userId)
             this.broadcastToAll({
                 type: "joinedLobby",
                 lobbyId: lobbyId,
@@ -323,7 +325,7 @@ export class MatchController {
     }
 
     private async handleGetLobbyList(connection: WebSocket) {
-        console.log("handleGetLobbyList")
+        // console.log("handleGetLobbyList")
         const openDbLobbies = await this._matchService.getOpenLobbies();
 
         const lobbyStates: ILobbyState[] = openDbLobbies.map(dbLobby => {
@@ -397,7 +399,7 @@ export class MatchController {
         //implement broadcasts here
     }
 
-    private handleMovePaddle(player: Player, matchId: number, direction: IPaddleDirection): void {
+    private handleMovePaddle(player: Player, matchId: number, playerNumber: number, direction: IPaddleDirection): void {
         if (!player.lobbyId) {
             console.error("Matchcontroller - handleMovePaddle(): Player not in Lobby");
             return;
@@ -406,15 +408,18 @@ export class MatchController {
         const lobby = this._lobbies.get(player.lobbyId);
         if (lobby && lobby.isGameStarted()) {
             const pongGame = lobby.getPongGame(matchId);
+            if (matchId !== pongGame?.matchId) {
+                return ;
+            }
             if (pongGame) {
-                pongGame.movePaddle(player._playerNumber, direction);
+                pongGame.movePaddle(playerNumber, direction);
             }
             else {
-                console.warn(`PongGame for matchId ${matchId} not found in lobby ${player.lobbyId}.`);
+                console.log(`PongGame for matchId ${matchId} not found in lobby ${player.lobbyId}.`);
             }
         }
         else {
-            console.error(`Lobby ${player.lobbyId} not found or game not started for player ${player.id} during movePaddle.`);
+            console.error(`Lobby ${player.lobbyId} not found or game not started for player ${playerNumber} during movePaddle.`);
         }
     }
 }

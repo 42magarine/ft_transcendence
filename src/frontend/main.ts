@@ -4,6 +4,7 @@
 import routes from './routeInit.js';
 import LobbyListService from './services/LobbyListService.js';
 import LobbyService from './services/LobbyService.js';
+import TournamentService from './services/TournamentService.js';
 import MessageHandlerService from './services/MessageHandlerService.js';
 import UserManagementService from './services/UserManagementService.js';
 import UserService from './services/UserService.js';
@@ -23,7 +24,6 @@ import Card from './components/Card.js';
 import Button from './components/Button.js';
 import Footer from './components/Footer.js';
 import Header from './components/Header.js';
-import TournamentService from './services/TournamentService.js';
 import { AccessibilityService } from './services/AccessibilityService.js';
 import LanguageService from './services/LanguageService.js';
 
@@ -99,7 +99,7 @@ async function initSocket(): Promise<void> {
     window.ft_socket = socket;
 
     socket.addEventListener('close', (event) => {
-        // console.warn("websocket closed", event.code, event.reason);
+        // console.log("websocket closed", event.code, event.reason);
         setTimeout(() => socketUpdateOnSession(), 3000)
     })
 

@@ -161,7 +161,7 @@ export type ContentBlock =
     | { type: 'heading'; props: HeadingProps }
     | { type: 'paragraph'; props: ParagraphProps }
     | { type: 'container'; props: ContainerProps }
-    | { type: 'twofactor'; props: { length?: number; namePrefix?: string } }
+    | { type: 'twofactor'; }
     | { type: 'signup-footer'; props?: {} }
     | { type: 'avatar'; props: AvatarProps };
 
@@ -212,13 +212,14 @@ export interface StatProps {
     label: string;
     value: string | number;
     className?: string;
+    checkbox?: boolean;
 }
 
 // TEXT / TYPOGRAPHY
 
 export interface TitleProps {
-    title: string;      // Main title
-    subtitle?: string;  // Optional subtitle
+    title: string;
+    subtitle?: string;
 }
 
 export interface HeadingProps {
@@ -255,6 +256,7 @@ export interface ModalProps {
     footerButtons?: ButtonProps[];
     showCloseButton?: boolean;
     closableOnOutsideClick?: boolean;
+    hidden?: boolean;
 }
 
 // TOOLBAR INTERFACE

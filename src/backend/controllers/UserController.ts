@@ -24,6 +24,7 @@ export class UserController {
                 username: user.username,
                 name: user.name,
                 role: user.role,
+                avatar: user.avatar ?? null,
                 // twoFAEnabled: user.twoFAEnabled,
                 // emailVerified: user.emailVerified,
             };
@@ -85,6 +86,7 @@ export class UserController {
                 role: user.role,
                 twoFAEnabled: user.twoFAEnabled,
                 emailVerified: user.emailVerified,
+                avatar: user.avatar ?? null,
             };
 
             return reply.code(200).send(userData);
@@ -112,14 +114,18 @@ export class UserController {
             }
 
             let updates: Partial<UserModel> = {};
-            let avatarData = null;
+            let avatarData: string | null = null;
 
-            // Process different request types (multipart or JSON)
             if (request.isMultipart()) {
                 const parts = request.parts();
 
                 for await (const part of parts) {
+
                     if (part.type === 'file' && part.fieldname === 'avatar') {
+                        if (!part.file || part.file.truncated || part.file.bytesRead === 0) {
+                            continue;
+                        }
+
                         try {
                             const result = await saveAvatar(part);
                             avatarData = result.publicPath;
@@ -129,12 +135,10 @@ export class UserController {
                         }
                     }
                     else if (part.type === 'field') {
-                        // Add field to updates
                         (updates as any)[part.fieldname] = part.value;
                     }
                 }
 
-                // Set the avatar path if a new avatar was uploaded
                 if (avatarData) {
                     updates.avatar = avatarData;
                 }
@@ -143,7 +147,11 @@ export class UserController {
                 updates = request.body as Partial<UserModel>;
             }
 
-            // Create updated user object
+            // Prevent avatar from being `{}` or undefined if not changed
+            if (updates.avatar === undefined) {
+                delete updates.avatar;
+            }
+
             const updatedUser = { id: userId, ...updates } as UserModel;
 
             const result = await this._userService.updateUser(updatedUser);
@@ -156,19 +164,20 @@ export class UserController {
                 role: result.role,
                 twoFAEnabled: result.twoFAEnabled,
                 emailVerified: result.emailVerified,
+                avatar: result.avatar ?? null,
             };
 
             return reply.code(200).send({ message: 'User updated successfully', user: userData });
         }
         catch (error) {
-            if (error instanceof Error) {
-                if (error.message === 'User not found') {
-                    return reply.code(404).send({ error: error.message });
-                }
+            if (error instanceof Error && error.message === 'User not found') {
+                return reply.code(404).send({ error: error.message });
             }
+
             return reply.code(500).send({ error: 'Could not update user' });
         }
     }
+
 
     async deleteUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {
@@ -261,7 +270,7 @@ export class UserController {
         }
     }
 
-    // Fixed verifyTwoFactor method
+    // Verify the 2FA code for existing user
     async verifyTwoFactor(request: FastifyRequest<{
         Body: {
             userId: number;
@@ -270,12 +279,10 @@ export class UserController {
     }>, reply: FastifyReply) {
         try {
             const { userId, code } = request.body;
-
             if (!userId || !code) {
                 return reply.code(400).send({ error: 'User ID and verification code are required' });
             }
 
-            // Verify the 2FA code
             const result = await this._userService.verifyTwoFactorCode(userId, code);
 
             // Set the authentication cookie
@@ -351,11 +358,6 @@ export class UserController {
                 return reply.code(400).send({ error: 'Passwords do not match' });
             }
 
-            // Minimum password requirements
-            if (password.length < 8) {
-                return reply.code(400).send({ error: 'Password must be at least 8 characters long' });
-            }
-
             await this._userService.resetPassword(token, password);
 
             return reply.code(200).send({ message: 'Password has been reset successfully' });
@@ -410,18 +412,20 @@ export class UserController {
 
     async register(request: FastifyRequest, reply: FastifyReply) {
         try {
-            // Handle multipart form data
+            let userData: RegisterCredentials & {
+                avatar?: string,
+                secret?: string,
+                tf_one?: string,
+                tf_two?: string,
+                tf_three?: string,
+                tf_four?: string,
+                tf_five?: string,
+                tf_six?: string
+            };
+
+            // Handle multipart form data (with avatar)
             if (request.isMultipart()) {
-                const userData: RegisterCredentials & {
-                    avatar?: string,
-                    secret?: string,
-                    tf_one?: string,
-                    tf_two?: string,
-                    tf_three?: string,
-                    tf_four?: string,
-                    tf_five?: string,
-                    tf_six?: string
-                } = {
+                userData = {
                     name: "",
                     username: "",
                     email: "",
@@ -432,7 +436,6 @@ export class UserController {
 
                 // Process multipart form data
                 const parts = request.parts();
-
                 for await (const part of parts) {
                     if (part.type === 'file' && part.fieldname === 'avatar') {
                         try {
@@ -451,22 +454,10 @@ export class UserController {
                 if (avatarData) {
                     userData.avatar = avatarData;
                 }
-
-                if (!userData.username || !userData.email || !userData.password) {
-                    return reply.code(400).send({ error: 'Missing required fields' });
-                }
-
-                // Register user with 2FA data included
-                await this._userService.register(userData);
-
-                return reply.code(201).send({
-                    message: "Registration successful. Please check your email to verify your account.",
-                    twoFAEnabled: userData.secret && userData.tf_one && userData.tf_two && userData.tf_three &&
-                        userData.tf_four && userData.tf_five && userData.tf_six ? true : false
-                });
             }
             else {
-                const userData = request.body as RegisterCredentials & {
+                // Handle JSON data (without avatar)
+                userData = request.body as RegisterCredentials & {
                     secret?: string,
                     tf_one?: string,
                     tf_two?: string,
@@ -475,16 +466,26 @@ export class UserController {
                     tf_five?: string,
                     tf_six?: string
                 };
-
-                // Register user with 2FA data
-                await this._userService.register(userData);
-
-                return reply.code(201).send({
-                    message: "Registration successful. Please check your email to verify your account.",
-                    twoFAEnabled: userData.secret && userData.tf_one && userData.tf_two && userData.tf_three &&
-                        userData.tf_four && userData.tf_five && userData.tf_six ? true : false
-                });
             }
+
+            // Validate required fields
+            if (!userData.username || !userData.email || !userData.password) {
+                return reply.code(400).send({ error: 'Missing required fields' });
+            }
+
+            // Register user with all provided data (including 2FA fields)
+            const result = await this._userService.register(userData);
+
+            // Check if 2FA was successfully enabled
+            const twoFAEnabled = userData.secret &&
+                userData.tf_one && userData.tf_two && userData.tf_three &&
+                userData.tf_four && userData.tf_five && userData.tf_six;
+
+            return reply.code(201).send({
+                message: "Registration successful. Please check your email to verify your account.",
+                twoFAEnabled: !!twoFAEnabled,
+                result
+            });
         }
         catch (error) {
             const message = error instanceof Error ? error.message : 'Registration failed';
@@ -494,6 +495,9 @@ export class UserController {
             }
             else if (message.includes('permissions') || message.includes('Master user')) {
                 return reply.code(403).send({ error: message });
+            }
+            else if (message.includes('Two-factor')) {
+                return reply.code(400).send({ error: message });
             }
             else {
                 return reply.code(400).send({ error: 'Registration failed' });

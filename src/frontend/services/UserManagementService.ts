@@ -9,117 +9,51 @@ export default class UserManagementService {
 
     async registerUser(userData: User, avatarFile?: File): Promise<string> {
         try {
-            if (userData.secret &&
-                userData.tf_one && userData.tf_two && userData.tf_three &&
-                userData.tf_four && userData.tf_five && userData.tf_six) {
+            let response: Response;
 
-                const code = `${userData.tf_one}${userData.tf_two}${userData.tf_three}${userData.tf_four}${userData.tf_five}${userData.tf_six}`;
-                try {
-                    const verifyResponse = await fetch('/api/users/verify-two-factor-setup', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            code: code,
-                            secret: userData.secret
-                        }),
-                    });
+            const isAvatarValid =
+                avatarFile &&
+                avatarFile.size > 0 &&
+                ['image/jpeg', 'image/png'].includes(avatarFile.type);
 
-                    if (!verifyResponse.ok) {
-                        const errorData = await verifyResponse.json() as ApiErrorResponse;
-                        throw new Error(errorData.error || 'Two-factor code verification failed');
-                    }
-                }
-                catch (error) {
-                    userData.secret = undefined;
-                    userData.tf_one = undefined;
-                    userData.tf_two = undefined;
-                    userData.tf_three = undefined;
-                    userData.tf_four = undefined;
-                    userData.tf_five = undefined;
-                    userData.tf_six = undefined;
-                }
-            }
+            if (isAvatarValid) {
+                console.log('[registerUser] Valid avatar found:', {
+                    name: avatarFile.name,
+                    size: avatarFile.size,
+                    type: avatarFile.type
+                });
 
-            if (avatarFile && avatarFile.size > 0) {
                 const formData = new FormData();
 
-                formData.append('username', userData.username);
-                formData.append('email', userData.email);
-                formData.append('password', userData.password || '');
-
-                if (userData.name) {
-                    formData.append('name', userData.name);
-                }
-
-                if (userData.role) {
-                    formData.append('role', userData.role);
-                }
-
-                if (userData.tf_one) {
-                    formData.append('tf_one', userData.tf_one);
-                }
-
-                if (userData.tf_two) {
-                    formData.append('tf_two', userData.tf_two);
-                }
-
-                if (userData.tf_three) {
-                    formData.append('tf_three', userData.tf_three);
-                }
-
-                if (userData.tf_four) {
-                    formData.append('tf_four', userData.tf_four);
-                }
-
-                if (userData.tf_five) {
-                    formData.append('tf_five', userData.tf_five);
-                }
-
-                if (userData.tf_six) {
-                    formData.append('tf_six', userData.tf_six);
-                }
-
-                if (userData.secret) {
-                    formData.append('secret', userData.secret);
-                }
+                // Add user data
+                Object.entries(userData).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null) {
+                        formData.append(key, String(value));
+                    }
+                });
 
                 formData.append('avatar', avatarFile);
 
-                const response = await fetch('/api/users/register', {
+                response = await fetch('/api/users/register', {
                     method: 'POST',
                     body: formData
                 });
-
-                if (!response.ok) {
-                    console.log(response);
-                    const errorData = await response.json() as ApiErrorResponse;
-                    throw new Error(errorData.error || 'Registration failed');
-                }
-
-                Router.update();
-                return await response.text();
             }
             else {
-                console.log(userData);
-                const response = await fetch('/api/users/register', {
+                response = await fetch('/api/users/register', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json', },
                     body: JSON.stringify(userData),
                 });
-
-                if (!response.ok) {
-                    console.log(response);
-                    const errorData = await response.json() as ApiErrorResponse;
-                    throw new Error(errorData.error || 'Registration failed');
-                }
-
-                Router.update();
-                return await response.text();
             }
+
+            if (!response.ok) {
+                const errorData = await response.json() as ApiErrorResponse;
+                throw new Error(errorData.error || 'Registration failed');
+            }
+
+            Router.update();
+            return await response.text();
         }
         catch (error) {
             console.error('Registration error:', error);
@@ -127,13 +61,12 @@ export default class UserManagementService {
         }
     }
 
+
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
         try {
             const response = await fetch('/api/users/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify(credentials),
             });
 
@@ -143,7 +76,6 @@ export default class UserManagementService {
             }
 
             const result = await response.json() as AuthResponse;
-
             if (result.requireTwoFactor) {
                 sessionStorage.setItem('pendingUserId', result.userId?.toString() || '');
                 sessionStorage.setItem('pendingUsername', result.username || '');
@@ -153,7 +85,6 @@ export default class UserManagementService {
             }
 
             Router.redirect('/');
-
             return result;
         }
         catch (error) {
@@ -177,7 +108,6 @@ export default class UserManagementService {
         const result = await response.json() as AuthResponse;
 
         Router.redirect('/');
-
         return result;
     }
 
@@ -185,9 +115,7 @@ export default class UserManagementService {
         try {
             const response = await fetch('/api/users/verify-two-factor', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ userId, code }),
             });
 
@@ -215,9 +143,7 @@ export default class UserManagementService {
         try {
             const response = await fetch('/api/request-password-reset', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ email }),
             });
 
@@ -233,9 +159,7 @@ export default class UserManagementService {
         try {
             const response = await fetch(`/api/reset-password/${token}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ password, confirmPassword }),
             });
 
@@ -256,9 +180,7 @@ export default class UserManagementService {
         try {
             const response = await fetch('/api/resend-verification', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ email }),
             });
 
@@ -275,6 +197,7 @@ export default class UserManagementService {
             const response = await fetch('/api/users/logout', {
                 method: 'POST',
             });
+
             if (!response.ok) {
                 throw new Error(`Error: ${response.status}`);
             }
@@ -362,8 +285,6 @@ export default class UserManagementService {
                     console.error('Failed to register user:', error);
                 }
             });
-            const toggle = new Toggle();
-            toggle.mountToggle('emailVerified');
         }
     }
 
@@ -408,10 +329,12 @@ export default class UserManagementService {
 
                 try {
                     const formData = new FormData(loginForm);
+
                     const credentials: LoginCredentials = {
                         email: formData.get('email') as string,
                         password: formData.get('password') as string,
                     };
+
                     await this.login(credentials);
                     loginForm.reset();
 
@@ -421,12 +344,12 @@ export default class UserManagementService {
                     const errorMessage = document.createElement('div');
                     errorMessage.className = 'mt-4 text-red-500';
                     errorMessage.innerHTML = `
-						<p>${error instanceof Error ? error.message : 'Login failed'}</p>
-						<p class="mt-2">
-							<a href="/password-reset" class="text-blue-500 underline">Forgot password?</a> |
-							<a href="#" id="resend-verification" class="text-blue-500 underline">Resend verification email</a>
-						</p>
-					`;
+                        <p>${error instanceof Error ? error.message : 'Login failed'}</p>
+                        <p class="mt-2">
+                            <a href="/password-reset" class="text-blue-500 underline">Forgot password?</a> |
+                            <a href="#" id="resend-verification" class="text-blue-500 underline">Resend verification email</a>
+                        </p>
+                    `;
 
                     const existingError = document.querySelector('.login-error');
                     if (existingError) {
@@ -440,8 +363,8 @@ export default class UserManagementService {
                         resendLink.addEventListener('click', async (e) => {
                             e.preventDefault();
                             const loginFormData = new FormData(loginForm);
-                            const username = loginFormData.get('username') as string;
 
+                            const username = loginFormData.get('username') as string;
                             if (!username) {
                                 return;
                             }
@@ -495,7 +418,6 @@ export default class UserManagementService {
                     const tf_six = (document.getElementById('tf_six') as HTMLInputElement).value;
 
                     const code = `${tf_one}${tf_two}${tf_three}${tf_four}${tf_five}${tf_six}`;
-
                     if (code.length !== 6 || !/^\d+$/.test(code)) {
                         return;
                     }
@@ -518,8 +440,8 @@ export default class UserManagementService {
 
                 try {
                     const formData = new FormData(passwordResetForm);
+                    
                     const email = formData.get('email') as string;
-
                     if (!email) {
                         return;
                     }
@@ -648,20 +570,20 @@ export default class UserManagementService {
                 const errorCard = document.createElement('div');
                 errorCard.className = 'bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6';
                 errorCard.innerHTML = `
-					<h2 class="text-xl font-semibold text-gray-900 dark:text-white">Verification Failed</h2>
-					<div class="mt-4">
-						<p class="text-red-500">${errorMessage}</p>
-						<p class="mt-4">You can try the following:</p>
-						<ul class="list-disc pl-5 mt-2 text-gray-700 dark:text-gray-300">
-							<li>Check if you clicked the correct link from your email</li>
-							<li>Request a new verification email</li>
-							<li>Contact support if the problem persists</li>
-						</ul>
-						<div class="mt-6">
-							<a href="/verify-email" class="text-blue-500 hover:underline">Request New Verification Email</a>
-						</div>
-					</div>
-				`;
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Verification Failed</h2>
+                    <div class="mt-4">
+                        <p class="text-red-500">${errorMessage}</p>
+                        <p class="mt-4">You can try the following:</p>
+                        <ul class="list-disc pl-5 mt-2 text-gray-700 dark:text-gray-300">
+                            <li>Check if you clicked the correct link from your email</li>
+                            <li>Request a new verification email</li>
+                            <li>Contact support if the problem persists</li>
+                        </ul>
+                        <div class="mt-6">
+                            <a href="/verify-email" class="text-blue-500 hover:underline">Request New Verification Email</a>
+                        </div>
+                    </div>
+                `;
 
                 cardContainer.innerHTML = '';
                 cardContainer.appendChild(errorCard);

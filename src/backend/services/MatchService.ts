@@ -32,8 +32,7 @@ export class MatchService {
         })
     }
 
-    async getTournamentById(tournamentId: number): Promise<TournamentModel | null>
-    {
+    async getTournamentById(tournamentId: number): Promise<TournamentModel | null> {
         return await this.tournamentRepo.findOne({
             where: { id: tournamentId },
             relations: ['creator', 'lobbyParticipants']
@@ -62,7 +61,7 @@ export class MatchService {
             match.endedAt = new Date();
         }
 
-        console.log("calling matchrepo.save from updateScore function");
+        // console.log("calling matchrepo.save from updateScore function");
         return await this.matchRepo.save(match);
     }
 
@@ -76,7 +75,7 @@ export class MatchService {
         if (endedAt) {
             match.endedAt = endedAt;
         }
-        console.log("calling matchrepo.save from updateMatchStatus function");
+        // console.log("calling matchrepo.save from updateMatchStatus function");
         return await this.matchRepo.save(match);
     }
 
@@ -99,12 +98,9 @@ export class MatchService {
         }
     }
 
-    async deleteAllMatchesForTournament(tournamentId: number)
-    {
-        try
-        {
-            await this.matchRepo.delete({tournament: {id: tournamentId}})
-            console.log("bladlaldlawdlalwd")
+    async deleteAllMatchesForTournament(tournamentId: number) {
+        try {
+            await this.matchRepo.delete({ tournament: { id: tournamentId } })
         }
         catch (error) {
             console.error("fkin error ig (Penis)")
@@ -159,7 +155,7 @@ export class MatchService {
         match.player2Score = 0;
         match.readyStatusMap = [];
 
-        console.log("calling matchrepo.save from createMatch function");
+        // console.log("calling matchrepo.save from createMatch function");
         return await this.matchRepo.save(match);
     }
 
@@ -177,7 +173,7 @@ export class MatchService {
         match.player2 = player2;
         // match.lobbyParticipants.push(player2);
         // match.status = "waiting_for_ready";
-        console.log("calling matchrepo.save from addPlayerToMatch function");
+        // console.log("calling matchrepo.save from addPlayerToMatch function");
         return await this.matchRepo.save(match);
     }
 
@@ -206,17 +202,16 @@ export class MatchService {
                     return true;
                 }
                 else {
-                    console.warn(`awdawd player not funden`);
+                    console.log("error removePlayerFromMatch");
                     return false;
                 }
             }
             else {
-                console.log(`alle raus ihr huans.`);
                 return false;
             }
         }
         catch (error) {
-            console.error("wasn hier los?", error);
+            console.error("error removePlayerFromMatch", error);
             return false;
         }
 
@@ -260,7 +255,7 @@ export class MatchService {
             if (match.lobbyParticipants.length === 2 && !match.player2?.id && match.player1?.id !== userId) {
                 match.player2 = user;
             }
-            console.log("calling matchrepo.save from addLobbyParticipant function");
+            // console.log("calling matchrepo.save from addLobbyParticipant function");
             return await this.matchRepo.save(match)
         }
         catch (error) {
@@ -276,7 +271,7 @@ export class MatchService {
         }
         match.isLobbyOpen = false;
 
-        console.log("calling matchrepo.save from closeLobby function");
+        // console.log("calling matchrepo.save from closeLobby function");
         return await this.matchRepo.save(match);
     }
 
@@ -311,26 +306,24 @@ export class MatchService {
             .getMany()
     }
 
-    // new tournier funkies now
-
     async createTournament(lobbyId: string, creatorId: number, maxPlayers: number, name: string) {
         const creator = await this.userService.findUserById(creatorId)
         if (!creator)
-            throw new Error("Wirf Junge WIRF den FEHLER DU BASTARD")
+            throw new Error("error createTournament");
 
-       const tournament = new TournamentModel();
-       tournament.lobbyId = lobbyId;
-       tournament.creator = creator;
-       tournament.name = name;
-       tournament.maxPlayers = maxPlayers;
-       tournament.createdAt = new Date();
-       tournament.status = 'pending';
-       tournament.currentRound = 0;
-       tournament.playerScores = {};
-       tournament.matchSchedule = [];
-       tournament.lobbyParticipants = [creator];
+        const tournament = new TournamentModel();
+        tournament.lobbyId = lobbyId;
+        tournament.creator = creator;
+        tournament.name = name;
+        tournament.maxPlayers = maxPlayers;
+        tournament.createdAt = new Date();
+        tournament.status = 'pending';
+        tournament.currentRound = 0;
+        tournament.playerScores = {};
+        tournament.matchSchedule = [];
+        tournament.lobbyParticipants = [creator];
 
-       console.log("calling tournament.save from createTournament function");
+        // console.log("calling tournament.save from createTournament function");
         return await this.tournamentRepo.save(tournament);
     }
 
@@ -339,7 +332,7 @@ export class MatchService {
         const user = await this.userService.findUserById(userId)
 
         if (!tournament || !user) {
-            throw new Error("irgendwas uwrde nicht angelegt")
+            throw new Error("error addPlayerToTournament");
         }
 
         if (!tournament.lobbyParticipants) {
@@ -347,10 +340,11 @@ export class MatchService {
         }
 
         const exisitingParticipant = tournament.lobbyParticipants.find(p => p.id === userId)
-        if (!exisitingParticipant)
+        if (!exisitingParticipant) {
             tournament.lobbyParticipants.push(user);
+        }
 
-        console.log("calling tournamentRepo.save from addPlayertoTournament function");
+        // console.log("calling tournamentRepo.save from addPlayertoTournament function");
         return await this.tournamentRepo.save(tournament);
     }
 
@@ -360,12 +354,12 @@ export class MatchService {
         const tournament = await this.getTournamentById(tournamentId);
 
         if (!player1 || !player2 || !tournament) {
-            throw new Error("??????????????dawdawd awad AHHHHHHHHHHHHHHHHHHHH ich ahsse typescript")
+            throw new Error("error createTournamentMatch");
         }
 
         const match = new MatchModel()
         match.lobbyId = lobbyId
-        match.lobbyName = `Random ass fkin name so here you Go ${player1.username} ${player2.username}`
+        match.lobbyName = `LoobyName: ${player1.username} ${player2.username}`
         match.createdAt = new Date()
         match.player1 = player1;
         match.player2 = player2;
@@ -397,7 +391,7 @@ export class MatchService {
     async updateTournamentCompletion(tournamentId: number, winnerId: number | undefined, endedAt: Date) {
         const tournament = await this.getTournamentById(tournamentId)
         if (!tournament) {
-            throw new Error("Oh hell nah bruv")
+            throw new Error("error updateTournamentCompletion");
         }
 
         tournament.status = 'completed'
@@ -426,10 +420,6 @@ export class MatchService {
         if (ongoingRegularMatches.length > 0) {
             const matchIds = ongoingRegularMatches.map(m => m.matchModelId);
             await this.matchRepo.delete(matchIds);
-            console.log("deletion wrks")
-        }
-        else {
-            console.log("deletion nix gut oder einfach nix am laufen gewesen(dann alles gut)")
         }
     }
 }

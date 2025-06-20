@@ -7,8 +7,7 @@ import __ from '../services/LanguageService.js';
 export default class Lobby extends AbstractView {
     private lobbyId: string;
     private lobby!: ILobbyState;
-    private player1: IPlayerState = { userName: 'You', playerNumber: 1, userId: 1, isReady: false };
-    private player2: IPlayerState = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
+    private players: IPlayerState[] = [];
 
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
@@ -20,20 +19,31 @@ export default class Lobby extends AbstractView {
             console.error("Lobby ID is missing!");
             Router.redirect('/lobbylist');
         }
-        this.player1 = { userName: 'Waiting for Opponent...', playerNumber: 1, userId: 1, isReady: false };
-        this.player2 = { userName: 'Waiting for Opponent...', playerNumber: 2, userId: 2, isReady: false };
-
+        for (let i = 0; i < 2; i++) {
+            this.players[i] = {
+                userName: 'Waiting for Opponent...',
+                playerNumber: i + 1,
+                userId: i + 1,
+                isReady: false
+            };
+        }
         this.setTitle(`Lobby ${this.lobbyId}`);
     }
 
     async getHtml(): Promise<string> {
-        this.lobby = window.lobbyService.getLobby();
+        this.lobby = window.lobbyService!.getLobby();
+
+        for (let i = 0; i < 2; i++) {
+            this.players[i] = {
+                userName: 'Waiting for Opponent...',
+                playerNumber: i + 1,
+                userId: i + 1,
+                isReady: false
+            };
+        }
         if (this.lobby.lobbyPlayers) {
-            if (this.lobby.lobbyPlayers[0]) {
-                this.player1 = this.lobby.lobbyPlayers[0];
-            }
-            if (this.lobby.lobbyPlayers[1]) {
-                this.player2 = this.lobby.lobbyPlayers[1];
+            for (let i = 0; i < this.lobby.lobbyPlayers.length && i < 8; i++) {
+                this.players[i] = this.lobby.lobbyPlayers[i];
             }
         }
 
@@ -55,8 +65,8 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player1',
-                                        text: window.ls.__(this.player1.userName),
-                                        className: `btn state-btn ${this.player1.isReady ? 'btn-green' : 'btn-yellow'}`
+                                        text: window.ls.__(this.players[0].userName),
+                                        className: `btn state-btn ${this.players[0].isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 },
                                 player2:
@@ -65,9 +75,9 @@ export default class Lobby extends AbstractView {
                                     props:
                                     {
                                         id: 'player2',
-                                        text: window.ls.__(this.player2.userName),
+                                        text: window.ls.__(this.players[1].userName),
                                         className:
-                                            `btn state-btn ${this.player2.isReady ? 'btn-green' : 'btn-yellow'}`
+                                            `btn state-btn ${this.players[1].isReady ? 'btn-green' : 'btn-yellow'}`
                                     }
                                 }
                             }
@@ -102,14 +112,10 @@ export default class Lobby extends AbstractView {
     }
 
     private setupEvents(): void {
-        console.log('[LobbyView] setupEvents()');
-
         window.lobbyService?.setupEventListener();
     }
 
     private cleanupEvents(): void {
-        console.log('[LobbyView] cleanupEvents()');
-
         if (window.lobbyService) {
             const startButton = document.getElementById('startGameBtn');
             if (startButton) {

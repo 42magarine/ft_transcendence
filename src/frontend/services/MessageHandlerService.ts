@@ -17,18 +17,19 @@ export default class MessageHandlerService {
 
         if (window.ft_socket.readyState !== WebSocket.OPEN) {
             const errorMessage = `WebSocket is not open. Current state: ${window.ft_socket.readyState}. Message not sent.`;
-            console.warn(`MessageHandlerService: ${errorMessage}`, msg);
+            console.log(`MessageHandlerService: ${errorMessage}`, msg);
             throw new Error(errorMessage);
         }
 
-        console.log("safeSend (frontend->backend): ", msg);
+        // console.log("safeSend (frontend->backend): ", msg);
         window.ft_socket.send(JSON.stringify(msg));
     }
 
-    public async createLobby(userId: number, maxPlayers: number) {
+    public async createLobby(userId: number, lobbyType: "game" | "tournament", maxPlayers: number) {
         const msg: IClientMessage = {
             type: 'createLobby',
             userId,
+            lobbyType,
             maxPlayers
         };
         await this.safeSend(msg);
@@ -43,15 +44,14 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    // public async joinGame(lobbyId: string, player1: IPlayerState, player2: IPlayerState) {
-    //     const msg: IClientMessage = {
-    //         type: 'joinGame',
-    //         player1,
-    //         player2,
-    //         lobbyId,
-    //     };
-    //     await this.safeSend(msg);
-    // }
+    public async joinGame(lobbyId: string, players: IPlayerState[]) {
+        const msg: IClientMessage = {
+            type: 'joinGame',
+            lobbyId,
+            players,
+        };
+        await this.safeSend(msg);
+    }
 
     public async startGame(lobbyId: string) {
         const msg: IClientMessage = {
@@ -61,12 +61,13 @@ export default class MessageHandlerService {
         await this.safeSend(msg);
     }
 
-    public async movePaddle(userId: number, matchId: number, direction: IPaddleDirection) {
+    public async movePaddle(userId: number, matchId: number, playerNumber: number, direction: IPaddleDirection) {
         const msg: IClientMessage = {
             type: 'movePaddle',
             direction,
             userId,
-            matchId
+            matchId,
+            playerNumber
         }
         await this.safeSend(msg);
     }
