@@ -59,13 +59,17 @@ export default class Signup extends AbstractView {
                                 textBefore: window.ls.__('Already have an account?'),
                                 href: '/login',
                                 align: 'center'
+                            },
+                            {
+                                id: 'google-signin',
+                                type: 'google-signin',
+                                align: 'center',
                             }
                         ]
                     }
                 }
             ]
         });
-
         return this.render(signupCard);
     }
 

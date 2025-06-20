@@ -34,22 +34,17 @@ export default class UserManagementService {
 
                 formData.append('avatar', avatarFile);
 
-                response = await fetch('/api/users/register',
-                    {
-                        method: 'POST',
-                        body: formData
-                    });
+                response = await fetch('/api/users/register', {
+                    method: 'POST',
+                    body: formData
+                });
             }
             else {
-                response = await fetch('/api/users/register',
-                    {
-                        method: 'POST',
-                        headers:
-                        {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(userData),
-                    });
+                response = await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', },
+                    body: JSON.stringify(userData),
+                });
             }
 
             if (!response.ok) {
@@ -71,9 +66,7 @@ export default class UserManagementService {
         try {
             const response = await fetch('/api/users/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify(credentials),
             });
 
@@ -83,7 +76,6 @@ export default class UserManagementService {
             }
 
             const result = await response.json() as AuthResponse;
-
             if (result.requireTwoFactor) {
                 sessionStorage.setItem('pendingUserId', result.userId?.toString() || '');
                 sessionStorage.setItem('pendingUsername', result.username || '');
@@ -93,7 +85,6 @@ export default class UserManagementService {
             }
 
             Router.redirect('/');
-
             return result;
         }
         catch (error) {
@@ -117,7 +108,6 @@ export default class UserManagementService {
         const result = await response.json() as AuthResponse;
 
         Router.redirect('/');
-
         return result;
     }
 
@@ -125,9 +115,7 @@ export default class UserManagementService {
         try {
             const response = await fetch('/api/users/verify-two-factor', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ userId, code }),
             });
 
@@ -155,9 +143,7 @@ export default class UserManagementService {
         try {
             const response = await fetch('/api/request-password-reset', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ email }),
             });
 
@@ -173,9 +159,7 @@ export default class UserManagementService {
         try {
             const response = await fetch(`/api/reset-password/${token}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ password, confirmPassword }),
             });
 
@@ -196,9 +180,7 @@ export default class UserManagementService {
         try {
             const response = await fetch('/api/resend-verification', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ email }),
             });
 
@@ -215,6 +197,7 @@ export default class UserManagementService {
             const response = await fetch('/api/users/logout', {
                 method: 'POST',
             });
+
             if (!response.ok) {
                 throw new Error(`Error: ${response.status}`);
             }
@@ -346,10 +329,12 @@ export default class UserManagementService {
 
                 try {
                     const formData = new FormData(loginForm);
+
                     const credentials: LoginCredentials = {
                         email: formData.get('email') as string,
                         password: formData.get('password') as string,
                     };
+
                     await this.login(credentials);
                     loginForm.reset();
 
@@ -378,8 +363,8 @@ export default class UserManagementService {
                         resendLink.addEventListener('click', async (e) => {
                             e.preventDefault();
                             const loginFormData = new FormData(loginForm);
-                            const username = loginFormData.get('username') as string;
 
+                            const username = loginFormData.get('username') as string;
                             if (!username) {
                                 return;
                             }
@@ -433,7 +418,6 @@ export default class UserManagementService {
                     const tf_six = (document.getElementById('tf_six') as HTMLInputElement).value;
 
                     const code = `${tf_one}${tf_two}${tf_three}${tf_four}${tf_five}${tf_six}`;
-
                     if (code.length !== 6 || !/^\d+$/.test(code)) {
                         return;
                     }
@@ -456,8 +440,8 @@ export default class UserManagementService {
 
                 try {
                     const formData = new FormData(passwordResetForm);
+                    
                     const email = formData.get('email') as string;
-
                     if (!email) {
                         return;
                     }

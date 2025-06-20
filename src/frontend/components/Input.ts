@@ -21,12 +21,10 @@ export default class Input extends AbstractView {
 
         let inputField = '';
 
-        if (type === 'select')
-        {
+        if (type === 'select') {
             inputField = `<select name="${name}" ${(id) ? 'id="' + id + '"' : ''} class="${finalClass}">${value}</select>`;
         }
-        else if (type === 'checkbox')
-        {
+        else if (type === 'checkbox') {
             // ✅ full-width label-row for checkbox
             inputField = `
                 <div class="flex items-center gap-3 w-full">
@@ -41,8 +39,7 @@ export default class Input extends AbstractView {
                 </div>
             `;
         }
-        else
-        {
+        else {
             inputField = `<input
                 type="${type}"
                 ${(id) ? 'id="' + id + '"' : ''}

@@ -45,6 +45,9 @@ export class UserModel {
     @Column({ default: false })
     emailVerified!: boolean;
 
+    @Column({ default: false })
+    googleSignIn!: boolean;
+
     @Column({ nullable: true })
     resetPasswordToken?: string;
 
