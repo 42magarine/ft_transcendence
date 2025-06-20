@@ -24,6 +24,7 @@ export class UserController {
                 username: user.username,
                 name: user.name,
                 role: user.role,
+                avatar: user.avatar ?? null,
                 // twoFAEnabled: user.twoFAEnabled,
                 // emailVerified: user.emailVerified,
             };
@@ -85,6 +86,7 @@ export class UserController {
                 role: user.role,
                 twoFAEnabled: user.twoFAEnabled,
                 emailVerified: user.emailVerified,
+                avatar: user.avatar ?? null,
             };
 
             return reply.code(200).send(userData);
@@ -112,14 +114,18 @@ export class UserController {
             }
 
             let updates: Partial<UserModel> = {};
-            let avatarData = null;
+            let avatarData: string | null = null;
 
-            // Process different request types (multipart or JSON)
             if (request.isMultipart()) {
                 const parts = request.parts();
 
                 for await (const part of parts) {
+
                     if (part.type === 'file' && part.fieldname === 'avatar') {
+                        if (!part.file || part.file.truncated || part.file.bytesRead === 0) {
+                            continue;
+                        }
+
                         try {
                             const result = await saveAvatar(part);
                             avatarData = result.publicPath;
@@ -129,12 +135,10 @@ export class UserController {
                         }
                     }
                     else if (part.type === 'field') {
-                        // Add field to updates
                         (updates as any)[part.fieldname] = part.value;
                     }
                 }
 
-                // Set the avatar path if a new avatar was uploaded
                 if (avatarData) {
                     updates.avatar = avatarData;
                 }
@@ -143,7 +147,11 @@ export class UserController {
                 updates = request.body as Partial<UserModel>;
             }
 
-            // Create updated user object
+            // Prevent avatar from being `{}` or undefined if not changed
+            if (updates.avatar === undefined) {
+                delete updates.avatar;
+            }
+
             const updatedUser = { id: userId, ...updates } as UserModel;
 
             const result = await this._userService.updateUser(updatedUser);
@@ -156,19 +164,20 @@ export class UserController {
                 role: result.role,
                 twoFAEnabled: result.twoFAEnabled,
                 emailVerified: result.emailVerified,
+                avatar: result.avatar ?? null,
             };
 
             return reply.code(200).send({ message: 'User updated successfully', user: userData });
         }
         catch (error) {
-            if (error instanceof Error) {
-                if (error.message === 'User not found') {
-                    return reply.code(404).send({ error: error.message });
-                }
+            if (error instanceof Error && error.message === 'User not found') {
+                return reply.code(404).send({ error: error.message });
             }
+
             return reply.code(500).send({ error: 'Could not update user' });
         }
     }
+
 
     async deleteUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {

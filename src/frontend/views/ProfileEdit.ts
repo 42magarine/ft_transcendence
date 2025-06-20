@@ -1,16 +1,18 @@
-import Card from '../components/Card.js';
-import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
-import UserService from '../services/UserService.js';
+import Card from '../components/Card.js';
 import Modal from '../components/Modal.js';
 import __ from '../services/LanguageService.js';
+import Router from '../../utils/Router.js';
+import { generateProfileImage } from '../../utils/Avatar.js';
+import UserService from '../services/UserService.js';
 
 export default class ProfileEdit extends AbstractView {
     private userId: string;
+    private originalUsername: string = '';
 
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
-        this.userId = routeParams["id"];
+        this.userId = routeParams['id'];
     }
 
     async getHtml(): Promise<string> {
@@ -19,11 +21,11 @@ export default class ProfileEdit extends AbstractView {
         if (!userData) {
             return this.render(`
                 <div class="flex justify-center items-center min-h-[80vh] px-4">
-                <div class="alert alert-warning text-center">${window.ls.__('User not found or error loading user data.')}</div>
+                    <div class="alert alert-warning text-center">${window.ls.__('User not found or error loading user data.')}</div>
                 </div>
             `);
         }
-
+        this.originalUsername = userData?.username ?? '';
         const isMaster = userData.role === 'master';
 
         const profileEditCard = await new Card().renderCard({
@@ -33,44 +35,21 @@ export default class ProfileEdit extends AbstractView {
                 {
                     type: 'avatar',
                     props: {
-                        src: generateProfileImage(userData, 100, 100),
-                        size: 300
+                        src: generateProfileImage(userData, 200, 200),
+                        size: 200,
+                        className: 'mb-4'
                     }
                 },
                 {
-                    type: 'input',
+                    type: 'inputgroup',
                     props: {
-                        name: 'name',
-                        placeholder: window.ls.__('Name'),
-                        value: userData.name,
-                        type: isMaster ? 'display' : 'text'
-                    }
-                },
-                {
-                    type: 'input',
-                    props: {
-                        name: 'username',
-                        placeholder: window.ls.__('Username'),
-                        value: userData.username,
-                        type: isMaster ? 'display' : 'text'
-                    }
-                },
-                {
-                    type: 'input',
-                    props: {
-                        name: 'email',
-                        placeholder: window.ls.__('Email'),
-                        value: userData.email,
-                        type: 'display'
-                    }
-                },
-                {
-                    type: 'input',
-                    props: {
-                        name: 'password',
-                        placeholder: window.ls.__('Password'),
-                        type: 'password',
-                        withConfirm: true
+                        inputs: [
+                            { name: 'avatar', type: 'file', placeholder: window.ls.__('Avatar') },
+                            { name: 'name', placeholder: window.ls.__('Name'), value: userData.name, type: isMaster ? 'display' : 'text' },
+                            { name: 'username', placeholder: window.ls.__('Username'), value: userData.username, type: 'display' },
+                            { name: 'email', placeholder: window.ls.__('Email'), value: userData.email, type: 'display' },
+                            { name: 'password', type: 'password', placeholder: window.ls.__('Password'), withConfirm: true }
+                        ]
                     }
                 },
                 {
@@ -79,26 +58,7 @@ export default class ProfileEdit extends AbstractView {
                         id: 'emailVerified',
                         name: 'emailVerified',
                         label: window.ls.__('Email Verified'),
-                        checked: !!userData.emailVerified
-                    }
-                },
-                {
-                    type: 'toggle',
-                    props: {
-                        id: 'twoFAEnabled',
-                        name: 'twoFAEnabled',
-                        label: window.ls.__('2FA Enabled'),
-                        checked: !!userData.twoFAEnabled,
-                        readonly: true
-                    }
-                },
-                {
-                    type: 'toggle',
-                    props: {
-                        id: 'googleSignIn',
-                        name: 'googleSignIn',
-                        label: window.ls.__('Google Sign-In'),
-                        checked: !!userData.googleSignIn,
+                        checked: !!userData.emailVerified,
                         readonly: true
                     }
                 },
@@ -133,33 +93,72 @@ export default class ProfileEdit extends AbstractView {
                                 id: 'back-to-list',
                                 text: isMaster ? window.ls.__('Back to User List') : window.ls.__('Back to Profile'),
                                 href: isMaster ? '/user-mangement' : `/users/${userData.id}`,
-                                className: 'btn btn-primary'
                             }
                         ]
                     }
                 }
             ]
         });
+
         return this.render(`${profileEditCard}`);
     }
 
     async mount(): Promise<void> {
         const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
-        if (!form) {
-            console.log(`Form with ID edit-profile-form not found`);
-            return;
-        }
+        if (!form) return;
 
-        const passwordInput = form.querySelector('input[name="password"]') as HTMLInputElement;
-        const confirmPasswordRow = document.getElementById('password-confirm-row');
+        const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
+        const signupAvatar = form.querySelector('.signup-avatar');
+        let avatarRemoved = false;
+        let originalAvatarPresent = true;
 
-        if (passwordInput && confirmPasswordRow) {
-            passwordInput.addEventListener('input', () => {
-                if (passwordInput.value.trim().length > 0) {
-                    confirmPasswordRow.style.display = 'block';
-                } else {
-                    confirmPasswordRow.style.display = 'none';
+        if (avatarInput && signupAvatar) {
+            avatarInput.setAttribute('accept', 'image/jpeg, image/png');
+
+            avatarInput.addEventListener('change', async function () {
+                const file = avatarInput.files?.[0];
+
+                if (!file) {
+                    avatarRemoved = true;
+                    signupAvatar.innerHTML = '';
+                    return;
                 }
+
+                avatarRemoved = false;
+
+                if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
+                    await new Modal().renderInfoModal({
+                        id: 'invalid-file-type',
+                        title: window.ls.__('Invalid File Type'),
+                        message: window.ls.__('Only JPG or PNG images are allowed.')
+                    });
+                    avatarInput.value = '';
+                    return;
+                }
+
+                if (file.size > 2 * 1024 * 1024) {
+                    await new Modal().renderInfoModal({
+                        id: 'file-too-large',
+                        title: window.ls.__('File Too Large'),
+                        message: window.ls.__('Avatar must be under 2MB.')
+                    });
+                    avatarInput.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    if (e.target) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result as string;
+                        img.setAttribute('alt', window.ls.__('Avatar of new User'));
+                        img.style.borderRadius = '50%';
+                        img.style.objectFit = 'cover';
+                        signupAvatar.innerHTML = '';
+                        signupAvatar.appendChild(img);
+                    }
+                };
+                reader.readAsDataURL(file);
             });
         }
 
@@ -167,77 +166,76 @@ export default class ProfileEdit extends AbstractView {
             e.preventDefault();
 
             const formData = new FormData(form);
-            const payload: any = Object.fromEntries(formData.entries());
-            delete payload.passwordConfirm;
-            payload.emailVerified = (formData.get('emailVerified') === 'true');
+            const password = formData.get('password')?.toString().trim() || '';
+            const confirmPassword = formData.get('passwordConfirm')?.toString().trim() || '';
 
-            // Handle avatar separately
-            const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
+            if (password !== confirmPassword || (!password && confirmPassword) || (password && !confirmPassword)) {
+                await new Modal().renderInfoModal({
+                    id: 'password-mismatch-modal',
+                    title: window.ls.__('Validation Error'),
+                    message: window.ls.__('Passwords do not match.')
+                });
+                return;
+            }
+
+            if (!password && !confirmPassword) {
+                formData.delete('password');
+            }
+            formData.delete('passwordConfirm');
+
             const avatarFile = avatarInput?.files?.[0];
+            const name = formData.get('name')?.toString().trim() || '';
+            if (name === this.originalUsername) {
+                formData.delete('name');
+            }
+
+            if (originalAvatarPresent && avatarRemoved && (!avatarFile || avatarFile.size === 0)) {
+                await new Modal().renderInfoModal({
+                    id: 'avatar-required-modal',
+                    title: window.ls.__('Avatar Required'),
+                    message: window.ls.__('You removed the original avatar. Please upload a new one before saving.')
+                });
+                return;
+            }
+
+            if ([...formData.entries()].length === 0) {
+                return;
+            }
 
             try {
-                let success;
-                if (avatarFile && avatarFile.size > 0) {
-                    const uploadFormData = new FormData();
-
-                    for (const [key, value] of Object.entries(payload)) {
-                        if (typeof value === 'string' || value instanceof Blob) {
-                            // console.log(`[FormData] Appending field "${key}" as`, value);
-                            uploadFormData.append(key, value);
-                        }
-                        else {
-                            // console.log(`[FormData] Coercing and appending field "${key}" as`, String(value));
-                            uploadFormData.append(key, String(value));
-                        }
-                    }
-
-                    // console.log('[FormData] Appending avatar file');
-                    uploadFormData.append('avatar', avatarFile);
-
-                    // for (const pair of uploadFormData.entries()) {
-                    // console.log(`[FormData] Final entry:`, pair[0], pair[1]);
-                    // }
-
-                    success = await UserService.updateUser(this.userId, uploadFormData);
-                }
-                else {
-                    // console.log('[ProfileEdit] No avatar selected, removing avatar from payload');
-                    delete payload.avatar;
-                    // console.log('[Payload] Final payload before sending:', payload);
-
-                    success = await UserService.updateUser(this.userId, payload);
-                }
+                const success = await UserService.updateUser(this.userId, formData);
 
                 if (success) {
-                    window.location.href = `/users/${this.userId}`;
+                    Router.update();
+                    Router.redirect(`/users/${this.userId}`);
                 }
-                else {
-                    console.error('Failed to update profile.');
-                }
+
             }
             catch (error) {
-                console.error('Update failed:', error);
+                await new Modal().renderInfoModal({
+                    id: 'error-modal',
+                    title: window.ls.__('error in user editing'),
+                    message: window.ls.__('an unexpecting error occured during user profile editing!')
+                });
+                return;
             }
         });
 
-        // Setup modal for deletion
-        const modal = new Modal();
+        document.getElementById('delete-user-btn')?.addEventListener('click', async () => {
+            document.getElementById('confirm-delete-modal')?.remove();
+            const modal = new Modal();
 
-        await modal.renderDeleteModal({
-            id: 'confirm-delete-modal',
-            userId: this.userId,
-            onConfirm: async () => {
-                try {
+            await modal.renderDeleteModal({
+                id: 'confirm-delete-modal',
+                userId: this.userId,
+                onConfirm: async () => {
                     await UserService.deleteUser(Number(this.userId));
-                    window.location.href = '/login';
-                } catch (error) {
-                    console.error(error);
+                    Router.redirect('/login');
                 }
-            }
-        });
+            });
 
-        document.getElementById('delete-user-btn')?.addEventListener('click', () => {
             document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
         });
     }
+
 }

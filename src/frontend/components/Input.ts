@@ -19,16 +19,40 @@ export default class Input extends AbstractView {
     }: InputProps & { withConfirm?: boolean; bare?: boolean }): Promise<string> {
         const finalClass = className || 'input';
 
-        const inputField = type === 'select'
-            ? `<select name="${name}" ${(id) ? 'id="' + id + '"' : ''} class="${finalClass}">${value}</select>`
-            : `<input
-                    type="${type}"
-                    ${(id) ? 'id="' + id + '"' : ''}
-                    name="${name}"
-                    placeholder="${placeholder}"
-                    value="${value}"
-                    class="${finalClass}"
-                />`;
+        let inputField = '';
+
+        if (type === 'select')
+        {
+            inputField = `<select name="${name}" ${(id) ? 'id="' + id + '"' : ''} class="${finalClass}">${value}</select>`;
+        }
+        else if (type === 'checkbox')
+        {
+            // ✅ full-width label-row for checkbox
+            inputField = `
+                <div class="flex items-center gap-3 w-full">
+                    <input
+                        type="checkbox"
+                        ${(id) ? 'id="' + id + '"' : ''}
+                        name="${name}"
+                        value="true"
+                        class="w-5 h-5 accent-blue-500"
+                    />
+                    <label for="${id || name}" class="text-white text-sm">${label || placeholder}</label>
+                </div>
+            `;
+        }
+        else
+        {
+            inputField = `<input
+                type="${type}"
+                ${(id) ? 'id="' + id + '"' : ''}
+                name="${name}"
+                placeholder="${placeholder}"
+                value="${value}"
+                class="${finalClass}"
+            />`;
+        }
+
 
         let confirmInput = '';
         if (withConfirm && type === 'password') {

@@ -93,47 +93,61 @@ export class UserService {
         try {
             const currentUser = await this.findUserById(user.id);
             if (!currentUser) {
+                console.error('❌ User not found in DB');
                 throw new Error('User not found');
             }
 
-            // Hash password if it's being updated (only if not empty)
+            // Password hashing
             if (user.password && user.password.trim().length > 0) {
                 user.password = await hashPW(user.password);
             }
             else {
-                // Remove password field from update if it's empty
                 const { password, ...userWithoutPassword } = user;
                 user = userWithoutPassword as UserModel;
             }
 
-            // Check if avatar has changed, delete old avatar if needed
-            if (user.avatar !== currentUser.avatar && currentUser.avatar) {
+            // Avatar handling
+            const isNewAvatarValid = typeof user.avatar === 'string' && user.avatar.trim().length > 0;
+
+            if (isNewAvatarValid && user.avatar !== currentUser.avatar && currentUser.avatar) {
                 try {
                     await deleteAvatar(currentUser.avatar);
+                    currentUser.avatar = undefined;
                 }
                 catch (error) {
-                    console.error('Avatar delete failed:', error);
-                    // Continue with update even if avatar deletion fails
+                    console.error('⚠️ Avatar delete failed:', error);
+                }
+            }
+            else {
+                if (typeof user.avatar !== 'string' || user.avatar.trim() === '') {
+                    user.avatar = currentUser.avatar;
                 }
             }
 
-            // Master role cannot be changed
+            // Ensure master role cannot be overwritten
             if (currentUser.role === 'master') {
                 user.role = 'master';
             }
 
+            if (typeof user.avatar !== 'string') {
+                delete user.avatar;
+            }
+
             await this.userRepo.update(currentUser.id, user);
+
             const updatedUser = await this.findUserById(currentUser.id);
             if (!updatedUser) {
                 throw new Error('Updated user not found');
             }
-
             return updatedUser;
         }
         catch (error) {
+            console.error('❌ Failed to update user:', error);
             throw new Error('Failed to update user');
         }
     }
+
+
 
     async deleteUser(userId: number): Promise<boolean> {
         try {

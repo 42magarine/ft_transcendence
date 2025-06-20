@@ -212,6 +212,7 @@ export interface StatProps {
     label: string;
     value: string | number;
     className?: string;
+    checkbox?: boolean;
 }
 
 // TEXT / TYPOGRAPHY

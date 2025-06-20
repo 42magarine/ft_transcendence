@@ -30,11 +30,12 @@ export default class Signup extends AbstractView {
                     }
                 },
                 {
-                    type: 'input',
+                    type: 'toggle',
                     props: {
+                        id: 'enableTwoFactor',
                         name: 'enableTwoFactor',
-                        type: 'checkbox',
-                        placeholder: window.ls.__('Enable 2FA (Requires Mobile App)')
+                        label: window.ls.__('Enable 2FA (Requires Mobile App)'),
+                        checked: false
                     }
                 },
                 {
@@ -83,6 +84,12 @@ export default class Signup extends AbstractView {
             const twoFactorInterface = document.getElementById("twoFactorInterface");
             const qrDisplay = document.getElementById("qr-display");
             const secHidden = form.querySelector("input[type=hidden][name=secret]") as HTMLInputElement | null;
+            const usernameInput = form.querySelector('input[name="username"]') as HTMLInputElement;
+            const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
+            const signupAvatar = form.querySelector('.signup-avatar');
+            if (!signupAvatar) {
+                throw new Error('Signup avatar container not found.');
+            }
 
             // 2FA QR logic
             if (enableTwoFactor && twoFactorInterface && qrDisplay && secHidden) {
@@ -113,25 +120,6 @@ export default class Signup extends AbstractView {
                         qrDisplay.innerHTML = '';
                         secHidden.value = '';
                     }
-                });
-            }
-
-            const usernameInput = form.querySelector('input[name="username"]') as HTMLInputElement;
-            const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
-            const signupAvatar = form.querySelector('.signup-avatar');
-
-            if (!signupAvatar) {
-                throw new Error('Signup avatar container not found.');
-            }
-
-            if (usernameInput && !avatarInput?.files?.length) {
-                signupAvatar.innerHTML = generateTextVisualization(usernameInput.value || '', {
-                    width: 100,
-                    height: 100,
-                    useShapes: true,
-                    maxShapes: 50,
-                    showText: false,
-                    backgroundColor: '#f0f0f0'
                 });
             }
 
@@ -198,7 +186,20 @@ export default class Signup extends AbstractView {
                 e.preventDefault();
 
                 const formData = new FormData(form);
-                const getStr = (key: string) => String(formData.get(key) || '');
+
+                const password = formData.get('password')?.toString().trim() || '';
+
+                // password check, modal if error
+                const confirmPassword = formData.get('passwordConfirm')?.toString().trim() || '';
+
+                if (password !== confirmPassword || (!password && confirmPassword) || (password && !confirmPassword)) {
+                    await new Modal().renderInfoModal({
+                        id: 'password-mismatch-modal',
+                        title: window.ls.__('Validation Error'),
+                        message: window.ls.__('Passwords do not match.')
+                    });
+                    return;
+                }
 
                 // Check if 2FA is enabled and validate code
                 const twoFactorEnabled = (form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked;
@@ -218,6 +219,17 @@ export default class Signup extends AbstractView {
                         return;
                     }
                 }
+
+
+                const getStr = (key: string) => String(formData.get(key) || '');
+                // const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
+                const avatarFile = formData.get('avatar') as File;
+
+                const requiredFields = ['name', 'username', 'email', 'password'];
+                const missingFields = requiredFields.filter(field => {
+                    const val = formData.get(field)?.toString().trim();
+                    return !val;
+                });
 
                 try {
                     const userData: User = {

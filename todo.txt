@@ -16,6 +16,7 @@ BACKEND:
 SONSTIGES:
     1. eine Interface für alle Userdaten? oder wie bisher je nach Fall ein eigenes Interface?
     2. Interfaces nach Frontend und Backend aufteilen?
+    3. ctrl+C transcendende gibt error, handlen?
 
 
 TESTS:
@@ -23,4 +24,6 @@ TESTS:
     2. Test auth processes themselves
     3. Open a lobby or tournament with or without its coresponsing game and test leaves by router and window.
     4. Launch different games with different customizations and test their effects
-    5. SPA testen: haben wir noch "window.location.href" im code anstatt Router.update und Router.redirect?
+
+Flo:
+    username unique optischer kram

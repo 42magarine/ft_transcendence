@@ -11,11 +11,21 @@ export default class UserManagementService {
         try {
             let response: Response;
 
-            if (avatarFile && avatarFile.size > 0) {
-                // Send as FormData with avatar
+            const isAvatarValid =
+                avatarFile &&
+                avatarFile.size > 0 &&
+                ['image/jpeg', 'image/png'].includes(avatarFile.type);
+
+            if (isAvatarValid) {
+                console.log('[registerUser] Valid avatar found:', {
+                    name: avatarFile.name,
+                    size: avatarFile.size,
+                    type: avatarFile.type
+                });
+
                 const formData = new FormData();
 
-                // Add all user data fields
+                // Add user data
                 Object.entries(userData).forEach(([key, value]) => {
                     if (value !== undefined && value !== null) {
                         formData.append(key, String(value));
@@ -24,20 +34,22 @@ export default class UserManagementService {
 
                 formData.append('avatar', avatarFile);
 
-                response = await fetch('/api/users/register', {
-                    method: 'POST',
-                    body: formData
-                });
+                response = await fetch('/api/users/register',
+                    {
+                        method: 'POST',
+                        body: formData
+                    });
             }
             else {
-                // Send as JSON without avatar
-                response = await fetch('/api/users/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(userData),
-                });
+                response = await fetch('/api/users/register',
+                    {
+                        method: 'POST',
+                        headers:
+                        {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(userData),
+                    });
             }
 
             if (!response.ok) {
@@ -53,6 +65,7 @@ export default class UserManagementService {
             throw error;
         }
     }
+
 
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
         try {

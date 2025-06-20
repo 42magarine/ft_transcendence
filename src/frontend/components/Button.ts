@@ -23,7 +23,9 @@ export default class Button extends AbstractView {
         aria = {}
     }: ButtonProps & { aria?: Record<string, string> }): Promise<string> {
         if (type === 'google-signin')
-            return renderGoogleSignInButton(align);
+        {
+            //return renderGoogleSignInButton(align);
+        }
 
         let finalClass = 'btn text-inherit';
 
