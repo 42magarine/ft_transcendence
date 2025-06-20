@@ -84,12 +84,10 @@ export default class UserService {
         }
     }
 
-    static async updateUser(userId: string, payload: Record<string, any> | FormData): Promise<boolean>
-    {
-        try
-        {
+    static async updateUser(userId: string, payload: Record<string, any> | FormData): Promise<boolean> {
+        try {
             const isFormData = payload instanceof FormData;
-    
+
             const response = await fetch(`/api/users/${userId}`, {
                 method: 'PUT',
                 credentials: 'include',
@@ -100,22 +98,20 @@ export default class UserService {
                         body: JSON.stringify(payload)
                     })
             });
-    
-            if (!response.ok)
-            {
+
+            if (!response.ok) {
                 const errorData = await response.json() as ApiErrorResponse;
                 throw new Error(errorData.error || 'Failed to update user');
             }
-    
+
             return response.ok;
         }
-        catch (error)
-        {
+        catch (error) {
             console.error('Error updating profile:', error);
             throw error;
         }
     }
-    
+
 
     static async deleteUser(userId: number): Promise<boolean> {
         try {

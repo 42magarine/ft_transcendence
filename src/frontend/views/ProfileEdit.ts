@@ -39,7 +39,7 @@ export default class ProfileEdit extends AbstractView {
                         size: 200,
                         className: 'mb-4'
                     }
-                },      
+                },
                 {
                     type: 'inputgroup',
                     props: {
@@ -103,35 +103,30 @@ export default class ProfileEdit extends AbstractView {
         return this.render(`${profileEditCard}`);
     }
 
-    async mount(): Promise<void>
-    {
+    async mount(): Promise<void> {
         const form = document.getElementById('edit-profile-form') as HTMLFormElement | null;
         if (!form) return;
-    
+
         const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
         const signupAvatar = form.querySelector('.signup-avatar');
         let avatarRemoved = false;
         let originalAvatarPresent = true;
-    
-        if (avatarInput && signupAvatar)
-        {
+
+        if (avatarInput && signupAvatar) {
             avatarInput.setAttribute('accept', 'image/jpeg, image/png');
-    
-            avatarInput.addEventListener('change', async function ()
-            {
+
+            avatarInput.addEventListener('change', async function () {
                 const file = avatarInput.files?.[0];
-    
-                if (!file)
-                {
+
+                if (!file) {
                     avatarRemoved = true;
                     signupAvatar.innerHTML = '';
                     return;
                 }
-    
+
                 avatarRemoved = false;
-    
-                if (!file.type.match('image/jpeg') && !file.type.match('image/png'))
-                {
+
+                if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
                     await new Modal().renderInfoModal({
                         id: 'invalid-file-type',
                         title: window.ls.__('Invalid File Type'),
@@ -140,9 +135,8 @@ export default class ProfileEdit extends AbstractView {
                     avatarInput.value = '';
                     return;
                 }
-    
-                if (file.size > 2 * 1024 * 1024)
-                {
+
+                if (file.size > 2 * 1024 * 1024) {
                     await new Modal().renderInfoModal({
                         id: 'file-too-large',
                         title: window.ls.__('File Too Large'),
@@ -151,12 +145,10 @@ export default class ProfileEdit extends AbstractView {
                     avatarInput.value = '';
                     return;
                 }
-    
+
                 const reader = new FileReader();
-                reader.onload = function (e)
-                {
-                    if (e.target)
-                    {
+                reader.onload = function (e) {
+                    if (e.target) {
                         const img = document.createElement('img');
                         img.src = e.target.result as string;
                         img.setAttribute('alt', window.ls.__('Avatar of new User'));
@@ -169,92 +161,81 @@ export default class ProfileEdit extends AbstractView {
                 reader.readAsDataURL(file);
             });
         }
-    
-        form.addEventListener('submit', async (e) =>
-            {
-                e.preventDefault();
-            
-                const formData = new FormData(form);
-                const password = formData.get('password')?.toString().trim() || '';
-                const confirmPassword = formData.get('passwordConfirm')?.toString().trim() || '';
 
-                if (password !== confirmPassword || (!password && confirmPassword) || (password && !confirmPassword))
-                {
-                    await new Modal().renderInfoModal({
-                        id: 'password-mismatch-modal',
-                        title: window.ls.__('Validation Error'),
-                        message: window.ls.__('Passwords do not match.')
-                    });
-                    return;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const password = formData.get('password')?.toString().trim() || '';
+            const confirmPassword = formData.get('passwordConfirm')?.toString().trim() || '';
+
+            if (password !== confirmPassword || (!password && confirmPassword) || (password && !confirmPassword)) {
+                await new Modal().renderInfoModal({
+                    id: 'password-mismatch-modal',
+                    title: window.ls.__('Validation Error'),
+                    message: window.ls.__('Passwords do not match.')
+                });
+                return;
+            }
+
+            if (!password && !confirmPassword) {
+                formData.delete('password');
+            }
+            formData.delete('passwordConfirm');
+
+            const avatarFile = avatarInput?.files?.[0];
+            const name = formData.get('name')?.toString().trim() || '';
+            if (name === this.originalUsername) {
+                formData.delete('name');
+            }
+
+            if (originalAvatarPresent && avatarRemoved && (!avatarFile || avatarFile.size === 0)) {
+                await new Modal().renderInfoModal({
+                    id: 'avatar-required-modal',
+                    title: window.ls.__('Avatar Required'),
+                    message: window.ls.__('You removed the original avatar. Please upload a new one before saving.')
+                });
+                return;
+            }
+
+            if ([...formData.entries()].length === 0) {
+                return;
+            }
+
+            try {
+                const success = await UserService.updateUser(this.userId, formData);
+
+                if (success) {
+                    Router.update();
+                    Router.redirect(`/users/${this.userId}`);
                 }
-            
-                if (!password && !confirmPassword)
-                {
-                    formData.delete('password');
-                }
-                formData.delete('passwordConfirm');
-            
-                const avatarFile = avatarInput?.files?.[0];
-                const name = formData.get('name')?.toString().trim() || '';
-                if (name === this.originalUsername)
-                {
-                    formData.delete('name');
-                }
-            
-                if (originalAvatarPresent && avatarRemoved && (!avatarFile || avatarFile.size === 0))
-                {
-                    await new Modal().renderInfoModal({
-                        id: 'avatar-required-modal',
-                        title: window.ls.__('Avatar Required'),
-                        message: window.ls.__('You removed the original avatar. Please upload a new one before saving.')
-                    });
-                    return;
-                }
-            
-                if ([...formData.entries()].length === 0)
-                {
-                    return;
-                }
-            
-                try
-                {
-                    const success = await UserService.updateUser(this.userId, formData);
-            
-                    if (success)
-                    {
-                        Router.update();
-                        Router.redirect(`/users/${this.userId}`);
-                    }
-                    
-                }
-                catch (error)
-                {
-                    await new Modal().renderInfoModal({
-                        id: 'error-modal',
-                        title: window.ls.__('error in user editing'),
-                        message: window.ls.__('an unexpecting error occured during user profile editing!')
-                    });
-                    return;
-                }
-            });                  
-    
-        document.getElementById('delete-user-btn')?.addEventListener('click', async () =>
-        {
+
+            }
+            catch (error) {
+                await new Modal().renderInfoModal({
+                    id: 'error-modal',
+                    title: window.ls.__('error in user editing'),
+                    message: window.ls.__('an unexpecting error occured during user profile editing!')
+                });
+                return;
+            }
+        });
+
+        document.getElementById('delete-user-btn')?.addEventListener('click', async () => {
             document.getElementById('confirm-delete-modal')?.remove();
             const modal = new Modal();
-    
+
             await modal.renderDeleteModal({
                 id: 'confirm-delete-modal',
                 userId: this.userId,
-                onConfirm: async () =>
-                {
+                onConfirm: async () => {
                     await UserService.deleteUser(Number(this.userId));
                     Router.redirect('/login');
                 }
             });
-    
+
             document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
         });
     }
-    
+
 }

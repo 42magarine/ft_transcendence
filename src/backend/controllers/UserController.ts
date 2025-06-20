@@ -96,80 +96,66 @@ export class UserController {
         }
     }
 
-    async updateUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply)
-    {
-        try
-        {
+    async updateUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+        try {
             const userId = parseInt(request.params.id);
-            if (isNaN(userId))
-            {
+            if (isNaN(userId)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
-    
+
             const currentUserId = request.user!.id;
             const currentUserRole = request.user!.role;
-    
+
             const isOwnAccount = currentUserId === userId;
             const canUpdate = isOwnAccount || currentUserRole === 'master';
-    
-            if (!canUpdate)
-            {
+
+            if (!canUpdate) {
                 return reply.code(403).send({ error: 'Insufficient permissions to update this user' });
             }
-    
+
             let updates: Partial<UserModel> = {};
             let avatarData: string | null = null;
-    
-            if (request.isMultipart())
-            {
-                const parts = request.parts();
-    
-                for await (const part of parts)
-                {
 
-                    if (part.type === 'file' && part.fieldname === 'avatar')
-                    {
-                        if (!part.file || part.file.truncated || part.file.bytesRead === 0)
-                        {
+            if (request.isMultipart()) {
+                const parts = request.parts();
+
+                for await (const part of parts) {
+
+                    if (part.type === 'file' && part.fieldname === 'avatar') {
+                        if (!part.file || part.file.truncated || part.file.bytesRead === 0) {
                             continue;
                         }
-    
-                        try
-                        {
+
+                        try {
                             const result = await saveAvatar(part);
                             avatarData = result.publicPath;
                         }
-                        catch (error)
-                        {
+                        catch (error) {
                             return reply.code(400).send({ error: 'Failed to save avatar file' });
                         }
                     }
-                    else if (part.type === 'field')
-                    {
+                    else if (part.type === 'field') {
                         (updates as any)[part.fieldname] = part.value;
                     }
                 }
-    
-                if (avatarData)
-                {
+
+                if (avatarData) {
                     updates.avatar = avatarData;
                 }
             }
-            else
-            {
+            else {
                 updates = request.body as Partial<UserModel>;
             }
-    
+
             // Prevent avatar from being `{}` or undefined if not changed
-            if (updates.avatar === undefined)
-            {
+            if (updates.avatar === undefined) {
                 delete updates.avatar;
             }
-    
+
             const updatedUser = { id: userId, ...updates } as UserModel;
-    
+
             const result = await this._userService.updateUser(updatedUser);
-    
+
             const userData = {
                 id: result.id,
                 email: result.email,
@@ -180,20 +166,18 @@ export class UserController {
                 emailVerified: result.emailVerified,
                 avatar: result.avatar ?? null,
             };
-            
+
             return reply.code(200).send({ message: 'User updated successfully', user: userData });
         }
-        catch (error)
-        {
-            if (error instanceof Error && error.message === 'User not found')
-            {
+        catch (error) {
+            if (error instanceof Error && error.message === 'User not found') {
                 return reply.code(404).send({ error: error.message });
             }
-    
+
             return reply.code(500).send({ error: 'Could not update user' });
         }
     }
-    
+
 
     async deleteUserById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         try {

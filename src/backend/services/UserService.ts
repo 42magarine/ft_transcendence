@@ -89,78 +89,64 @@ export class UserService {
         }
     }
 
-    async updateUser(user: UserModel): Promise<UserModel>
-    {
-        try
-        {
+    async updateUser(user: UserModel): Promise<UserModel> {
+        try {
             const currentUser = await this.findUserById(user.id);
-            if (!currentUser)
-            {
+            if (!currentUser) {
                 console.error('❌ User not found in DB');
                 throw new Error('User not found');
             }
-    
+
             // Password hashing
-            if (user.password && user.password.trim().length > 0)
-            {
+            if (user.password && user.password.trim().length > 0) {
                 user.password = await hashPW(user.password);
             }
-            else
-            {
+            else {
                 const { password, ...userWithoutPassword } = user;
                 user = userWithoutPassword as UserModel;
             }
-    
+
             // Avatar handling
             const isNewAvatarValid = typeof user.avatar === 'string' && user.avatar.trim().length > 0;
-    
-            if (isNewAvatarValid && user.avatar !== currentUser.avatar && currentUser.avatar)
-            {
-                try
-                {
+
+            if (isNewAvatarValid && user.avatar !== currentUser.avatar && currentUser.avatar) {
+                try {
                     await deleteAvatar(currentUser.avatar);
                     currentUser.avatar = undefined;
                 }
-                catch (error)
-                {
+                catch (error) {
                     console.error('⚠️ Avatar delete failed:', error);
                 }
             }
-            else
-            {
-                if (typeof user.avatar !== 'string' || user.avatar.trim() === '')
-                {
+            else {
+                if (typeof user.avatar !== 'string' || user.avatar.trim() === '') {
                     user.avatar = currentUser.avatar;
                 }
             }
-    
+
             // Ensure master role cannot be overwritten
-            if (currentUser.role === 'master')
-            {
+            if (currentUser.role === 'master') {
                 user.role = 'master';
             }
-    
-            if (typeof user.avatar !== 'string')
-            {
+
+            if (typeof user.avatar !== 'string') {
                 delete user.avatar;
             }
-    
+
             await this.userRepo.update(currentUser.id, user);
-    
+
             const updatedUser = await this.findUserById(currentUser.id);
-            if (!updatedUser)
-            {
+            if (!updatedUser) {
                 throw new Error('Updated user not found');
             }
             return updatedUser;
         }
-        catch (error)
-        {
+        catch (error) {
             console.error('❌ Failed to update user:', error);
             throw new Error('Failed to update user');
         }
     }
-    
+
 
 
     async deleteUser(userId: number): Promise<boolean> {

@@ -9,8 +9,8 @@ export default class Tournament extends AbstractView {
     private lobby!: ILobbyState;
     private players: IPlayerState[] = [];
 
-	constructor(routeParams: Record<string, string>, queryParams: URLSearchParams = new URLSearchParams()) {
-		super();
+    constructor(routeParams: Record<string, string>, queryParams: URLSearchParams = new URLSearchParams()) {
+        super();
 
         this.initEvents = this.setupEvents.bind(this);
 

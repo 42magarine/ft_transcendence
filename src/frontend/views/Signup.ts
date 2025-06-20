@@ -36,7 +36,7 @@ export default class Signup extends AbstractView {
                         label: window.ls.__('Enable 2FA (Requires Mobile App)'),
                         checked: false
                     }
-                },                
+                },
                 {
                     type: 'twofactor',
                     props: {}
@@ -190,7 +190,7 @@ export default class Signup extends AbstractView {
 
                 // password check, modal if error
                 const confirmPassword = formData.get('passwordConfirm')?.toString().trim() || '';
-                
+
                 if (password !== confirmPassword || (!password && confirmPassword) || (password && !confirmPassword)) {
                     await new Modal().renderInfoModal({
                         id: 'password-mismatch-modal',
@@ -199,7 +199,7 @@ export default class Signup extends AbstractView {
                     });
                     return;
                 }
-                
+
                 // Check if 2FA is enabled and validate code
                 const twoFactorEnabled = (form.querySelector('input[name="enableTwoFactor"]') as HTMLInputElement)?.checked;
                 if (twoFactorEnabled) {
@@ -208,7 +208,7 @@ export default class Signup extends AbstractView {
                         const val = formData.get(name) as string;
                         return !val || val.trim() === '';
                     });
-                
+
                     if (missing) {
                         await new Modal().renderInfoModal({
                             id: 'incomplete-2fa',
@@ -229,7 +229,7 @@ export default class Signup extends AbstractView {
                     const val = formData.get(field)?.toString().trim();
                     return !val;
                 });
-        
+
                 try {
                     const userData: User = {
                         name: getStr('name'),
@@ -276,7 +276,7 @@ export default class Signup extends AbstractView {
                         title: window.ls.__('Signup Failed'),
                         message: window.ls.__('Something went wrong while creating your account. Please try again.')
                     });
-                }                
+                }
             });
         }
         catch (error) {

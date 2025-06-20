@@ -7,73 +7,65 @@ import Toggle from "../components/Toggle.js"
 export default class UserManagementService {
     constructor() { }
 
-    async registerUser(userData: User, avatarFile?: File): Promise<string>
-    {
-        try
-        {
+    async registerUser(userData: User, avatarFile?: File): Promise<string> {
+        try {
             let response: Response;
-    
+
             const isAvatarValid =
                 avatarFile &&
                 avatarFile.size > 0 &&
                 ['image/jpeg', 'image/png'].includes(avatarFile.type);
-    
-            if (isAvatarValid)
-            {
+
+            if (isAvatarValid) {
                 console.log('[registerUser] Valid avatar found:', {
                     name: avatarFile.name,
                     size: avatarFile.size,
                     type: avatarFile.type
                 });
-    
+
                 const formData = new FormData();
-    
+
                 // Add user data
-                Object.entries(userData).forEach(([key, value]) =>
-                {
-                    if (value !== undefined && value !== null)
-                    {
+                Object.entries(userData).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null) {
                         formData.append(key, String(value));
                     }
                 });
-    
+
                 formData.append('avatar', avatarFile);
-    
+
                 response = await fetch('/api/users/register',
-                {
-                    method: 'POST',
-                    body: formData
-                });
-            }
-            else
-            {
-                response = await fetch('/api/users/register',
-                {
-                    method: 'POST',
-                    headers:
                     {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(userData),
-                });
+                        method: 'POST',
+                        body: formData
+                    });
             }
-    
-            if (!response.ok)
-            {
+            else {
+                response = await fetch('/api/users/register',
+                    {
+                        method: 'POST',
+                        headers:
+                        {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(userData),
+                    });
+            }
+
+            if (!response.ok) {
                 const errorData = await response.json() as ApiErrorResponse;
                 throw new Error(errorData.error || 'Registration failed');
             }
-    
+
             Router.update();
             return await response.text();
         }
-        catch (error)
-        {
+        catch (error) {
             console.error('Registration error:', error);
             throw error;
         }
     }
-    
+
 
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
         try {
