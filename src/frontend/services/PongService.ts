@@ -4,8 +4,8 @@ import Router from '../../utils/Router.js';
 
 export default class PongService {
     private gameState!: IGameState;
-    private player1!: IPlayerState;
-    private player2!: IPlayerState;
+    private player1Name!: string;
+    private player2Name!: string;
     private isPlayer1Paddle: boolean = false;
     private isPlayer2Paddle: boolean = false;
     private matchId: number | null = null;
@@ -124,45 +124,49 @@ export default class PongService {
         return match?.[1] || '';
     }
 
+    private getMatchId(): string {
+        const match = window.location.pathname.match(/\/([^\/]+)\/?$/);
+        return match?.[1] || '';
+    }
+
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-
+        const matchId = this.getMatchId();
         switch (data.type) {
-            case 'playerJoined':
+            case 'initMatchStart':
                 // console.log("playerjoined case reached. handed over info: ", data);
-                if (data.gameState) {
-                    this.gameState = data.gameState;
+                if (data.matchId?.toString() === matchId) {
+
+                    this.gameState = data.gameState!;
+                    this.player1Name = data.player1Name!;
+                    this.player2Name = data.player2Name!;
                     {
                         // console.log("window current user:", window.currentUser?.id, " window gamestate player1id", this.gameState.player1Id)
                         // console.log("window current user:", window.currentUser?.id, " window gamestate player2id", this.gameState.player2Id)
-                        if (window.currentUser?.id === this.gameState.player1Id) {
+                        if (window.currentUser?.name === data.player1Name) {
+                            console.log("paddle1")
                             this.isPlayer1Paddle = true;
                             this.isPlayer2Paddle = false;
                             // console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
                         }
-                        else if (window.currentUser?.id === this.gameState.player2Id) {
+                        else if (window.currentUser?.name === data.player2Name) {
+                            console.log("paddle2")
                             this.isPlayer1Paddle = false;
                             this.isPlayer2Paddle = true;
                             // console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
                         }
-                        else {
-                            this.isPlayer1Paddle = false;
-                            this.isPlayer2Paddle = false;
-                            console.log(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
-                        }
+                        // else {
+                        //     this.isPlayer1Paddle = false;
+                        //     this.isPlayer2Paddle = false;
+                        //     console.log(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
+                        // }
                     }
                 }
-                // NEW: Start the client-side input loop when the game is joined
                 if (this.animationFrameId === null) {
+                    console.log("paddle loop")
                     this.clientLoop();
                 }
-
-                // setTimeout(function () {
-                //     if (window.messageHandler && currentUrlLobbyId) {
-                //         window.messageHandler.startGame(currentUrlLobbyId);
-                //     }
-                // }, 4000)
                 break;
 
             case 'gameStateUpdate':
@@ -192,14 +196,6 @@ export default class PongService {
                     Router.redirect("/lobbylist")
                 }, 10000)
                 break;
-            case "tournamentMatchOver":
-                if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
-                    Router.redirect(`/tournamentwaitingroom`);
-                }
-                break;
-            // case "tournamentCancelled":
-            //     Router.redirect("/lobbylist");
-            // break;
         }
     }
 
@@ -219,7 +215,13 @@ export default class PongService {
 
         if (direction && window.messageHandler && this.matchId) {
             if (this.isPlayer1Paddle || this.isPlayer2Paddle) {
-                window.messageHandler.movePaddle(window.currentUser?.id, this.matchId, direction);
+                let playerNumber: number;
+                if (this.player1Name === window.currentUser.name) {
+                    playerNumber = 1;
+                } else if (this.player2Name === window.currentUser.name) {
+                    playerNumber = 2;
+                }
+                window.messageHandler.movePaddle(window.currentUser?.id, this.matchId, playerNumber!, direction);
             }
         }
 
@@ -307,9 +309,9 @@ export default class PongService {
             this.ctx.fillText("GAME OVER", this.canvas.width / 2, this.canvas.height / 2);
             let winMsg = "";
             if (this.gameState.score1 > this.gameState.score2) {
-                winMsg = this.player1.userName + ` wins`;
+                winMsg = this.player1Name + ` wins`;
             } else if (this.gameState.score2 > this.gameState.score1) {
-                winMsg = this.player2.userName + ` wins`;
+                winMsg = this.player2Name + ` wins`;
             } else {
                 winMsg = "It's a draw!";
             }
@@ -324,11 +326,11 @@ export default class PongService {
         return this.gameState;
     }
 
-    public getPlayer1(): IPlayerState {
-        return this.player1;
+    public getPlayer1Name(): string{
+        return this.player1Name;
     }
 
-    public getPlayer2(): IPlayerState {
-        return this.player2;
+    public getPlayer2Name(): string {
+        return this.player2Name;
     }
 }

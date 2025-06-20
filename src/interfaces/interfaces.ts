@@ -138,6 +138,7 @@ export interface IClientMessage {
     lobbyType?: 'game' | 'tournament';
     maxPlayers?: number;
     players?: IPlayerState[];
+    playerNumber?: number;
     direction?: IPaddleDirection;
     ready?: boolean;
     matchId?: number;
@@ -147,7 +148,7 @@ export interface IClientMessage {
 }
 
 export interface IServerMessage {
-    type: "connection" | "error" | "lobbyCreated" | "joinedLobby" | "playerJoined" | "playerLeft" | "lobbyList" | "lobbyState" | "playerReady" | "gameStarted" | "gameStateUpdate" | "gameOver" | "leftLobby" | "tournamentStarted" | "tournamentRoundStart" | "tournamentMatchStart" | "tournamentMatchOver" | "tournamentFinished" | "tournamentCancelled" | "updateFriendlist" | "playerLeftGame" | "gameJoined";
+    type: "connection" | "error" | "lobbyCreated" | "joinedLobby" | "playerJoined" | "playerLeft" | "lobbyList" | "lobbyState" | "playerReady" | "gameStarted" | "gameStateUpdate" | "gameOver" | "leftLobby" | "tournamentStarted" | "tournamentRoundStart" | "tournamentMatchStart" | "tournamentMatchOver" | "tournamentFinished" | "tournamentCancelled" | "updateFriendlist" | "playerLeftGame" | "initMatchStart";
     message?: string;
     lobbyId?: string;
     owner?: number;
