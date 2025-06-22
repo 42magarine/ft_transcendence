@@ -22,9 +22,8 @@ export default class Button extends AbstractView {
         dataAttributes = {},
         aria = {}
     }: ButtonProps & { aria?: Record<string, string> }): Promise<string> {
-        if (type === 'google-signin')
-        {
-            //return renderGoogleSignInButton(align);
+        if (type === 'google-signin') {
+            return renderGoogleSignInButton(align);
         }
 
         let finalClass = 'btn text-inherit';
@@ -123,10 +122,10 @@ export default class Button extends AbstractView {
         const allHtmlBlocks = [...inputsHtml, ...buttonsHtml, ...togglesHtml].join('\n');
 
         return this.render(`
-			<div class="${layoutClass} ${alignmentClass} ${className}">
-				${allHtmlBlocks}
-			</div>
-		`);
+            <div class="${layoutClass} ${alignmentClass} ${className}">
+                ${allHtmlBlocks}
+            </div>
+        `);
     }
 
     async renderLanguageDropdown(): Promise<string> {

@@ -358,11 +358,6 @@ export class UserController {
                 return reply.code(400).send({ error: 'Passwords do not match' });
             }
 
-            // Minimum password requirements
-            if (password.length < 8) {
-                return reply.code(400).send({ error: 'Password must be at least 8 characters long' });
-            }
-
             await this._userService.resetPassword(token, password);
 
             return reply.code(200).send({ message: 'Password has been reset successfully' });

@@ -8,7 +8,7 @@ import UserService from '../services/UserService.js';
 
 export default class ProfileEdit extends AbstractView {
     private userId: string;
-    private originalUsername: string = '';
+    private originalName: string = '';
 
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
@@ -18,19 +18,29 @@ export default class ProfileEdit extends AbstractView {
     async getHtml(): Promise<string> {
         const userIdNum = Number(this.userId);
         const userData = isNaN(userIdNum) ? null : await UserService.getUserById(userIdNum);
+        const currentUser = await UserService.getCurrentUser();
+        const isMaster = currentUser!.role === 'master';
+
         if (!userData) {
-            return this.render(`
-                <div class="flex justify-center items-center min-h-[80vh] px-4">
-                    <div class="alert alert-warning text-center">${window.ls.__('User not found or error loading user data.')}</div>
-                </div>
-            `);
+            const errorCard = await new Card().renderCard({
+                contentBlocks: [
+                    {
+                        type: 'container',
+                        props: {
+                            className: 'alert alert-warning text-center',
+                            html: window.ls.__('User not found or error loading user data.')
+                        }
+                    }
+                ]
+            });
+            return this.render(errorCard);
         }
-        this.originalUsername = userData?.username ?? '';
-        const isMaster = userData.role === 'master';
+
+        this.originalName = userData.name ?? '';
 
         const profileEditCard = await new Card().renderCard({
             formId: 'edit-profile-form',
-            title: `${window.ls.__('Edit Profile')}: ${userData.name}`,
+            title: `${window.ls.__('Edit Profile')}: ${userData.username}`,
             contentBlocks: [
                 {
                     type: 'avatar',
@@ -45,21 +55,11 @@ export default class ProfileEdit extends AbstractView {
                     props: {
                         inputs: [
                             { name: 'avatar', type: 'file', placeholder: window.ls.__('Avatar') },
-                            { name: 'name', placeholder: window.ls.__('Name'), value: userData.name, type: isMaster ? 'display' : 'text' },
-                            { name: 'username', placeholder: window.ls.__('Username'), value: userData.username, type: 'display' },
                             { name: 'email', placeholder: window.ls.__('Email'), value: userData.email, type: 'display' },
+                            { name: 'username', placeholder: window.ls.__('Username'), value: userData.username, type: 'display' },
+                            { name: 'name', placeholder: window.ls.__('Name'), value: userData.name, type: isMaster ? 'display' : 'text' },
                             { name: 'password', type: 'password', placeholder: window.ls.__('Password'), withConfirm: true }
                         ]
-                    }
-                },
-                {
-                    type: 'toggle',
-                    props: {
-                        id: 'emailVerified',
-                        name: 'emailVerified',
-                        label: window.ls.__('Email Verified'),
-                        checked: !!userData.emailVerified,
-                        readonly: true
                     }
                 },
                 {
@@ -99,7 +99,6 @@ export default class ProfileEdit extends AbstractView {
                 }
             ]
         });
-
         return this.render(`${profileEditCard}`);
     }
 
@@ -117,7 +116,6 @@ export default class ProfileEdit extends AbstractView {
 
             avatarInput.addEventListener('change', async function () {
                 const file = avatarInput.files?.[0];
-
                 if (!file) {
                     avatarRemoved = true;
                     signupAvatar.innerHTML = '';
@@ -181,11 +179,13 @@ export default class ProfileEdit extends AbstractView {
             if (!password && !confirmPassword) {
                 formData.delete('password');
             }
+
             formData.delete('passwordConfirm');
 
             const avatarFile = avatarInput?.files?.[0];
+
             const name = formData.get('name')?.toString().trim() || '';
-            if (name === this.originalUsername) {
+            if (name === this.originalName) {
                 formData.delete('name');
             }
 
@@ -204,7 +204,6 @@ export default class ProfileEdit extends AbstractView {
 
             try {
                 const success = await UserService.updateUser(this.userId, formData);
-
                 if (success) {
                     Router.update();
                     Router.redirect(`/users/${this.userId}`);
@@ -237,5 +236,4 @@ export default class ProfileEdit extends AbstractView {
             document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
         });
     }
-
 }

@@ -47,13 +47,6 @@ export default class UserManagement extends AbstractView {
                     }
                 },
                 {
-                    type: 'label',
-                    props: {
-                        htmlFor: 'dummy-id',
-                        text: ' ' // spacing only
-                    }
-                },
-                {
                     type: 'table',
                     props: {
                         id: 'user-list',
@@ -65,8 +58,9 @@ export default class UserManagement extends AbstractView {
                             { key: 'name', label: window.ls.__('Name') },
                             { key: 'username', label: window.ls.__('Username') },
                             { key: 'email', label: window.ls.__('Email') },
-                            { key: 'emailVerified', label: window.ls.__('Verified') },
+                            { key: 'emailVerified', label: window.ls.__('E-Mail verified') },
                             { key: 'twoFAEnabled', label: window.ls.__('2FA') },
+                            { key: 'googleSignIn', label: window.ls.__('Google Sign-In') },
                             { key: 'actions', label: window.ls.__('Actions') }
                         ],
                         rowLayout: (user) => [
@@ -75,7 +69,8 @@ export default class UserManagement extends AbstractView {
                             { type: 'label', props: { text: `${user.username}` } },
                             { type: 'label', props: { text: `${user.email}` } },
                             { type: 'label', props: { text: user.emailVerified ? window.ls.__('Yes') : window.ls.__('No') } },
-                            { type: 'label', props: { text: user.twoFAEnabled ? window.ls.__('Enabled') : window.ls.__('Disabled') } },
+                            { type: 'label', props: { text: user.twoFAEnabled ? window.ls.__('Yes') : window.ls.__('No') } },
+                            { type: 'label', props: { text: user.googleSignIn ? window.ls.__('Yes') : window.ls.__('No') } },
                             {
                                 type: 'buttongroup',
                                 props: {
@@ -99,7 +94,6 @@ export default class UserManagement extends AbstractView {
                 }
             ]
         });
-
         return this.render(`${createUserCard}`);
     }
 
@@ -135,7 +129,6 @@ export default class UserManagement extends AbstractView {
                         }
                     }
                 });
-
                 document.getElementById('confirm-delete-modal')?.classList.remove('hidden');
             });
         });

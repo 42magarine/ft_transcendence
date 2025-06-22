@@ -10,9 +10,9 @@ export default async function renderMatchup(
     const player2Html = await renderContentBlock(props.player2);
 
     return `
-		<div class="lobby-center text-center">
-			${player1Html}
-			<div class="vs my-2 font-bold text-lg">VS</div>
-			${player2Html}
-		</div>`;
+        <div class="lobby-center text-center">
+            ${player1Html}
+            <div class="vs my-2 font-bold text-lg">VS</div>
+            ${player2Html}
+        </div>`;
 }

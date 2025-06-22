@@ -1,15 +1,10 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import Router from '../../utils/Router.js';
 import __ from '../services/LanguageService.js';
 
 export default class TournamentWinner extends AbstractView {
-
-
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
         super(routeParams, params);
-
-
         this.setTitle(`Waiting for the next round to start`);
     }
 
@@ -32,4 +27,3 @@ export default class TournamentWinner extends AbstractView {
         return this.render(profileCard);
     }
 }
-

@@ -21,12 +21,10 @@ export default class Input extends AbstractView {
 
         let inputField = '';
 
-        if (type === 'select')
-        {
+        if (type === 'select') {
             inputField = `<select name="${name}" ${(id) ? 'id="' + id + '"' : ''} class="${finalClass}">${value}</select>`;
         }
-        else if (type === 'checkbox')
-        {
+        else if (type === 'checkbox') {
             // ✅ full-width label-row for checkbox
             inputField = `
                 <div class="flex items-center gap-3 w-full">
@@ -41,8 +39,7 @@ export default class Input extends AbstractView {
                 </div>
             `;
         }
-        else
-        {
+        else {
             inputField = `<input
                 type="${type}"
                 ${(id) ? 'id="' + id + '"' : ''}
@@ -52,7 +49,7 @@ export default class Input extends AbstractView {
                 class="${finalClass}"
             />`;
         }
-        
+
 
         let confirmInput = '';
         if (withConfirm && type === 'password') {
@@ -70,23 +67,23 @@ export default class Input extends AbstractView {
             // Return special placeholder to call later
             const listenerScript = `<script>window.__deferredConfirmFields = window.__deferredConfirmFields || []; window.__deferredConfirmFields.push({id: "${id}", name: "${name}"});</script>`;
             return this.render(`
-				<div class="detail-row">
-					<label class="label" for="${id || name}">${label || placeholder || name}:</label>
-					${inputField}
-				</div>
-				${confirmInput}
-				${listenerScript}
-			`);
+                <div class="detail-row">
+                    <label class="label" for="${id || name}">${label || placeholder || name}:</label>
+                    ${inputField}
+                </div>
+                ${confirmInput}
+                ${listenerScript}
+            `);
         }
 
         if (type === 'display') {
             return this.render(`
-				<div class="detail-row">
-					<label class="label">${label || placeholder || name}:</label>
-					<span class="value">${value || ''}</span>
-				</div>
-				${confirmInput}
-			`);
+                <div class="detail-row">
+                    <label class="label">${label || placeholder || name}:</label>
+                    <span class="value">${value || ''}</span>
+                </div>
+                ${confirmInput}
+            `);
         }
 
         if (bare) {
@@ -94,24 +91,24 @@ export default class Input extends AbstractView {
         }
 
         return this.render(`
-			<div class="detail-row">
-				<label class="label" for="${id || name}">${label || placeholder || name}:</label>
-				${inputField}
-			</div>
-			${confirmInput}
-		`);
+            <div class="detail-row">
+                <label class="label" for="${id || name}">${label || placeholder || name}:</label>
+                ${inputField}
+            </div>
+            ${confirmInput}
+        `);
     }
 
     async renderNumericGroup(count: number, baseId: string): Promise<string> {
         const inputs: string[] = [];
         const nameMap = ['one', 'two', 'three', 'four', 'five', 'six'];
-        // console.log('emter renderNunericgroup');
+
         for (let i = 0; i < count; i++) {
             const id = `${baseId}_${nameMap[i]}`;
-            // console.log(id);
+
             inputs.push(await this.renderInput({
                 id,
-                name: id, // <-- this is critical!
+                name: id,
                 type: 'tel',
                 bare: true,
                 className: 'tf_numeric w-12 h-12 text-center text-xl border border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white',

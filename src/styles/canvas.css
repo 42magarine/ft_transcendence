@@ -470,6 +470,5 @@
 }
 
 .high-contrast canvas {
-	@apply bg-white border-4 border-black shadow-none;
+    @apply bg-white border-4 border-black shadow-none;
 }
-

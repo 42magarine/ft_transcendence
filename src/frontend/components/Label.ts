@@ -36,21 +36,21 @@ export default class Label extends AbstractView {
             : '';
 
         return this.render(`
-			<div class="flex flex-row items-center gap-4 ${labelClass}" ${id ? `id="${id}"` : ''}>
-				<label for="${htmlFor}" class="text-inherit dark:text-white font-medium leading-normal">
-					${icon}${hasText ? labelText : ''}
-				</label>
-				${hasText ? `<span class="text-inherit dark:text-white leading-normal">${valueText}</span>` : ''}
-			</div>
-		`);
+            <div class="flex flex-row items-center gap-4 ${labelClass}" ${id ? `id="${id}"` : ''}>
+                <label for="${htmlFor}" class="text-inherit dark:text-white font-medium leading-normal">
+                    ${icon}${hasText ? labelText : ''}
+                </label>
+                ${hasText ? `<span class="text-inherit dark:text-white leading-normal">${valueText}</span>` : ''}
+            </div>
+        `);
     }
 
     async getHtml(): Promise<string> {
         return this.render(`
-			<div class="flex flex-row items-center gap-4 mt-2">
-				<label for="default" class="text-inherit dark:text-white font-medium leading-normal">Label:</label>
-				<span class="text-inherit dark:text-white leading-normal">Value</span>
-			</div>
-		`);
+            <div class="flex flex-row items-center gap-4 mt-2">
+                <label for="default" class="text-inherit dark:text-white font-medium leading-normal">Label:</label>
+                <span class="text-inherit dark:text-white leading-normal">Value</span>
+            </div>
+        `);
     }
 }

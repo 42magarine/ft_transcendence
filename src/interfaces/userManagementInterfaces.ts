@@ -25,7 +25,7 @@ export interface User {
     tf_five?: string;
     tf_six?: string;
     secret?: string;
-    twoFAEnabled?: string;
+    twoFAEnabled?: boolean;
     listAvatar?: string;
     googleSignIn?: boolean;
     status: 'online' | 'offline';
@@ -73,9 +73,9 @@ export interface QRResponse {
 }
 
 export interface RegisterCredentials {
-    name: string;
     username: string;
     email: string;
+    name: string;
     password: string;
     role?: string;
     avatar?: string;

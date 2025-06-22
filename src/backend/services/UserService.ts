@@ -147,8 +147,6 @@ export class UserService {
         }
     }
 
-
-
     async deleteUser(userId: number): Promise<boolean> {
         try {
             const user = await this.findUserById(userId);
@@ -312,8 +310,9 @@ export class UserService {
                 email: credentials.email,
                 password: hashedPW,
                 name: credentials.name,
-                role: credentials.role || 'user',
-                avatar: credentials.avatar
+                avatar: credentials.avatar,
+                emailVerified: credentials.emailVerified,
+                googleSignIn: credentials.googleSignIn
             };
 
             // Handle 2FA setup if provided
@@ -348,6 +347,7 @@ export class UserService {
             }
 
             // Create user and generate tokens
+            console.log(userData);
             const user = await this.createUser(userData);
             return this.generateTokens(user);
         }
@@ -364,9 +364,9 @@ export class UserService {
         }
 
         // Check if email is verified
-        // if (!user.emailVerified) {
-        //     throw new Error('Email not verified. Please check your email for verification link.');
-        // }
+        if (!user.emailVerified) {
+            throw new Error('Email not verified. Please check your email for verification link.');
+        }
 
         // Check if 2FA is enabled for this user
         if (user.twoFAEnabled && user.twoFASecret) {

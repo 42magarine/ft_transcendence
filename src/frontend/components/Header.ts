@@ -135,42 +135,42 @@ export default class Header extends AbstractView {
                 className: 'dropdown-avatar' // Optional styling hook
             });
             userDropDown = `
-			<div class="dropdown">
-				<div class="dropdown-head">
-					<div class="dropdown-name"  text-white font-semibold> ${currentUser.name}</div>
-					<div class="dropdown-img">${dropDownAvatar}</div>
-				</div>
-				<div class="dropdown-body">
-					<div class="dropdown-item">
-						<a router href="/users/${currentUser.id}">${window.ls.__('My Profile')}</a>
-					</div>
-					<div class="dropdown-item">
-						<a router href="/friends">${window.ls.__('Friends')}</a>
-					</div>
-					<div class="dropdown-item">
-						<button id="logout-btn" type="button" class="btn btn-red btn-sm">${window.ls.__('Logout')}</button>
-					</div>
-				</div>
-			</div>`;
+            <div class="dropdown">
+                <div class="dropdown-head">
+                    <div class="dropdown-name"  text-white font-semibold> ${currentUser.name}</div>
+                    <div class="dropdown-img">${dropDownAvatar}</div>
+                </div>
+                <div class="dropdown-body">
+                    <div class="dropdown-item">
+                        <a router href="/users/${currentUser.id}">${window.ls.__('My Profile')}</a>
+                    </div>
+                    <div class="dropdown-item">
+                        <a router href="/friends">${window.ls.__('Friends')}</a>
+                    </div>
+                    <div class="dropdown-item">
+                        <button id="logout-btn" type="button" class="btn btn-red btn-sm">${window.ls.__('Logout')}</button>
+                    </div>
+                </div>
+            </div>`;
         }
 
         return super.render(`
-			<header class="header">
+            <header class="header">
                 <div class="container p-1">
-				    <h1 class="text-inherit font-bold whitespace-nowrap">
-				    	<a router href="/" class="__">Transcendence</a>
-				    </h1>
-				    <div class="header-nav">
-				    	${buttonGroupHtml}
+                    <h1 class="text-inherit font-bold whitespace-nowrap">
+                        <a router href="/" class="__">Transcendence</a>
+                    </h1>
+                    <div class="header-nav">
+                        ${buttonGroupHtml}
                         <div class="dropdowns">
-				    	    <div class="flex items-center ml-2 mobilemenu">${hamburgerDropdown}</div>
-				    	    <div class="flex items-center ml-2 desktopmenu">${accessibilityDropdown}</div>
-				    	    <div class="flex items-center ml-2 desktopmenu">${languageDropdown}</div>
-				    	    <div class="flex items-center ml-2">${userDropDown}</div>
+                            <div class="flex items-center ml-2 mobilemenu">${hamburgerDropdown}</div>
+                            <div class="flex items-center ml-2 desktopmenu">${accessibilityDropdown}</div>
+                            <div class="flex items-center ml-2 desktopmenu">${languageDropdown}</div>
+                            <div class="flex items-center ml-2">${userDropDown}</div>
                         </div>
                     </div>
                 </div>
-			</header>
-		`);
+            </header>
+        `);
     }
 }

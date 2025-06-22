@@ -2,6 +2,8 @@ import { createWriteStream, unlink } from "fs";
 import { mkdir } from "fs/promises";
 import { join, extname } from "path";
 import { v4 as uuidv4 } from "uuid";
+import { access } from 'fs';
+import { constants } from 'fs';
 
 const UPLOAD_DIR = join(process.cwd(), "uploads", "avatars");
 
@@ -47,14 +49,16 @@ export async function saveAvatar(file: any): Promise<FileUploadResult> {
  * @param avatarPath The public path of the avatar (e.g. /uploads/avatars/filename.jpg)
  * @returns A promise that resolves when the file is deleted
  */
-import { access } from 'fs';
-import { constants } from 'fs';
 
 export async function deleteAvatar(avatarPath: string): Promise<boolean> {
-    if (!avatarPath) return false;
+    if (!avatarPath) {
+        return false;
+    }
 
     const filename = avatarPath.split('/').pop();
-    if (!filename) return false;
+    if (!filename) {
+        return false;
+    }
 
     const filepath = join(UPLOAD_DIR, filename);
 
