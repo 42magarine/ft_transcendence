@@ -1,5 +1,6 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
+import Modal from "../components/Modal.js";
 
 export default class PasswordReset extends AbstractView {
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
@@ -109,6 +110,37 @@ export default class PasswordReset extends AbstractView {
             });
 
             return this.render(`${requestCard}`);
+        }
+    }
+
+    async mount(): Promise<void> {
+        const passwordResetForm = document.getElementById('password-reset-request-form') as HTMLFormElement | null;
+
+        if (passwordResetForm) {
+            passwordResetForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const formData = new FormData(passwordResetForm);
+                    const email = formData.get('email') as string;
+
+                    if (!email) return;
+
+                    const result = await window.userManagementService.requestPasswordReset(email);
+                    alert(result.message || 'If your email exists in our system, you will receive a password reset link.');
+                    passwordResetForm.reset();
+
+                } 
+                catch (error) {
+                    const message = error instanceof Error ? error.message : 'Failed to request password reset';
+                    await new Modal().renderInfoModal({
+                        id: 'password-reset-error',
+                        title: window.ls.__('Password Reset Failed'),
+                        message: window.ls.__(message),
+                    });
+                }
+                
+            });
         }
     }
 }

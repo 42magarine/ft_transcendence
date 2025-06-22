@@ -1,6 +1,7 @@
 import { match } from 'assert';
 import { IServerMessage, IPaddleDirection, IGameState, IPlayerState } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
+import Modal from '../components/Modal.js'
 
 export default class PongService {
     private gameState!: IGameState;
@@ -35,8 +36,11 @@ export default class PongService {
     ) {
         const canvasElement = document.getElementById('gameCanvas') as HTMLCanvasElement
         if (!canvasElement) {
-            console.error("canvasElement not found correctly")
-            throw new Error("DAWDAWD")
+            new Modal().renderInfoModal({
+                id: "missing-canvas-element",
+                title: "Canvas Missing",
+                message: "The canvas element could not be found during game initialization."
+            });
         }
         this.canvas = canvasElement;
         this.ctx = this.canvas.getContext('2d')!;
@@ -52,39 +56,62 @@ export default class PongService {
         this.overlay = document.getElementById('gameCanvasWrap-overlay') as HTMLElement;
         // console.log(this.overlay);
         if (!this.overlay) {
-            console.error("PongService: Game overlay element not found.");
+            new Modal().renderInfoModal({
+                id: "missing-overlay",
+                title: "Overlay Error",
+                message: "PongService: Game overlay element not found."
+            });
+            return;
         }
     }
 
     public setupEventListener(): void {
         this.canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
         if (!this.canvas) {
-            console.error("[PongService] Could not find gameCanvas element.");
-            throw new Error("Canvas element not found.");
+            new Modal().renderInfoModal({
+                id: "missing-gameCanvas",
+                title: "Canvas Error",
+                message: "PongService could not find the gameCanvas element."
+            });
         }
 
         this.overlay = document.getElementById("gameCanvasWrap-overlay") as HTMLElement;
         if (!this.overlay) {
-            console.error("[PongService] Could not find overlay element.");
-            throw new Error("Overlay element not found.");
+            new Modal().renderInfoModal({
+                id: "missing-overlay",
+                title: "Overlay Missing",
+                message: "Overlay element for the game not found."
+            });
         }
 
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
-            console.error("[PongService] Could not get 2D rendering context for canvas.");
-            throw new Error("Canvas context not available.");
+            new Modal().renderInfoModal({
+                id: "canvas-context-error",
+                title: "Rendering Error",
+                message: "Could not get 2D rendering context for the canvas."
+            });
+            return;
         }
 
         this.playerOneNameTag = document.getElementById("playerOneNameTag") as HTMLElement;
         if (!this.playerOneNameTag) {
-            console.error("[PongService] Could not find playerOneNameTag element.");
-            throw new Error("playerOneNameTag element not found.");
+            new Modal().renderInfoModal({
+                id: "missing-player1",
+                title: "Player 1 Tag Missing",
+                message: "Could not find Player 1 name tag element in the DOM."
+            });
+            return;
         }
 
         this.playerTwoNameTag = document.getElementById("playerTwoNameTag") as HTMLElement;
         if (!this.playerTwoNameTag) {
-            console.error("[PongService] Could not find playerTwoNameTag element.");
-            throw new Error("playerTwoNameTag element not found.");
+            new Modal().renderInfoModal({
+                id: "missing-player2",
+                title: "Player 2 Tag Missing",
+                message: "Could not find Player 2 name tag element in the DOM."
+            });
+            return;
         }
 
         this.ctx = ctx;
@@ -260,7 +287,11 @@ export default class PongService {
 
     private draw(): void {
         if (!this.ctx || !this.canvas || !this.gameState) {
-            console.error("something went wrong with draw in pongservice: context, canvas, or gameState is missing.");
+            new Modal().renderInfoModal({
+                id: "draw-error",
+                title: "Drawing Error",
+                message: "Context, canvas, or game state is missing. Unable to draw."
+            });
             return;
         }
 

@@ -2,7 +2,6 @@ import AbstractView from '../../utils/AbstractView.js';
 import Router from '../../utils/Router.js';
 import Card from '../components/Card.js';
 import Modal from '../components/Modal.js';
-import __ from '../services/LanguageService.js';
 
 export default class TwoFactorLogin extends AbstractView {
     private userId = sessionStorage.getItem('pendingUserId');
@@ -111,7 +110,6 @@ export default class TwoFactorLogin extends AbstractView {
 
                 }
                 catch (error) {
-                    console.error('Two-factor verification failed:', error);
                     await new Modal().renderInfoModal({
                         id: 'twofactor-failed',
                         title: window.ls.__('Verification Failed'),
@@ -136,7 +134,6 @@ export default class TwoFactorLogin extends AbstractView {
             });
         }
         catch (error) {
-            console.error('Two-factor form setup error:', error);
             new Modal().renderInfoModal({
                 id: 'twofactor-setup-error',
                 title: window.ls.__('Setup Error'),

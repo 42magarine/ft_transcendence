@@ -77,6 +77,11 @@ export default class Table extends AbstractView {
                 return await new Button().renderButtonGroup({ ...block.props, layout: 'group', className: 'inline-flex gap-2' });
             }
 
+            case 'avatar': {
+                const renderAvatar = (await import('./Avatar.js')).default;
+                return renderAvatar(block.props);
+            }
+
             default:
                 return '';
         }

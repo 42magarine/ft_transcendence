@@ -1,7 +1,6 @@
 import UserService from '../services/UserService.js';
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import __ from '../services/LanguageService.js';
 
 export default class Home extends AbstractView {
     constructor() {

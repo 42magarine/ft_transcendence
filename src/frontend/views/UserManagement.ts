@@ -3,8 +3,9 @@ import Card from '../components/Card.js';
 import { UserList } from '../../interfaces/userManagementInterfaces.js';
 import Modal from '../components/Modal.js';
 import UserService from '../services/UserService.js';
-import __ from '../services/LanguageService.js';
 import Router from '../../utils/Router.js';
+import { User } from '../../interfaces/userManagementInterfaces.js';
+import { generateTextVisualization } from '../../utils/Avatar.js';
 
 export default class UserManagement extends AbstractView {
     constructor() {
@@ -17,6 +18,7 @@ export default class UserManagement extends AbstractView {
         const createUserCard = await new Card().renderCard({
             title: window.ls.__('Create New User'),
             formId: 'create-form',
+            prefix: '<div class="create-avatar-preview flex justify-center mb-4"></div>',
             contentBlocks: [
                 {
                     type: 'inputgroup',
@@ -32,7 +34,7 @@ export default class UserManagement extends AbstractView {
                                 label: window.ls.__('Password'),
                                 placeholder: window.ls.__('Password'),
                                 withConfirm: true
-                            }
+                            },
                         ]
                     }
                 },
@@ -55,6 +57,7 @@ export default class UserManagement extends AbstractView {
                         data: users,
                         columns: [
                             { key: 'id', label: window.ls.__('ID') },
+                            { key: 'avatar', label: window.ls.__('Avatar') },
                             { key: 'name', label: window.ls.__('Name') },
                             { key: 'username', label: window.ls.__('Username') },
                             { key: 'email', label: window.ls.__('Email') },
@@ -65,6 +68,14 @@ export default class UserManagement extends AbstractView {
                         ],
                         rowLayout: (user) => [
                             { type: 'label', props: { text: `${user.id}` } },
+                            {
+                                type: 'avatar',
+                                props: {
+                                    src: user.avatar || '',
+                                    size: 30,
+                                    className: 'mx-auto'
+                                }
+                            },
                             { type: 'label', props: { text: `${user.name}` } },
                             { type: 'label', props: { text: `${user.username}` } },
                             { type: 'label', props: { text: `${user.email}` } },
@@ -98,7 +109,60 @@ export default class UserManagement extends AbstractView {
     }
 
     async mount(): Promise<void> {
-        const users: UserList[] = await UserService.getAllUsers();
+
+        const createForm = document.getElementById('create-form') as HTMLFormElement | null;
+        if (createForm) {
+            createForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(createForm);
+                const userData: User = {
+                    name: formData.get('name') as string,
+                    username: formData.get('username') as string,
+                    email: formData.get('email') as string,
+                    password: formData.get('password') as string,
+                    role: formData.get('role') as string,
+                    emailVerified: true,
+                    status: 'offline'
+                };
+
+                await window.userManagementService.registerUser(userData, (window as any).generatedAvatarFile);
+                Router.redirect(location.pathname);
+                createForm.reset();
+            });
+        }
+
+        const usernameInput = document.querySelector('input[name="username"]') as HTMLInputElement | null;
+        const avatarPreview = document.querySelector('.create-avatar-preview') as HTMLElement | null;
+
+        if (usernameInput && avatarPreview) {
+            const updateAvatarPreview = () => {
+                const username = usernameInput.value.trim();
+                const finalText = username || 'user';
+
+                const svg = generateTextVisualization(finalText, {
+                    width: 100,
+                    height: 100,
+                    useShapes: true,
+                    maxShapes: 50,
+                    showText: false,
+                    backgroundColor: '#f0f0f0',
+                });
+                const blob = new Blob([svg], { type: 'image/svg+xml' });
+                const file = new File([blob], `${finalText}.svg`, { type: 'image/svg+xml' });
+                (window as any).generatedAvatarFile = file;
+                console.log('[AVATAR] File created:', file);
+                avatarPreview.innerHTML = `
+                    <div class="w-[80px] h-[80px] rounded-full overflow-hidden shadow bg-white flex items-center justify-center">
+                        ${svg}
+                    </div>
+                `;
+            };
+            usernameInput.addEventListener('input', updateAvatarPreview);
+            
+        }
+
+
         const deleteButtons = document.querySelectorAll('[data-user-id]');
 
         deleteButtons.forEach((btn) => {
@@ -106,27 +170,15 @@ export default class UserManagement extends AbstractView {
                 const userId = btn.getAttribute('data-user-id');
                 if (!userId) return;
 
-                const user = users.find((u) => String(u.id) === userId);
-                if (!user) {
-                    console.error(`User with ID ${userId} not found`);
-                    return;
-                }
-
-                // Remove existing modal if present
                 document.getElementById('confirm-delete-modal')?.remove();
 
-                const modal = new Modal();
-
-                await modal.renderDeleteModal({
+                await new Modal().renderDeleteModal({
                     id: 'confirm-delete-modal',
                     userId: userId,
                     onConfirm: async () => {
-                        try {
-                            await UserService.deleteUser(Number(userId));
-                            Router.update();
-                        } catch (err) {
-                            console.error('Failed to delete user:', err);
-                        }
+                        await UserService.deleteUser(Number(userId));
+                        Router.redirect(location.pathname);
+                        
                     }
                 });
                 document.getElementById('confirm-delete-modal')?.classList.remove('hidden');

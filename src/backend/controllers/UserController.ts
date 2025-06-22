@@ -48,6 +48,7 @@ export class UserController {
                 role: user.role,
                 twoFAEnabled: user.twoFAEnabled,
                 emailVerified: user.emailVerified,
+                avatar: user.avatar
             }));
 
             return reply.code(200).send(usersData);
@@ -572,6 +573,7 @@ export class UserController {
                 username: user.username,
                 // name: user.name,
                 online: user.online,
+                avatar: user.avatar || ''
             }));
 
             return reply.code(200).send(friendsData);

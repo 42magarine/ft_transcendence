@@ -2,7 +2,6 @@ import { generateProfileImage } from '../../utils/Avatar.js';
 import AbstractView from '../../utils/AbstractView.js';
 import UserService from '../services/UserService.js';
 import Card from '../components/Card.js';
-import __ from '../services/LanguageService.js';
 
 export default class Profile extends AbstractView {
     private userId: string;

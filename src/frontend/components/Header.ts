@@ -1,8 +1,9 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
 import UserService from '../services/UserService.js';
-import { generateProfileImage,  } from '../../utils/Avatar.js';
+import { generateProfileImage } from '../../utils/Avatar.js';
 import renderAvatar from '../components/Avatar.js';
+import Router from '../../utils/Router.js';
 
 export default class Header extends AbstractView {
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
@@ -65,7 +66,7 @@ export default class Header extends AbstractView {
             { icon: 'font', text: window.ls.__('Textsize'), className: 'textsizeSwitch' }
         ];
 
-        const langButtons = langItems.map((item, index) => ({
+        const langButtons = langItems.map(item => ({
             id: `lang-btn-${item.dataAttributes.lang}`,
             text: item.text,
             icon: 'globe',
@@ -84,7 +85,6 @@ export default class Header extends AbstractView {
         }));
 
         buttonSet.push(...langButtons);
-
         buttonSet.push(...accessibilityButtons);
 
         const button = new Button();
@@ -132,12 +132,12 @@ export default class Header extends AbstractView {
             let dropDownAvatar = renderAvatar({
                 src: generateProfileImage(currentUser, 32, 32),
                 size: 32,
-                className: 'dropdown-avatar' // Optional styling hook
+                className: 'dropdown-avatar'
             });
             userDropDown = `
             <div class="dropdown">
                 <div class="dropdown-head">
-                    <div class="dropdown-name"  text-white font-semibold> ${currentUser.name}</div>
+                    <div class="dropdown-name text-white font-semibold">${currentUser.name}</div>
                     <div class="dropdown-img">${dropDownAvatar}</div>
                 </div>
                 <div class="dropdown-body">
@@ -173,4 +173,17 @@ export default class Header extends AbstractView {
             </header>
         `);
     }
+
+    async mount(): Promise<void> {
+        const logoutButton = document.getElementById('logout-btn') as HTMLElement | null;
+    
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+    
+                await window.userManagementService.logout();
+            });
+        }
+    }
+    
 }

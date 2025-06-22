@@ -1,7 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import Router from '../../utils/Router.js';
-import __ from '../services/LanguageService.js';
 
 export default class TournamentTransition extends AbstractView {
 
