@@ -1,6 +1,6 @@
 import { User, ApiErrorResponse, FriendList } from '../../interfaces/userManagementInterfaces.js';
 import Router from '../../utils/Router.js';
-import { IServerMessage } from '../../interfaces/interfaces.js';
+import { IServerMessage, MatchRecord } from '../../interfaces/interfaces.js';
 import Modal from '../components/Modal.js';
 
 export default class UserService {
@@ -15,6 +15,36 @@ export default class UserService {
                     Router.update();
                 }
                 break;
+        }
+    }
+
+    static async getMatchHistory(): Promise<MatchRecord[]> {
+        try {
+            // First get the current user to extract their ID
+            const user = await this.getCurrentUser();
+            if (!user || !user.id) {
+                throw new Error('User not logged in');
+            }
+    
+            const response = await fetch(`/api/users/${user.id}/matchHistory`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json() as ApiErrorResponse;
+                throw new Error(errorData.error || 'Failed to fetch match history');
+            }
+    
+            return await response.json() as MatchRecord[];
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'match-history-fetch-error',
+                title: window.ls.__('Match History Error'),
+                message: `${window.ls.__('Could not fetch your match history.')}\n\n${(error as Error).message}`
+            });
+            return [];
         }
     }
 
@@ -42,11 +72,11 @@ export default class UserService {
             return userData;
         }
         catch (error) {
-            await new Modal().renderInfoModal({
-                id: 'get-user-failed',
-                title: 'Error',
-                message: 'Unable to fetch user data. Please try again later.',
-            });
+            // await new Modal().renderInfoModal({
+            //     id: 'get-user-failed',
+            //     title: 'Error',
+            //     message: 'Unable to fetch user data. Please try again later.',
+            // });
             return null;
         }        
     }

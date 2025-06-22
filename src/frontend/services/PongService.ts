@@ -22,6 +22,7 @@ export default class PongService {
 
     private animationFrameId: number | null = null;
     private countdownActive: boolean = false;
+    private handleKeyUpBound = this.handleKeyUp.bind(this);
 
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
@@ -256,10 +257,21 @@ export default class PongService {
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
+        // Don't hijack keys when typing in form fields
+        const target = event.target as HTMLElement;
+        if (
+            target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.isContentEditable
+        )  {
+            document.removeEventListener('keydown', this.handleKeyUpBound);
+            return;
+        }
+    
         if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
             return;
         }
-
+    
         switch (event.key.toLowerCase()) {
             case 'w':
             case 'arrowup':
@@ -271,8 +283,19 @@ export default class PongService {
                 break;
         }
     }
-
+    
     private handleKeyUp(event: KeyboardEvent): void {
+        const target = event.target as HTMLElement;
+    
+        if (
+            target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.isContentEditable
+        ) {
+            document.removeEventListener('keyup', this.handleKeyUpBound);
+            return;
+        }
+    
         switch (event.key.toLowerCase()) {
             case 'w':
             case 'arrowup':

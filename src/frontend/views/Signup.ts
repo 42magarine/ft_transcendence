@@ -294,11 +294,6 @@ export default class Signup extends AbstractView {
 
                 }
                 catch (error) {
-                    await new Modal().renderInfoModal({
-                        id: 'signup-failed',
-                        title: window.ls.__('Signup Failed'),
-                        message: window.ls.__('Something went wrong while creating your account. Please try again.')
-                    });
                 }
             });
         }

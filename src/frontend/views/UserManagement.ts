@@ -109,26 +109,26 @@ export default class UserManagement extends AbstractView {
     }
 
     async mount(): Promise<void> {
-        console.log('[MOUNT] Mounting UserManagement view...');
+        //console.log('[MOUNT] Mounting UserManagement view...');
     
         const createForm = document.getElementById('create-form') as HTMLFormElement | null;
         const usernameInput = document.querySelector('input[name="username"]') as HTMLInputElement | null;
         const avatarPreview = document.querySelector('.create-avatar-preview') as HTMLElement | null;
     
-        console.log('[MOUNT] Form found:', !!createForm);
-        console.log('[MOUNT] Username input found:', !!usernameInput);
-        console.log('[MOUNT] Avatar preview container found:', !!avatarPreview);
+        //console.log('[MOUNT] Form found:', !!createForm);
+        //console.log('[MOUNT] Username input found:', !!usernameInput);
+        //console.log('[MOUNT] Avatar preview container found:', !!avatarPreview);
 
         if (usernameInput) {
             usernameInput.addEventListener('input', () => {
-                console.log('[EVENT] Username input changed');
+                //console.log('[EVENT] Username input changed');
                 this.updateAvatarPreview();
             });
         }
     
         if (createForm) {
             createForm.addEventListener('submit', async (e) => {
-                console.log('[SUBMIT] Form submission triggered');
+                //console.log('[SUBMIT] Form submission triggered');
                 e.preventDefault();
             
                 const formData = new FormData(createForm);
@@ -142,25 +142,25 @@ export default class UserManagement extends AbstractView {
                     status: 'offline'
                 };
             
-                console.log('[SUBMIT] Form data:', userData);
+                //console.log('[SUBMIT] Form data:', userData);
                 await this.updateAvatarPreview();
-                console.log('[SUBMIT] Avatar file after await:', this.avatarFile);
+                //console.log('[SUBMIT] Avatar file after await:', this.avatarFile);
                 await window.userManagementService.registerUser(userData, this.avatarFile);
-                console.log('[SUBMIT] User registration request sent');
+                //console.log('[SUBMIT] User registration request sent');
                 Router.redirect(location.pathname);
-                console.log('[SUBMIT] Redirecting to:', location.pathname);
+                //console.log('[SUBMIT] Redirecting to:', location.pathname);
                 createForm.reset();
-                console.log('[SUBMIT] Form reset');
+                //console.log('[SUBMIT] Form reset');
             });
         }
     
         const deleteButtons = document.querySelectorAll('[data-user-id]');
-        console.log(`[DELETE] Found ${deleteButtons.length} delete buttons`);
+        //console.log(`[DELETE] Found ${deleteButtons.length} delete buttons`);
     
         deleteButtons.forEach((btn) => {
             btn.addEventListener('click', async () => {
                 const userId = btn.getAttribute('data-user-id');
-                console.log('[DELETE] Button clicked for user:', userId);
+                //console.log('[DELETE] Button clicked for user:', userId);
                 if (!userId) {
                     console.warn('[DELETE] No user ID found on button');
                     return;
@@ -171,7 +171,7 @@ export default class UserManagement extends AbstractView {
                     id: 'confirm-delete-modal',
                     userId: userId,
                     onConfirm: async () => {
-                        console.log('[DELETE] Confirming deletion for user:', userId);
+                        //console.log('[DELETE] Confirming deletion for user:', userId);
                         await UserService.deleteUser(Number(userId));
                         Router.redirect(location.pathname);
                     }

@@ -158,10 +158,11 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await socketUpdateOnSession();
-    await renderHeader();
-    await renderFooter();
-    await router.render();
+	window.ls.initialize(); // ✅ moved up here
+	await socketUpdateOnSession();
+	await renderHeader();
+	await renderFooter();
+	await router.render();
 });
 
 function initializeGoogleScript() {
@@ -175,11 +176,10 @@ function initializeGoogleScript() {
 
 
 document.addEventListener('RouterContentLoaded', async () => {
-    await socketUpdateOnSession();
-    await renderHeader();
-    window.ls.initialize();
-    initializeGoogleScript();
-    AccessibilityService.initialize();
+	await socketUpdateOnSession();
+	initializeGoogleScript();
+	AccessibilityService.initialize();
+	await renderHeader();
 });
 
 // =======================

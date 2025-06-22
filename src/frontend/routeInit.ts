@@ -15,6 +15,7 @@ import Friends from './views/FriendList.js';
 import TournamentWinner from './views/TournamentWinner.js';
 import { Route, RouteHookContext } from '../interfaces/interfaces.js';
 import TournamentTransition from './views/TournamentTransition.js';
+import MatchHistory from './views/MatchHistory.js';
 
 const routes: Route[] = [
     {
@@ -186,6 +187,15 @@ const routes: Route[] = [
         metadata: {
             title: 'Transcendence - Friends',
             description: 'Manage your friends and connections'
+        }
+    },
+    {
+        path: '/history',
+        role: 'user_id',
+        view: MatchHistory,
+        metadata: {
+            title: 'Transcendence - Match History',
+            description: 'Overview of past matches'
         }
     }
 ];
