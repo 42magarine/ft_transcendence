@@ -65,6 +65,7 @@ export default class Tournament extends AbstractView {
                             type: 'buttongroup',
                             props:
                             {
+                                layout: 'grid',
                                 buttons:
                                     [
                                         {

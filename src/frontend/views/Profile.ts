@@ -53,28 +53,28 @@ export default class Profile extends AbstractView {
                 {
                     type: 'stat',
                     props: {
-                        label: window.ls.__('Name'),
+                        label: `<i class="fas fa-user"></i> ${window.ls.__('Name')}`,
                         value: userData.name ?? ''
                     }
                 },
                 {
                     type: 'stat',
                     props: {
-                        label: window.ls.__('Username'),
+                        label: `<i class="fas fa-user-tag"></i> ${window.ls.__('Username')}`,
                         value: userData.username ?? ''
                     }
                 },
                 {
                     type: 'stat',
                     props: {
-                        label: window.ls.__('Email'),
+                        label: `<i class="fas fa-envelope"></i> ${window.ls.__('Email')}`,
                         value: userData.email ?? ''
                     }
                 },
                 {
                     type: 'stat',
                     props: {
-                        label: window.ls.__('User ID'),
+                        label: `<i class="fas fa-id-badge"></i> ${window.ls.__('User ID')}`,
                         value: userData.id?.toString() ?? ''
                     }
                 },
@@ -82,7 +82,7 @@ export default class Profile extends AbstractView {
                     type: 'stat',
                     props: {
                         checkbox: true,
-                        label: window.ls.__('Email Verified'),
+                        label: `<i class="fas fa-check-circle"></i> ${window.ls.__('Email Verified')}`,
                         value: userData.emailVerified === true ? 'true' : 'false'
                     }
                 },
@@ -90,15 +90,15 @@ export default class Profile extends AbstractView {
                     type: 'stat',
                     props: {
                         checkbox: true,
-                        label: window.ls.__('Two Factor Verified'),
-                        value: userData.emailVerified === true ? 'true' : 'false'
+                        label: `<i class="fas fa-shield-alt"></i> ${window.ls.__('Two Factor Verified')}`,
+                        value: userData.twoFAEnabled === true ? 'true' : 'false'
                     }
                 },
                 {
                     type: 'stat',
                     props: {
                         checkbox: true,
-                        label: window.ls.__('Google Sign-In'),
+                        label: `<i class="fab fa-google"></i> ${window.ls.__('Google Sign-In')}`,
                         value: userData.googleSignIn === true ? 'true' : 'false'
                     }
                 },
@@ -109,16 +109,21 @@ export default class Profile extends AbstractView {
                         buttons: [
                             {
                                 id: 'edit-profile',
-                                text: window.ls.__('Edit Profile'),
+                                text: `${window.ls.__('Edit Profile')}`,
+                                icon: 'fa-edit',
                                 href: `/users/edit/${this.userId}`
                             },
                             {
                                 id: 'back-to-list',
-                                text: isMaster ? window.ls.__('Back to User List') : window.ls.__('Back to Homepage'),
+                                text: isMaster
+                                    ? window.ls.__('Back to User List')
+                                    : window.ls.__('Back to Homepage'),
+                                icon: isMaster ? 'fa-users' : 'fa-home',
                                 href: isMaster ? '/user-mangement' : `/`,
                                 color: 'red'
                             }
                         ]
+                        
                     }
                 }
             ]
