@@ -387,6 +387,14 @@ export class MatchLobby {
             gameState: game!.getState(),
             matchId: matchId
         });
+        this._broadcast({
+            type: "initMatchStart",
+            player1Name: player1._name,
+            player2Name: player2._name,
+            lobby: this.getLobbyState(),
+            gameState: game!.getState(),
+            matchId: matchId
+        });
     }
 
     // this._dbGame nicht direkt aufrufen, sondern über funktionen aus MatchService.ts
