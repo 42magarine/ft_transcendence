@@ -3,7 +3,7 @@ import Card from '../components/Card.js';
 import Router from '../../utils/Router.js';
 import __ from '../services/LanguageService.js';
 
-export default class TournamentTransition extends AbstractView {
+export default class GameOver extends AbstractView {
 
 
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
@@ -14,16 +14,15 @@ export default class TournamentTransition extends AbstractView {
     }
 
     async getHtml(): Promise<string> {
-
-        const matchWinMessage: string = window.pongService.getGameWinMessage();
-        const matchScoreMessage: string = window.pongService.getGameScoreMessage();
+        const gameWinMessage: string = window.pongService.getGameWinMessage();
+        const gameScoreMessage: string = window.pongService.getGameScoreMessage();
 
         const profileCard = await new Card().renderCard({
             contentBlocks: [
                 {
                     type: 'heading',
                     props: {
-                        text: `${matchWinMessage}`,
+                        text: `${gameWinMessage}`,
                         level: 2,
                         className: 'text-2xl font-bold text-center mb-4'
                     }
@@ -31,18 +30,7 @@ export default class TournamentTransition extends AbstractView {
                 {
                     type: 'heading',
                     props: {
-                        text: `${matchScoreMessage}`,
-                        level: 2,
-                        className: 'text-2xl font-bold text-center mb-4'
-                    }
-                },
-                {
-                    type: 'separator',
-                },
-                {
-                    type: 'heading',
-                    props: {
-                        text: `Waiting for the next round to start`,
+                        text: `${gameScoreMessage}`,
                         level: 2,
                         className: 'text-2xl font-bold text-center mb-4'
                     }

@@ -739,6 +739,8 @@ export class MatchLobby {
                 winningUserId: winnerId,
                 player1Score,
                 player2Score,
+                player1Name: game._player1?._name,
+                player2Name: game._player2?._name,
                 lobby: this.getLobbyState()
             });
             this.stopGame();

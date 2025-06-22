@@ -15,6 +15,7 @@ import Friends from './views/FriendList.js';
 import TournamentWinner from './views/TournamentWinner.js';
 import { Route, RouteHookContext } from '../interfaces/interfaces.js';
 import TournamentTransition from './views/TournamentTransition.js';
+import GameOver from './views/GameOver.js';
 
 const routes: Route[] = [
     {
@@ -95,6 +96,15 @@ const routes: Route[] = [
         metadata: {
             title: 'Tournament Winner',
             description: 'I guess someone actually won the tournament'
+        }
+    },
+    {
+        path: '/gameover',
+        role: 'user',
+        view: GameOver,
+        metadata: {
+            title: 'Game Over',
+            description: 'I guess someone actually won the game'
         }
     },
     {
