@@ -135,7 +135,7 @@ export default class PongService {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
         const matchId = this.getMatchId();
-        console.log(data.type)
+        // console.log("pongService msg received: " + data.type)
         switch (data.type) {
             case 'initMatchStart':
                 // console.log("playerjoined case reached. handed over info: ", data);

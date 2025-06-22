@@ -8,16 +8,13 @@ export default class LobbyListService {
 
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
-        // console.log("LobbyListService msg received: " + data)
+        // console.log("LobbyListService msg received: " + data.type)
         switch (data.type) {
             case 'lobbyList':
                 this.lobbyData = data.lobbies || [];
                 this.resolveLobbyDataPromises(this.lobbyData);
-                // Router.update();
                 break;
             case 'lobbyCreated':
-                // console.log(window.currentUser)
-                // console.log(data.owner)
                 if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
                     Router.update()
                 }
@@ -32,15 +29,12 @@ export default class LobbyListService {
                 }
                 break;
             case 'joinedLobby':
-                // console.log(window.currentUser)
-                // console.log(data.owner)
                 if (window.currentUser && data.owner != window.currentUser.id && (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/"))) {
                     window.messageHandler!.requestLobbyList();
                     Router.update()
                 }
                 if (window.currentUser && data.owner == window.currentUser.id && data.lobbyId && window.messageHandler) {
                     window.messageHandler.requestLobbyList();
-                    // console.log(data.lobbyType);
                     if (data.lobbyType === "game") {
                         Router.redirect(`/lobby/${data.lobbyId}`);
                     }
@@ -50,7 +44,10 @@ export default class LobbyListService {
                 }
                 break;
             case 'leftLobby':
+                console.log("test");
                 if (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
+                    window.messageHandler.requestLobbyList();
+                    console.log("test2");
                     Router.update()
                 }
                 break;
@@ -111,7 +108,6 @@ export default class LobbyListService {
         if (window.currentUser) {
             if (window.messageHandler && window.currentUser.id) {
                 try {
-                    // need to adjust maxPlayer input for create Lobby maybe and not hardcode to 8 players dunno how relevant for backend
                     await window.messageHandler.createLobby(window.currentUser.id, "tournament", 8);
                 }
                 catch (error) {
