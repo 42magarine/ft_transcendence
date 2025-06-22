@@ -284,6 +284,7 @@ export class MatchController {
                 this._lobbies.delete(lobbyId);
                 if (lobby._lobbyType === 'game') {
                     await this._matchService.deleteMatchByLobbyId(lobbyId);
+
                 }
             }
             else {

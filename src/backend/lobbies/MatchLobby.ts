@@ -158,11 +158,11 @@ export class MatchLobby {
             this._readyPlayers.delete(player.userId); // Use userId for readyPlayers set
 
             // If it's a tournament, cancel the entire tournament
-            // if (this._lobbyType === 'tournament') {
-            //     // console.log(`Player ${player._name} left tournament lobby ${this._lobbyId}. Cancelling tournament.`);
-            //     await this.cancelTournament("A player left the tournament.");
-            // }
-            // else {
+            if (this._lobbyType === 'tournament' && this.isEmpty()) {
+                // console.log(`Player ${player._name} left tournament lobby ${this._lobbyId}. Cancelling tournament.`);
+                await this.cancelTournament("A player left the tournament.");
+            }
+            else {
                 await this._matchService.removePlayerFromMatch(this._lobbyId, player.userId);
 
                 for (const [matchId, game] of this._games.entries()) {
@@ -173,7 +173,7 @@ export class MatchLobby {
                         await this._matchService.updateMatchStatus(matchId, 'cancelled');
                     }
                 }
-            // }
+            }
 
             this.repositionPlayers();
 
