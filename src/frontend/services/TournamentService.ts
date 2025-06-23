@@ -48,7 +48,7 @@ export default class TournamentService {
                 break;
             case 'playerLeft':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    // console.log(data.lobby)
+                    console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),

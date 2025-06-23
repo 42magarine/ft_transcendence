@@ -11,6 +11,8 @@ export default class PongService {
     private isPlayer2Paddle: boolean = false;
     private matchId: number | null = null;
 
+    private gameWinMessage!: string;
+    private gameScoreMessage!: string;
     private canvas!: HTMLCanvasElement;
     private overlay!: HTMLElement;
     private ctx!: CanvasRenderingContext2D;
@@ -161,6 +163,7 @@ export default class PongService {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
         const matchId = this.getMatchId();
+        // console.log("pongService msg received: " + data.type)
         switch (data.type) {
             case 'initMatchStart':
                 // console.log("playerjoined case reached. handed over info: ", data);
@@ -223,6 +226,29 @@ export default class PongService {
                 setTimeout(function () {
                     Router.redirect("/lobbylist")
                 }, 10000)
+                break;
+            case 'gameOver':
+                if (data.lobby?.lobbyType == 'game') {
+                    if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
+                        if (data.player1Score! > data.player2Score!) {
+                            this.gameWinMessage = data.player1Name + " won against " + data.player2Name
+                            this.gameScoreMessage = "Score: " + data.player1Score + " : " + data.player2Score
+                        }
+                        else if (data.player2Score! > data.player1Score!) {
+                            this.gameWinMessage = data.player2Name + " won against " + data.player1Name
+                            this.gameScoreMessage = "Score: " + data.player2Score + " : " + data.player1Score
+                        } else {
+                            this.gameWinMessage = "Its a tie! How do you even tie in Pong?";
+                            this.gameScoreMessage = " ";
+                        }
+                        Router.redirect("/gameover");
+                        setTimeout(() => {
+                            if (/\/gameover/.test(window.location.pathname)) {
+                                Router.redirect('/lobbylist');
+                            }
+                        }, 15000);
+                    }
+                }
                 break;
         }
     }
@@ -380,11 +406,20 @@ export default class PongService {
         return this.gameState;
     }
 
-    public getPlayer1Name(): string{
+    public getPlayer1Name(): string {
         return this.player1Name;
     }
 
     public getPlayer2Name(): string {
         return this.player2Name;
     }
+
+    public getGameWinMessage(): string {
+        return this.gameWinMessage;
+    }
+
+    public getGameScoreMessage(): string {
+        return this.gameScoreMessage;
+    }
 }
+
