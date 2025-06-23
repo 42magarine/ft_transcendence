@@ -15,6 +15,7 @@ import Friends from './views/FriendList.js';
 import TournamentWinner from './views/TournamentWinner.js';
 import { Route, RouteHookContext } from '../interfaces/interfaces.js';
 import TournamentTransition from './views/TournamentTransition.js';
+import GameOver from './views/GameOver.js';
 
 const routes: Route[] = [
     {
@@ -33,11 +34,11 @@ const routes: Route[] = [
             title: 'Transcendence - Pong',
             description: 'Welcome to Pong'
         },
-        onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
-            console.log("params /pong/:lobbyId/:matchId' route:" + params)
-            window.messageHandler!.leaveLobby(params.lobbyId, true);
-            return true;
-        }
+        // onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
+        //     console.log("params /pong/:lobbyId/:matchId' route:" + params)
+        //     window.messageHandler!.leaveLobby(params.lobbyId, true);
+        //     return true;
+        // }
     },
     {
         path: '/lobbylist',
@@ -58,7 +59,6 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
-                console.log("params '/lobby/:id' route:" + params);
                 window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
@@ -74,7 +74,7 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
-                console.log("params '/tournament/:id' route:" + params);
+                // console.log("params '/tournament/:id' route:" + params);
                 window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;
@@ -96,6 +96,15 @@ const routes: Route[] = [
         metadata: {
             title: 'Tournament Winner',
             description: 'I guess someone actually won the tournament'
+        }
+    },
+    {
+        path: '/gameover',
+        role: 'user',
+        view: GameOver,
+        metadata: {
+            title: 'Game Over',
+            description: 'I guess someone actually won the game'
         }
     },
     {
