@@ -2,6 +2,13 @@ import UserService from '../services/UserService.js';
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 
+declare global {
+    interface Window {
+        Globe: any;
+    }
+}
+
+
 export default class Home extends AbstractView {
     constructor() {
         super();
@@ -16,55 +23,61 @@ export default class Home extends AbstractView {
                 : window.ls.__('Welcome to Transcendence!'),
             contentBlocks: [
                 {
-                    type: 'paragraph',
-                    props: {
-                        html: window.ls.__('Your central hub for games, friendships, and tournaments.')
-                    }
-                },
-                {
                     type: 'html',
                     props: {
                         html: `
-                            <ul class="list-none pl-4 space-y-3 text-base">
-                                <li class="flex items-start gap-2">
-                                    <i class="fas fa-table-tennis-paddle-ball text-blue-500"></i>
-                                    <span>${window.ls.__('Play games like Pong or join live tournaments.')}</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <i class="fas fa-user-friends text-green-500"></i>
-                                    <span>${window.ls.__('Add friends and challenge them to matches.')}</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <i class="fas fa-chart-line text-purple-500"></i>
-                                    <span>${window.ls.__('Track your progress and unlock achievements.')}</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <i class="fas fa-user-cog text-yellow-500"></i>
-                                    <span>${window.ls.__('Customize your profile, themes, and settings.')}</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <i class="fas fa-shield-alt text-red-500"></i>
-                                    <span>${window.ls.__('Enjoy secure login with 2FA and account recovery.')}</span>
-                                </li>
-                            </ul>
+                            <script src="https://unpkg.com/three"></script>
+                            <script src="https://unpkg.com/globe.gl"></script>
+                          <div id="globeViz" class="w-full h-full min-h-[300px] rounded-xl border my-6 shadow-md bg-black relative overflow-hidden"></div>
                         `
                     }
-                },
-                {
-                    type: 'paragraph',
-                    props: {
-                        html: window.ls.__('More features coming soon – stay tuned!')
-                    }
-                },
-                {
-                    type: 'paragraph',
-                    props: {
-                        html: window.ls.__('Mott du geile Schnitte')
-                    }
-                }
+                }                        
             ]
         });
 
         return this.render(`${homeCard}`);
+
+
     }
+    async mount(): Promise<void> {
+        const globeContainer = document.getElementById('globeViz');
+        if (!globeContainer) return;
+    
+        // Dynamically load globe.gl if not already present
+        if (typeof window.Globe !== 'function') {
+            await new Promise<void>((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/globe.gl';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('Failed to load globe.gl'));
+                document.head.appendChild(script);
+            });
+        }
+    
+        // Now it's safe to call Globe
+        // @ts-ignore
+        const world = window.Globe()(globeContainer)
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+            .showAtmosphere(true)
+            .atmosphereColor('#3a228a')
+            .atmosphereAltitude(0.25)
+            .pointOfView({ lat: 20, lng: 10, altitude: 2 }, 4000);
+
+            const canvas = globeContainer.querySelector('canvas');
+            if (canvas) {
+                canvas.style.position = 'absolute';
+                canvas.style.top = '0';
+                canvas.style.left = '0';
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.display = 'block';
+                canvas.style.pointerEvents = 'auto';
+            }
+            
+    }
+    
+    
+    
+
 }

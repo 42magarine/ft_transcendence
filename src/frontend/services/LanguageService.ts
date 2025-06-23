@@ -45,7 +45,7 @@ export default class LanguageService {
         }
         // this tells you if something got no translation yet!
         if (currentLanguage !== "en_EN") {
-            console.log("(づ ◕‿◕ )づ  " + key)
+            //console.log("(づ ◕‿◕ )づ  " + key)
         }
         return key;
     }
