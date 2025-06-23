@@ -5,51 +5,67 @@ import UserService from '../services/UserService.js';
 import { MatchRecord } from '../../interfaces/interfaces.js';
 
 export default class MatchHistory extends AbstractView {
-	constructor() {
-		super();
-	}
+    constructor() {
+        super();
+    }
 
-	async getHtml(): Promise<string> {
-		const matches: MatchRecord[] = await UserService.getMatchHistory();
+    async getHtml(): Promise<string> {
+        const matches: MatchRecord[] = await UserService.getMatchHistory();
 
-		const historyCard = await new Card().renderCard({
-			title: window.ls.__('Match History'),
-			contentBlocks: [
-				{
-					type: 'table',
-					props: {
-						id: 'match-history',
-						title: window.ls.__('Your Past Matches'),
-						height: '300px',
-						data: matches,
-						columns: [
-							{ key: 'player1', label: window.ls.__('Player 1') },
-							{ key: 'player2', label: window.ls.__('Player 2') },
-							{ key: 'winner', label: window.ls.__('Winner') },
-							{ key: 'createdAt', label: window.ls.__('Date') }
-						],
-						rowLayout: (match) => [
-							{
-								type: 'label',
-								props: {
-									text: match.player1.username,
-									htmlFor: `match-${match.id}-p1`
-								}
-							},
-							{
-								type: 'label',
-								props: {
-									text: match.player2.username,
-									htmlFor: `match-${match.id}-p2`
-								}
-							},
-							{
-								type: 'label',
-								props: {
-									text: match.winner ? match.winner.username : window.ls.__('Draw'),
-									htmlFor: `match-${match.id}-winner`
-								}
-							},
+        const historyCard = await new Card().renderCard({
+            title: window.ls.__('Match History'),
+            contentBlocks: [
+                {
+                    type: 'table',
+                    props: {
+                        id: 'match-history',
+                        title: window.ls.__('Your Past Matches'),
+                        height: '300px',
+                        data: matches,
+                        columns: [
+                            { key: 'player1', label: window.ls.__('Player 1') },
+                            { key: 'player2', label: window.ls.__('Player 2') },
+                            { key: 'player1Score', label: window.ls.__('Player 1 Score') },
+                            { key: 'player2Score', label: window.ls.__('Player 2 Score') },
+                            { key: 'winner', label: window.ls.__('Winner') },
+                            { key: 'createdAt', label: window.ls.__('Date') }
+                        ],
+                        rowLayout: (match) => [
+                            {
+                                type: 'label',
+                                props: {
+                                    text: match.player1.username,
+                                    htmlFor: `match-${match.id}-p1`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: match.player2.username,
+                                    htmlFor: `match-${match.id}-p2`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: match.player1Score,
+                                    htmlFor: `match-${match.id}-p1`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: match.player2Score,
+                                    htmlFor: `match-${match.id}-p2`
+                                }
+                            },
+                            {
+                                type: 'label',
+                                props: {
+                                    text: match.winner ? match.winner.username : window.ls.__('Draw'),
+                                    htmlFor: `match-${match.id}-winner`
+                                }
+                            },
                             {
                                 type: 'label',
                                 props: {
@@ -64,13 +80,13 @@ export default class MatchHistory extends AbstractView {
                                     })(),
                                     htmlFor: `match-${match.id}-created`
                                 }
-                            }                                                                                          
-						]
-					}
-				}
-			]
-		});
+                            }
+                        ]
+                    }
+                }
+            ]
+        });
 
-		return this.render(`${historyCard}`);
-	}
+        return this.render(`${historyCard}`);
+    }
 }

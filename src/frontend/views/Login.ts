@@ -69,6 +69,48 @@ export default class Login extends AbstractView {
     }
 
     async mount(): Promise<void> {
+        // ✅ Überprüfe URL-Parameter für Verification-Status
+        const urlParams = new URLSearchParams(window.location.search);
+        const verified = urlParams.get('verified');
+        const error = urlParams.get('error');
+
+        // ✅ Zeige Success-Modal bei erfolgreicher Verification
+        if (verified === 'true') {
+            await new Modal().renderInfoModal({
+                id: 'verification-success',
+                title: window.ls.__('Email Verified'),
+                message: window.ls.__('Your email has been successfully verified! You can now log in.')
+            });
+
+            // ✅ Bereinige die URL (entferne Parameter)
+            window.history.replaceState({}, '', '/login');
+        }
+
+        // ✅ Zeige Error-Modal bei Verification-Fehlern
+        if (error) {
+            let errorMessage = window.ls.__('An error occurred.');
+
+            switch (error) {
+                case 'verification_failed':
+                    errorMessage = window.ls.__('Email verification failed. The link may be invalid or expired.');
+                    break;
+                case 'missing_token':
+                    errorMessage = window.ls.__('Invalid verification link.');
+                    break;
+                default:
+                    errorMessage = window.ls.__('An error occurred during verification.');
+            }
+
+            await new Modal().renderInfoModal({
+                id: 'verification-error',
+                title: window.ls.__('Verification Failed'),
+                message: errorMessage
+            });
+
+            // ✅ Bereinige die URL
+            window.history.replaceState({}, '', '/login');
+        }
+
         const loginForm = document.getElementById('login-form') as HTMLFormElement | null;
         if (!loginForm) return;
 
@@ -95,9 +137,9 @@ export default class Login extends AbstractView {
                     id: 'login-error',
                     title: window.ls.__('Login Failed'),
                     content: `
-						<p>${error instanceof Error ? error.message : 'An unknown error occurred during login.'}</p>
-						<p class="mt-4">${window.ls.__('What would you like to do?')}</p>
-					`,
+                        <p>${error instanceof Error ? error.message : 'An unknown error occurred during login.'}</p>
+                        <p class="mt-4">${window.ls.__('What would you like to do?')}</p>
+                    `,
                     footerButtons: [
                         {
                             id: 'reset-password-btn',

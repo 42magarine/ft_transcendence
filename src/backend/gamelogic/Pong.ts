@@ -89,13 +89,9 @@ export class PongGame {
 
     public resetGame(): void {
         this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
-        this._paddle1 = new Paddle(10, this._height / 2 - 50);
-        this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
         this._gameIsOver = false;
         this._ball.randomizeDirection();
         this._ball.randomizeDirection();
-        //this._paddle1 = new Paddle(10, this._height / 2 - 50);
-        //this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
     }
 
     public resetScores(): void {

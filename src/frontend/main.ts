@@ -26,6 +26,7 @@ import Footer from './components/Footer.js';
 import Header from './components/Header.js';
 import { AccessibilityService } from './services/AccessibilityService.js';
 import LanguageService from './services/LanguageService.js';
+import TwoFactorInputHandler from '../utils/TwoFactorInputHandler.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -158,11 +159,11 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-	window.ls.initialize(); // ✅ moved up here
-	await socketUpdateOnSession();
-	await renderHeader();
-	await renderFooter();
-	await router.render();
+    window.ls.initialize(); // ✅ moved up here
+    await socketUpdateOnSession();
+    await renderHeader();
+    await renderFooter();
+    await router.render();
 });
 
 function initializeGoogleScript() {
@@ -176,10 +177,11 @@ function initializeGoogleScript() {
 
 
 document.addEventListener('RouterContentLoaded', async () => {
-	await socketUpdateOnSession();
-	initializeGoogleScript();
-	AccessibilityService.initialize();
-	await renderHeader();
+    window.handler = new TwoFactorInputHandler('.tf_numeric');
+    await socketUpdateOnSession();
+    initializeGoogleScript();
+    AccessibilityService.initialize();
+    await renderHeader();
 });
 
 // =======================

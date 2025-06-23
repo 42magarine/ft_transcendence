@@ -3,13 +3,13 @@ import Button from './Button.js';
 import { ButtonProps, ButtonColor } from '../../interfaces/componentInterfaces.js';
 
 export interface DropdownItem {
-	id?: string;
-	text: string;
-	type?: 'link' | 'button';
-	icon?: string;
-	href?: string;
-	className?: string;
-	dataAttributes?: Record<string, string>;
+    id?: string;
+    text: string;
+    type?: 'link' | 'button';
+    icon?: string;
+    href?: string;
+    className?: string;
+    dataAttributes?: Record<string, string>;
     color?: ButtonColor;
 }
 
@@ -28,7 +28,7 @@ export interface DropdownProps {
 export default class Dropdown extends AbstractView {
     constructor(params: Record<string, string> = {}) {
         super(params);
-    }    
+    }
 
     async renderDropdown({
         id,
@@ -40,7 +40,7 @@ export default class Dropdown extends AbstractView {
         const button = new Button();
         const headContent = `
             ${head.text ? `<div class="dropdown-name">${head.text}</div>` : ''}
-            ${head.img ? `<div class="dropdown-img"><img src="${head.img}" class="w-6 h-6 rounded-full" /></div>` : ''}
+            ${!head.img?.includes("<svg") ? `<div class="dropdown-img"><img src="${head.img}" class="w-6 h-6 rounded-full" /></div>` : `<div class="dropdown-img">${head.img}</div>`}
             ${head.icon ? `<div class="dropdown-icon"><i class="fa-solid fa-${head.icon}"></i></div>` : ''}
         `;
 

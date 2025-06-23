@@ -42,9 +42,9 @@
 
 /* ⚪ Secondary (neutral action) */
 .btn-secondary {
-    @apply bg-gray-200 text-gray-900
-        hover:bg-gray-300
-        active:bg-gray-400;
+    @apply bg-gray-700 text-gray-900
+        hover:bg-gray-900
+        active:bg-gray-600;
 }
 
 /* 🔴 Danger (destructive action) */

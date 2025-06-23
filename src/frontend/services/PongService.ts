@@ -98,25 +98,7 @@ export default class PongService {
         }
 
         this.playerOneNameTag = document.getElementById("playerOneNameTag") as HTMLElement;
-        if (!this.playerOneNameTag) {
-            new Modal().renderInfoModal({
-                id: "missing-player1",
-                title: "Player 1 Tag Missing",
-                message: "Could not find Player 1 name tag element in the DOM."
-            });
-            return;
-        }
-
         this.playerTwoNameTag = document.getElementById("playerTwoNameTag") as HTMLElement;
-        if (!this.playerTwoNameTag) {
-            new Modal().renderInfoModal({
-                id: "missing-player2",
-                title: "Player 2 Tag Missing",
-                message: "Could not find Player 2 name tag element in the DOM."
-            });
-            return;
-        }
-
         this.ctx = ctx;
 
         document.addEventListener('keydown', this.handleKeyDown);
@@ -172,16 +154,23 @@ export default class PongService {
                     this.gameState = data.gameState!;
                     this.player1Name = data.player1Name!;
                     this.player2Name = data.player2Name!;
+                    console.log("=== PLAYER IDENTIFICATION DEBUG ===");
+                    console.log("Current user name: '" + window.currentUser?.name + "'");
+                    console.log("Player1 name: '" + data.player1Name + "'");
+                    console.log("Player2 name: '" + data.player2Name + "'");
+                    console.log("Names equal (P1):", window.currentUser?.name === data.player1Name);
+                    console.log("Names equal (P2):", window.currentUser?.name === data.player2Name);
+
                     {
                         // console.log("window current user:", window.currentUser?.id, " window gamestate player1id", this.gameState.player1Id)
                         // console.log("window current user:", window.currentUser?.id, " window gamestate player2id", this.gameState.player2Id)
-                        if (window.currentUser?.name === data.player1Name) {
+                        if (window.currentUser?.username === data.player1Name) {
                             console.log("paddle1")
                             this.isPlayer1Paddle = true;
                             this.isPlayer2Paddle = false;
                             // console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
                         }
-                        else if (window.currentUser?.name === data.player2Name) {
+                        else if (window.currentUser?.username === data.player2Name) {
                             console.log("paddle2")
                             this.isPlayer1Paddle = false;
                             this.isPlayer2Paddle = true;
@@ -254,7 +243,6 @@ export default class PongService {
     }
 
     private clientLoop(): void {
-
         if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
             this.animationFrameId = null;
             return;
@@ -268,14 +256,18 @@ export default class PongService {
         }
 
         if (direction && window.messageHandler && this.matchId) {
-            if (this.isPlayer1Paddle || this.isPlayer2Paddle) {
-                let playerNumber: number;
-                if (this.player1Name === window.currentUser.name) {
-                    playerNumber = 1;
-                } else if (this.player2Name === window.currentUser.name) {
-                    playerNumber = 2;
-                }
-                window.messageHandler.movePaddle(window.currentUser?.id, this.matchId, playerNumber!, direction);
+            let playerNumber: number | undefined;
+
+            // Bestimme die Spielernummer basierend auf den Flags
+            if (this.isPlayer1Paddle) {
+                playerNumber = 1;
+            } else if (this.isPlayer2Paddle) {
+                playerNumber = 2;
+            }
+
+            // Nur senden wenn playerNumber gültig ist
+            if (playerNumber && window.currentUser?.id) {
+                window.messageHandler.movePaddle(window.currentUser.id, this.matchId, playerNumber, direction);
             }
         }
 
@@ -289,15 +281,14 @@ export default class PongService {
             target.tagName === 'INPUT' ||
             target.tagName === 'TEXTAREA' ||
             target.isContentEditable
-        )  {
-            document.removeEventListener('keydown', this.handleKeyUpBound);
+        ) {
             return;
         }
-    
+
         if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
             return;
         }
-    
+
         switch (event.key.toLowerCase()) {
             case 'w':
             case 'arrowup':
@@ -309,10 +300,10 @@ export default class PongService {
                 break;
         }
     }
-    
+
     private handleKeyUp(event: KeyboardEvent): void {
         const target = event.target as HTMLElement;
-    
+
         if (
             target.tagName === 'INPUT' ||
             target.tagName === 'TEXTAREA' ||
@@ -321,7 +312,7 @@ export default class PongService {
             document.removeEventListener('keyup', this.handleKeyUpBound);
             return;
         }
-    
+
         switch (event.key.toLowerCase()) {
             case 'w':
             case 'arrowup':

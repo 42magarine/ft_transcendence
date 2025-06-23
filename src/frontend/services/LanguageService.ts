@@ -4,7 +4,7 @@ export default class LanguageService {
     private isInitialized: boolean = false;
     private translations: Record<string, Record<string, string>> = {};
     private hasBoundLangListeners = false;
-    
+
     constructor() {
         this.initialize();
         const langSelectActionHandler = () => {
@@ -12,6 +12,7 @@ export default class LanguageService {
         };
         document.addEventListener('RouterContentLoaded', langSelectActionHandler);
     }
+
     private async loadTranslations(): Promise<void> {
         try {
             const httpProtocol = window.location.protocol;
@@ -58,6 +59,14 @@ export default class LanguageService {
         return langCookie ? langCookie.split('=')[1] : 'en_EN';
     }
 
+    private updateHtmlLangAttribute(): void {
+        const currentLanguage = this.getCurrentLanguage();
+        const htmlElement = document.documentElement;
+
+        const htmlLang = currentLanguage.split('_')[0];
+        htmlElement.setAttribute('lang', htmlLang);
+    }
+
     private translateTextElements(): void {
         const elementsToTranslate = document.querySelectorAll('.__');
         elementsToTranslate.forEach((element) => {
@@ -79,6 +88,9 @@ export default class LanguageService {
                 element.textContent = translatedText;
             }
         });
+
+        // HTML lang-Attribut nach dem Übersetzen aktualisieren
+        this.updateHtmlLangAttribute();
     }
 
     private findEnglishKeyByTranslation(translatedText: string): string | null {
@@ -204,6 +216,8 @@ export default class LanguageService {
         }
 
         this.isInitialized = true;
-        this.loadTranslations();
+        this.loadTranslations().then(() => {
+            this.updateHtmlLangAttribute();
+        });
     }
 }

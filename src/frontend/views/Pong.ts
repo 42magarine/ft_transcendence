@@ -23,11 +23,11 @@ export default class Pong extends AbstractView {
                             {
                                 html: `
                                     <div id="playerCanvasWrap">
-                                        <div id="playerOneNameTag" class="player-name player1}"></div>
-                                        <div id="playerTwoNameTag" class="player-name player2}"></div>
+                                        <div class="player-name player1">${player1}</div>
+                                        <div class="player-name player2">${player2}</div>
                                     </div>
                                     <div id="gameCanvasWrap" class="m-auto">
-                                        <div id="gameCanvasWrap-overlay">3</div>
+                                        <div id="gameCanvasWrap-overlay"></div>
                                         <canvas id="gameCanvas" class="countdown" width="800" height="600"></canvas>
                                     </div>
                                 `
@@ -67,7 +67,7 @@ export default class Pong extends AbstractView {
                 message: 'PongService is not initialized. Please refresh the page or rejoin the lobby.',
             });
         }
-        
+
         // console.log('--- END DEBUGGING PONG.TS AFTERRENDER ---');
     }
 
