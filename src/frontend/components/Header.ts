@@ -5,6 +5,7 @@ import { generateProfileImage } from '../../utils/Avatar.js';
 import renderAvatar from '../components/Avatar.js';
 import Router from '../../utils/Router.js';
 import Dropdown from '../components/Dropdown.js';
+import { AccessibilityService } from '../services/AccessibilityService.js';
 
 export default class Header extends AbstractView {
 	constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
@@ -175,6 +176,8 @@ export default class Header extends AbstractView {
 			});
 		}
         window.ls.langSelectAction();
+		AccessibilityService.initialize();
+		
 	}
 
 }

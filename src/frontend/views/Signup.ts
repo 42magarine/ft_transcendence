@@ -140,17 +140,31 @@ export default class Signup extends AbstractView {
                 usernameInput.addEventListener('input', () => {
                     if (!avatarInput.value) {
                         const seedSvg = generateTextVisualization(usernameInput.value, {
-                            width: 100,
-                            height: 100,
+                            width: 120,
+                            height: 120,
                             useShapes: true,
                             maxShapes: 50,
                             showText: false,
                             backgroundColor: '#f0f0f0'
                         });
-                        signupAvatar.innerHTML = seedSvg;
+            
+                        signupAvatar.innerHTML = '';
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = seedSvg;
+            
+                        const svg = wrapper.querySelector('svg');
+                        if (svg) {
+                            svg.setAttribute('width', '100%');
+                            svg.setAttribute('height', '100%');
+                            svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+                            svg.style.display = 'block';
+                        }
+            
+                        signupAvatar.appendChild(wrapper.firstChild!);
                     }
                 });
             }
+            
 
             if (avatarInput) {
                 avatarInput.setAttribute('accept', 'image/jpeg, image/png');

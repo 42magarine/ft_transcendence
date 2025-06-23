@@ -9,47 +9,158 @@ export default class UserManagementService {
 	async registerUser(userData: User, avatarFile?: File): Promise<string> {
 		try {
 			let response: Response;
-
-			const isAvatarValid =
-				avatarFile &&
-				avatarFile.size > 0 &&
-				['image/jpeg', 'image/png'].includes(avatarFile.type);
-
-			if (isAvatarValid) {
-				console.log('[registerUser] Valid avatar found:', {
-					name: avatarFile.name,
-					size: avatarFile.size,
-					type: avatarFile.type
+			let finalAvatar: File | undefined = avatarFile;
+	
+			// Convert SVG to PNG if necessary
+			if (avatarFile?.type === 'image/svg+xml') {
+				const svgText = await avatarFile.text();
+				
+				// Validate SVG content
+				if (!svgText.trim().startsWith('<svg') && !svgText.includes('<svg')) {
+					throw new Error('Invalid SVG file format');
+				}
+				
+				// Parse SVG to get dimensions or set defaults
+				const parser = new DOMParser();
+				const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+				const svgElement = svgDoc.querySelector('svg');
+				
+				// Check for parsing errors
+				const parserError = svgDoc.querySelector('parsererror');
+				if (parserError || !svgElement) {
+					console.error('SVG parsing error:', parserError?.textContent);
+					throw new Error('Invalid SVG content - unable to parse');
+				}
+				
+				let width = 100;
+				let height = 100;
+				
+				// Try to get dimensions from SVG attributes
+				const widthAttr = svgElement.getAttribute('width');
+				const heightAttr = svgElement.getAttribute('height');
+				const viewBox = svgElement.getAttribute('viewBox');
+				
+				if (widthAttr && heightAttr) {
+					width = parseInt(widthAttr.replace(/px|pt|em|rem|%/, '')) || 100;
+					height = parseInt(heightAttr.replace(/px|pt|em|rem|%/, '')) || 100;
+				} else if (viewBox) {
+					const viewBoxParts = viewBox.split(/[\s,]+/).map(Number);
+					if (viewBoxParts.length >= 4) {
+						width = viewBoxParts[2] || 100;
+						height = viewBoxParts[3] || 100;
+					}
+				}
+				
+				// Ensure reasonable dimensions
+				width = Math.min(Math.max(width, 32), 1024);
+				height = Math.min(Math.max(height, 32), 1024);
+				
+				// Clean up SVG and ensure proper attributes
+				svgElement.setAttribute('width', width.toString());
+				svgElement.setAttribute('height', height.toString());
+				svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+				
+				// Remove potentially problematic elements
+				const scripts = svgElement.querySelectorAll('script');
+				scripts.forEach(script => script.remove());
+				
+				// Create a clean SVG string
+				const serializer = new XMLSerializer();
+				const cleanSvgString = serializer.serializeToString(svgElement);
+				const svgDataUrl = `data:image/svg+xml;base64,${btoa(cleanSvgString)}`;
+				
+				finalAvatar = await new Promise<File>((resolve, reject) => {
+					const img = new Image();
+					const timeoutId = setTimeout(() => {
+						reject(new Error('SVG loading timeout - file may be too complex or corrupted'));
+					}, 10000); // 10 second timeout
+					
+					img.onload = () => {
+						clearTimeout(timeoutId);
+						try {
+							const canvas = document.createElement('canvas');
+							canvas.width = width;
+							canvas.height = height;
+							const ctx = canvas.getContext('2d');
+							
+							if (ctx) {
+								// Set white background (optional - remove for transparent)
+								ctx.fillStyle = '#ffffff';
+								ctx.fillRect(0, 0, width, height);
+								
+								// Draw the SVG
+								ctx.drawImage(img, 0, 0, width, height);
+								
+								canvas.toBlob((blob) => {
+									if (blob) {
+										const pngFile = new File([blob], avatarFile.name.replace(/\.svg$/, '.png'), {
+											type: 'image/png'
+										});
+										resolve(pngFile);
+									} else {
+										reject(new Error('Failed to create PNG blob'));
+									}
+								}, 'image/png', 0.95);
+							} else {
+								reject(new Error('Could not get canvas context'));
+							}
+						} catch (error) {
+							reject(new Error(`Canvas operation failed: ${error instanceof Error ? error.message : String(error)}`));
+						}
+					};
+					
+					img.onerror = (error) => {
+						clearTimeout(timeoutId);
+						console.error('SVG load error:', error);
+						console.error('SVG content preview:', cleanSvgString.substring(0, 200));
+						reject(new Error('SVG file appears to be corrupted or contains unsupported elements'));
+					};
+					
+					img.src = svgDataUrl;
 				});
-
+			}
+			
+			const isAvatarValid = finalAvatar && 
+				finalAvatar.size > 0 && 
+				['image/jpeg', 'image/png'].includes(finalAvatar.type);
+	
+			if (isAvatarValid && finalAvatar) { // Added finalAvatar check for TypeScript
+				console.log('[registerUser] Valid avatar found:', {
+					name: finalAvatar.name,
+					size: finalAvatar.size,
+					type: finalAvatar.type
+				});
+	
 				const formData = new FormData();
 				Object.entries(userData).forEach(([key, value]) => {
 					if (value !== undefined && value !== null) {
 						formData.append(key, String(value));
 					}
 				});
-				formData.append('avatar', avatarFile);
-
+				formData.append('avatar', finalAvatar); // TypeScript knows finalAvatar is defined here
+	
 				response = await fetch('/api/users/register', {
 					method: 'POST',
 					body: formData
 				});
 			} else {
+				console.log('[registerUser] No valid avatar, registering without avatar');
 				response = await fetch('/api/users/register', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(userData)
 				});
 			}
-
+	
 			if (!response.ok) {
 				const errorData = await response.json() as ApiErrorResponse;
 				throw new Error(errorData.error || 'Registration failed');
 			}
-
+	
 			Router.update();
 			return await response.text();
 		} catch (error) {
+			console.error('[registerUser] Error:', error);
 			await new Modal().renderInfoModal({
 				id: 'register-error',
 				title: window.ls.__('Registration Failed'),
@@ -58,6 +169,7 @@ export default class UserManagementService {
 			throw error;
 		}
 	}
+	
 
 	async login(credentials: LoginCredentials): Promise<AuthResponse> {
 		try {
