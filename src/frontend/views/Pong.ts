@@ -1,5 +1,6 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
+import Modal from '../components/Modal.js'
 
 export default class Pong extends AbstractView {
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
@@ -60,8 +61,13 @@ export default class Pong extends AbstractView {
             // console.log('Called window.pongService.initializeGame with matchId:', matchId);
         }
         else {
-            console.error('window.pongService is not initialized!');
+            await new Modal().renderInfoModal({
+                id: 'pong-service-missing',
+                title: 'Initialization Error',
+                message: 'PongService is not initialized. Please refresh the page or rejoin the lobby.',
+            });
         }
+        
         // console.log('--- END DEBUGGING PONG.TS AFTERRENDER ---');
     }
 

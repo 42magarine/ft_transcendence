@@ -1,7 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Modal from '../components/Modal.js';
-import __ from '../services/LanguageService.js';
 import Router from '../../utils/Router.js';
 import { generateTextVisualization } from '../../utils/Avatar.js';
 import { User } from '../../interfaces/userManagementInterfaces.js';
@@ -81,8 +80,13 @@ export default class Signup extends AbstractView {
         try {
             const form = document.getElementById('signup-form') as HTMLFormElement | null;
             if (!form) {
-                throw new Error('Signup form element not found.');
-            }
+                new Modal().renderInfoModal({
+                    id: 'missing-signup-form',
+                    title: 'Missing Form',
+                    message: 'Signup form element not found. Please refresh the page or contact support.',
+                });
+                return;
+            }            
 
             const enableTwoFactor = form.querySelector("input[name=enableTwoFactor]") as HTMLInputElement | null;
             const twoFactorInterface = document.getElementById("twoFactorInterface");
@@ -92,8 +96,13 @@ export default class Signup extends AbstractView {
             const avatarInput = form.querySelector('input[name="avatar"]') as HTMLInputElement;
             const signupAvatar = form.querySelector('.signup-avatar');
             if (!signupAvatar) {
-                throw new Error('Signup avatar container not found.');
-            }
+                new Modal().renderInfoModal({
+                    id: 'missing-signup-avatar',
+                    title: 'Missing Element',
+                    message: 'Signup avatar container not found. Please refresh the page or contact support.',
+                });
+                return;
+            }            
 
             // 2FA QR logic
             if (enableTwoFactor && twoFactorInterface && qrDisplay && secHidden) {
@@ -103,20 +112,20 @@ export default class Signup extends AbstractView {
                         twoFactorInterface.classList.remove('hidden');
                         twoFactorInterface.style.display = 'block';
 
-                        try {
-                            const response = await fetch('/api/generate-qr');
-                            if (!response.ok) {
-                                throw new Error(`QR API error: ${response.status}`);
-                            }
+                        const response = await fetch('/api/generate-qr');
+                        if (!response.ok) {
+                            await new Modal().renderInfoModal({
+                                id: 'qr-api-error',
+                                title: 'QR Code Error',
+                                message: `QR API returned status ${response.status}. Please try again or contact support.`,
+                            });
+                            return;
+                        }
 
-                            const qr_response = await response.json();
-                            const qr_alt_text = window.ls.__("QR Code for 2FA");
-                            qrDisplay.innerHTML = `<img alt="${qr_alt_text}" src="${qr_response.qr}" />`;
-                            secHidden.value = qr_response.secret;
-                        }
-                        catch (error) {
-                            console.error('[2FA] Failed to fetch QR:', error);
-                        }
+                        const qr_response = await response.json();
+                        const qr_alt_text = window.ls.__("QR Code for 2FA");
+                        qrDisplay.innerHTML = `<img alt="${qr_alt_text}" src="${qr_response.qr}" />`;
+                        secHidden.value = qr_response.secret;
                     }
                     else {
                         twoFactorInterface.classList.add('hidden');
@@ -131,17 +140,31 @@ export default class Signup extends AbstractView {
                 usernameInput.addEventListener('input', () => {
                     if (!avatarInput.value) {
                         const seedSvg = generateTextVisualization(usernameInput.value, {
-                            width: 100,
-                            height: 100,
+                            width: 120,
+                            height: 120,
                             useShapes: true,
                             maxShapes: 50,
                             showText: false,
                             backgroundColor: '#f0f0f0'
                         });
-                        signupAvatar.innerHTML = seedSvg;
+            
+                        signupAvatar.innerHTML = '';
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = seedSvg;
+            
+                        const svg = wrapper.querySelector('svg');
+                        if (svg) {
+                            svg.setAttribute('width', '100%');
+                            svg.setAttribute('height', '100%');
+                            svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+                            svg.style.display = 'block';
+                        }
+            
+                        signupAvatar.appendChild(wrapper.firstChild!);
                     }
                 });
             }
+            
 
             if (avatarInput) {
                 avatarInput.setAttribute('accept', 'image/jpeg, image/png');
@@ -256,15 +279,25 @@ export default class Signup extends AbstractView {
                         userData.tf_six = getStr('tf_six');
                     }
 
-                    const avatarFile = formData.get('avatar') as File;
-                    let result;
+                    let avatarFile = formData.get('avatar') as File;
 
-                    if (avatarFile && avatarFile.size > 0) {
-                        result = await window.userManagementService.registerUser(userData, avatarFile);
+                    if (!avatarFile || avatarFile.size === 0) {
+                        // ✅ Generate SVG fallback avatar
+                        const fallbackSvg = generateTextVisualization(userData.username || 'user', {
+                            width: 100,
+                            height: 100,
+                            useShapes: true,
+                            maxShapes: 50,
+                            showText: false,
+                            backgroundColor: '#f0f0f0'
+                        });
+
+                        const blob = new Blob([fallbackSvg], { type: 'image/svg+xml' });
+                        avatarFile = new File([blob], `${userData.username}.svg`, { type: 'image/svg+xml' });
                     }
-                    else {
-                        result = await window.userManagementService.registerUser(userData);
-                    }
+
+                    const result = await window.userManagementService.registerUser(userData, avatarFile);
+
 
                     form.reset();
                     Router.update();
@@ -275,17 +308,10 @@ export default class Signup extends AbstractView {
 
                 }
                 catch (error) {
-                    console.error('Signup failed:', error);
-                    await new Modal().renderInfoModal({
-                        id: 'signup-failed',
-                        title: window.ls.__('Signup Failed'),
-                        message: window.ls.__('Something went wrong while creating your account. Please try again.')
-                    });
                 }
             });
         }
         catch (error) {
-            console.error('Signup form setup error:', error);
             new Modal().renderInfoModal({
                 id: 'signup-setup-error',
                 title: window.ls.__('Signup Error'),

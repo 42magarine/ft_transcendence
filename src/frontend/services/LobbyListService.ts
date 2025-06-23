@@ -1,6 +1,7 @@
 import Router from '../../utils/Router.js';
 import UserService from '../services/UserService.js';
 import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
+import Modal from '../components/Modal.js'
 
 export default class LobbyListService {
     private lobbyData: ILobbyState[] = [];
@@ -88,8 +89,12 @@ export default class LobbyListService {
                     await window.messageHandler.createLobby(window.currentUser.id, "game", 2);
                 }
                 catch (error) {
-                    console.error("LobbyListService: Error calling createLobby:", error);
-                }
+                    await new Modal().renderInfoModal({
+                        id: 'create-lobby-error',
+                        title: 'Lobby Creation Failed',
+                        message: error instanceof Error ? error.message : 'An unknown error occurred while creating the lobby.',
+                    });
+                }                
             }
         }
         else {
@@ -111,8 +116,12 @@ export default class LobbyListService {
                     await window.messageHandler.createLobby(window.currentUser.id, "tournament", 8);
                 }
                 catch (error) {
-                    console.error("LobbyListService: Error calling createTournament:", error);
-                }
+                    await new Modal().renderInfoModal({
+                        id: 'create-tournament-error',
+                        title: 'Tournament Creation Failed',
+                        message: error instanceof Error ? error.message : 'An unknown error occurred while creating the tournament.',
+                    });
+                }                
             }
         }
         else {
@@ -126,9 +135,13 @@ export default class LobbyListService {
         const target = e.target as HTMLElement;
         const lobbyId = target.getAttribute('data-lobby-id');
         if (!lobbyId) {
-            console.error("LobbyListService: joinLobbyBtn clicked, but 'data-lobby-id' attribute is missing.");
+            await new Modal().renderInfoModal({
+                id: 'missing-lobby-id',
+                title: 'Missing Lobby ID',
+                message: "Couldn't join the lobby because its ID is missing.",
+            });
             return;
-        }
+        }        
 
         const user = await UserService.getCurrentUser();
         if (!user) {
@@ -141,8 +154,12 @@ export default class LobbyListService {
                 await window.messageHandler.joinLobby(lobbyId, user.id!);
             }
             catch (error) {
-                console.error(`LobbyListService: Error calling joinLobby for lobby ${lobbyId} and user ${user.id}:`, error);
-            }
+                await new Modal().renderInfoModal({
+                    id: 'join-lobby-failed',
+                    title: 'Failed to Join Lobby',
+                    message: `An error occurred while trying to join the lobby (ID: ${lobbyId}). Please try again later.`,
+                });
+            }            
         }
         else {
             console.log("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
@@ -177,7 +194,12 @@ export default class LobbyListService {
             await window.messageHandler.requestLobbyList();
         }
         catch (error) {
-            console.error("LobbyListService getLobbies: Error during socket readiness or requesting list:", error);
+            await new Modal().renderInfoModal({
+                id: 'lobby-fetch-error',
+                title: 'Lobby Fetch Failed',
+                message: 'Could not load the list of lobbies. Please check your connection and try again.',
+            });
+        
             this.resolveLobbyDataPromises(this.lobbyData);
         }
 

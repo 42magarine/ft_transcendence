@@ -3,7 +3,8 @@ import Router from "../../utils/Router.js";
 export default class LanguageService {
     private isInitialized: boolean = false;
     private translations: Record<string, Record<string, string>> = {};
-
+    private hasBoundLangListeners = false;
+    
     constructor() {
         this.initialize();
         const langSelectActionHandler = () => {
@@ -44,7 +45,7 @@ export default class LanguageService {
         }
         // this tells you if something got no translation yet!
         if (currentLanguage !== "en_EN") {
-            console.log("(づ ◕‿◕ )づ  " + key)
+            //console.log("(づ ◕‿◕ )づ  " + key)
         }
         return key;
     }
@@ -104,7 +105,7 @@ export default class LanguageService {
         return null;
     }
 
-    private langSelectAction(): Record<string, string> {
+    public langSelectAction(): Record<string, string> {
         const activeFlag = document.querySelector('.dropdown-head .flag.active') as HTMLImageElement;
         const passiveButtons = document.querySelectorAll('.dropdown-item button[data-lang]');
         const flagSources: Record<string, string> = {};

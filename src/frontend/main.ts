@@ -68,8 +68,10 @@ async function renderHeader(): Promise<void> {
     const header = new Header({}, new URLSearchParams(window.location.search));
     const headerHtml = await header.getHtml();
     const headerElement = document.getElementById('header-root');
-    if (headerElement)
+    if (headerElement) {
         headerElement.innerHTML = headerHtml;
+        await header.mount();
+    }
 }
 
 // =======================
@@ -156,20 +158,28 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await socketUpdateOnSession();
-    await renderHeader();
-    await renderFooter();
-    await router.render();
+	window.ls.initialize(); // ✅ moved up here
+	await socketUpdateOnSession();
+	await renderHeader();
+	await renderFooter();
+	await router.render();
 });
 
+function initializeGoogleScript() {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.id = 'google-login-script';
+    document.head.appendChild(script);
+}
+
+
 document.addEventListener('RouterContentLoaded', async () => {
-    await socketUpdateOnSession();
-    window.ls.initialize();
-    window.userManagementService.setupEventListeners();
-    window.userManagementService.twoFactorNumberActions();
-    window.userManagementService.setupUserManagementView();
-    window.userManagementService.initializeGoogleScript();
-    AccessibilityService.initialize();
+	await socketUpdateOnSession();
+	initializeGoogleScript();
+	AccessibilityService.initialize();
+	await renderHeader();
 });
 
 // =======================

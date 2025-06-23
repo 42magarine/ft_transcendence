@@ -1,6 +1,7 @@
 import { User, ApiErrorResponse, FriendList } from '../../interfaces/userManagementInterfaces.js';
 import Router from '../../utils/Router.js';
-import { IServerMessage } from '../../interfaces/interfaces.js';
+import { IServerMessage, MatchRecord } from '../../interfaces/interfaces.js';
+import Modal from '../components/Modal.js';
 
 export default class UserService {
     private static selectedFriendId: number | null = null;
@@ -17,6 +18,36 @@ export default class UserService {
         }
     }
 
+    static async getMatchHistory(): Promise<MatchRecord[]> {
+        try {
+            // First get the current user to extract their ID
+            const user = await this.getCurrentUser();
+            if (!user || !user.id) {
+                throw new Error('User not logged in');
+            }
+    
+            const response = await fetch(`/api/users/${user.id}/matchHistory`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json() as ApiErrorResponse;
+                throw new Error(errorData.error || 'Failed to fetch match history');
+            }
+    
+            return await response.json() as MatchRecord[];
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'match-history-fetch-error',
+                title: window.ls.__('Match History Error'),
+                message: `${window.ls.__('Could not fetch your match history.')}\n\n${(error as Error).message}`
+            });
+            return [];
+        }
+    }
+
     static async getCurrentUser(): Promise<User | null> {
         try {
             const response = await fetch('/api/users/me', {
@@ -27,8 +58,6 @@ export default class UserService {
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    // Nur bei echten Auth-Fehlern (expired token)
-                    // Hier refresh token logic?
                     return null;
                 }
                 throw new Error('Failed to fetch current user');
@@ -43,8 +72,13 @@ export default class UserService {
             return userData;
         }
         catch (error) {
+            // await new Modal().renderInfoModal({
+            //     id: 'get-user-failed',
+            //     title: 'Error',
+            //     message: 'Unable to fetch user data. Please try again later.',
+            // });
             return null;
-        }
+        }        
     }
 
     static async getAllUsers(): Promise<User[]> {
@@ -57,9 +91,12 @@ export default class UserService {
             }
 
             return await response.json() as User[];
-        }
-        catch (error) {
-            console.error('Failed to fetch all users:', error);
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'get-all-users-error',
+                title: window.ls.__('User Fetch Error'),
+                message: `${window.ls.__('Could not retrieve the user list.')}\n\n${(error as Error).message}`
+            });
             return [];
         }
     }
@@ -71,16 +108,18 @@ export default class UserService {
                 throw new Error(`User with ID ${userId} not found`);
             }
 
-
             if (!response.ok) {
                 const errorData = await response.json() as ApiErrorResponse;
                 throw new Error(errorData.error || `Failed to fetch user with id ${userId}`);
             }
             return await response.json() as User;
-        }
-        catch (error) {
-            console.error(`Failed to fetch user with id ${userId}:`, error);
-            throw error;
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'get-user-error',
+                title: window.ls.__('User Fetch Error'),
+                message: `${window.ls.__('Could not retrieve the user.')}\n\n${(error as Error).message}`
+            });
+            return null;
         }
     }
 
@@ -105,13 +144,15 @@ export default class UserService {
             }
 
             return response.ok;
-        }
-        catch (error) {
-            console.error('Error updating profile:', error);
-            throw error;
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'update-user-error',
+                title: window.ls.__('Update Failed'),
+                message: `${window.ls.__('Could not update the user.')}\n\n${(error as Error).message}`
+            });
+            return false;
         }
     }
-
 
     static async deleteUser(userId: number): Promise<boolean> {
         try {
@@ -124,10 +165,13 @@ export default class UserService {
                 throw new Error(errorData.error || 'Failed to delete user');
             }
             return true;
-        }
-        catch (error) {
-            console.error('Failed to delete user:', error);
-            throw error;
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'delete-user-error',
+                title: window.ls.__('Deletion Failed'),
+                message: `${window.ls.__('Could not delete the user.')}\n\n${(error as Error).message}`
+            });
+            return false;
         }
     }
 
@@ -139,9 +183,12 @@ export default class UserService {
                 throw new Error(errorData.error || 'Failed to fetch friends');
             }
             return await response.json() as FriendList[];
-        }
-        catch (error) {
-            console.error('Failed to fetch friends:', error);
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'friendlist-fetch-error',
+                title: window.ls.__('Friend List Error'),
+                message: `${window.ls.__('Could not fetch the friend list.')}\n\n${(error as Error).message}`
+            });
             return [];
         }
     }
@@ -159,9 +206,12 @@ export default class UserService {
                 throw new Error(result.error);
             }
             return true;
-        }
-        catch (error) {
-            console.error('Failed to add friend:', error);
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'add-friend-error',
+                title: window.ls.__('Add Friend Failed'),
+                message: `${window.ls.__('Could not add this user as a friend.')}\n\n${(error as Error).message}`
+            });
             return false;
         }
     }
@@ -177,121 +227,21 @@ export default class UserService {
                 throw new Error(errorData.error);
             }
             return true;
-        }
-        catch (error) {
-            console.error('Failed to remove friend:', error);
+        } catch (error) {
+            await new Modal().renderInfoModal({
+                id: 'remove-friend-error',
+                title: window.ls.__('Remove Friend Failed'),
+                message: `${window.ls.__('Could not remove the friend.')}\n\n${(error as Error).message}`
+            });
             return false;
         }
     }
-    static attachFriendHandlers(): void {
-        const addBtn = document.getElementById('add-friend-btn');
-        const input = document.querySelector<HTMLInputElement>('input[name="username"]');
-        const feedback = document.getElementById('friend-feedback');
 
-        // Handle Add Friend
-        if (addBtn && input) {
-            addBtn.addEventListener('click', async () => {
-                const username = input.value.trim();
-                if (!username) {
-                    if (feedback) {
-                        feedback.textContent = 'Please enter a username.';
-                        feedback.classList.remove('hidden');
-                        feedback.classList.remove('text-green-500');
-                        feedback.classList.add('text-red-500');
-                    }
-                    return;
-                }
+    public static setSelectedFriendId(id: number | null): void {
+        this.selectedFriendId = id;
+    }
 
-                const success = await UserService.addFriendByUsername(username);
-                if (success) {
-                    if (feedback) {
-                        feedback.textContent = 'Friend added successfully.';
-                        feedback.classList.remove('hidden');
-                        feedback.classList.remove('text-red-500');
-                        feedback.classList.add('text-green-500');
-                    }
-                    setTimeout(() => Router.update(), 1000);
-                }
-                else {
-                    if (feedback) {
-                        feedback.textContent = 'Failed to add friend.';
-                        feedback.classList.remove('hidden');
-                        feedback.classList.remove('text-green-500');
-                        feedback.classList.add('text-red-500');
-                    }
-                }
-            });
-
-            input.addEventListener('input', () => {
-                if (feedback) {
-                    feedback.classList.add('hidden');
-                    feedback.textContent = '';
-                }
-            });
-
-            input.addEventListener('keydown', async (e: KeyboardEvent) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addBtn.click();
-                }
-            });
-        }
-
-        // Handle Remove Friend buttons
-        document.querySelectorAll('[id^="remove-friend-"]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const id = Number(btn.id.split('remove-friend-')[1]);
-                if (isNaN(id)) {
-                    return;
-                }
-
-                UserService.selectedFriendId = id;
-                const modal = document.getElementById('confirm-remove-modal');
-                if (modal) {
-                    modal.classList.remove('hidden');
-                }
-            });
-        });
-
-        // Modal Outside Click Handler
-        const modal = document.getElementById('confirm-remove-modal');
-        if (modal) {
-            modal.onclick = (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                    UserService.selectedFriendId = null;
-                }
-            };
-        }
-
-        // Confirm Remove
-        const confirmBtn = document.getElementById('confirm-remove-btn');
-        if (confirmBtn) {
-            confirmBtn.onclick = async () => {
-                if (UserService.selectedFriendId === null) return;
-
-                const success = await UserService.removeFriendById(UserService.selectedFriendId);
-                if (success) {
-                    Router.update();
-                }
-                else {
-                    const modal = document.getElementById('confirm-remove-modal');
-                    if (modal) modal.classList.add('hidden');
-                }
-                UserService.selectedFriendId = null;
-            };
-        }
-
-        // Cancel Remove
-        const cancelBtn = document.getElementById('cancel-remove-btn');
-        if (cancelBtn) {
-            cancelBtn.onclick = () => {
-                const modal = document.getElementById('confirm-remove-modal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                }
-                UserService.selectedFriendId = null;
-            };
-        }
+    public static getSelectedFriendId(): number | null {
+        return this.selectedFriendId;
     }
 }

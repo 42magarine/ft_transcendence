@@ -1,7 +1,13 @@
 import UserService from '../services/UserService.js';
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import __ from '../services/LanguageService.js';
+
+declare global {
+    interface Window {
+        Globe: any;
+    }
+}
+
 
 export default class Home extends AbstractView {
     constructor() {
@@ -17,46 +23,61 @@ export default class Home extends AbstractView {
                 : window.ls.__('Welcome to Transcendence!'),
             contentBlocks: [
                 {
-                    type: 'paragraph',
-                    props: {
-                        html: window.ls.__('Your central hub for games, friendships, and tournaments.')
-                    }
-                }
-            ]
-        });
-
-        const explanationCard = await new Card().renderCard({
-            title: window.ls.__('How Transcendence Works'),
-            contentBlocks: [
-                {
-                    type: 'paragraph',
-                    props: {
-                        html: window.ls.__('Transcendence is a multiplayer gaming platform built with modern technologies and a modular design.')
-                    }
-                },
-                {
-                    type: 'paragraph',
+                    type: 'html',
                     props: {
                         html: `
-                            <ul class="list-disc pl-6 space-y-1">
-                                <li>${window.ls.__('🎮 Play games like Pong or join tournaments.')}</li>
-                                <li>${window.ls.__('🧑‍🤝‍🧑 Add friends and challenge them.')}</li>
-                                <li>${window.ls.__('🗂️ Track your progress and achievements.')}</li>
-                                <li>${window.ls.__('🌐 Customize your profile and settings.')}</li>
-                                <li>${window.ls.__('🔒 Secure login with 2FA and account recovery.')}</li>
-                            </ul>
+                            <script src="https://unpkg.com/three"></script>
+                            <script src="https://unpkg.com/globe.gl"></script>
+                          <div id="globeViz" class="w-full h-full min-h-[300px] rounded-xl border my-6 shadow-md bg-black relative overflow-hidden"></div>
                         `
                     }
-                },
-                {
-                    type: 'paragraph',
-                    props: {
-                        html: window.ls.__('More features coming soon – stay tuned!')
-                    }
-                }
+                }                        
             ]
         });
 
-        return this.render(`${homeCard}${explanationCard}`);
+        return this.render(`${homeCard}`);
+
+
     }
+    async mount(): Promise<void> {
+        const globeContainer = document.getElementById('globeViz');
+        if (!globeContainer) return;
+    
+        // Dynamically load globe.gl if not already present
+        if (typeof window.Globe !== 'function') {
+            await new Promise<void>((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/globe.gl';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('Failed to load globe.gl'));
+                document.head.appendChild(script);
+            });
+        }
+    
+        // Now it's safe to call Globe
+        // @ts-ignore
+        const world = window.Globe()(globeContainer)
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+            .showAtmosphere(true)
+            .atmosphereColor('#3a228a')
+            .atmosphereAltitude(0.25)
+            .pointOfView({ lat: 20, lng: 10, altitude: 2 }, 4000);
+
+            const canvas = globeContainer.querySelector('canvas');
+            if (canvas) {
+                canvas.style.position = 'absolute';
+                canvas.style.top = '0';
+                canvas.style.left = '0';
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.display = 'block';
+                canvas.style.pointerEvents = 'auto';
+            }
+            
+    }
+    
+    
+    
+
 }

@@ -1,8 +1,8 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
-import __ from '../services/LanguageService.js';
 import Router from '../../utils/Router.js';
 import { ILobbyState, IPlayerState } from '../../interfaces/interfaces.js';
+import Modal from '../components/Modal.js'
 
 export default class Tournament extends AbstractView {
     private lobbyId: string;
@@ -15,8 +15,13 @@ export default class Tournament extends AbstractView {
         this.initEvents = this.setupEvents.bind(this);
 
         this.lobbyId = routeParams['id'];
+        this.lobbyId = routeParams['id'];
         if (!this.lobbyId) {
-            console.error("Lobby ID is missing!");
+            new Modal().renderInfoModal({
+                id: "missing-lobby-id",
+                title: "Missing Lobby",
+                message: "No lobby ID was found. You will be redirected to the lobby list."
+            });
             Router.redirect('/lobbylist');
         }
         for (let i = 0; i < 8; i++) {
@@ -60,6 +65,7 @@ export default class Tournament extends AbstractView {
                             type: 'buttongroup',
                             props:
                             {
+                                layout: 'grid',
                                 buttons:
                                     [
                                         {

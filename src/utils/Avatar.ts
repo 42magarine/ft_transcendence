@@ -379,100 +379,151 @@ function generateTextVisualization(text: string, options: TextVisualizationOptio
 
     const fontFamily = options.fontFamily || 'Arial, sans-serif';
 
-    const colors = options.colorPalette || generateColorPalette(text, 5);
+    // Safe color generation
+    const colors = options.colorPalette || generateSafeColorPalette(text, 5);
 
-    // Use a viewBox for proper scaling regardless of the container size
-    let svg = `<svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">`;
+    // Fix: Use correct SVG namespace (http, not https)
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet">`;
 
     // Background
     svg += `<rect width="${width}" height="${height}" fill="${backgroundColor}" />`;
 
-    // Add patterns
+    // Add patterns with error handling
     svg += '<defs>';
-    const patternResult = generatePattern(text, width, height, { fill: colors[0] });
-    svg += patternResult.pattern;
-    svg += '</defs>';
-    svg += patternResult.rect;
+    try {
+        const patternResult = generatePattern(text, width, height, { fill: colors[0] });
+        if (patternResult && patternResult.pattern) {
+            svg += patternResult.pattern;
+        }
+        svg += '</defs>';
+        if (patternResult && patternResult.rect) {
+            svg += patternResult.rect;
+        }
+    } catch (error) {
+        console.warn('[AVATAR] Pattern generation failed:', error);
+        svg += '</defs>';
+    }
 
     // Content generation based on text characteristics
     const hasNumbers = /\d/.test(text);
     const hasSpecialChars = /[^\w\s]/.test(text);
     const textHash = text.split('').reduce((sum, char, i) => sum + char.charCodeAt(0) * (i + 1), 0);
 
-    // Advanced visualizations for longer text
-    if (text.length > 10 && (hasNumbers || hasSpecialChars)) {
-        svg += generateMandala(width / 2, height / 2, Math.min(width, height) * 0.4, text, colors);
-    }
-    else if (text.length > 5) {
-        // Spiral turns based on text length
-        const spiralTurns = 2 + (textHash % 4); // Between 2 and 5 turns
-        svg += generateSpiral(width / 2, height / 2, Math.min(width, height) * 0.4, spiralTurns, {
-            stroke: colors[1],
-            // Stroke width now calculated relative to width inside the function
-        });
+    // Advanced visualizations for longer text with error handling
+    try {
+        if (text.length > 10 && (hasNumbers || hasSpecialChars)) {
+            const mandala = generateMandala(width / 2, height / 2, Math.min(width, height) * 0.4, text, colors);
+            if (mandala) svg += mandala;
+        }
+        else if (text.length > 5) {
+            // Spiral turns based on text length
+            const spiralTurns = 2 + (textHash % 4); // Between 2 and 5 turns
+            const spiral = generateSpiral(width / 2, height / 2, Math.min(width, height) * 0.4, spiralTurns, {
+                stroke: colors[1],
+            });
+            if (spiral) svg += spiral;
 
-        // Wave frequency based on text characteristics
-        const waveFrequency = Math.max(1, text.length / 10);
-        svg += generateWave(0, height * 0.75, width, height * 0.2, waveFrequency, {
-            stroke: colors[2],
-            // Stroke width now calculated relative to width inside the function
-        });
+            // Wave frequency based on text characteristics
+            const waveFrequency = Math.max(1, text.length / 10);
+            const wave = generateWave(0, height * 0.75, width, height * 0.2, waveFrequency, {
+                stroke: colors[2],
+            });
+            if (wave) svg += wave;
+        }
+    } catch (error) {
+        console.warn('[AVATAR] Advanced visualization failed:', error);
     }
 
-    // Add character shapes
+    // Add character shapes with error handling
     if (useShapes) {
-        const chars = text.split('');
-        const shapesCount = Math.min(chars.length, maxShapes);
+        try {
+            const chars = text.split('');
+            const shapesCount = Math.min(chars.length, maxShapes);
 
-        for (let i = 0; i < shapesCount; i++) {
-            const char = chars[i];
-            let x, y;
+            for (let i = 0; i < shapesCount; i++) {
+                const char = chars[i];
+                let x, y;
 
-            // Position shapes in a deterministic pattern
-            if (shapesCount <= 10) {
-                // For short text, arrange in a line
-                x = width * (i + 1) / (shapesCount + 1);
-                y = height * 0.4;
+                // Position shapes in a deterministic pattern
+                if (shapesCount <= 10) {
+                    // For short text, arrange in a line
+                    x = width * (i + 1) / (shapesCount + 1);
+                    y = height * 0.4;
+                }
+                else {
+                    // For longer text, arrange in a spiral or circular pattern
+                    const angle = (i / shapesCount) * Math.PI * 2;
+                    const radius = height * 0.3 * (0.5 + (i % 3) * 0.15);
+                    x = width / 2 + Math.cos(angle) * radius;
+                    y = height / 2 + Math.sin(angle) * radius;
+                }
+
+                // Size varies slightly based on character, but always relative to fontSize
+                const sizeVariation = 1.2 + (char.charCodeAt(0) % 10) / 10;
+                const size = fontSize * sizeVariation;
+
+                const shape = getShapeForChar(char, x, y, size, colors, i, shapesCount);
+                if (shape) svg += shape;
             }
-            else {
-                // For longer text, arrange in a spiral or circular pattern
-                const angle = (i / shapesCount) * Math.PI * 2;
-                const radius = height * 0.3 * (0.5 + (i % 3) * 0.15);
-                x = width / 2 + Math.cos(angle) * radius;
-                y = height / 2 + Math.sin(angle) * radius;
-            }
-
-            // Size varies slightly based on character, but always relative to fontSize
-            const sizeVariation = 1.2 + (char.charCodeAt(0) % 10) / 10;
-            const size = fontSize * sizeVariation;
-
-            svg += getShapeForChar(char, x, y, size, colors, i, shapesCount);
+        } catch (error) {
+            console.warn('[AVATAR] Shape generation failed:', error);
         }
     }
 
-    // Add centered text
+    // Add centered text with error handling
     if (showText) {
-        // Calculate drop shadow size relative to width - quadrupled size
-        const shadowSize = width * 0.006; // 0.6% of width (quadrupled)
+        try {
+            // Calculate drop shadow size relative to width - quadrupled size
+            const shadowSize = width * 0.006; // 0.6% of width (quadrupled)
 
-        svg += `
-        <text
-          x="50%"
-          y="50%"
-          dominant-baseline="middle"
-          text-anchor="middle"
-          font-family="${fontFamily}"
-          font-size="${fontSize}"
-          fill="${textColor}"
-          font-weight="bold"
-          filter="drop-shadow(0px 0px ${shadowSize}px rgba(255,255,255,0.7))"
-        >${text}</text>
-      `;
+            svg += `
+            <text
+              x="50%"
+              y="50%"
+              dominant-baseline="middle"
+              text-anchor="middle"
+              font-family="${fontFamily}"
+              font-size="${fontSize}"
+              fill="${textColor}"
+              font-weight="bold"
+              filter="drop-shadow(0px 0px ${shadowSize}px rgba(255,255,255,0.7))"
+            >${escapeXml(text)}</text>
+          `;
+        } catch (error) {
+            console.warn('[AVATAR] Text rendering failed:', error);
+        }
     }
 
     svg += '</svg>';
 
     return svg;
+}
+
+// Safe color palette generator
+function generateSafeColorPalette(text: string, count: number): string[] {
+    const colors = [];
+    const baseColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#74B9FF', '#A29BFE'];
+    
+    for (let i = 0; i < count; i++) {
+        const index = (text.charCodeAt(i % text.length) + i) % baseColors.length;
+        colors.push(baseColors[index]);
+    }
+    
+    return colors;
+}
+
+// XML escape function
+function escapeXml(unsafe: string): string {
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+        return c;
+    });
 }
 
 function generateProfileImage(userData: any, width: number, height: number): string {

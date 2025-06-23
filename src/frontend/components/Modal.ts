@@ -1,3 +1,4 @@
+import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
 import Button from './Button.js';
 import type { ButtonProps, ModalProps } from '../../interfaces/componentInterfaces.js';
@@ -69,6 +70,32 @@ export default class Modal extends AbstractView {
         `);
     }
 
+    async renderInfoModal({
+        id,
+        title = 'Notice',
+        message = 'Something important you should know.',
+        footerButtons = []
+    }: {
+        id: string;
+        title?: string;
+        message?: string;
+        footerButtons?: ButtonProps[];
+    }): Promise<void> {
+        const modalHtml = await this.renderModal({
+            id,
+            title,
+            content: `<p class="text-yellow-300">${message}</p>`,
+            footerButtons,
+            closableOnOutsideClick: true,
+            showCloseButton: true,
+            hidden: false
+        });
+
+        const container = document.createElement('div');
+        container.innerHTML = modalHtml;
+        document.body.appendChild(container);
+    }
+
     async renderDeleteModal({
         id,
         userId,
@@ -79,7 +106,7 @@ export default class Modal extends AbstractView {
         onConfirm: () => Promise<void>;
     }): Promise<void> {
         let modalEl = document.getElementById(id);
-    
+
         if (!modalEl) {
             const modalHtml = await this.renderModal({
                 id,
@@ -98,94 +125,28 @@ export default class Modal extends AbstractView {
                         className: 'btn btn-red'
                     }
                 ],
-                closableOnOutsideClick: true
+                closableOnOutsideClick: true,
+                showCloseButton: true,
+                hidden: false
             });
-    
+
             const container = document.createElement('div');
             container.innerHTML = modalHtml;
             document.body.appendChild(container);
-    
+
             modalEl = document.getElementById(id);
-    
+
             document.getElementById('confirm-delete-btn')?.addEventListener('click', async () => {
                 await onConfirm();
                 modalEl?.classList.add('hidden');
             });
-    
+
             document.getElementById('cancel-delete-btn')?.addEventListener('click', () => {
                 modalEl?.classList.add('hidden');
             });
         } else {
-            modalEl.classList.remove('hidden'); // Re-show existing modal
+            modalEl.classList.remove('hidden');
         }
-    }    
-
-    async renderRemoveFriendModal({
-        id,
-        friendId,
-        onConfirm
-    }: {
-        id: string;
-        friendId: number;
-        onConfirm: () => Promise<void>;
-    }): Promise<void> {
-        const modalHtml = await this.renderModal({
-            id,
-            title: 'Remove Friend',
-            content: `<p>Do you really want to remove this friend?<br><strong>This action cannot be undone.</strong></p>`,
-            footerButtons: [
-                {
-                    id: 'cancel-remove-btn',
-                    text: 'Cancel',
-                    className: 'btn btn-secondary',
-                    onClick: `document.getElementById('${id}').classList.add('hidden')`
-                },
-                {
-                    id: 'confirm-remove-btn',
-                    text: 'Remove',
-                    className: 'btn btn-red'
-                }
-            ],
-            closableOnOutsideClick: true
-        });
-
-        const container = document.createElement('div');
-        container.innerHTML = modalHtml;
-        document.body.appendChild(container);
-
-        document.getElementById('confirm-remove-btn')?.addEventListener('click', async () => {
-            await onConfirm();
-            document.getElementById(id)?.classList.add('hidden');
-        });
-
-        document.getElementById('cancel-remove-btn')?.addEventListener('click', () => {
-            document.getElementById(id)?.classList.add('hidden');
-        });
-    }
-
-    async renderInfoModal({
-        id,
-        title = 'Notice',
-        message = 'Something important you should know.'
-    }: {
-        id: string;
-        title?: string;
-        message?: string;
-    }): Promise<void> {
-        const modalHtml = await this.renderModal({
-            id,
-            title,
-            content: `<p class="text-yellow-300">${message}</p>`,
-            footerButtons: [],
-            closableOnOutsideClick: true,
-            showCloseButton: false
-        });
-
-        const container = document.createElement('div');
-        container.innerHTML = modalHtml;
-        document.body.appendChild(container);
-
-        document.getElementById(id)?.classList.remove('hidden');
     }
 
     async mountDeleteModal(modalId: string): Promise<void> {
@@ -207,7 +168,9 @@ export default class Modal extends AbstractView {
                     onClick: `document.getElementById('default-modal').classList.add('hidden')`
                 }
             ],
-            closableOnOutsideClick: true
+            closableOnOutsideClick: true,
+            showCloseButton: true,
+            hidden: false
         });
     }
 }

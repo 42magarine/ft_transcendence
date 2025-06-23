@@ -49,6 +49,25 @@ declare global {
 
 export { };
 
+export interface MatchRecord {
+	id: number;
+	status: string;
+	createdAt: string;
+	player1: {
+		id: number;
+		username: string;
+	};
+	player2: {
+		id: number;
+		username: string;
+	};
+	winner: {
+		id: number;
+		username: string;
+	} | null;
+}
+
+
 export type IPaddleDirection = 'up' | 'down';
 
 export interface IPaddleState {
