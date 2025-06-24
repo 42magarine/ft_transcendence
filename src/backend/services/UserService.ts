@@ -167,7 +167,19 @@ export class UserService {
                 }
             }
 
-            const result = await this.userRepo.delete(userId);
+            const result = await this.userRepo.softDelete(userId);
+
+            await this.userRepo.update(userId, {
+            email: `deleted_${user.id}_${Date.now()}@anon.com`,
+            username: `deleted_user_${user.id}`,
+            password: 'anon', // Or null, or a specific placeholder
+            twoFASecret: undefined,
+            twoFAEnabled: false,
+            resetPasswordToken: undefined,
+            resetPasswordExpires: undefined,
+            verificationToken: undefined,
+        });
+
             return result.affected ? result.affected > 0 : false;
         }
         catch (error) {

@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance, ManyToMany, JoinTable, OneToMany } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, TableInheritance, ManyToMany, JoinTable, OneToMany, DeleteDateColumn } from "typeorm";
 import { ITournamentRound } from "../../interfaces/interfaces.js";
 import { JsonColumnTransformer } from "../transformers/JsonTransformer.js";
 
@@ -62,6 +62,9 @@ export class UserModel {
 
     @OneToMany(() => MatchModel, (match) => match.player2)
     matchAsPlayer2!: MatchModel[];
+
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }
 
 @Entity()

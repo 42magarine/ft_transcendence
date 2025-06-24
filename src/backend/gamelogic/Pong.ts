@@ -28,12 +28,12 @@ export class PongGame {
     private _gameService?: MatchService;
     private _onGameOverCallback: (matchId: number) => void; // Callback for MatchLobby
 
-    constructor(onGameOverCallback: (matchId: number) => void) {
+    constructor(onGameOverCallback: (matchId: number) => void, ballSize: number = 4, paddleSize: number = 2 - 50) {
         this._width = GAME_WIDTH;
         this._height = GAME_HEIGHT;
-        this._ball = new Ball(this._width / 2, this._height / 2, 4, 4);
-        this._paddle1 = new Paddle(10, this._height / 2 - 50);
-        this._paddle2 = new Paddle(this._width - 20, this._height / 2 - 50);
+        this._ball = new Ball(this._width / 2, this._height / 2, ballSize, ballSize);
+        this._paddle1 = new Paddle(10, this._height / paddleSize);
+        this._paddle2 = new Paddle(this._width - 20, this._height / paddleSize);
         this._scoreLimit = SCORE_LIMIT;
         this._onGameOverCallback = onGameOverCallback;
         this._ball.randomizeDirection();
