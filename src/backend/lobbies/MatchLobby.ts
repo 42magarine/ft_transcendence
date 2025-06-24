@@ -158,7 +158,7 @@ export class MatchLobby {
             this._readyPlayers.delete(player.userId); // Use userId for readyPlayers set
 
             // If it's a tournament, cancel the entire tournament
-            if (this._lobbyType === 'tournament') {
+            if (this._lobbyType === 'tournament' && this.isEmpty()) {
                 // console.log(`Player ${player._name} left tournament lobby ${this._lobbyId}. Cancelling tournament.`);
                 await this.cancelTournament("A player left the tournament.");
             }
@@ -383,6 +383,14 @@ export class MatchLobby {
 
         this._broadcast({
             type: "gameStarted",
+            lobby: this.getLobbyState(),
+            gameState: game!.getState(),
+            matchId: matchId
+        });
+        this._broadcast({
+            type: "initMatchStart",
+            player1Name: player1._name,
+            player2Name: player2._name,
             lobby: this.getLobbyState(),
             gameState: game!.getState(),
             matchId: matchId
@@ -718,6 +726,8 @@ export class MatchLobby {
                 winningUserId: winnerId,
                 player1Score,
                 player2Score,
+                player1Name: game._player1?._name,
+                player2Name: game._player2?._name,
                 lobby: this.getLobbyState()
             });
             this.stopGame();

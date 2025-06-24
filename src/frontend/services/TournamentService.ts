@@ -48,7 +48,7 @@ export default class TournamentService {
                 break;
             case 'playerLeft':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    // console.log(data.lobby)
+                    console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -79,7 +79,7 @@ export default class TournamentService {
 
             case 'tournamentMatchStart':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
+                    if (data.player1Name === window.currentUser?.username || data.player2Name === window.currentUser?.username) {
                         Router.redirect(`/pong/${data.lobby.lobbyId}/${data.matchId}`);
                     }
 
@@ -96,14 +96,14 @@ export default class TournamentService {
                 }, 15000);
                 break;
             case "tournamentMatchOver":
-                if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
+                if (data.player1Name === window.currentUser?.username || data.player2Name === window.currentUser?.username) {
                     if (data.player1Score! > data.player2Score!) {
                         this.matchWinMessage = data.player1Name + " won against " + data.player2Name
-                        this.matchScoreMessage = "Score: " +  data.player1Score + " : " + data.player2Score
+                        this.matchScoreMessage = "Score: " + data.player1Score + " : " + data.player2Score
                     }
                     else if (data.player2Score! > data.player1Score!) {
                         this.matchWinMessage = data.player2Name + " won against " + data.player1Name
-                        this.matchScoreMessage = "Score: " +  data.player2Score + " : " + data.player1Score
+                        this.matchScoreMessage = "Score: " + data.player2Score + " : " + data.player1Score
                     } else {
                         this.matchWinMessage = "Its a tie! How do you even tie in Pong?";
                         this.matchScoreMessage = " ";

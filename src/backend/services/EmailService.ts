@@ -48,34 +48,46 @@ export class EmailService {
 
     // Send verification email for new account
     async sendVerificationEmail(email: string, token: string, username: string): Promise<void> {
-        const baseUrl = process.env.NGROK_URL || 'http://localhost:3000';
-
-        // Use API endpoint for verification because it will redirect to login
+        var baseUrl = process.env.NGROK_URL || 'http://localhost:3000';
+        if (baseUrl && !baseUrl.startsWith('http')) {
+            baseUrl = `https://${baseUrl}`;
+        }
         const verificationLink = `${baseUrl}/api/verify-email/${token}`;
+
+
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0a1a2f; color: white; padding: 20px; border-radius: 8px;">
+                <h2 style="color: white; text-align: center; margin-bottom: 30px;">Welcome to Transcendence!</h2>
+                <p>Hello ${username},</p>
+                <p>Please verify your account by clicking the button below:</p>
+                <p>🔗 DEBUG LINK: ${verificationLink}</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${verificationLink}" style="background-color: #155dfc; color: white; padding: 15px 25px; text-decoration: none; border-radius: 4px; display: inline-block;">Verify Account</a>
+                </div>
+                <p>If you did not request this, please ignore this email.</p>
+                <p style="margin-top: 30px; border-top: 1px solid #2a3a4f; padding-top: 15px;">Thank you,<br>The Transcendence Team</p>
+            </div>
+        `;
+
+        console.log('📝 HTML Content Preview:', htmlContent.substring(0, 300));
 
         await this.sendEmail({
             to: email,
             subject: 'Verify Your Transcendence Account',
             text: `Hello ${username},\n\nPlease verify your account by clicking the link: ${verificationLink}\n\nIf you did not request this, please ignore this email.\n`,
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0a1a2f; color: white; padding: 20px; border-radius: 8px;">
-                    <h2 style="color: white; text-align: center; margin-bottom: 30px;">Welcome to Transcendence!</h2>
-                    <p>Hello ${username},</p>
-                    <p>Please verify your account by clicking the button below:</p>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="${verificationLink}" style="background-color: #155dfc; color: white; padding: 15px 25px; text-decoration: none; border-radius: 4px; display: inline-block;">Verify Account</a>
-                    </div>
-                    <p>If you did not request this, please ignore this email.</p>
-                    <p style="margin-top: 30px; border-top: 1px solid #2a3a4f; padding-top: 15px;">Thank you,<br>The Transcendence Team</p>
-                </div>
-            `
+            html: htmlContent
         });
+
+        console.log('✅ Email sent successfully');
     }
 
     // Send password reset email
     async sendPasswordResetEmail(email: string, token: string, username: string): Promise<void> {
-        const baseUrl = process.env.NGROK_URL || 'http://localhost:3000';
+        var baseUrl = process.env.NGROK_URL || 'http://localhost:3000';
 
+        if (baseUrl && !baseUrl.startsWith('http')) {
+            baseUrl = `https://${baseUrl}`;
+        }
         // Changed to use frontend route instead of API endpoint
         const resetLink = `${baseUrl}/password-reset/${token}`;
 

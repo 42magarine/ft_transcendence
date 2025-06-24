@@ -1,7 +1,6 @@
 import AbstractView from '../../utils/AbstractView.js';
 import Card from '../components/Card.js';
 import Modal from '../components/Modal.js';
-import __ from '../services/LanguageService.js';
 import Router from '../../utils/Router.js';
 import { generateProfileImage } from '../../utils/Avatar.js';
 import UserService from '../services/UserService.js';

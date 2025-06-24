@@ -3,7 +3,7 @@ import Modal from '../components/Modal.js';
 import Card from '../components/Card.js';
 import UserService from '../services/UserService.js';
 import { FriendList } from '../../interfaces/userManagementInterfaces.js';
-import __ from '../services/LanguageService.js';
+import Router from '../../utils/Router.js';
 
 export default class Friends extends AbstractView {
     constructor() {
@@ -71,6 +71,7 @@ export default class Friends extends AbstractView {
                         data: friends,
                         columns: [
                             { key: 'id', label: window.ls.__('ID') },
+                            { key: 'avatar', label: window.ls.__('Avatar') },
                             { key: 'username', label: window.ls.__('Username') },
                             { key: 'status', label: window.ls.__('Status') },
                             { key: 'actions', label: window.ls.__('Actions') }
@@ -81,6 +82,14 @@ export default class Friends extends AbstractView {
                                 props: {
                                     text: `${friend.id}`,
                                     htmlFor: `friend-${friend.id}-id`
+                                }
+                            },
+                            {
+                                type: 'avatar',
+                                props: {
+                                    src: friend.avatar || '',
+                                    size: 30,
+                                    className: 'mx-auto'
                                 }
                             },
                             {
@@ -139,8 +148,95 @@ export default class Friends extends AbstractView {
             closableOnOutsideClick: true
         });
 
-        const html = await this.render(`${friendsCard}${deleteModal}`);
-        setTimeout(() => UserService.attachFriendHandlers(), 0);
-        return html;
+        return await this.render(`${friendsCard}${deleteModal}`);
+    }
+
+    async mount(): Promise<void> {
+        const addBtn = document.getElementById('add-friend-btn');
+        const input = document.querySelector<HTMLInputElement>('input[name="username"]');
+        const feedback = document.getElementById('friend-feedback');
+
+        if (addBtn && input) {
+            addBtn.addEventListener('click', async () => {
+                const username = input.value.trim();
+                if (!username) {
+                    feedback!.textContent = 'Please enter a username.';
+                    feedback!.classList.remove('hidden', 'text-green-500');
+                    feedback!.classList.add('text-red-500');
+                    return;
+                }
+
+                const success = await UserService.addFriendByUsername(username);
+                if (success) {
+                    feedback!.textContent = 'Friend added successfully.';
+                    feedback!.classList.remove('hidden', 'text-red-500');
+                    feedback!.classList.add('text-green-500');
+                    setTimeout(() => Router.update(), 1000);
+                } else {
+                    feedback!.textContent = 'Failed to add friend.';
+                    feedback!.classList.remove('hidden', 'text-green-500');
+                    feedback!.classList.add('text-red-500');
+                }
+            });
+
+            input.addEventListener('input', () => {
+                feedback!.classList.add('hidden');
+                feedback!.textContent = '';
+            });
+
+            input.addEventListener('keydown', (e: KeyboardEvent) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addBtn.click();
+                }
+            });
+        }
+
+        document.querySelectorAll('[id^="remove-friend-"]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const id = Number(btn.id.split('remove-friend-')[1]);
+                if (isNaN(id)) return;
+
+                UserService.setSelectedFriendId(id);
+                const modal = document.getElementById('confirm-remove-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                }
+            });
+        });
+
+        const modal = document.getElementById('confirm-remove-modal');
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    UserService.setSelectedFriendId(null);
+                }
+            };
+        }
+
+        const confirmBtn = document.getElementById('confirm-remove-btn');
+        if (confirmBtn) {
+            confirmBtn.onclick = async () => {
+                const selectedId = UserService.getSelectedFriendId();
+                if (selectedId === null) return;
+
+                const success = await UserService.removeFriendById(selectedId);
+                if (success) {
+                    Router.update();
+                } else {
+                    modal?.classList.add('hidden');
+                }
+                UserService.setSelectedFriendId(null);
+            };
+        }
+
+        const cancelBtn = document.getElementById('cancel-remove-btn');
+        if (cancelBtn) {
+            cancelBtn.onclick = () => {
+                modal?.classList.add('hidden');
+                UserService.setSelectedFriendId(null);
+            };
+        }
     }
 }

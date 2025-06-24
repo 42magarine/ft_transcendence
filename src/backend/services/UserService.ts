@@ -59,8 +59,8 @@ export class UserService {
 
                 await this.emailService.sendVerificationEmail(
                     userData.email,
-                    userData.username,
-                    verificationToken
+                    verificationToken,
+                    userData.username
                 );
 
                 user = this.userRepo.create({
@@ -529,22 +529,88 @@ export class UserService {
         await this.userRepo.save(user);
     }
 
-    async getAllFinishedMatchesByUserId(userId: number) {
-        const userExists = await this.userRepo.exists({ where: { id: userId } })
-        if (!userExists) {
-            throw new Error("User not found")
-        }
+    async getAllFinishedMatchesByUserId(userId: number): Promise<any[]> {
+        console.log('=== UserService getAllFinishedMatchesByUserId ===');
+        console.log('Fetching matches for user ID:', userId);
 
-        const matchHistory = await this.matchRepo.find({
-            where: [
-                { player1: { id: userId }, status: 'completed' },
-                { player2: { id: userId }, status: 'completed' },
-            ],
-            relations: ['player1', 'player2', 'winner'],
-            order: {
-                createdAt: 'DESC',
-            },
-        });
-        return matchHistory;
+        try {
+            // Überprüfe erst, ob der User existiert
+            const user = await this.findUserById(userId);
+            if (!user) {
+                throw new Error(`User with ID ${userId} not found`);
+            }
+
+            // ✅ Verwende this.matchRepo anstatt this.matchRepository
+            const matches = await this.matchRepo.find({
+                where: [
+                    {
+                        player1: { id: userId },
+                        status: 'completed'
+                    },
+                    {
+                        player2: { id: userId },
+                        status: 'completed'
+                    }
+                ],
+                relations: {
+                    player1: true,
+                    player2: true,
+                    winner: true
+                },
+                order: {
+                    createdAt: 'DESC'
+                }
+            });
+
+            console.log(`Found ${matches.length} completed matches for user ${userId}`);
+
+            // Konvertiere zu dem erwarteten Format
+            const result = matches.map(match => {
+                console.log('Processing match:', {
+                    id: match.matchModelId,
+                    player1Score: match.player1Score,
+                    player2Score: match.player2Score,
+                    status: match.status
+                });
+
+                return {
+                    id: match.matchModelId,
+                    player1: {
+                        id: match.player1.id,
+                        username: match.player1.username
+                    },
+                    player2: match.player2 ? {
+                        id: match.player2.id,
+                        username: match.player2.username
+                    } : {
+                        id: 0,
+                        username: 'Unknown'
+                    },
+                    player1Score: match.player1Score,
+                    player2Score: match.player2Score,
+                    winner: match.winner ? {
+                        id: match.winner.id,
+                        username: match.winner.username
+                    } : null,
+                    createdAt: match.createdAt.toISOString()
+                };
+            });
+
+            console.log('Returning processed matches:', result);
+            return result;
+
+        } catch (error) {
+            console.error('Error in getAllFinishedMatchesByUserId:', error);
+            const errorDetails = {
+                name: error instanceof Error ? error.name : 'Unknown',
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined
+            };
+
+            console.error('Error details:', errorDetails);
+
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            throw new Error(`Failed to fetch match history for user ${userId}: ${errorMessage}`);
+        }
     }
 }

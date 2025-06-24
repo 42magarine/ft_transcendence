@@ -26,6 +26,7 @@ import Footer from './components/Footer.js';
 import Header from './components/Header.js';
 import { AccessibilityService } from './services/AccessibilityService.js';
 import LanguageService from './services/LanguageService.js';
+import TwoFactorInputHandler from '../utils/TwoFactorInputHandler.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -68,8 +69,10 @@ async function renderHeader(): Promise<void> {
     const header = new Header({}, new URLSearchParams(window.location.search));
     const headerHtml = await header.getHtml();
     const headerElement = document.getElementById('header-root');
-    if (headerElement)
+    if (headerElement) {
         headerElement.innerHTML = headerHtml;
+        await header.mount();
+    }
 }
 
 // =======================
@@ -156,20 +159,29 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    window.ls.initialize(); // ✅ moved up here
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();
     await router.render();
 });
 
+function initializeGoogleScript() {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.id = 'google-login-script';
+    document.head.appendChild(script);
+}
+
+
 document.addEventListener('RouterContentLoaded', async () => {
+    window.handler = new TwoFactorInputHandler('.tf_numeric');
     await socketUpdateOnSession();
-    window.ls.initialize();
-    window.userManagementService.setupEventListeners();
-    window.userManagementService.twoFactorNumberActions();
-    window.userManagementService.setupUserManagementView();
-    window.userManagementService.initializeGoogleScript();
+    initializeGoogleScript();
     AccessibilityService.initialize();
+    await renderHeader();
 });
 
 // =======================

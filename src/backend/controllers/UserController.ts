@@ -3,12 +3,15 @@ import { UserService } from "../services/UserService.js";
 import { saveAvatar, deleteAvatar } from "../services/FileService.js";
 import { UserModel } from "../models/MatchModel.js";
 import { RegisterCredentials, LoginCredentials, GoogleLoginBody, AuthTokens } from "../../interfaces/userManagementInterfaces.js";
+import { EmailService } from "../services/EmailService.js";
 
 export class UserController {
     private _userService: UserService;
+    private _emailService: EmailService;
 
     constructor(userService: UserService) {
         this._userService = userService;
+        this._emailService = new EmailService();
     }
 
     async getCurrentUser(request: FastifyRequest, reply: FastifyReply) {
@@ -48,6 +51,7 @@ export class UserController {
                 role: user.role,
                 twoFAEnabled: user.twoFAEnabled,
                 emailVerified: user.emailVerified,
+                avatar: user.avatar
             }));
 
             return reply.code(200).send(usersData);
@@ -395,7 +399,6 @@ export class UserController {
             const user = await this._userService.findUserByEmail(email);
 
             if (!user) {
-                // Don't reveal if email exists or not
                 return reply.code(200).send({ message: 'If your account exists, a verification email has been sent.' });
             }
 
@@ -403,10 +406,24 @@ export class UserController {
                 return reply.code(400).send({ error: 'Email is already verified' });
             }
 
-            return reply.code(200).send({ message: 'If your account exists, a verification email has been sent.' });
+            // ✅ Verwende das EmailService aus dem Controller
+            const verificationToken = this._emailService.generateToken();
+
+            user.verificationToken = verificationToken;
+            // ⚠️ Du brauchst auch Zugang zum userRepo - siehe Option 2
+            await this._userService.updateUser(user);
+
+            await this._emailService.sendVerificationEmail(
+                user.email,
+                verificationToken,
+                user.username
+            );
+
+            return reply.code(200).send({ message: 'Verification email resent successfully.' });
         }
         catch (error) {
-            return reply.code(200).send({ message: 'If your account exists, a verification email has been sent.' });
+            console.error('Resend verification error:', error);
+            return reply.code(500).send({ error: 'Failed to resend verification email' });
         }
     }
 
@@ -471,6 +488,14 @@ export class UserController {
             // Validate required fields
             if (!userData.username || !userData.email || !userData.password) {
                 return reply.code(400).send({ error: 'Missing required fields' });
+            }
+
+            (userData as any).emailVerified = (userData as any).emailVerified === 'true' || userData.emailVerified === true;
+            const emailVerifiedValue = (userData as any).emailVerified;
+            if (emailVerifiedValue === 'true' || emailVerifiedValue === true) {
+                userData.emailVerified = true;
+            } else {
+                userData.emailVerified = false;
             }
 
             // Register user with all provided data (including 2FA fields)
@@ -572,6 +597,7 @@ export class UserController {
                 username: user.username,
                 // name: user.name,
                 online: user.online,
+                avatar: user.avatar || ''
             }));
 
             return reply.code(200).send(friendsData);
@@ -621,23 +647,58 @@ export class UserController {
         }
     }
 
-    async getMatchHistory(request: FastifyRequest, reply: FastifyReply) {
+
+    async getMatchHistory(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+        console.log('=== Match History Request Debug ===');
+        console.log('Request params:', request.params);
+        console.log('Request user:', request.user);
+
         try {
-            const userId = request.user?.id;
-            if (!request.user || userId == null) {
-                return reply.code(403).send({ message: "Forbidden: Cannot view others match History currently" });
+            const targetUserId = parseInt(request.params.id);
+            console.log('Target User ID:', targetUserId);
+
+            if (isNaN(targetUserId)) {
+                console.log('Invalid user ID format');
+                return reply.code(400).send({ error: 'Invalid user ID format' });
             }
 
-            const matchHistory = await this._userService.getAllFinishedMatchesByUserId(userId);
+            const currentUserId = request.user?.id;
+            console.log('Current User ID:', currentUserId);
 
-            return reply.send(matchHistory);
+            if (!currentUserId) {
+                console.log('User not authenticated');
+                return reply.code(401).send({ error: 'Not authenticated' });
+            }
+
+            // Check if user exists first
+            const targetUser = await this._userService.findUserById(targetUserId);
+            if (!targetUser) {
+                console.log('Target user not found');
+                return reply.code(404).send({ error: 'User not found' });
+            }
+
+            console.log('Fetching match history for user:', targetUserId);
+            const matchHistory = await this._userService.getAllFinishedMatchesByUserId(targetUserId);
+            console.log('Match history result:', matchHistory);
+
+            // ✅ Stelle sicher, dass immer JSON zurückgegeben wird
+            return reply.code(200).send(matchHistory);
         }
         catch (error: any) {
+            console.error('Error in getMatchHistory:', error);
+            console.error('Error stack:', error.stack);
+
+            // ✅ Immer JSON-Antwort senden, niemals nur Text
             if (error.message && error.message.includes('not found')) {
-                return reply.code(404).send({ message: error.message });
+                return reply.code(404).send({ error: error.message });
             }
-            console.error("Error fetching match History: ", error);
-            return reply.code(500).send("Internal Server Error");
+
+            // ✅ Detaillierte Fehlermeldung für besseres Debugging
+            return reply.code(500).send({
+                error: 'Internal Server Error',
+                message: error.message,
+                details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            });
         }
     }
 }

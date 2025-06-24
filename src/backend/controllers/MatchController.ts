@@ -243,10 +243,6 @@ export class MatchController {
         const player = await lobby.addPlayer(connection, userId);
         if (player) {
             this._clients.set(connection, player);
-
-            // console.log(lobby._lobbyType)
-            // console.log(lobbyId)
-            // console.log(userId)
             this.broadcastToAll({
                 type: "joinedLobby",
                 lobbyId: lobbyId,
@@ -278,7 +274,6 @@ export class MatchController {
 
         try {
             if (gameIsOver) {
-                // Broadcast that a player left the game
                 this.broadcastToLobby(lobbyId, {
                     type: "playerLeftGame"
                 });
@@ -289,6 +284,7 @@ export class MatchController {
                 this._lobbies.delete(lobbyId);
                 if (lobby._lobbyType === 'game') {
                     await this._matchService.deleteMatchByLobbyId(lobbyId);
+
                 }
             }
             else {
@@ -301,9 +297,10 @@ export class MatchController {
             }
 
             this._clients.set(connection, null);
-            this.sendMessage(connection, {
+            this.broadcastToAll({
                 type: "leftLobby",
-                lobbyId: lobbyId
+                lobbyId: lobbyId,
+
             });
         }
         catch (error) {

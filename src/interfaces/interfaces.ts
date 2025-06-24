@@ -7,6 +7,7 @@ import type UserManagementService from '../frontend/services/UserManagementServi
 import type PongService from '../frontend/services/PongService.js';
 import type LanguageService from '../frontend/services/LanguageService.js';
 import AbstractView from "../utils/AbstractView.js";
+import TwoFactorInputHandler from '../utils/TwoFactorInputHandler.js';
 
 export interface RouteHookContext {
     route: Route;
@@ -37,6 +38,7 @@ declare global {
         ls: LanguageService;
         messageHandler: MessageHandlerService;
         lobbyListService: LobbyListService;
+        handler?: TwoFactorInputHandler;
         lobbyService: LobbyService;
         tournamentService: TournamentService;
         userService: UserService;
@@ -48,6 +50,25 @@ declare global {
 }
 
 export { };
+
+export interface MatchRecord {
+    id: number;
+    status: string;
+    createdAt: string;
+    player1: {
+        id: number;
+        username: string;
+    };
+    player2: {
+        id: number;
+        username: string;
+    };
+    winner: {
+        id: number;
+        username: string;
+    } | null;
+}
+
 
 export type IPaddleDirection = 'up' | 'down';
 

@@ -1,6 +1,7 @@
 import { match } from 'assert';
 import { IServerMessage, IPaddleDirection, IGameState, IPlayerState } from '../../interfaces/interfaces.js';
 import Router from '../../utils/Router.js';
+import Modal from '../components/Modal.js'
 
 export default class PongService {
     private gameState!: IGameState;
@@ -10,6 +11,8 @@ export default class PongService {
     private isPlayer2Paddle: boolean = false;
     private matchId: number | null = null;
 
+    private gameWinMessage!: string;
+    private gameScoreMessage!: string;
     private canvas!: HTMLCanvasElement;
     private overlay!: HTMLElement;
     private ctx!: CanvasRenderingContext2D;
@@ -21,6 +24,7 @@ export default class PongService {
 
     private animationFrameId: number | null = null;
     private countdownActive: boolean = false;
+    private handleKeyUpBound = this.handleKeyUp.bind(this);
 
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
@@ -35,8 +39,11 @@ export default class PongService {
     ) {
         const canvasElement = document.getElementById('gameCanvas') as HTMLCanvasElement
         if (!canvasElement) {
-            console.error("canvasElement not found correctly")
-            throw new Error("DAWDAWD")
+            new Modal().renderInfoModal({
+                id: "missing-canvas-element",
+                title: "Canvas Missing",
+                message: "The canvas element could not be found during game initialization."
+            });
         }
         this.canvas = canvasElement;
         this.ctx = this.canvas.getContext('2d')!;
@@ -52,41 +59,46 @@ export default class PongService {
         this.overlay = document.getElementById('gameCanvasWrap-overlay') as HTMLElement;
         // console.log(this.overlay);
         if (!this.overlay) {
-            console.error("PongService: Game overlay element not found.");
+            new Modal().renderInfoModal({
+                id: "missing-overlay",
+                title: "Overlay Error",
+                message: "PongService: Game overlay element not found."
+            });
+            return;
         }
     }
 
     public setupEventListener(): void {
         this.canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
         if (!this.canvas) {
-            console.error("[PongService] Could not find gameCanvas element.");
-            throw new Error("Canvas element not found.");
+            new Modal().renderInfoModal({
+                id: "missing-gameCanvas",
+                title: "Canvas Error",
+                message: "PongService could not find the gameCanvas element."
+            });
         }
 
         this.overlay = document.getElementById("gameCanvasWrap-overlay") as HTMLElement;
         if (!this.overlay) {
-            console.error("[PongService] Could not find overlay element.");
-            throw new Error("Overlay element not found.");
+            new Modal().renderInfoModal({
+                id: "missing-overlay",
+                title: "Overlay Missing",
+                message: "Overlay element for the game not found."
+            });
         }
 
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
-            console.error("[PongService] Could not get 2D rendering context for canvas.");
-            throw new Error("Canvas context not available.");
+            new Modal().renderInfoModal({
+                id: "canvas-context-error",
+                title: "Rendering Error",
+                message: "Could not get 2D rendering context for the canvas."
+            });
+            return;
         }
 
         this.playerOneNameTag = document.getElementById("playerOneNameTag") as HTMLElement;
-        if (!this.playerOneNameTag) {
-            console.error("[PongService] Could not find playerOneNameTag element.");
-            throw new Error("playerOneNameTag element not found.");
-        }
-
         this.playerTwoNameTag = document.getElementById("playerTwoNameTag") as HTMLElement;
-        if (!this.playerTwoNameTag) {
-            console.error("[PongService] Could not find playerTwoNameTag element.");
-            throw new Error("playerTwoNameTag element not found.");
-        }
-
         this.ctx = ctx;
 
         document.addEventListener('keydown', this.handleKeyDown);
@@ -133,6 +145,7 @@ export default class PongService {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
         const matchId = this.getMatchId();
+        // console.log("pongService msg received: " + data.type)
         switch (data.type) {
             case 'initMatchStart':
                 // console.log("playerjoined case reached. handed over info: ", data);
@@ -141,16 +154,23 @@ export default class PongService {
                     this.gameState = data.gameState!;
                     this.player1Name = data.player1Name!;
                     this.player2Name = data.player2Name!;
+                    console.log("=== PLAYER IDENTIFICATION DEBUG ===");
+                    console.log("Current user name: '" + window.currentUser?.name + "'");
+                    console.log("Player1 name: '" + data.player1Name + "'");
+                    console.log("Player2 name: '" + data.player2Name + "'");
+                    console.log("Names equal (P1):", window.currentUser?.name === data.player1Name);
+                    console.log("Names equal (P2):", window.currentUser?.name === data.player2Name);
+
                     {
                         // console.log("window current user:", window.currentUser?.id, " window gamestate player1id", this.gameState.player1Id)
                         // console.log("window current user:", window.currentUser?.id, " window gamestate player2id", this.gameState.player2Id)
-                        if (window.currentUser?.name === data.player1Name) {
+                        if (window.currentUser?.username === data.player1Name) {
                             console.log("paddle1")
                             this.isPlayer1Paddle = true;
                             this.isPlayer2Paddle = false;
                             // console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
                         }
-                        else if (window.currentUser?.name === data.player2Name) {
+                        else if (window.currentUser?.username === data.player2Name) {
                             console.log("paddle2")
                             this.isPlayer1Paddle = false;
                             this.isPlayer2Paddle = true;
@@ -196,11 +216,33 @@ export default class PongService {
                     Router.redirect("/lobbylist")
                 }, 10000)
                 break;
+            case 'gameOver':
+                if (data.lobby?.lobbyType == 'game') {
+                    if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
+                        if (data.player1Score! > data.player2Score!) {
+                            this.gameWinMessage = data.player1Name + " won against " + data.player2Name
+                            this.gameScoreMessage = "Score: " + data.player1Score + " : " + data.player2Score
+                        }
+                        else if (data.player2Score! > data.player1Score!) {
+                            this.gameWinMessage = data.player2Name + " won against " + data.player1Name
+                            this.gameScoreMessage = "Score: " + data.player2Score + " : " + data.player1Score
+                        } else {
+                            this.gameWinMessage = "Its a tie! How do you even tie in Pong?";
+                            this.gameScoreMessage = " ";
+                        }
+                        Router.redirect("/gameover");
+                        setTimeout(() => {
+                            if (/\/gameover/.test(window.location.pathname)) {
+                                Router.redirect('/lobbylist');
+                            }
+                        }, 15000);
+                    }
+                }
+                break;
         }
     }
 
     private clientLoop(): void {
-
         if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
             this.animationFrameId = null;
             return;
@@ -214,14 +256,18 @@ export default class PongService {
         }
 
         if (direction && window.messageHandler && this.matchId) {
-            if (this.isPlayer1Paddle || this.isPlayer2Paddle) {
-                let playerNumber: number;
-                if (this.player1Name === window.currentUser.name) {
-                    playerNumber = 1;
-                } else if (this.player2Name === window.currentUser.name) {
-                    playerNumber = 2;
-                }
-                window.messageHandler.movePaddle(window.currentUser?.id, this.matchId, playerNumber!, direction);
+            let playerNumber: number | undefined;
+
+            // Bestimme die Spielernummer basierend auf den Flags
+            if (this.isPlayer1Paddle) {
+                playerNumber = 1;
+            } else if (this.isPlayer2Paddle) {
+                playerNumber = 2;
+            }
+
+            // Nur senden wenn playerNumber gültig ist
+            if (playerNumber && window.currentUser?.id) {
+                window.messageHandler.movePaddle(window.currentUser.id, this.matchId, playerNumber, direction);
             }
         }
 
@@ -229,6 +275,16 @@ export default class PongService {
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
+        // Don't hijack keys when typing in form fields
+        const target = event.target as HTMLElement;
+        if (
+            target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.isContentEditable
+        ) {
+            return;
+        }
+
         if (!window.currentUser?.id || !this.gameState || this.gameState.gameIsOver || this.gameState.paused) {
             return;
         }
@@ -246,6 +302,17 @@ export default class PongService {
     }
 
     private handleKeyUp(event: KeyboardEvent): void {
+        const target = event.target as HTMLElement;
+
+        if (
+            target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.isContentEditable
+        ) {
+            document.removeEventListener('keyup', this.handleKeyUpBound);
+            return;
+        }
+
         switch (event.key.toLowerCase()) {
             case 'w':
             case 'arrowup':
@@ -260,7 +327,11 @@ export default class PongService {
 
     private draw(): void {
         if (!this.ctx || !this.canvas || !this.gameState) {
-            console.error("something went wrong with draw in pongservice: context, canvas, or gameState is missing.");
+            new Modal().renderInfoModal({
+                id: "draw-error",
+                title: "Drawing Error",
+                message: "Context, canvas, or game state is missing. Unable to draw."
+            });
             return;
         }
 
@@ -326,11 +397,20 @@ export default class PongService {
         return this.gameState;
     }
 
-    public getPlayer1Name(): string{
+    public getPlayer1Name(): string {
         return this.player1Name;
     }
 
     public getPlayer2Name(): string {
         return this.player2Name;
     }
+
+    public getGameWinMessage(): string {
+        return this.gameWinMessage;
+    }
+
+    public getGameScoreMessage(): string {
+        return this.gameScoreMessage;
+    }
 }
+
