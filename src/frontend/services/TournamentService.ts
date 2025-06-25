@@ -6,7 +6,7 @@ export default class TournamentService {
     private lobbyState!: ILobbyState;
     private matchWinMessage!: string;
     private matchScoreMessage!: string;
-    private tournamentWinnerMessage!: string;
+    private tournamentWinnerMessage!: string | undefined;
     private getCurrentLobbyIdFromUrl(): string {
         const match = window.location.pathname.match(/\/tournament\/([^/]+)/);
         return match?.[1] || '';
@@ -86,7 +86,7 @@ export default class TournamentService {
                 }
                 break;
             case "tournamentFinished":
-                this.tournamentWinnerMessage = data.winnerUserName!;
+                this.tournamentWinnerMessage = data.message;
 
                 Router.redirect(`/tournamentwinner`);
                 setTimeout(() => {
@@ -167,6 +167,6 @@ export default class TournamentService {
     }
 
     public getTournamentWinnerMessage(): string {
-        return this.tournamentWinnerMessage;
+        return this.tournamentWinnerMessage!;
     }
 }

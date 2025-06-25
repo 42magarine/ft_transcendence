@@ -29,6 +29,8 @@ export class MatchLobby {
     private _playerPoints: Map<number, number> = new Map();
 
     private _gameBroadcastInterval: NodeJS.Timeout | null = null;
+    private _ballSize: number | undefined;
+    private _paddleSize: number | undefined;
 
     constructor(lobbyId: string,
         matchService: MatchService,
@@ -41,8 +43,11 @@ export class MatchLobby {
             tournamentStatus?: 'pending' | 'ongoing' | 'completed' | 'cancelled',
             currentRound?: number,
             playerPoints?: { [userId: number]: number },
-            matchSchedule?: ITournamentRound[]
-
+            matchSchedule?: ITournamentRound[],
+            gameOptions?: {
+                ballSize: number
+                paddleSize: number
+            }
         }) {
         this._lobbyId = lobbyId;
         this._matchService = matchService!;
@@ -52,6 +57,8 @@ export class MatchLobby {
         this._createdAt = new Date();
         this._lobbyType = options?.lobbyType || 'game';
         this._broadcast = broadcast;
+        this._ballSize = options?.gameOptions?.ballSize;
+        this._paddleSize = options?.gameOptions?.paddleSize;
 
         if (this._lobbyType === 'tournament') {
             this._tournamentId = options?.tournamentId || null;
@@ -119,7 +126,7 @@ export class MatchLobby {
             if (this._lobbyType === 'game') {
                 if (playerNumber === 1) {
                     const newMatch = await this._matchService.createMatch(this._lobbyId, userId, this._maxPlayers, this._lobbyName);
-                    const game = new PongGame(this.handleGameEndCallback.bind(this, newMatch.matchModelId));
+                    const game = new PongGame(this.handleGameEndCallback.bind(this, newMatch.matchModelId), this._ballSize, this._paddleSize);
                     game.setMatchId(newMatch.matchModelId); // Set the match ID
                     this._games.set(newMatch.matchModelId, game);
                     game.setPlayer(1, player);
