@@ -9,7 +9,4 @@ TESTS:
 Offene Punkte:
 
 - Language Switch Bug
-- bei game gewinn oder ende springen nicht beide user in den report... laos wer gewonnen hat
-- Leave Player Termination Screen(Jonathan) + Player names noch schoen
-- Tournament name username nutztung und undefined werte (Freddie)
 - ggf. Offer customization features, such as power-ups, attacks, or different maps, that enhance the gameplay experience. (Freddie/Jonathan)

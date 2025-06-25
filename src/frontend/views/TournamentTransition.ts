@@ -13,8 +13,8 @@ export default class TournamentTransition extends AbstractView {
 
     async getHtml(): Promise<string> {
 
-        const matchWinMessage: string = window.pongService.getGameWinMessage();
-        const matchScoreMessage: string = window.pongService.getGameScoreMessage();
+        const matchWinMessage: string = window.tournamentService.getMatchWinMessage();
+        const matchScoreMessage: string = window.tournamentService.getMatchScoreMessage();
 
         const profileCard = await new Card().renderCard({
             contentBlocks: [

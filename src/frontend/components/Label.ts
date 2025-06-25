@@ -14,7 +14,6 @@ export default class Label extends AbstractView {
         iconHtml = '',
         color
     }: LabelProps): Promise<string> {
-        console.log(text)
         const labelClass = `mt-2 ${className}`.trim();
         let [labelText, valueText] = String(text).split(':');
         valueText = valueText?.trim() ?? '';

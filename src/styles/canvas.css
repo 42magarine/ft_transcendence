@@ -95,10 +95,9 @@
 }
 
 #gameCanvasWrap #gameCanvasWrap-overlay.terminated {
-    background-color: rgb(104, 0, 0);
-    color: rgb(255, 255, 255);
+    @apply bg-[rgb(104,0,0)] text-white text-base;
     @apply flex border-4 border-white rounded-lg;
-}
+  }
 
 /* High Contrast Terminated State */
 .high-contrast #gameCanvasWrap #gameCanvasWrap-overlay.terminated {
