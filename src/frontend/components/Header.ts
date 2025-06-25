@@ -166,17 +166,4 @@ export default class Header extends AbstractView {
             </header>
         `);
     }
-
-    async mount(): Promise<void> {
-        console.error("header mount!!!!!!")
-        const logoutButton = document.getElementById('logout-btn') as HTMLElement | null;
-        if (logoutButton) {
-            logoutButton.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await window.userManagementService.logout();
-            });
-        }
-        AccessibilityService.initialize();
-    }
-
 }

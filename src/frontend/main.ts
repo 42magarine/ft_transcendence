@@ -160,11 +160,12 @@ async function socketUpdateOnSession() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    window.ls.initialize(); // ✅ moved up here
+    window.ls.initialize();
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();
     await router.render();
+    AccessibilityService.initialize();
 });
 
 function initializeGoogleScript() {
@@ -181,7 +182,13 @@ document.addEventListener('RouterContentLoaded', async () => {
     window.handler = new TwoFactorInputHandler('.tf_numeric');
     await socketUpdateOnSession();
     initializeGoogleScript();
-    AccessibilityService.initialize();
+    const logoutButton = document.getElementById('logout-btn') as HTMLElement | null;
+    if (logoutButton) {
+        logoutButton.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await window.userManagementService.logout();
+        });
+    }
 });
 
 // =======================
