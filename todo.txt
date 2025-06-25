@@ -8,14 +8,8 @@ TESTS:
 
 Offene Punkte:
 
-- Spieler Profil kann nicht gelöscht werden, wenn Relation UserModel/MatchModel. (Marvin)
+- Language Switch Bug
 - bei game gewinn oder ende springen nicht beide user in den report... laos wer gewonnen hat
-- Match History
-    1. User profiles display stats, such as wins and losses.
-    2. Each user has a Match History including 1v1 games, dates, and relevant details, accessible to logged-in users.
-
 - Leave Player Termination Screen(Jonathan) + Player names noch schoen
 - Tournament name username nutztung und undefined werte (Freddie)
 - ggf. Offer customization features, such as power-ups, attacks, or different maps, that enhance the gameplay experience. (Freddie/Jonathan)
-
-- Fehlende Übersetzungen ergänzen (Flo)

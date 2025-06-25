@@ -27,6 +27,7 @@ import Header from './components/Header.js';
 import { AccessibilityService } from './services/AccessibilityService.js';
 import LanguageService from './services/LanguageService.js';
 import TwoFactorInputHandler from '../utils/TwoFactorInputHandler.js';
+import LocalGameService from './services/LocalGameService.js';
 
 // =========================
 // 🧠 GLOBAL TEMPLATE ENGINE
@@ -41,6 +42,7 @@ globalTemplateEngine.registerComponent('Button', Button);
 window.userService = new UserService();
 window.ls = new LanguageService();
 window.userManagementService = new UserManagementService();
+window.localGameService = new LocalGameService();
 window.handleModalOutsideClick = (event: Event, id: string) => {
     event.preventDefault();
     let modal = document.getElementById(id);

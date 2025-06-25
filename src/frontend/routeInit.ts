@@ -35,11 +35,10 @@ const routes: Route[] = [
             title: 'Transcendence - Pong',
             description: 'Welcome to Pong'
         },
-        // onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
-        //     console.log("params /pong/:lobbyId/:matchId' route:" + params)
-        //     window.messageHandler!.leaveLobby(params.lobbyId, true);
-        //     return true;
-        // }
+        onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
+            window.pongService.cleanup();
+            return true;
+        }
     },
     {
         path: '/lobbylist',
@@ -187,6 +186,10 @@ const routes: Route[] = [
         metadata: {
             title: 'Transcendence - Pong Local',
             description: 'Welcome to Local Pong'
+        },
+        onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
+            window.localGameService.cleanup();
+            return true;
         }
     },
     {

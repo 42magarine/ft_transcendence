@@ -8,6 +8,7 @@ import type PongService from '../frontend/services/PongService.js';
 import type LanguageService from '../frontend/services/LanguageService.js';
 import AbstractView from "../utils/AbstractView.js";
 import TwoFactorInputHandler from '../utils/TwoFactorInputHandler.js';
+import LocalGameService from '../frontend/services/LocalGameService.js';
 
 export interface RouteHookContext {
     route: Route;
@@ -39,6 +40,7 @@ declare global {
         messageHandler: MessageHandlerService;
         lobbyListService: LobbyListService;
         handler?: TwoFactorInputHandler;
+        localGameService: LocalGameService;
         lobbyService: LobbyService;
         tournamentService: TournamentService;
         userService: UserService;

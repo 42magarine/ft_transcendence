@@ -20,6 +20,9 @@ export default class UserManagementService {
                     throw new Error('Invalid SVG file format');
                 }
 
+                if (userData.name == "") {
+                    throw new Error('Invalid Name');
+                }
                 // Parse SVG to get dimensions or set defaults
                 const parser = new DOMParser();
                 const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');

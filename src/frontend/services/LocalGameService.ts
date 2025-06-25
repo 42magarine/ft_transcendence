@@ -9,11 +9,21 @@ enum GameState {
     GAME_OVER = 'gameOver'
 }
 
-class LocalGameService {
+export default class LocalGameService {
     private localGameLogic!: LocalGameLogic;
     private keysPressed: Record<string, boolean> = {};
     private gameState: GameState = GameState.STOPPED;
     private countdownNumber: number = 3;
+
+    // Speichere die gebundenen Funktionen als Klasseneigenschaften
+    private boundKeyDownHandler: (event: KeyboardEvent) => void;
+    private boundKeyUpHandler: (event: KeyboardEvent) => void;
+
+    constructor() {
+        // Binde die Handler einmal im Constructor
+        this.boundKeyDownHandler = this.handleKeyDown.bind(this);
+        this.boundKeyUpHandler = this.handleKeyUp.bind(this);
+    }
 
     public onCanvasReady(): void {
         const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -64,21 +74,24 @@ class LocalGameService {
     }
 
     private setupKeyboardListeners(): void {
+        window.addEventListener('keydown', this.boundKeyDownHandler);
+        window.addEventListener('keyup', this.boundKeyUpHandler);
+    }
+
+    private handleKeyUp(event: KeyboardEvent): void {
         const preventDefaultKeys = ['ArrowUp', 'ArrowDown', 'KeyW', 'KeyS'];
+        if (preventDefaultKeys.includes(event.code)) {
+            event.preventDefault();
+        }
+        this.keysPressed[event.code.toLowerCase()] = false;
+    }
 
-        window.addEventListener('keydown', (e) => {
-            if (preventDefaultKeys.includes(e.code)) {
-                e.preventDefault();
-            }
-            this.keysPressed[e.code.toLowerCase()] = true;
-        });
-
-        window.addEventListener('keyup', (e) => {
-            if (preventDefaultKeys.includes(e.code)) {
-                e.preventDefault();
-            }
-            this.keysPressed[e.code.toLowerCase()] = false;
-        });
+    private handleKeyDown(event: KeyboardEvent): void {
+        const preventDefaultKeys = ['ArrowUp', 'ArrowDown', 'KeyW', 'KeyS'];
+        if (preventDefaultKeys.includes(event.code)) {
+            event.preventDefault();
+        }
+        this.keysPressed[event.code.toLowerCase()] = true;
     }
 
     private startGame(): void {
@@ -194,7 +207,11 @@ class LocalGameService {
             this.localGameLogic.movePaddle(2, "down");
         }
     }
-}
 
-const localGameService = new LocalGameService();
-export default localGameService;
+    public cleanup(): void {
+        window.removeEventListener('keydown', this.boundKeyDownHandler);
+        window.removeEventListener('keyup', this.boundKeyUpHandler);
+        this.keysPressed = {};
+        this.gameState = GameState.STOPPED;
+    }
+}

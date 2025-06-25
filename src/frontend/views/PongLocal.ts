@@ -1,6 +1,5 @@
 import Card from '../components/Card.js';
 import AbstractView from '../../utils/AbstractView.js';
-import localGameService from '../services/LocalGameService.js';
 
 export default class PongLocal extends AbstractView {
     constructor(routeParams: Record<string, string> = {}, params: URLSearchParams = new URLSearchParams()) {
@@ -119,7 +118,7 @@ export default class PongLocal extends AbstractView {
             ]
         });
 
-        setTimeout(() => localGameService.onCanvasReady(), 50);
+        setTimeout(() => window.localGameService.onCanvasReady(), 50);
         return this.render(`${gameCard}`);
     }
 }

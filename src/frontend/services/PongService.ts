@@ -24,14 +24,19 @@ export default class PongService {
 
     private animationFrameId: number | null = null;
     private countdownActive: boolean = false;
-    private handleKeyUpBound = this.handleKeyUp.bind(this);
+
+    // Gebundene Event Handler für korrektes Cleanup
+    private boundHandleKeyDown: (event: KeyboardEvent) => void;
+    private boundHandleKeyUp: (event: KeyboardEvent) => void;
 
     constructor() {
         this.handleSocketMessage = this.handleSocketMessage.bind(this);
-        this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.handleKeyUp = this.handleKeyUp.bind(this);
         this.draw = this.draw.bind(this);
         this.clientLoop = this.clientLoop.bind(this);
+
+        // Binde die Keyboard Handler einmal im Constructor
+        this.boundHandleKeyDown = this.handleKeyDown.bind(this);
+        this.boundHandleKeyUp = this.handleKeyUp.bind(this);
     }
 
     public initializeGame(
@@ -101,34 +106,9 @@ export default class PongService {
         this.playerTwoNameTag = document.getElementById("playerTwoNameTag") as HTMLElement;
         this.ctx = ctx;
 
-        document.addEventListener('keydown', this.handleKeyDown);
-        document.addEventListener('keyup', this.handleKeyUp);
-        // let countdown = 3;
-        // this.overlay.textContent = countdown.toString();
-        // const timer = setInterval(() => {
-        //     countdown--;
-
-        //     if (countdown == 3) {
-        //         this.overlay.classList.add("third");
-        //         this.overlay.textContent = countdown.toString();
-        //     } else if (countdown == 2) {
-        //         this.overlay.classList.remove("third");
-        //         this.overlay.classList.add("second");
-        //         this.overlay.textContent = countdown.toString();
-        //     } else if (countdown == 1) {
-        //         this.overlay.classList.remove("second");
-        //         this.overlay.classList.add("first");
-        //         this.overlay.textContent = countdown.toString();
-        //     } else if (countdown === 0) {
-        //         this.overlay.classList.remove("first");
-        //         this.overlay.classList.add("ready");
-        //         this.overlay.textContent = 'START!';
-        //     } else {
-        //         this.overlay.style.display = 'none';
-        //         clearInterval(timer);
-        //     }
-        // }, 1000);
-
+        // Verwende die gebundenen Handler
+        document.addEventListener('keydown', this.boundHandleKeyDown);
+        document.addEventListener('keyup', this.boundHandleKeyUp);
     }
 
     private getCurrentLobbyIdFromUrl(): string {
@@ -289,6 +269,12 @@ export default class PongService {
             return;
         }
 
+        // preventDefault für Game-Tasten hinzufügen
+        const gameKeys = ['w', 'arrowup', 's', 'arrowdown'];
+        if (gameKeys.includes(event.key.toLowerCase())) {
+            event.preventDefault();
+        }
+
         switch (event.key.toLowerCase()) {
             case 'w':
             case 'arrowup':
@@ -309,8 +295,13 @@ export default class PongService {
             target.tagName === 'TEXTAREA' ||
             target.isContentEditable
         ) {
-            document.removeEventListener('keyup', this.handleKeyUpBound);
             return;
+        }
+
+        // preventDefault für Game-Tasten hinzufügen
+        const gameKeys = ['w', 'arrowup', 's', 'arrowdown'];
+        if (gameKeys.includes(event.key.toLowerCase())) {
+            event.preventDefault();
         }
 
         switch (event.key.toLowerCase()) {
@@ -393,6 +384,26 @@ export default class PongService {
         }
     }
 
+    public cleanup(): void {
+        document.removeEventListener('keydown', this.boundHandleKeyDown);
+        document.removeEventListener('keyup', this.boundHandleKeyUp);
+
+        if (this.animationFrameId !== null) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+
+        this.wPressed = false;
+        this.sPressed = false;
+
+        this.isPlayer1Paddle = false;
+        this.isPlayer2Paddle = false;
+
+        this.matchId = null;
+
+        console.log("PongService cleanup completed - default key behavior restored");
+    }
+
     public getGameState(): IGameState {
         return this.gameState;
     }
@@ -413,4 +424,3 @@ export default class PongService {
         return this.gameScoreMessage;
     }
 }
-
