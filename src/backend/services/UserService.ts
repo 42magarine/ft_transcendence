@@ -8,6 +8,24 @@ import { JWTPayload, RegisterCredentials, LoginCredentials, AuthTokens } from ".
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, hashPW, verifyPW } from "../middleware/security.js";
 import { deleteAvatar } from "../services/FileService.js";
 import { EmailService } from "../services/EmailService.js";
+import { IsNull } from 'typeorm';
+
+
+interface UserDisplayInfo {
+    id: number;
+    username: string;
+    isDeleted: boolean;
+}
+
+interface ProcessedMatchResult {
+    id: number;
+    player1: UserDisplayInfo;
+    player2: UserDisplayInfo;
+    player1Score: number;
+    player2Score: number;
+    winner: UserDisplayInfo | null;
+    createdAt: string;
+}
 
 export class UserService {
     private userRepo = AppDataSource.getRepository(UserModel);
@@ -540,31 +558,32 @@ export class UserService {
         user.friends = user.friends.filter(friend => friend.id !== friendId);
         await this.userRepo.save(user);
     }
-
-    async getAllFinishedMatchesByUserId(userId: number): Promise<any[]> {
+    async getAllFinishedMatchesByUserId(userId: number): Promise<ProcessedMatchResult[]> {
         console.log('=== UserService getAllFinishedMatchesByUserId ===');
         console.log('Fetching matches for user ID:', userId);
 
         try {
-            // Überprüfe erst, ob der User existiert
-            const user = await this.findUserById(userId);
-            if (!user) {
-                throw new Error(`User with ID ${userId} not found`);
+            // Check if the requesting user exists and is NOT soft-deleted
+            const userExists = await this.userRepo.exists({
+                where: { id: userId, deletedAt: IsNull() }
+            });
+            if (!userExists) {
+                throw new Error("User not found or is soft-deleted.");
             }
 
-            // ✅ Verwende this.matchRepo anstatt this.matchRepository
+            // Fetch matches, ensuring relations load potentially soft-deleted users
             const matches = await this.matchRepo.find({
                 where: [
                     {
-                        player1: { id: userId },
+                        player1: { id: userId }, // No deletedAt filter here, we want to see the match
                         status: 'completed'
                     },
                     {
-                        player2: { id: userId },
+                        player2: { id: userId }, // No deletedAt filter here
                         status: 'completed'
                     }
                 ],
-                relations: {
+                relations: { // Using the object syntax is good
                     player1: true,
                     player2: true,
                     winner: true
@@ -576,8 +595,8 @@ export class UserService {
 
             console.log(`Found ${matches.length} completed matches for user ${userId}`);
 
-            // Konvertiere zu dem erwarteten Format
-            const result = matches.map(match => {
+            // Process matches to handle soft-deleted users for display
+            const result: ProcessedMatchResult[] = matches.map(match => {
                 console.log('Processing match:', {
                     id: match.matchModelId,
                     player1Score: match.player1Score,
@@ -585,25 +604,46 @@ export class UserService {
                     status: match.status
                 });
 
+                // Helper function to get user display info
+                const getUserDisplayInfo = (user: UserModel | null): UserDisplayInfo | null => {
+                    if (!user) {
+                        return null;
+                    }
+                    const isDeleted = !!user.deletedAt;
+
+                    return {
+                        id: user.id,
+
+                        username: isDeleted ? 'Deleted User' : (user.username || 'N/A'),
+                        isDeleted: isDeleted
+                    };
+                };
+
+                const player1Info = getUserDisplayInfo(match.player1 as UserModel);
+                const player2Info = getUserDisplayInfo(match.player2 as UserModel);
+                const winnerInfo = getUserDisplayInfo(match.winner as UserModel);
+
+                if (!player1Info || !player2Info) {
+                    console.warn(`Match ${match.matchModelId} has missing player1 or player2 data after fetch.`);
+                    return {
+                         id: match.matchModelId,
+                         player1: player1Info || { id: 0, username: 'Error User', isDeleted: true },
+                         player2: player2Info || { id: 0, username: 'Error User', isDeleted: true },
+                         player1Score: match.player1Score,
+                         player2Score: match.player2Score,
+                         winner: null,
+                         createdAt: match.createdAt.toISOString()
+                    };
+                }
+
+
                 return {
                     id: match.matchModelId,
-                    player1: {
-                        id: match.player1.id,
-                        username: match.player1.username
-                    },
-                    player2: match.player2 ? {
-                        id: match.player2.id,
-                        username: match.player2.username
-                    } : {
-                        id: 0,
-                        username: 'Unknown'
-                    },
+                    player1: player1Info,
+                    player2: player2Info,
                     player1Score: match.player1Score,
                     player2Score: match.player2Score,
-                    winner: match.winner ? {
-                        id: match.winner.id,
-                        username: match.winner.username
-                    } : null,
+                    winner: winnerInfo,
                     createdAt: match.createdAt.toISOString()
                 };
             });
