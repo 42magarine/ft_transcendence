@@ -8,5 +8,4 @@ TESTS:
 
 Offene Punkte:
 
-- Language Switch Bug
 - ggf. Offer customization features, such as power-ups, attacks, or different maps, that enhance the gameplay experience. (Freddie/Jonathan)
