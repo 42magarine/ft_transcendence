@@ -3,7 +3,6 @@ import Router from "../../utils/Router.js";
 export default class LanguageService {
     private isInitialized: boolean = false;
     private translations: Record<string, Record<string, string>> = {};
-    private hasBoundLangListeners = false;
 
     constructor() {
         this.initialize();
@@ -12,7 +11,6 @@ export default class LanguageService {
         };
         document.addEventListener('RouterContentLoaded', langSelectActionHandler);
     }
-
     private async loadTranslations(): Promise<void> {
         try {
             const httpProtocol = window.location.protocol;
@@ -45,9 +43,9 @@ export default class LanguageService {
             }
         }
         // this tells you if something got no translation yet!
-        if (currentLanguage !== "en_EN") {
-            //console.log("(づ ◕‿◕ )づ  " + key)
-        }
+        // if (currentLanguage !== "en_EN") {
+        //     console.log("(づ ◕‿◕ )づ  " + key)
+        // }
         return key;
     }
 
@@ -57,14 +55,6 @@ export default class LanguageService {
             .find(row => row.startsWith('language='));
 
         return langCookie ? langCookie.split('=')[1] : 'en_EN';
-    }
-
-    private updateHtmlLangAttribute(): void {
-        const currentLanguage = this.getCurrentLanguage();
-        const htmlElement = document.documentElement;
-
-        const htmlLang = currentLanguage.split('_')[0];
-        htmlElement.setAttribute('lang', htmlLang);
     }
 
     private translateTextElements(): void {
@@ -88,9 +78,6 @@ export default class LanguageService {
                 element.textContent = translatedText;
             }
         });
-
-        // HTML lang-Attribut nach dem Übersetzen aktualisieren
-        this.updateHtmlLangAttribute();
     }
 
     private findEnglishKeyByTranslation(translatedText: string): string | null {
@@ -117,7 +104,7 @@ export default class LanguageService {
         return null;
     }
 
-    public langSelectAction(): Record<string, string> {
+    private langSelectAction(): Record<string, string> {
         const activeFlag = document.querySelector('.dropdown-head .flag.active') as HTMLImageElement;
         const passiveButtons = document.querySelectorAll('.dropdown-item button[data-lang]');
         const flagSources: Record<string, string> = {};
@@ -155,6 +142,7 @@ export default class LanguageService {
         }
         mobileFlags.forEach(mobileButton => {
             mobileButton.addEventListener('click', (e) => {
+                console.warn("mobileFlags test")
                 e.preventDefault();
                 const clickedButton = e.currentTarget as HTMLButtonElement;
                 const newLang = clickedButton.getAttribute('data-lang');
@@ -163,6 +151,7 @@ export default class LanguageService {
                 document.cookie = `language=${newLang}; path=/; max-age=31536000`;
                 this.loadTranslations().then(() => {
                     this.translateTextElements();
+                    console.log("Router.update();")
                     Router.update();
                 }).catch(error => {
                     console.error('Error loading translations:', error);
@@ -176,6 +165,7 @@ export default class LanguageService {
             }
 
             clone.addEventListener('click', (e) => {
+                console.warn("passiveButtons test")
                 e.preventDefault();
                 const clickedButton = e.currentTarget as HTMLButtonElement;
                 const newLang = clickedButton.getAttribute('data-lang');
@@ -191,6 +181,7 @@ export default class LanguageService {
 
                     this.loadTranslations().then(() => {
                         this.translateTextElements();
+                        console.log("Router.update();")
                         Router.update();
                         this.closeDropdown();
                     }).catch(error => {
@@ -216,8 +207,6 @@ export default class LanguageService {
         }
 
         this.isInitialized = true;
-        this.loadTranslations().then(() => {
-            this.updateHtmlLangAttribute();
-        });
+        this.loadTranslations();
     }
 }

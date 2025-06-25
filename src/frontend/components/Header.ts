@@ -168,6 +168,7 @@ export default class Header extends AbstractView {
     }
 
     async mount(): Promise<void> {
+        console.error("header mount!!!!!!")
         const logoutButton = document.getElementById('logout-btn') as HTMLElement | null;
         if (logoutButton) {
             logoutButton.addEventListener('click', async (e) => {
@@ -175,9 +176,7 @@ export default class Header extends AbstractView {
                 await window.userManagementService.logout();
             });
         }
-        window.ls.langSelectAction();
         AccessibilityService.initialize();
-
     }
 
 }

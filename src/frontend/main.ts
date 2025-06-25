@@ -73,7 +73,6 @@ async function renderHeader(): Promise<void> {
     const headerElement = document.getElementById('header-root');
     if (headerElement) {
         headerElement.innerHTML = headerHtml;
-        await header.mount();
     }
 }
 
@@ -183,7 +182,6 @@ document.addEventListener('RouterContentLoaded', async () => {
     await socketUpdateOnSession();
     initializeGoogleScript();
     AccessibilityService.initialize();
-    await renderHeader();
 });
 
 // =======================

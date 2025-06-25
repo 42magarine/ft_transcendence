@@ -171,7 +171,7 @@ export default class Button extends AbstractView {
         const baseUrl = window.location.origin;
         const headContent = head.img
             ? `<img src="${baseUrl}${head.img}" alt="Dowpdown Icon ${window.ls.__(head.text || 'for ')}" class="flag active" />`
-            : `<i class="fa-solid fa-${head.icon} mr-2"></i>${window.ls.__(head.text || '')}`;
+            : `<i class="fa-solid fa-${head.icon} mr-2"></i><span class="__">${window.ls.__(head.text || '')}</span>`;
 
         const itemsHtml = items.map(item => {
             const attrs = item.dataAttributes
@@ -182,7 +182,7 @@ export default class Button extends AbstractView {
 
             const iconOrImg = item.img
                 ? `<img src="${baseUrl}${item.img}" alt="${item.text}" class="flag passive" ${attrs} />`
-                : `<i class="fa-solid fa-${item.icon} mr-2"></i>${window.ls.__(item.text)}`;
+                : `<i class="fa-solid fa-${item.icon} mr-2"></i><span class="__">${window.ls.__(item.text)}</span>`;
             if (item.href)
                 return `<div class="dropdown-item"><a class="text-inherit ${item.className}" href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
             else

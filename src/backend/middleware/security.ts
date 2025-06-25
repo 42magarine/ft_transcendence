@@ -57,10 +57,7 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
 
         const payload = verifyAccessToken(token);
         if (!payload) {
-            return reply.code(401).send({
-                error: 'Invalid or expired access token',
-                reason: 'token_expired'
-            });
+            return reply.code(200).send(null);
         }
 
         request.user = {
@@ -69,9 +66,6 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
         };
     }
     catch (error) {
-        return reply.code(401).send({
-            error: 'Invalid or expired access token',
-            reason: 'token_invalid'
-        });
+        return reply.code(200).send(null);
     }
 };
