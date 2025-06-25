@@ -1,12 +1,12 @@
 [
-    {
-        "QR Code for 2FA": {
-            "en_EN": "QR Code for 2FA",
-            "de_DE": "QR-Code für 2FA",
-            "it_IT": "Codice QR per 2FA",
-            "my_MY": "Kod QR untuk 2FA"
-        }
-    },
+	{
+		"QR Code for 2FA": {
+			"en_EN": "QR Code for 2FA",
+			"de_DE": "QR-Code für 2FA",
+			"it_IT": "Codice QR per 2FA",
+			"my_MY": "Kod QR untuk 2FA"
+		}
+	},
 	{
 		"Transcendence": {
 			"en_EN": "Transcendence",
@@ -85,6 +85,14 @@
 			"de_DE": "Dies ist Transcendence, bitte löschen Sie diese Karte nicht, sie dient Testzwecken!",
 			"it_IT": "Questa è Transcendence, per favore non eliminare questa scheda, è solo per test!",
 			"my_MY": "Ini adalah Transcendence, sila jangan padam kad ini, ia hanya untuk ujian!"
+		}
+	},
+	{
+		"this is Transcendence!": {
+			"en_EN": "this is Transcendence!",
+			"de_DE": "Das ist Transcendence!",
+			"it_IT": "Questo è Transcendence!",
+			"my_MY": "Ini ialah Transcendence!"
 		}
 	},
 	{
@@ -1117,93 +1125,908 @@
 			"my_MY": "Padam"
 		}
 	},
-		{
-			"Available Lobbies": {
-				"en_EN": "Available Lobbies",
-				"de_DE": "Verfügbare Lobbys",
-				"it_IT": "Lobby disponibili",
-				"my_MY": "Lobi Tersedia"
-			}
-		},
-		{
-			"Create Lobby": {
-				"en_EN": "Create Lobby",
-				"de_DE": "Lobby erstellen",
-				"it_IT": "Crea Lobby",
-				"my_MY": "Cipta Lobi"
-			}
-		},
-		{
-			"Lobby List": {
-				"en_EN": "Lobby List",
-				"de_DE": "Lobby-Liste",
-				"it_IT": "Elenco Lobby",
-				"my_MY": "Senarai Lobi"
-			}
-		},
-		{
-			"ID": {
-				"en_EN": "ID",
-				"de_DE": "ID",
-				"it_IT": "ID",
-				"my_MY": "ID"
-			}
-		},
-		{
-			"Creator": {
-				"en_EN": "Creator",
-				"de_DE": "Ersteller",
-				"it_IT": "Creatore",
-				"my_MY": "Pencipta"
-			}
-		},
-		{
-			"Players": {
-				"en_EN": "Players",
-				"de_DE": "Spieler",
-				"it_IT": "Giocatori",
-				"my_MY": "Pemain"
-			}
-		},
-		{
-			"Status": {
-				"en_EN": "Status",
-				"de_DE": "Status",
-				"it_IT": "Stato",
-				"my_MY": "Status"
-			}
-		},
-		{
-			"Actions": {
-				"en_EN": "Actions",
-				"de_DE": "Aktionen",
-				"it_IT": "Azioni",
-				"my_MY": "Tindakan"
-			}
-		},
-		{
-			"Started": {
-				"en_EN": "Started",
-				"de_DE": "Gestartet",
-				"it_IT": "Avviato",
-				"my_MY": "Dimulakan"
-			}
-		},
-		{
-			"Waiting": {
-				"en_EN": "Waiting",
-				"de_DE": "Wartet",
-				"it_IT": "In attesa",
-				"my_MY": "Menunggu"
-			}
-		},
-		{
-			"Join Lobby": {
-				"en_EN": "Join Lobby",
-				"de_DE": "Lobby beitreten",
-				"it_IT": "Entra nella Lobby",
-				"my_MY": "Sertai Lobi"
-			}
+	{
+		"Available Lobbies": {
+			"en_EN": "Available Lobbies",
+			"de_DE": "Verfügbare Lobbys",
+			"it_IT": "Lobby disponibili",
+			"my_MY": "Lobi Tersedia"
 		}
-	]
-
+	},
+	{
+		"Create Lobby": {
+			"en_EN": "Create Lobby",
+			"de_DE": "Lobby erstellen",
+			"it_IT": "Crea Lobby",
+			"my_MY": "Cipta Lobi"
+		}
+	},
+	{
+		"Lobby List": {
+			"en_EN": "Lobby List",
+			"de_DE": "Lobby-Liste",
+			"it_IT": "Elenco Lobby",
+			"my_MY": "Senarai Lobi"
+		}
+	},
+	{
+		"ID": {
+			"en_EN": "ID",
+			"de_DE": "ID",
+			"it_IT": "ID",
+			"my_MY": "ID"
+		}
+	},
+	{
+		"Creator": {
+			"en_EN": "Creator",
+			"de_DE": "Ersteller",
+			"it_IT": "Creatore",
+			"my_MY": "Pencipta"
+		}
+	},
+	{
+		"Players": {
+			"en_EN": "Players",
+			"de_DE": "Spieler",
+			"it_IT": "Giocatori",
+			"my_MY": "Pemain"
+		}
+	},
+	{
+		"Status": {
+			"en_EN": "Status",
+			"de_DE": "Status",
+			"it_IT": "Stato",
+			"my_MY": "Status"
+		}
+	},
+	{
+		"Actions": {
+			"en_EN": "Actions",
+			"de_DE": "Aktionen",
+			"it_IT": "Azioni",
+			"my_MY": "Tindakan"
+		}
+	},
+	{
+		"Started": {
+			"en_EN": "Started",
+			"de_DE": "Gestartet",
+			"it_IT": "Avviato",
+			"my_MY": "Dimulakan"
+		}
+	},
+	{
+		"Waiting": {
+			"en_EN": "Waiting",
+			"de_DE": "Wartet",
+			"it_IT": "In attesa",
+			"my_MY": "Menunggu"
+		}
+	},
+	{
+		"Join Lobby": {
+			"en_EN": "Join Lobby",
+			"de_DE": "Lobby beitreten",
+			"it_IT": "Entra nella Lobby",
+			"my_MY": "Sertai Lobi"
+		}
+	},
+	{
+		"2FA Verification Failed": {
+			"en_EN": "2FA Verification Failed",
+			"de_DE": "2FA-Überprüfung fehlgeschlagen",
+			"it_IT": "Verifica 2FA non riuscita",
+			"my_MY": "Pengesahan 2FA gagal"
+		}
+	},
+	{
+		"A password reset link has been sent to your email.": {
+			"en_EN": "A password reset link has been sent to your email.",
+			"de_DE": "Ein Link zum Zurücksetzen des Passworts wurde an Ihre E-Mail gesendet.",
+			"it_IT": "Un link per reimpostare la password è stato inviato alla tua email.",
+			"my_MY": "Pautan tetapan semula kata laluan telah dihantar ke e-mel anda."
+		}
+	},
+	{
+		"Accessibility": {
+			"en_EN": "Accessibility",
+			"de_DE": "Barrierefreiheit",
+			"it_IT": "Accessibilità",
+			"my_MY": "Kebolehcapaian"
+		}
+	},
+	{
+		"Add Friend Failed": {
+			"en_EN": "Add Friend Failed",
+			"de_DE": "Freund hinzufügen fehlgeschlagen",
+			"it_IT": "Aggiunta amico non riuscita",
+			"my_MY": "Tambah rakan gagal"
+		}
+	},
+	{
+		"Already have an account?": {
+			"en_EN": "Already have an account?",
+			"de_DE": "Haben Sie bereits ein Konto?",
+			"it_IT": "Hai già un account?",
+			"my_MY": "Sudah ada akaun?"
+		}
+	},
+	{
+		"An error occurred during logout.": {
+			"en_EN": "An error occurred during logout.",
+			"de_DE": "Beim Abmelden ist ein Fehler aufgetreten.",
+			"it_IT": "Si è verificato un errore durante il logout.",
+			"my_MY": "Ralat berlaku semasa log keluar."
+		}
+	},
+	{
+		"An error occurred during verification.": {
+			"en_EN": "An error occurred during verification.",
+			"de_DE": "Bei der Verifizierung ist ein Fehler aufgetreten.",
+			"it_IT": "Si è verificato un errore durante la verifica.",
+			"my_MY": "Ralat berlaku semasa pengesahan."
+		}
+	},
+	{
+		"An error occurred.": {
+			"en_EN": "An error occurred.",
+			"de_DE": "Ein Fehler ist aufgetreten.",
+			"it_IT": "Si è verificato un errore.",
+			"my_MY": "Ralat telah berlaku."
+		}
+	},
+	{
+		"An unexpected error occurred while setting up the form.": {
+			"en_EN": "An unexpected error occurred while setting up the form.",
+			"de_DE": "Beim Einrichten des Formulars ist ein unerwarteter Fehler aufgetreten.",
+			"it_IT": "Si è verificato un errore imprevisto durante la configurazione del modulo.",
+			"my_MY": "Ralat tidak dijangka berlaku semasa menyediakan borang."
+		}
+	},
+	{
+		"An unexpected error occurred while setting up the signup form.": {
+			"en_EN": "An unexpected error occurred while setting up the signup form.",
+			"de_DE": "Beim Einrichten des Anmeldeformulars ist ein unerwarteter Fehler aufgetreten.",
+			"it_IT": "Si è verificato un errore imprevisto durante la configurazione del modulo di iscrizione.",
+			"my_MY": "Ralat tidak dijangka berlaku semasa menyediakan borang pendaftaran."
+		}
+	},
+	{
+		"Avatar Required": {
+			"en_EN": "Avatar Required",
+			"de_DE": "Avatar erforderlich",
+			"it_IT": "Avatar richiesto",
+			"my_MY": "Avatar diperlukan"
+		}
+	},
+	{
+		"Avatar must be under 2MB.": {
+			"en_EN": "Avatar must be under 2MB.",
+			"de_DE": "Avatar darf maximal 2MB groß sein.",
+			"it_IT": "L'avatar deve essere inferiore a 2MB.",
+			"my_MY": "Avatar mestilah kurang daripada 2MB."
+		}
+	},
+	{
+		"Avatar of new User": {
+			"en_EN": "Avatar of new User",
+			"de_DE": "Avatar des neuen Benutzers",
+			"it_IT": "Avatar del nuovo utente",
+			"my_MY": "Avatar pengguna baharu"
+		}
+	},
+	{
+		"Back to Homepage": {
+			"en_EN": "Back to Homepage",
+			"de_DE": "Zurück zur Startseite",
+			"it_IT": "Torna alla homepage",
+			"my_MY": "Kembali ke laman utama"
+		}
+	},
+	{
+		"Check if you clicked the correct link from your email": {
+			"en_EN": "Check if you clicked the correct link from your email",
+			"de_DE": "Überprüfen Sie, ob Sie den richtigen Link aus Ihrer E-Mail angeklickt haben",
+			"it_IT": "Controlla se hai cliccato il link corretto dalla tua email",
+			"my_MY": "Sahkan sama ada anda klik pautan yang betul dari e-mel anda"
+		}
+	},
+	{
+		"Contact support if the problem persists": {
+			"en_EN": "Contact support if the problem persists",
+			"de_DE": "Wenden Sie sich an den Support, wenn das Problem weiterhin besteht",
+			"it_IT": "Contatta il supporto se il problema persiste",
+			"my_MY": "Hubungi sokongan jika masalah berterusan"
+		}
+	},
+	{
+		"Contrast": {
+			"en_EN": "Contrast",
+			"de_DE": "Kontrast",
+			"it_IT": "Contrasto",
+			"my_MY": "Kontras"
+		}
+	},
+	{
+		"Could not add this user as a friend.": {
+			"en_EN": "Could not add this user as a friend.",
+			"de_DE": "Dieser Benutzer konnte nicht als Freund hinzugefügt werden.",
+			"it_IT": "Impossibile aggiungere questo utente come amico.",
+			"my_MY": "Tidak dapat menambah pengguna ini sebagai rakan."
+		}
+	},
+	{
+		"Could not delete the user.": {
+			"en_EN": "Could not delete the user.",
+			"de_DE": "Benutzer konnte nicht gelöscht werden.",
+			"it_IT": "Impossibile eliminare l'utente.",
+			"my_MY": "Tidak dapat memadam pengguna."
+		}
+	},
+	{
+		"Could not fetch the friend list.": {
+			"en_EN": "Could not fetch the friend list.",
+			"de_DE": "Freundesliste konnte nicht abgerufen werden.",
+			"it_IT": "Impossibile recuperare l'elenco amici.",
+			"my_MY": "Tidak dapat mendapatkan senarai rakan."
+		}
+	},
+	{
+		"Could not fetch your match history.": {
+			"en_EN": "Could not fetch your match history.",
+			"de_DE": "Spielverlauf konnte nicht geladen werden.",
+			"it_IT": "Impossibile recuperare la cronologia delle partite.",
+			"my_MY": "Tidak dapat mendapatkan sejarah perlawanan anda."
+		}
+	},
+	{
+		"Could not register the user. Please check your input and try again.": {
+			"en_EN": "Could not register the user. Please check your input and try again.",
+			"de_DE": "Der Benutzer konnte nicht registriert werden. Bitte überprüfen Sie Ihre Eingaben und versuchen Sie es erneut.",
+			"it_IT": "Impossibile registrare l'utente. Controlla i dati inseriti e riprova.",
+			"my_MY": "Tidak dapat mendaftar pengguna. Sila semak input anda dan cuba lagi."
+		}
+	},
+	{
+		"Could not remove the friend.": {
+			"en_EN": "Could not remove the friend.",
+			"de_DE": "Der Freund konnte nicht entfernt werden.",
+			"it_IT": "Impossibile rimuovere l'amico.",
+			"my_MY": "Tidak dapat membuang rakan."
+		}
+	},
+	{
+		"Could not resend verification email.": {
+			"en_EN": "Could not resend verification email.",
+			"de_DE": "Bestätigungs-E-Mail konnte nicht erneut gesendet werden.",
+			"it_IT": "Impossibile inviare nuovamente l'email di verifica.",
+			"my_MY": "Tidak dapat menghantar semula e-mel pengesahan."
+		}
+	},
+	{
+		"Could not reset your password.": {
+			"en_EN": "Could not reset your password.",
+			"de_DE": "Passwort konnte nicht zurückgesetzt werden.",
+			"it_IT": "Impossibile reimpostare la password.",
+			"my_MY": "Tidak dapat menetapkan semula kata laluan anda."
+		}
+	},
+	{
+		"Could not retrieve the user list.": {
+			"en_EN": "Could not retrieve the user list.",
+			"de_DE": "Benutzerliste konnte nicht abgerufen werden.",
+			"it_IT": "Impossibile recuperare l'elenco degli utenti.",
+			"my_MY": "Tidak dapat mendapatkan senarai pengguna."
+		}
+	},
+	{
+		"Could not retrieve the user.": {
+			"en_EN": "Could not retrieve the user.",
+			"de_DE": "Benutzer konnte nicht abgerufen werden.",
+			"it_IT": "Impossibile recuperare l'utente.",
+			"my_MY": "Tidak dapat mendapatkan pengguna."
+		}
+	},
+	{
+		"Could not send the reset email. Please try again.": {
+			"en_EN": "Could not send the reset email. Please try again.",
+			"de_DE": "Die E-Mail zum Zurücksetzen konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+			"it_IT": "Impossibile inviare l'email per il reset. Riprova.",
+			"my_MY": "Tidak dapat menghantar e-mel tetapan semula. Sila cuba lagi."
+		}
+	},
+	{
+		"Could not update the profile.": {
+			"en_EN": "Could not update the profile.",
+			"de_DE": "Profil konnte nicht aktualisiert werden.",
+			"it_IT": "Impossibile aggiornare il profilo.",
+			"my_MY": "Tidak dapat mengemas kini profil."
+		}
+	},
+	{
+		"Could not update the user.": {
+			"en_EN": "Could not update the user.",
+			"de_DE": "Benutzer konnte nicht aktualisiert werden.",
+			"it_IT": "Impossibile aggiornare l'utente.",
+			"my_MY": "Tidak dapat mengemas kini pengguna."
+		}
+	},
+	{
+		"Could not verify your email.": {
+			"en_EN": "Could not verify your email.",
+			"de_DE": "Ihre E-Mail-Adresse konnte nicht verifiziert werden.",
+			"it_IT": "Impossibile verificare la tua email.",
+			"my_MY": "Tidak dapat mengesahkan e-mel anda."
+		}
+	},
+	{
+		"Create Game": {
+			"en_EN": "Create Game",
+			"de_DE": "Spiel erstellen",
+			"it_IT": "Crea partita",
+			"my_MY": "Cipta Permainan"
+		}
+	},
+	{
+		"Date": {
+			"en_EN": "Date",
+			"de_DE": "Datum",
+			"it_IT": "Data",
+			"my_MY": "Tarikh"
+		}
+	},
+	{
+		"Deletion Failed": {
+			"en_EN": "Deletion Failed",
+			"de_DE": "Löschen fehlgeschlagen",
+			"it_IT": "Eliminazione non riuscita",
+			"my_MY": "Pemadaman gagal"
+		}
+	},
+	{
+		"Draw": {
+			"en_EN": "Draw",
+			"de_DE": "Unentschieden",
+			"it_IT": "Pareggio",
+			"my_MY": "Seri"
+		}
+	},
+	{
+		"Email Sent": {
+			"en_EN": "Email Sent",
+			"de_DE": "E-Mail gesendet",
+			"it_IT": "Email inviata",
+			"my_MY": "E-mel dihantar"
+		}
+	},
+	{
+		"Email verification failed. The link may be invalid or expired.": {
+			"en_EN": "Email verification failed. The link may be invalid or expired.",
+			"de_DE": "E-Mail-Bestätigung fehlgeschlagen. Der Link ist möglicherweise ungültig oder abgelaufen.",
+			"it_IT": "Verifica email non riuscita. Il link potrebbe essere non valido o scaduto.",
+			"my_MY": "Pengesahan e-mel gagal. Pautan mungkin tidak sah atau telah tamat tempoh."
+		}
+	},
+	{
+		"Enable 2FA (Requires Mobile App)": {
+			"en_EN": "Enable 2FA (Requires Mobile App)",
+			"de_DE": "2FA aktivieren (benötigt Mobile App)",
+			"it_IT": "Abilita 2FA (richiede app mobile)",
+			"my_MY": "Aktifkan 2FA (memerlukan aplikasi mudah alih)"
+		}
+	},
+	{
+		"Error": {
+			"en_EN": "Error",
+			"de_DE": "Fehler",
+			"it_IT": "Errore",
+			"my_MY": "Ralat"
+		}
+	},
+	{
+		"Failed": {
+			"en_EN": "Failed",
+			"de_DE": "Fehlgeschlagen",
+			"it_IT": "Fallito",
+			"my_MY": "Gagal"
+		}
+	},
+	{
+		"File Too Large": {
+			"en_EN": "File Too Large",
+			"de_DE": "Datei zu groß",
+			"it_IT": "File troppo grande",
+			"my_MY": "Fail terlalu besar"
+		}
+	},
+	{
+		"Forgot Password?": {
+			"en_EN": "Forgot Password?",
+			"de_DE": "Passwort vergessen?",
+			"it_IT": "Hai dimenticato la password?",
+			"my_MY": "Lupa kata laluan?"
+		}
+	},
+	{
+		"Friend List Error": {
+			"en_EN": "Friend List Error",
+			"de_DE": "Fehler in der Freundesliste",
+			"it_IT": "Errore nella lista amici",
+			"my_MY": "Ralat dalam senarai rakan"
+		}
+	},
+	{
+		"Google Login Failed": {
+			"en_EN": "Google Login Failed",
+			"de_DE": "Google-Anmeldung fehlgeschlagen",
+			"it_IT": "Accesso con Google non riuscito",
+			"my_MY": "Log masuk Google gagal"
+		}
+	},
+	{
+		"Incomplete": {
+			"en_EN": "Incomplete",
+			"de_DE": "Unvollständig",
+			"it_IT": "Incompleto",
+			"my_MY": "Tidak lengkap"
+		}
+	},
+	{
+		"Invalid File Type": {
+			"en_EN": "Invalid File Type",
+			"de_DE": "Ungültiger Dateityp",
+			"it_IT": "Tipo di file non valido",
+			"my_MY": "Jenis fail tidak sah"
+		}
+	},
+	{
+		"Invalid Token": {
+			"en_EN": "Invalid Token",
+			"de_DE": "Ungültiges Token",
+			"it_IT": "Token non valido",
+			"my_MY": "Token tidak sah"
+		}
+	},
+	{
+		"Invalid two-factor code.": {
+			"en_EN": "Invalid two-factor code.",
+			"de_DE": "Ungültiger Zwei-Faktor-Code.",
+			"it_IT": "Codice a due fattori non valido.",
+			"my_MY": "Kod dua faktor tidak sah."
+		}
+	},
+	{
+		"Invalid verification code. Please try again.": {
+			"en_EN": "Invalid verification code. Please try again.",
+			"de_DE": "Ungültiger Verifizierungscode. Bitte versuchen Sie es erneut.",
+			"it_IT": "Codice di verifica non valido. Riprova.",
+			"my_MY": "Kod pengesahan tidak sah. Sila cuba lagi."
+		}
+	},
+	{
+		"Invalid verification link.": {
+			"en_EN": "Invalid verification link.",
+			"de_DE": "Ungültiger Verifizierungslink.",
+			"it_IT": "Link di verifica non valido.",
+			"my_MY": "Pautan pengesahan tidak sah."
+		}
+	},
+	{
+		"Italian": {
+			"en_EN": "Italian",
+			"de_DE": "Italienisch",
+			"it_IT": "Italiano",
+			"my_MY": "Bahasa Itali"
+		}
+	},
+	{
+		"Italiano": {
+			"en_EN": "Italiano",
+			"de_DE": "Italienisch",
+			"it_IT": "Italiano",
+			"my_MY": "Bahasa Itali"
+		}
+	},
+	{
+		"Local Pong Arena": {
+			"en_EN": "Local Pong Arena",
+			"de_DE": "Lokale Pong Arena",
+			"it_IT": "Arena Pong Locale",
+			"my_MY": "Arena Pong Tempatan"
+		}
+	},
+	{
+		"Login Failed": {
+			"en_EN": "Login Failed",
+			"de_DE": "Anmeldung fehlgeschlagen",
+			"it_IT": "Accesso non riuscito",
+			"my_MY": "Log masuk gagal"
+		}
+	},
+	{
+		"Logout Failed": {
+			"en_EN": "Logout Failed",
+			"de_DE": "Abmeldung fehlgeschlagen",
+			"it_IT": "Disconnessione fallita",
+			"my_MY": "Log keluar gagal"
+		}
+	},
+	{
+		"Malayan": {
+			"en_EN": "Malayan",
+			"de_DE": "Malaiisch",
+			"it_IT": "Malese",
+			"my_MY": "Orang Melayu"
+		}
+	},
+	{
+		"Match History": {
+			"en_EN": "Match History",
+			"de_DE": "Spielverlauf",
+			"it_IT": "Cronologia partite",
+			"my_MY": "Sejarah perlawanan"
+		}
+	},
+	{
+		"Match History Error": {
+			"en_EN": "Match History Error",
+			"de_DE": "Fehler beim Laden der Spielverlauf",
+			"it_IT": "Errore nella cronologia delle partite",
+			"my_MY": "Ralat sejarah perlawanan"
+		}
+	},
+	{
+		"Match-History": {
+			"en_EN": "Match-History",
+			"de_DE": "Spielverlauf",
+			"it_IT": "Cronologia Partite",
+			"my_MY": "Sejarah Perlawanan"
+		}
+	},
+	{
+		"Menu": {
+			"en_EN": "Menu",
+			"de_DE": "Menü",
+			"it_IT": "Menu",
+			"my_MY": "Menu"
+		}
+	},
+	{
+		"Mismatch": {
+			"en_EN": "Mismatch",
+			"de_DE": "Nicht übereinstimmend",
+			"it_IT": "Non corrispondente",
+			"my_MY": "Tidak sepadan"
+		}
+	},
+	{
+		"Missing Code": {
+			"en_EN": "Missing Code",
+			"de_DE": "Code fehlt",
+			"it_IT": "Codice mancante",
+			"my_MY": "Kod hilang"
+		}
+	},
+	{
+		"Missing Email": {
+			"en_EN": "Missing Email",
+			"de_DE": "E-Mail fehlt",
+			"it_IT": "Email mancante",
+			"my_MY": "E-mel hilang"
+		}
+	},
+	{
+		"Missing Token": {
+			"en_EN": "Missing Token",
+			"de_DE": "Token fehlt",
+			"it_IT": "Token mancante",
+			"my_MY": "Token hilang"
+		}
+	},
+	{
+		"Passwords do not match.": {
+			"en_EN": "Passwords do not match.",
+			"de_DE": "Passwörter stimmen nicht überein.",
+			"it_IT": "Le password non corrispondono.",
+			"my_MY": "Kata laluan tidak sepadan."
+		}
+	},
+	{
+		"Player 1": {
+			"en_EN": "Player 1",
+			"de_DE": "Spieler 1",
+			"it_IT": "Giocatore 1",
+			"my_MY": "Pemain 1"
+		}
+	},
+	{
+		"Player 1 Score": {
+			"en_EN": "Player 1 Score",
+			"de_DE": "Punktzahl Spieler 1",
+			"it_IT": "Punteggio Giocatore 1",
+			"my_MY": "Skor Pemain 1"
+		}
+	},
+	{
+		"Player 2": {
+			"en_EN": "Player 2",
+			"de_DE": "Spieler 2",
+			"it_IT": "Giocatore 2",
+			"my_MY": "Pemain 2"
+		}
+	},
+	{
+		"Player 2 Score": {
+			"en_EN": "Player 2 Score",
+			"de_DE": "Punktzahl Spieler 2",
+			"it_IT": "Punteggio Giocatore 2",
+			"my_MY": "Skor Pemain 2"
+		}
+	},
+	{
+		"Please enter all 6 digits of your 2FA code.": {
+			"en_EN": "Please enter all 6 digits of your 2FA code.",
+			"de_DE": "Bitte geben Sie alle 6 Ziffern Ihres 2FA-Codes ein.",
+			"it_IT": "Inserisci tutte e 6 le cifre del tuo codice 2FA.",
+			"my_MY": "Sila masukkan semua 6 digit kod 2FA anda."
+		}
+	},
+	{
+		"Please enter your email.": {
+			"en_EN": "Please enter your email.",
+			"de_DE": "Bitte geben Sie Ihre E-Mail-Adresse ein.",
+			"it_IT": "Inserisci la tua email.",
+			"my_MY": "Sila masukkan e-mel anda."
+		}
+	},
+	{
+		"Please fill in both password fields.": {
+			"en_EN": "Please fill in both password fields.",
+			"de_DE": "Bitte füllen Sie beide Passwortfelder aus.",
+			"it_IT": "Compila entrambi i campi della password.",
+			"my_MY": "Sila isi kedua-dua medan kata laluan."
+		}
+	},
+	{
+		"Profile Update Failed": {
+			"en_EN": "Profile Update Failed",
+			"de_DE": "Profilaktualisierung fehlgeschlagen",
+			"it_IT": "Aggiornamento del profilo non riuscito",
+			"my_MY": "Kemas kini profil gagal"
+		}
+	},
+	{
+		"Registration Failed": {
+			"en_EN": "Registration Failed",
+			"de_DE": "Registrierung fehlgeschlagen",
+			"it_IT": "Registrazione fallita",
+			"my_MY": "Pendaftaran gagal"
+		}
+	},
+	{
+		"Remove Friend Failed": {
+			"en_EN": "Remove Friend Failed",
+			"de_DE": "Freund konnte nicht entfernt werden",
+			"it_IT": "Rimozione amico non riuscita",
+			"my_MY": "Gagal membuang rakan"
+		}
+	},
+	{
+		"Request a new verification email": {
+			"en_EN": "Request a new verification email",
+			"de_DE": "Neue Bestätigungs-E-Mail anfordern",
+			"it_IT": "Richiedi una nuova email di verifica",
+			"my_MY": "Mohon e-mel pengesahan baharu"
+		}
+	},
+	{
+		"Reset Failed": {
+			"en_EN": "Reset Failed",
+			"de_DE": "Zurücksetzen fehlgeschlagen",
+			"it_IT": "Reset fallito",
+			"my_MY": "Tetapan semula gagal"
+		}
+	},
+	{
+		"Signup Error": {
+			"en_EN": "Signup Error",
+			"de_DE": "Fehler bei der Anmeldung",
+			"it_IT": "Errore nella registrazione",
+			"my_MY": "Ralat pendaftaran"
+		}
+	},
+	{
+		"Something went wrong while resetting your password.": {
+			"en_EN": "Something went wrong while resetting your password.",
+			"de_DE": "Beim Zurücksetzen Ihres Passworts ist etwas schiefgelaufen.",
+			"it_IT": "Qualcosa è andato storto durante la reimpostazione della password.",
+			"my_MY": "Sesuatu telah berlaku semasa menetapkan semula kata laluan anda."
+		}
+	},
+	{
+		"Stop": {
+			"en_EN": "Stop",
+			"de_DE": "Stopp",
+			"it_IT": "Ferma",
+			"my_MY": "Henti"
+		}
+	},
+	{
+		"Textsize": {
+			"en_EN": "Textsize",
+			"de_DE": "Textgröße",
+			"it_IT": "Dimensione testo",
+			"my_MY": "Saiz teks"
+		}
+	},
+	{
+		"There was a problem logging in with Google.": {
+			"en_EN": "There was a problem logging in with Google.",
+			"de_DE": "Es gab ein Problem bei der Anmeldung mit Google.",
+			"it_IT": "Si è verificato un problema con l'accesso tramite Google.",
+			"my_MY": "Terdapat masalah semasa log masuk dengan Google."
+		}
+	},
+	{
+		"There was a problem resending the verification email. Please try again later or contact support.": {
+			"en_EN": "There was a problem resending the verification email. Please try again later or contact support.",
+			"de_DE": "Beim erneuten Senden der Bestätigungs-E-Mail ist ein Problem aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.",
+			"it_IT": "Si è verificato un problema durante l'invio della nuova email di verifica. Riprova più tardi o contatta il supporto.",
+			"my_MY": "Terdapat masalah semasa menghantar semula e-mel pengesahan. Sila cuba lagi kemudian atau hubungi sokongan."
+		}
+	},
+	{
+		"Two Factor Verified": {
+			"en_EN": "Two Factor Verified",
+			"de_DE": "Zwei-Faktor-Verifizierung abgeschlossen",
+			"it_IT": "Verifica a due fattori completata",
+			"my_MY": "Pengesahan dua faktor berjaya"
+		}
+	},
+	{
+		"Unable to request password reset.": {
+			"en_EN": "Unable to request password reset.",
+			"de_DE": "Passwortrücksetzung konnte nicht angefordert werden.",
+			"it_IT": "Impossibile richiedere la reimpostazione della password.",
+			"my_MY": "Tidak dapat meminta penetapan semula kata laluan."
+		}
+	},
+	{
+		"Update Failed": {
+			"en_EN": "Update Failed",
+			"de_DE": "Aktualisierung fehlgeschlagen",
+			"it_IT": "Aggiornamento fallito",
+			"my_MY": "Kemas kini gagal"
+		}
+	},
+	{
+		"User Fetch Error": {
+			"en_EN": "User Fetch Error",
+			"de_DE": "Fehler beim Abrufen des Benutzers",
+			"it_IT": "Errore nel recupero dell'utente",
+			"my_MY": "Ralat mendapatkan pengguna"
+		}
+	},
+	{
+		"User Overview": {
+			"en_EN": "User Overview",
+			"de_DE": "Benutzerübersicht",
+			"it_IT": "Panoramica utente",
+			"my_MY": "Gambaran keseluruhan pengguna"
+		}
+	},
+	{
+		"Validation Error": {
+			"en_EN": "Validation Error",
+			"de_DE": "Validierungsfehler",
+			"it_IT": "Errore di validazione",
+			"my_MY": "Ralat pengesahan"
+		}
+	},
+	{
+		"Verification Failed": {
+			"en_EN": "Verification Failed",
+			"de_DE": "Verifizierung fehlgeschlagen",
+			"it_IT": "Verifica fallita",
+			"my_MY": "Pengesahan gagal"
+		}
+	},
+	{
+		"Verification email resent successfully.": {
+			"en_EN": "Verification email resent successfully.",
+			"de_DE": "Bestätigungs-E-Mail erfolgreich erneut gesendet.",
+			"it_IT": "Email di verifica inviata nuovamente con successo.",
+			"my_MY": "E-mel pengesahan berjaya dihantar semula."
+		}
+	},
+	{
+		"Welcome back": {
+			"en_EN": "Welcome back",
+			"de_DE": "Willkommen zurück",
+			"it_IT": "Bentornato",
+			"my_MY": "Selamat kembali"
+		}
+	},
+	{
+		"What would you like to do?": {
+			"en_EN": "What would you like to do?",
+			"de_DE": "Was möchtest du tun?",
+			"it_IT": "Cosa vuoi fare?",
+			"my_MY": "Apa yang anda ingin lakukan?"
+		}
+	},
+	{
+		"Winner": {
+			"en_EN": "Winner",
+			"de_DE": "Gewinner",
+			"it_IT": "Vincitore",
+			"my_MY": "Pemenang"
+		}
+	},
+	{
+		"You can try the following:": {
+			"en_EN": "You can try the following:",
+			"de_DE": "Du kannst Folgendes versuchen:",
+			"it_IT": "Puoi provare quanto segue:",
+			"my_MY": "Anda boleh cuba perkara berikut:"
+		}
+	},
+	{
+		"You removed the original avatar. Please upload a new one before saving.": {
+			"en_EN": "You removed the original avatar. Please upload a new one before saving.",
+			"de_DE": "Du hast den ursprünglichen Avatar entfernt. Bitte lade vor dem Speichern einen neuen hoch.",
+			"it_IT": "Hai rimosso l'avatar originale. Carica un nuovo prima di salvare.",
+			"my_MY": "Anda telah membuang avatar asal. Sila muat naik yang baharu sebelum menyimpan."
+		}
+	},
+	{
+		"Your Past Matches": {
+			"en_EN": "Your Past Matches",
+			"de_DE": "Deine vergangenen Spiele",
+			"it_IT": "Le tue partite passate",
+			"my_MY": "Perlawanan anda yang lalu"
+		}
+	},
+	{
+		"Your email has been successfully verified! You can now log in.": {
+			"en_EN": "Your email has been successfully verified! You can now log in.",
+			"de_DE": "Deine E-Mail wurde erfolgreich verifiziert! Du kannst dich jetzt einloggen.",
+			"it_IT": "La tua email è stata verificata con successo! Ora puoi accedere.",
+			"my_MY": "E-mel anda telah berjaya disahkan! Anda kini boleh log masuk."
+		}
+	},
+	{
+		"Your password has been successfully updated.": {
+			"en_EN": "Your password has been successfully updated.",
+			"de_DE": "Dein Passwort wurde erfolgreich aktualisiert.",
+			"it_IT": "La tua password è stata aggiornata con successo.",
+			"my_MY": "Kata laluan anda telah berjaya dikemas kini."
+		}
+	},
+	{
+		"Your password reset link is invalid. Please try requesting a new one.": {
+			"en_EN": "Your password reset link is invalid. Please try requesting a new one.",
+			"de_DE": "Dein Passwort-Zurücksetzungslink ist ungültig. Bitte fordere einen neuen an.",
+			"it_IT": "Il link per reimpostare la password non è valido. Richiedine uno nuovo.",
+			"my_MY": "Pautan menetapkan semula kata laluan anda tidak sah. Sila cuba minta yang baharu."
+		}
+	},
+	{
+		"an unexpecting error occured during user profile editing!": {
+			"en_EN": "an unexpecting error occured during user profile editing!",
+			"de_DE": "Ein unerwarteter Fehler ist beim Bearbeiten des Benutzerprofils aufgetreten!",
+			"it_IT": "Si è verificato un errore imprevisto durante la modifica del profilo utente!",
+			"my_MY": "Ralat yang tidak dijangka berlaku semasa menyunting profil pengguna!"
+		}
+	},
+	{
+		"error in user editing": {
+			"en_EN": "error in user editing",
+			"de_DE": "Fehler beim Bearbeiten des Benutzers",
+			"it_IT": "Errore nella modifica dell'utente",
+			"my_MY": "Ralat semasa menyunting pengguna"
+		}
+	}
+]
