@@ -26,7 +26,9 @@ export default class LocalGameLogic {
         const imagePaths = [
             '/assets/backgrounds/1.jpg',
             '/assets/backgrounds/2.jpg',
-            '/assets/backgrounds/3.jpg'
+            '/assets/backgrounds/3.jpg',
+            '/assets/backgrounds/4.jpg',
+            '/assets/backgrounds/5.jpg',
         ];
 
         imagePaths.forEach((path) => {

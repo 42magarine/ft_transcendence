@@ -164,8 +164,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();
-    await router.render();
     AccessibilityService.initialize();
+    await router.render();
 });
 
 function initializeGoogleScript() {
