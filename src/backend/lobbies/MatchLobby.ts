@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { ILobbyState, IPlayerState, IServerMessage, ITournamentMatchPairing, ITournamentRound } from "../../interfaces/interfaces.js";
+import { IGameSettings, ILobbyState, IPlayerState, IServerMessage, ITournamentMatchPairing, ITournamentRound } from "../../interfaces/interfaces.js";
 import { MatchService } from "../services/MatchService.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { IGameState } from "../../interfaces/interfaces.js";
@@ -29,8 +29,12 @@ export class MatchLobby {
     private _playerPoints: Map<number, number> = new Map();
 
     private _gameBroadcastInterval: NodeJS.Timeout | null = null;
-    private _ballSize: number | undefined;
-    private _paddleSize: number | undefined;
+    private _winScoreOpt?: number;
+    private _paddleWidthOpt?: number;
+    private _paddleHeightOpt?: number;
+    private _paddleSpeedOpt?: number;
+    private _ballSpeedOpt?: number;
+    private _ballSizeOpt?: number;
 
     constructor(lobbyId: string,
         matchService: MatchService,
@@ -44,10 +48,7 @@ export class MatchLobby {
             currentRound?: number,
             playerPoints?: { [userId: number]: number },
             matchSchedule?: ITournamentRound[],
-            gameOptions?: {
-                ballSize: number
-                paddleSize: number
-            }
+            gameOptions?: IGameSettings
         }) {
         this._lobbyId = lobbyId;
         this._matchService = matchService!;
@@ -57,8 +58,12 @@ export class MatchLobby {
         this._createdAt = new Date();
         this._lobbyType = options?.lobbyType || 'game';
         this._broadcast = broadcast;
-        this._ballSize = options?.gameOptions?.ballSize;
-        this._paddleSize = options?.gameOptions?.paddleSize;
+        this._ballSizeOpt = options?.gameOptions?.ballSize;
+        this._ballSpeedOpt = options?.gameOptions?.ballSpeed;
+        this._winScoreOpt = options?.gameOptions?.winScore;
+        this._paddleWidthOpt = options?.gameOptions?.paddleWidth;
+        this._paddleHeightOpt = options?.gameOptions?.paddleHeight;
+        this._paddleSpeedOpt = options?.gameOptions?.paddleSpeed;
 
         if (this._lobbyType === 'tournament') {
             this._tournamentId = options?.tournamentId || null;
@@ -126,7 +131,7 @@ export class MatchLobby {
             if (this._lobbyType === 'game') {
                 if (playerNumber === 1) {
                     const newMatch = await this._matchService.createMatch(this._lobbyId, userId, this._maxPlayers, this._lobbyName);
-                    const game = new PongGame(this.handleGameEndCallback.bind(this, newMatch.matchModelId), this._ballSize, this._paddleSize);
+                    const game = new PongGame(this.handleGameEndCallback.bind(this, newMatch.matchModelId), this._winScoreOpt!, this._paddleWidthOpt!, this._paddleHeightOpt!, this._ballSizeOpt!, this._ballSpeedOpt!, this._paddleSpeedOpt!);
                     game.setMatchId(newMatch.matchModelId); // Set the match ID
                     this._games.set(newMatch.matchModelId, game);
                     game.setPlayer(1, player);
@@ -573,7 +578,7 @@ export class MatchLobby {
         matchPairing.matchId = newMatch.matchModelId;
         await this._matchService.updateTournamentSchedule(this._tournamentId!, this._tournamentSchedule);
 
-        const game = new PongGame(this.handleGameEndCallback.bind(this, newMatch.matchModelId));
+        const game = new PongGame(this.handleGameEndCallback.bind(this, newMatch.matchModelId), this._winScoreOpt!, this._paddleWidthOpt!, this._paddleHeightOpt!, this._ballSizeOpt, this._ballSpeedOpt!, this._paddleSpeedOpt!);
         game.setMatchId(newMatch.matchModelId);
         this._games.set(newMatch.matchModelId, game);
 

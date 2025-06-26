@@ -7,12 +7,12 @@ export class Ball {
     private _speedY: number;
     private _radius: number;
 
-    constructor(x: number, y: number, speedX: number, speedY: number) {
+    constructor(x: number, y: number, speedX: number, speedY: number, ballSize: number) {
         this._x = x;
         this._y = y;
         this._speedX = speedX;
         this._speedY = speedY;
-        this._radius = BALL_RADIUS;
+        this._radius = ballSize;
     }
 
     public update(): void {

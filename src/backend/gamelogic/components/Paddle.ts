@@ -3,13 +3,16 @@ import { PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED } from "../../../types/consta
 export class Paddle {
     private _x: number;
     private _y: number;
-    private _height: number = PADDLE_HEIGHT;
-    private _width: number = PADDLE_WIDTH;
-    private _movespeed: number = PADDLE_SPEED;
+    private _height: number;
+    private _width: number;
+    private _movespeed: number;
 
-    constructor(x: number, y: number) {
+    constructor(x: number, y: number, width: number, height: number, speed: number) {
         this._x = x;
         this._y = y;
+        this._height = height;
+        this._width = width;
+        this._movespeed = speed;
     }
 
     public moveUp(): void {

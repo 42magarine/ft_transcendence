@@ -21,6 +21,72 @@ export default class LobbyList extends AbstractView {
             title: window.ls.__('Available Lobbies'),
             contentBlocks: [
                 {
+                    type: 'slider',
+                    props: {
+                        id: 'winScoreInput',
+                        label: window.ls.__('Win Score'),
+                        min: 1,
+                        max: 20,
+                        step: 1,
+                        value: 10
+                    }
+                },
+                {
+                    type: 'slider',
+                    props: {
+                        id: 'paddleWidthInput',
+                        label: window.ls.__('Paddle Width'),
+                        min: 5,
+                        max: 50,
+                        step: 1,
+                        value: 20
+                    }
+                },
+                {
+                    type: 'slider',
+                    props: {
+                        id: 'paddleHeightInput',
+                        label: window.ls.__('Paddle Height'),
+                        min: 10,
+                        max: 250,
+                        step: 5,
+                        value: 100
+                    }
+                },
+                {
+                    type: 'slider',
+                    props: {
+                        id: 'paddleSpeedInput',
+                        label: window.ls.__('Paddle Speed'),
+                        min: 1,
+                        max: 20,
+                        step: 1,
+                        value: 5
+                    }
+                },
+                {
+                    type: 'slider',
+                    props: {
+                        id: 'ballSizeInput',
+                        label: window.ls.__('Ball Size'),
+                        min: 5,
+                        max: 30,
+                        step: 1,
+                        value: 10
+                    }
+                },
+                {
+                    type: 'slider',
+                    props: {
+                        id: 'ballSpeedInput',
+                        label: window.ls.__('Ball Speed'),
+                        min: 1,
+                        max: 10,
+                        step: 1,
+                        value: 3
+                    }
+                },
+                {
                     type: 'buttongroup',
                     props: {
                         layout: 'group',

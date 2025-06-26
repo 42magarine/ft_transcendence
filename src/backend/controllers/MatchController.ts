@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { WebSocket } from "ws";
 import { randomUUID } from "crypto";
-import { IClientMessage, IServerMessage, IPaddleDirection, IPlayerState, ITournamentRound, ILobbyState } from "../../interfaces/interfaces.js";
+import { IClientMessage, IServerMessage, IPaddleDirection, IPlayerState, ITournamentRound, ILobbyState, IGameSettings } from "../../interfaces/interfaces.js";
 import { Player } from "../gamelogic/components/Player.js";
 import { MatchLobby } from "../lobbies/MatchLobby.js";
 import { MatchService } from "../services/MatchService.js";
@@ -107,7 +107,7 @@ export class MatchController {
                 this.handleJoinLobby(connection, data.userId!, data.lobbyId!)
                 break;
             case "createLobby":
-                this.handleCreateLobby(connection, data.userId!, data.lobbyType, data.maxPlayers)
+                this.handleCreateLobby(connection, data.userId!, data.lobbyType, data.maxPlayers, data.gameSettings!)
                 break;
             case "leaveLobby":
                 if (player) //todo fix in frontend leave route and button sends this twice
@@ -190,11 +190,12 @@ export class MatchController {
         }
     }
 
-    private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType: 'game' | 'tournament' = 'game', maxPlayers?: number) {
+    private async handleCreateLobby(connection: WebSocket, userId: number, lobbyType: 'game' | 'tournament' = 'game', maxPlayers?: number, gameSettings?: IGameSettings) {
         const lobbyId = randomUUID();
         const options = {
             lobbyType: lobbyType,
-            maxPlayers: maxPlayers || (lobbyType === 'tournament' ? 8 : 2)
+            maxPlayers: maxPlayers || (lobbyType === 'tournament' ? 8 : 2),
+            gameOptions: gameSettings
         };
 
         const lobby = new MatchLobby(
