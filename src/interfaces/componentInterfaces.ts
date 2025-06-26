@@ -21,6 +21,7 @@ export type ButtonType =
     | 'submit'
     | 'delete'
     | 'button'
+    | 'link'
     | 'google-signin'
     | 'text-with-button';
 
