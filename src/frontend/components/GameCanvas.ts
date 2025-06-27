@@ -7,8 +7,7 @@ export default class GameCanvas {
                 <canvas
                     id="gameCanvas"
                     class="bg-black border-4 border-white rounded-lg shadow-lg"
-                    width="800"
-                    height="600">
+                >
                 </canvas>
             </div>
         `;

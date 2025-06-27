@@ -25,13 +25,9 @@ export default class Home extends AbstractView {
                 {
                     type: 'html',
                     props: {
-                        html: `
-                            <script src="https://unpkg.com/three"></script>
-                            <script src="https://unpkg.com/globe.gl"></script>
-                          <div id="globeViz" class="w-full h-full min-h-[300px] rounded-xl border my-6 shadow-md bg-black relative overflow-hidden"></div>
-                        `
+                        html: `8======D -> -> -> ({})`
                     }
-                }                        
+                }
             ]
         });
 
@@ -42,7 +38,7 @@ export default class Home extends AbstractView {
     async mount(): Promise<void> {
         const globeContainer = document.getElementById('globeViz');
         if (!globeContainer) return;
-    
+
         // Dynamically load globe.gl if not already present
         if (typeof window.Globe !== 'function') {
             await new Promise<void>((resolve, reject) => {
@@ -53,7 +49,7 @@ export default class Home extends AbstractView {
                 document.head.appendChild(script);
             });
         }
-    
+
         // Now it's safe to call Globe
         // @ts-ignore
         const world = window.Globe()(globeContainer)
@@ -64,20 +60,20 @@ export default class Home extends AbstractView {
             .atmosphereAltitude(0.25)
             .pointOfView({ lat: 20, lng: 10, altitude: 2 }, 4000);
 
-            const canvas = globeContainer.querySelector('canvas');
-            if (canvas) {
-                canvas.style.position = 'absolute';
-                canvas.style.top = '0';
-                canvas.style.left = '0';
-                canvas.style.width = '100%';
-                canvas.style.height = '100%';
-                canvas.style.display = 'block';
-                canvas.style.pointerEvents = 'auto';
-            }
-            
+        const canvas = globeContainer.querySelector('canvas');
+        if (canvas) {
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.display = 'block';
+            canvas.style.pointerEvents = 'auto';
+        }
+
     }
-    
-    
-    
+
+
+
 
 }

@@ -1,5 +1,5 @@
 import AbstractView from '../../utils/AbstractView.js';
-import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps, ButtonColor } from '../../interfaces/componentInterfaces.js';
+import { ButtonProps, ButtonGroupProps, InputProps, ToggleProps } from '../../interfaces/componentInterfaces.js';
 import Input from './Input.js';
 import renderGoogleSignInButton from './GoogleSignIn.js';
 
@@ -166,9 +166,7 @@ export default class Button extends AbstractView {
             href?: string;
             className?: string;
             dataAttributes?: Record<string, string>;
-            type?: 'link' | 'button'; // 🔧 Add this line
-            color?: ButtonColor;       // Optional, if needed for styling
-        }>;        
+        }>;
     }): Promise<string> {
         const baseUrl = window.location.origin;
         const headContent = head.img
@@ -188,10 +186,7 @@ export default class Button extends AbstractView {
             if (item.href)
                 return `<div class="dropdown-item"><a class="text-inherit ${item.className}" href="${item.href}" router tabindex="0">${iconOrImg}</a></div>`;
             else
-            {
-                const colorClass = item.color ? `btn btn-${item.color}` : 'btn btn-white';
-                return `<div class="dropdown-item"><button class="${colorClass} text-inherit ${item.className || ''}" aria-label="${item.text}" ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
-            }
+                return `<div class="dropdown-item"><button class="text-inherit ${item.className}" aria-label="${item.text}" ${(item.id) ? 'id="' + item.id + '"' : ''} ${attrs} tabindex="0">${iconOrImg}</button></div>`;
         }).join('\n');
 
         return this.render(`

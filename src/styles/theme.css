@@ -3,7 +3,7 @@ main {
     background-position: center center;
     background-repeat: no-repeat;
     transition: background-image 0.01s ease-in-out;
-    background-image: url(/assets/backgrounds/stars.png);
+    background-image: url(/assets/backgrounds/stars.jpg);
 }
 
 .high-contrast main {

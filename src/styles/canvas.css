@@ -1,10 +1,14 @@
 /* === CANVAS === */
+canvas {
+    max-width: 100%;
+  @apply w-full aspect-[4/3];
+}
 #gameCanvasWrap {
-    @apply w-full max-w-[800px] h-[600px] mx-auto relative;
+    @apply w-full mx-auto relative;
 }
 
 #playerCanvasWrap {
-    @apply w-full max-w-[800px] mx-auto relative flex gap-2 justify-between;
+    @apply w-full mx-auto relative flex gap-2 justify-between;
 }
 
 /* High Contrast Canvas Wrapper */
@@ -64,7 +68,7 @@
 
 /* High Contrast Player Names */
 .high-contrast .player-name {
-    @apply text-[48px] font-black;
+    @apply text-base font-black;
 }
 
 .player-name.player1 {
@@ -124,7 +128,7 @@
 }
 
 #gameCanvasWrap canvas {
-    @apply w-full h-full absolute top-0 left-0 border-4 bg-black border-white rounded-lg shadow-lg;
+    @apply w-full top-0 left-0 border-4 bg-black border-white rounded-lg shadow-lg;
    /*background: #9b622a;*/
    /*background: linear-gradient(90deg, rgba(155, 98, 42, 1) 0%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 80%, rgba(80, 145, 0, 1) 100%);*/
 }

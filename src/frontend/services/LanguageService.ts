@@ -142,7 +142,6 @@ export default class LanguageService {
         }
         mobileFlags.forEach(mobileButton => {
             mobileButton.addEventListener('click', (e) => {
-                console.warn("mobileFlags test")
                 e.preventDefault();
                 const clickedButton = e.currentTarget as HTMLButtonElement;
                 const newLang = clickedButton.getAttribute('data-lang');
@@ -151,7 +150,6 @@ export default class LanguageService {
                 document.cookie = `language=${newLang}; path=/; max-age=31536000`;
                 this.loadTranslations().then(() => {
                     this.translateTextElements();
-                    console.log("Router.update();")
                     Router.update();
                 }).catch(error => {
                     console.error('Error loading translations:', error);

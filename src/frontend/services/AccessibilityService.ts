@@ -1,201 +1,208 @@
 import Router from '../../utils/Router.js';
 
 export class AccessibilityService {
-	private static textSize: string = 'normal-textSize';
-	private static contrast: string = 'normal-contrast';
-	private static dropdownStates = new Map<HTMLElement, boolean>();
+    private static textSize: string = 'normal-textSize';
+    private static contrast: string = 'normal-contrast';
+    private static dropdownStates = new Map<HTMLElement, boolean>();
 
-	static getCurrentTextSize(): string {
-		const textSizeCookie = document.cookie
-			.split('; ')
-			.find(row => row.startsWith('accessibility_text_size='));
-		return textSizeCookie ? textSizeCookie.split('=')[1] : 'normal';
-	}
+    static getCurrentTextSize(): string {
+        const textSizeCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('accessibility_text_size='));
 
-	static getCurrentContrast(): string {
-		const contrastCookie = document.cookie
-			.split('; ')
-			.find(row => row.startsWith('accessibility_contrast='));
-		return contrastCookie ? contrastCookie.split('=')[1] : 'normal';
-	}
+        return textSizeCookie ? textSizeCookie.split('=')[1] : 'normal';
+    }
 
-	static applyAccessibilities() {
-		const body = document.querySelector('body');
-		if (!body) return;
+    static getCurrentContrast(): string {
+        const contrastCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('accessibility_contrast='));
+        return contrastCookie ? contrastCookie.split('=')[1] : 'normal';
+    }
 
-		body.classList.remove(
-			'normal-contrast',
-			'high-contrast',
-			'normal-textSize',
-			'big-textSize',
-			'huge-textSize'
-		);
+    static applyAccessibilities() {
+        const body = document.querySelector("body");
+        if (!body) return;
 
-		body.classList.add(this.contrast);
-		body.classList.add(this.textSize);
+        body.classList.remove("normal-contrast", "high-contrast", "normal-textSize", "big-textSize", "huge-textSize");
 
-		const contrastValue = this.contrast.replace('-contrast', '');
-		const textSizeValue = this.textSize.replace('-textSize', '');
+        body.classList.add(this.contrast);
+        body.classList.add(this.textSize);
 
-		document.cookie = `accessibility_contrast=${contrastValue}; path=/; max-age=31536000`;
-		document.cookie = `accessibility_text_size=${textSizeValue}; path=/; max-age=31536000`;
-	}
+        const contrastValue = this.contrast.replace('-contrast', '');
+        const textSizeValue = this.textSize.replace('-textSize', '');
 
-	static setupAccessibilitySwitches() {
-        console.log('[Accessibility] contrastBtn:', document.getElementById('contrast-btn'));
+        document.cookie = `accessibility_contrast=${contrastValue}; path=/; max-age=31536000`; // 1 year
+        document.cookie = `accessibility_text_size=${textSizeValue}; path=/; max-age=31536000`; // 1 year
+    }
 
-		const contrastCookie = this.getCurrentContrast();
-		const textSizeCookie = this.getCurrentTextSize();
+    static setupDropdownKeyboardNavigation() {
+        document.addEventListener('keydown', (e) => {
+            const activeElement = document.activeElement as HTMLElement;
 
-		this.contrast = `${contrastCookie}-contrast`;
-		this.textSize = `${textSizeCookie}-textSize`;
+            if (e.key === ' ' && activeElement?.classList.contains('dropdown-head')) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
 
-		// Apply immediately
-		this.applyAccessibilities();
+                const dropdown = activeElement.closest('.dropdown');
+                if (dropdown) {
+                    const currentState = this.dropdownStates.get(activeElement) || false;
+                    const newState = !currentState;
 
-		// Add listeners by ID
-		const contrastBtn = document.getElementById('contrast-btn');
-		const textSizeBtn = document.getElementById('textsize-btn');
+                    this.dropdownStates.set(activeElement, newState);
 
-		contrastBtn?.addEventListener('click', (e) => {
-			e.preventDefault();
-			this.toggleContrast();
-		});
-		contrastBtn?.addEventListener('keydown', (e) => {
-			if (e.key === ' ' || e.key === 'Enter') {
-				e.preventDefault();
-				this.toggleContrast();
-			}
-		});
+                    setTimeout(() => {
+                        activeElement.setAttribute('aria-expanded', newState.toString());
+                        dropdown.classList.toggle('open', newState);
+                    }, 0);
+                }
+            }
 
-		textSizeBtn?.addEventListener('click', (e) => {
-			e.preventDefault();
-			this.cycleTextSize();
-		});
-		textSizeBtn?.addEventListener('keydown', (e) => {
-			if (e.key === ' ' || e.key === 'Enter') {
-				e.preventDefault();
-				this.cycleTextSize();
-			}
-		});
-	}
+            if ((e.key === 'Enter' || e.key === 'Space') && activeElement?.closest('.dropdown-item')) {
+                e.preventDefault();
+                if (activeElement.tagName === 'BUTTON') {
+                    activeElement.click();
+                } else if (activeElement.tagName === 'A') {
+                    activeElement.click();
+                }
+            }
 
-	private static toggleContrast() {
-		this.contrast = this.contrast === 'normal-contrast' ? 'high-contrast' : 'normal-contrast';
-		this.applyAccessibilities();
-	}
+            if (e.key === 'Escape') {
+                const openDropdowns = document.querySelectorAll('.dropdown-head[aria-expanded="true"]');
+                openDropdowns.forEach(head => {
+                    this.dropdownStates.set(head as HTMLElement, false);
+                    head.setAttribute('aria-expanded', 'false');
+                    head.closest('.dropdown')?.classList.remove('open');
+                });
+            }
+        });
+    }
 
-	private static cycleTextSize() {
-		if (this.textSize === 'normal-textSize') {
-			this.textSize = 'big-textSize';
-		} else if (this.textSize === 'big-textSize') {
-			this.textSize = 'huge-textSize';
-		} else {
-			this.textSize = 'normal-textSize';
-		}
-		this.applyAccessibilities();
-	}
+    static setupAccessibilitySwitches() {
+        const contrastSwitches = document.querySelectorAll('.contrastSwitch') as NodeListOf<HTMLElement>;
+        const textsizeSwitches = document.querySelectorAll('.textsizeSwitch') as NodeListOf<HTMLElement>;
 
-	static setupDropdownKeyboardNavigation() {
-		document.addEventListener('keydown', (e) => {
-			const activeElement = document.activeElement as HTMLElement;
+        if (!contrastSwitches || !textsizeSwitches) {
+            return;
+        }
 
-			if (e.key === ' ' && activeElement?.classList.contains('dropdown-head')) {
-				e.preventDefault();
-				e.stopImmediatePropagation();
+        const getCookieValue = (name: string): string | null => {
+            const cookies = document.cookie.split('; ');
+            const cookie = cookies.find(c => c.startsWith(name + '='));
+            return cookie ? cookie.split('=')[1] : null;
+        };
 
-				const dropdown = activeElement.closest('.dropdown');
-				if (dropdown) {
-					const currentState = this.dropdownStates.get(activeElement) || false;
-					const newState = !currentState;
+        // Konsistente Cookie-zu-Klassen-Zuordnung
+        const contrastCookie = getCookieValue('accessibility_contrast') || 'normal';
+        const textSizeCookie = getCookieValue('accessibility_text_size') || 'normal';
 
-					this.dropdownStates.set(activeElement, newState);
+        this.contrast = contrastCookie + '-contrast';
+        this.textSize = textSizeCookie + '-textSize';
 
-					setTimeout(() => {
-						activeElement.setAttribute('aria-expanded', newState.toString());
-						dropdown.classList.toggle('open', newState);
-					}, 0);
-				}
-			}
+        this.applyAccessibilities();
 
-			if ((e.key === 'Enter' || e.key === 'Space') && activeElement?.closest('.dropdown-item')) {
-				e.preventDefault();
-				if (activeElement.tagName === 'BUTTON') {
-					activeElement.click();
-				} else if (activeElement.tagName === 'A') {
-					activeElement.click();
-				}
-			}
+        const handleContrastToggle = () => {
+            if (this.contrast === 'normal-contrast') {
+                this.contrast = 'high-contrast';
+            } else {
+                this.contrast = 'normal-contrast';
+            }
+            this.applyAccessibilities();
+        };
 
-			if (e.key === 'Escape') {
-				const openDropdowns = document.querySelectorAll('.dropdown-head[aria-expanded="true"]');
-				openDropdowns.forEach(head => {
-					this.dropdownStates.set(head as HTMLElement, false);
-					head.setAttribute('aria-expanded', 'false');
-					head.closest('.dropdown')?.classList.remove('open');
-				});
-			}
-		});
-	}
+        const handleTextsizeToggle = () => {
+            if (this.textSize === 'normal-textSize') {
+                this.textSize = 'big-textSize';
+            } else if (this.textSize === 'big-textSize') {
+                this.textSize = 'huge-textSize';
+            } else {
+                this.textSize = 'normal-textSize';
+            }
+            this.applyAccessibilities();
+        };
 
-	static setupLanguageDropdown() {
-		setTimeout(() => {
-			const dropdown = document.getElementById('language-dropdown');
-			if (dropdown) {
-				const buttons = dropdown.querySelectorAll('button[data-lang]');
-				const images = dropdown.querySelectorAll('img[data-lang]');
+        contrastSwitches.forEach(contrastSwitch => {
+            console.log("contrastSwitch")
+            console.log(contrastSwitch)
+            contrastSwitch.addEventListener('click', (e) => {
+                console.log("contrastSwitch click")
+                e.preventDefault();
+                handleContrastToggle();
+            });
 
-				buttons.forEach(button => {
-					button.addEventListener('click', (e) => {
-						const lang = (e.currentTarget as HTMLElement).getAttribute('data-lang');
-						if (lang) {
-							localStorage.setItem('lang', lang);
-							Router.update();
-						}
-					});
+            contrastSwitch.addEventListener('keydown', (e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    handleContrastToggle();
+                }
+            });
+        });
 
-					button.addEventListener('keydown', (e) => {
-						const keyEvent = e as KeyboardEvent;
-						if (keyEvent.key === 'Enter' || keyEvent.key === 'Space') {
-							e.preventDefault();
-							const lang = (keyEvent.currentTarget as HTMLElement).getAttribute('data-lang');
-							if (lang) {
-								localStorage.setItem('lang', lang);
-								Router.update();
-							}
-						}
-					});
-				});
+        textsizeSwitches.forEach(textsizeSwitch => {
+            console.log("textsizeSwitch")
+            console.log(textsizeSwitch)
+            textsizeSwitch.addEventListener('click', (e) => {
+                console.log("textsizeSwitch click")
+                e.preventDefault();
+                handleTextsizeToggle();
+            });
 
-				images.forEach(img => {
-					img.addEventListener('click', (e) => {
-						const lang = (e.currentTarget as HTMLElement).getAttribute('data-lang');
-						if (lang) {
-							localStorage.setItem('lang', lang);
-							Router.update();
-						}
-					});
-				});
-			}
-		}, 100);
-	}
+            textsizeSwitch.addEventListener('keydown', (e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    handleTextsizeToggle();
+                }
+            });
+        });
+    }
 
-	static observeDOMChanges() {
-		const observer = new MutationObserver(() => {
-		});
+    static setupLanguageDropdown() {
+        setTimeout(() => {
+            const dropdown = document.getElementById('language-dropdown');
+            if (dropdown) {
+                const buttons = dropdown.querySelectorAll('button[data-lang]');
+                const images = dropdown.querySelectorAll('img[data-lang]');
 
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true,
-		});
-	}
+                buttons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const lang = (e.currentTarget as HTMLElement).getAttribute('data-lang');
+                        if (lang) {
+                            localStorage.setItem('lang', lang);
+                            Router.update()
+                        }
+                    });
 
-	static initialize() {
-		this.setupDropdownKeyboardNavigation();
-		this.setupAccessibilitySwitches();
-		this.setupLanguageDropdown();
-        this.observeDOMChanges();
-	}
+                    button.addEventListener('keydown', (e) => {
+                        const keyEvent = e as KeyboardEvent;
+                        if (keyEvent.key === 'Enter' || keyEvent.key === 'Space') {
+                            keyEvent.preventDefault();
+                            const lang = (keyEvent.currentTarget as HTMLElement).getAttribute('data-lang');
+                            if (lang) {
+                                localStorage.setItem('lang', lang);
+                                Router.update();
+                            }
+                        }
+                    });
+                });
+
+                images.forEach(img => {
+                    img.addEventListener('click', (e) => {
+                        const lang = (e.currentTarget as HTMLElement).getAttribute('data-lang');
+                        if (lang) {
+                            localStorage.setItem('lang', lang);
+                            Router.update();
+                        }
+                    });
+                });
+            }
+        }, 100);
+    }
+
+    static initialize() {
+        this.setupDropdownKeyboardNavigation();
+        this.setupAccessibilitySwitches();
+        this.setupLanguageDropdown();
+    }
 }
 
-AccessibilityService.initialize(); // Instead of calling methods individually
+AccessibilityService.initialize();

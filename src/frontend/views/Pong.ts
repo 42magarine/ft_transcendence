@@ -28,7 +28,7 @@ export default class Pong extends AbstractView {
                                     </div>
                                     <div id="gameCanvasWrap" class="m-auto">
                                         <div id="gameCanvasWrap-overlay"></div>
-                                        <canvas id="gameCanvas" class="countdown" width="800" height="600"></canvas>
+                                        <canvas id="gameCanvas" class="countdown"></canvas>
                                     </div>
                                 `
                             }

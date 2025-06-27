@@ -56,7 +56,7 @@ export default class Dropdown extends AbstractView {
                     id: item.id,
                     text: item.text,
                     icon: item.icon,
-                    type: item.type === 'button' ? 'button' : 'button',
+                    type: 'button',
                     className: `dropdown-item ${item.className || ''}`,
                     color: item.color || 'gray',
                 });
@@ -66,10 +66,10 @@ export default class Dropdown extends AbstractView {
 
         return `
             <div id="${id}" class="dropdown">
-                <div class="dropdown-head ${headClass}">
+                <div class="dropdown-head ${headClass}" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
                     ${headContent}
                 </div>
-                <div class="dropdown-body ${bodyClass}">
+                <div class="dropdown-body ${bodyClass}" role="menu">
                     ${bodyContent}
                 </div>
             </div>
