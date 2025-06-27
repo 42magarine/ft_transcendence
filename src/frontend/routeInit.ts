@@ -74,7 +74,6 @@ const routes: Route[] = [
         },
         onLeave: async ({ route, params, view, path, from, to }: RouteHookContext): Promise<boolean | void> => {
             if (!to.includes('/pong/')) {
-                // console.log("params '/tournament/:id' route:" + params);
                 window.messageHandler!.leaveLobby(params.id, false);
             }
             return true;

@@ -12,11 +12,9 @@ export default class LobbyService {
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
-        // console.log("LobbyService msg received: " + data)
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby && data.lobby.lobbyType === 'game') {
-                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -29,7 +27,6 @@ export default class LobbyService {
                 }
             case 'playerJoined':
                 if (data.lobby && data.lobby.lobbyType === 'game') {
-                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -44,7 +41,6 @@ export default class LobbyService {
                 break;
             case 'playerLeft':
                 if (data.lobby && data.lobby.lobbyType === 'game') {
-                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -59,7 +55,6 @@ export default class LobbyService {
                 break;
             case 'playerReady':
                 if (data.lobby && data.lobby.lobbyType === 'game') {
-                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -70,24 +65,6 @@ export default class LobbyService {
                         this.lobbyState = receivedLobbyInfo;
                         Router.update();
                     }
-                    // if (this.lobbyState) {
-                    //     const { lobbyType, lobbyPlayers, lobbyId } = this.lobbyState;
-
-                    //     if (lobbyType === 'game' && lobbyPlayers && this.arePlayersReady(lobbyPlayers, 2)) {
-                    //         window.messageHandler.joinGame(lobbyId, lobbyPlayers);
-                    //         Router.redirect(`/pong/${lobbyId}`);
-                    //     }
-
-                    //     if (lobbyType === 'tournament' && lobbyPlayers) {
-                    //         if (lobbyPlayers.length === 4 && this.arePlayersReady(lobbyPlayers, 4)) {
-                    //             window.messageHandler.joinGame(lobbyId, lobbyPlayers);
-                    //             Router.redirect(`/pong/${lobbyId}`);
-                    //         } else if (lobbyPlayers.length === 8 && this.arePlayersReady(lobbyPlayers, 8)) {
-                    //             window.messageHandler.joinGame(lobbyId, lobbyPlayers);
-                    //             Router.redirect(`/pong/${lobbyId}`);
-                    //         }
-                    //     }
-                    // }
                 }
                 break;
             case 'gameStarted':

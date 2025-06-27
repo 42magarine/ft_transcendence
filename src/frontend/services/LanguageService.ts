@@ -42,10 +42,6 @@ export default class LanguageService {
                 }
             }
         }
-        // this tells you if something got no translation yet!
-        // if (currentLanguage !== "en_EN") {
-        //     console.log("(づ ◕‿◕ )づ  " + key)
-        // }
         return key;
     }
 
@@ -179,7 +175,6 @@ export default class LanguageService {
 
                     this.loadTranslations().then(() => {
                         this.translateTextElements();
-                        console.log("Router.update();")
                         Router.update();
                         this.closeDropdown();
                     }).catch(error => {

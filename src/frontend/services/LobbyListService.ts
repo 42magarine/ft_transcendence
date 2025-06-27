@@ -9,7 +9,6 @@ export default class LobbyListService {
 
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
-        // console.log("LobbyListService msg received: " + data.type)
         switch (data.type) {
             case 'lobbyList':
                 this.lobbyData = data.lobbies || [];
@@ -45,10 +44,8 @@ export default class LobbyListService {
                 }
                 break;
             case 'leftLobby':
-                console.log("test");
                 if (window.location.pathname === '/lobbylist' || window.location.pathname === '/lobbies' || window.location.pathname.includes("/lobby/")) {
                     window.messageHandler.requestLobbyList();
-                    console.log("test2");
                     Router.update()
                 }
                 break;
@@ -102,7 +99,6 @@ export default class LobbyListService {
         e.preventDefault();
 
         if (!window.currentUser) {
-            console.log("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
             return;
         }
 
@@ -120,16 +116,12 @@ export default class LobbyListService {
                 }
             }
         }
-        else {
-            console.log("LobbyListService: createLobbyBtn clicked, but messageHandler is not available.");
-        }
     }
 
     public handleCreateTournamentClick = async (e: MouseEvent) => {
         e.preventDefault();
 
         if (!window.currentUser) {
-            console.log("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
             return;
         }
 
@@ -146,9 +138,6 @@ export default class LobbyListService {
                     });
                 }
             }
-        }
-        else {
-            console.log("LobbyListService: createTournamentBtn clicked, but messageHandler is not available.");
         }
     }
 
@@ -168,7 +157,6 @@ export default class LobbyListService {
 
         const user = await UserService.getCurrentUser();
         if (!user) {
-            console.log("LobbyListService: Could not retrieve current user or user ID is missing. User might not be logged in.");
             return;
         }
 
@@ -183,9 +171,6 @@ export default class LobbyListService {
                     message: `An error occurred while trying to join the lobby (ID: ${lobbyId}). Please try again later.`,
                 });
             }
-        }
-        else {
-            console.log("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
         }
     }
     public getLobbyList(): ILobbyState[] {

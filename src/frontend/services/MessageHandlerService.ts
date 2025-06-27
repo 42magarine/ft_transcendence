@@ -17,11 +17,9 @@ export default class MessageHandlerService {
 
         if (window.ft_socket.readyState !== WebSocket.OPEN) {
             const errorMessage = `WebSocket is not open. Current state: ${window.ft_socket.readyState}. Message not sent.`;
-            console.log(`MessageHandlerService: ${errorMessage}`, msg);
             throw new Error(errorMessage);
         }
 
-        // console.log("safeSend (frontend->backend): ", msg);
         window.ft_socket.send(JSON.stringify(msg));
     }
 

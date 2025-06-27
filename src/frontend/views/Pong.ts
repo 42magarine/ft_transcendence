@@ -39,26 +39,14 @@ export default class Pong extends AbstractView {
     }
 
     async afterRender(): Promise<void> {
-        // console.log('--- DEBUGGING PONG.TS AFTERRENDER ---');
-        // console.log('Current URL:', window.location.href); // Verify the full URL
-        // console.log('Raw this.params object:', this.routeParams); // Log the URLSearchParams object itself
-
-        // this.params.forEach((value, key) => {
-        // console.log(`this.params entry - Key: "<span class="math-inline">\{key\}", Value\: "</span>{value}"`);
-        // });
 
         const matchIdString = this.routeParams['matchId'];
         const lobbyIdString = this.routeParams['lobbyId'];
 
-        // console.log('Extracted matchIdString:', matchIdString);
-        // console.log('Extracted lobbyIdString:', lobbyIdString);
-
         const matchId = Number(matchIdString);
-        // console.log('Converted matchId:', matchId);
 
         if (window.pongService) {
             window.pongService.initializeGame(matchId);
-            // console.log('Called window.pongService.initializeGame with matchId:', matchId);
         }
         else {
             await new Modal().renderInfoModal({
@@ -67,8 +55,6 @@ export default class Pong extends AbstractView {
                 message: 'PongService is not initialized. Please refresh the page or rejoin the lobby.',
             });
         }
-
-        // console.log('--- END DEBUGGING PONG.TS AFTERRENDER ---');
     }
 
     private setupEvents(): void {

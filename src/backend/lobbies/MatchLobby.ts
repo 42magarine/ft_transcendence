@@ -171,7 +171,6 @@ export class MatchLobby {
 
             // If it's a tournament, cancel the entire tournament
             if (this._lobbyType === 'tournament' && this.isEmpty()) {
-                // console.log(`Player ${player._name} left tournament lobby ${this._lobbyId}. Cancelling tournament.`);
                 await this.cancelTournament("A player left the tournament.");
             }
             else {
@@ -335,7 +334,6 @@ export class MatchLobby {
 
     public async startGame() {
         if (this._gameStarted || this._lobbyType === 'tournament') {
-            console.log("Game already started or is a tournament lobby.");
             return;
         }
         this._gameStarted = true;
@@ -373,7 +371,6 @@ export class MatchLobby {
                 matchId: matchId,
                 gameState: initialGameState
             }));
-            // console.log(`[Backend] Sent playerJoined to Player 1 (User ID: ${player1.userId}) for match ${matchId}`);
         }
 
         if (player2?.connection.readyState === WebSocket.OPEN) {
@@ -382,7 +379,6 @@ export class MatchLobby {
                 matchId: matchId,
                 gameState: initialGameState
             }));
-            // console.log(`[Backend] Sent playerJoined to Player 2 (User ID: ${player2.userId}) for match ${matchId}`);
         }
 
         game!.startGameLoop();
@@ -437,7 +433,6 @@ export class MatchLobby {
 
     public async startTournament() {
         if (this._tournamentStatus === 'ongoing' || this._gameStarted || this._lobbyType !== 'tournament') {
-            console.log("Tournament already started, game active, or not a tournament lobby.");
             return;
         }
 
@@ -519,7 +514,6 @@ export class MatchLobby {
                 participants = [pivot, ...movingPlayers];
             }
         }
-        // console.log("Generated Tournament Schedule:", schedule);
         return schedule;
     }
 
@@ -528,19 +522,16 @@ export class MatchLobby {
         this._games.clear();
 
         if (this._currentRound > this._tournamentSchedule.length) {
-            // console.log("All rounds completed! Tournament Finished.");
             await this.finishTournament();
             return;
         }
 
         const currentRoundSchedule = this._tournamentSchedule[this._currentRound - 1];
         if (!currentRoundSchedule || currentRoundSchedule.matches.length === 0) {
-            // console.log(`No matches for Round ${this._currentRound}. Moving to next round.`);
             await this.startNextTournamentRound();
             return;
         }
 
-        // console.log(`Starting Round ${this._currentRound} with ${currentRoundSchedule.matches.length} matches.`);
         this._broadcast({
             type: "tournamentRoundStart",
             lobby: this.getLobbyState(),
@@ -590,7 +581,6 @@ export class MatchLobby {
 
         await this._matchService.updateMatchStatus(newMatch.matchModelId, 'ongoing', new Date());
 
-        // console.log(`Starting ze match wiz the ${newMatch.matchModelId}: ${player1._name} vs ${player2._name}`);
         this._broadcast({
             type: "tournamentMatchStart",
             lobby: this.getLobbyState(),
@@ -617,7 +607,6 @@ export class MatchLobby {
             console.error("Game not found.");
             return;
         }
-        // console.log("Game end");
         await this.handleGameEnd(matchId, game._score1, game._score2);
     }
 
@@ -718,16 +707,12 @@ export class MatchLobby {
             const allMatchesInRoundCompleted = currentRoundSchedule.matches.every(m => m.isCompleted);
 
             if (allMatchesInRoundCompleted) {
-                // console.log(`All matches in Round ${this._currentRound} completed.`);
                 if (this._games.size === 0) {
                     setTimeout(() => {
                         this.stopPeriodicGameBroadcast();
                         this.startNextTournamentRound();
                     }, 5000);
                 }
-            }
-            else {
-                // console.log(`Round ${this._currentRound} still has active matches. Remaining: ${currentRoundSchedule.matches.filter(m => !m.isCompleted).length}`);
             }
 
         }
@@ -785,7 +770,6 @@ export class MatchLobby {
     }
 
     public async cancelTournament(reason: string = "Tournament cancelled.") {
-        // console.log(`Tournament ${this._lobbyId} is being cancelled. Reason: ${reason}`);
 
         this._games.forEach(game => game.stopGameLoop());
         this._games.clear();

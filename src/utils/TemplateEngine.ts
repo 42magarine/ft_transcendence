@@ -51,7 +51,6 @@ export class TemplateEngine {
             const [fullMatch, componentName, propsString, children] = match;
 
             if (!this.components.has(componentName)) {
-                console.log(`Component "${componentName}" is not registered.`);
                 continue;
             }
 

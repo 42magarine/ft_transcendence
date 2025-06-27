@@ -15,11 +15,9 @@ export default class TournamentService {
     public handleSocketMessage(event: MessageEvent<string>): void {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlTournamentId = this.getCurrentLobbyIdFromUrl();
-        // console.log("LobbyService msg received: " + data)
         switch (data.type) {
             case 'lobbyState':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -33,7 +31,6 @@ export default class TournamentService {
                 break;
             case 'playerJoined':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -62,7 +59,6 @@ export default class TournamentService {
                 break;
             case 'playerReady':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    // console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),

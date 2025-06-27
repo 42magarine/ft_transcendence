@@ -70,13 +70,10 @@ export default class PongService {
         // Calculate scaling factors based on current canvas size
         this.calculateScalingFactors();
 
-        // console.log("pongService matchId: ", this.matchId)
-
         this.ctx.fillStyle = 'black';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.overlay = document.getElementById('gameCanvasWrap-overlay') as HTMLElement;
-        // console.log(this.overlay);
         if (!this.overlay) {
             new Modal().renderInfoModal({
                 id: "missing-overlay",
@@ -184,7 +181,7 @@ export default class PongService {
             case "playerLeft":
                 this.overlay.classList.remove("first");
                 this.overlay.classList.add("terminated");
-                this.overlay.textContent = 'Terminated\nby Opponent<span>you will be redirected!';
+                this.overlay.textContent = 'Terminated\nby Opponent 8====D you will be redirected!';
                 setTimeout(function () {
                     Router.redirect("/lobbylist")
                 }, 10000)

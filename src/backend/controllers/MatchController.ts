@@ -164,14 +164,12 @@ export class MatchController {
 
     private sendMessage(connection: WebSocket, data: IServerMessage) {
         if (connection.readyState === WebSocket.OPEN) {
-            // console.log("sendMessage (backend->frontend): ", data)
             connection.send(JSON.stringify(data));
         }
     }
 
     private broadcastToAll(data: IServerMessage): void {
         for (const [connection, player] of this._clients.entries()) {
-            // console.log(data);
             if (connection.readyState === WebSocket.OPEN) {
                 this.sendMessage(connection, data);
             }
@@ -323,7 +321,6 @@ export class MatchController {
     }
 
     private async handleGetLobbyList(connection: WebSocket) {
-        // console.log("handleGetLobbyList")
         const openDbLobbies = await this._matchService.getOpenLobbies();
 
         const lobbyStates: ILobbyState[] = openDbLobbies.map(dbLobby => {
@@ -411,9 +408,6 @@ export class MatchController {
             }
             if (pongGame) {
                 pongGame.movePaddle(playerNumber, direction);
-            }
-            else {
-                console.log(`PongGame for matchId ${matchId} not found in lobby ${player.lobbyId}.`);
             }
         }
         else {

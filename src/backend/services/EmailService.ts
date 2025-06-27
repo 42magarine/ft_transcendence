@@ -60,7 +60,6 @@ export class EmailService {
                 <h2 style="color: white; text-align: center; margin-bottom: 30px;">Welcome to Transcendence!</h2>
                 <p>Hello ${username},</p>
                 <p>Please verify your account by clicking the button below:</p>
-                <p>🔗 DEBUG LINK: ${verificationLink}</p>
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="${verificationLink}" style="background-color: #155dfc; color: white; padding: 15px 25px; text-decoration: none; border-radius: 4px; display: inline-block;">Verify Account</a>
                 </div>
@@ -69,7 +68,6 @@ export class EmailService {
             </div>
         `;
 
-        console.log('📝 HTML Content Preview:', htmlContent.substring(0, 300));
 
         await this.sendEmail({
             to: email,
