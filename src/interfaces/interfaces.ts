@@ -107,6 +107,15 @@ export interface IGameState {
     winnerName?: string;
 }
 
+export interface IGameSettings {
+    winScore: number;
+    paddleWidth: number;
+    paddleHeight: number;
+    paddleSpeed: number;
+    ballSize: number;
+    ballSpeed: number;
+}
+
 export interface ILobbyState {
     lobbyId: string;
     name: string;
@@ -167,6 +176,7 @@ export interface IClientMessage {
     matchId?: number;
     message?: string;
     gameIsOver?: boolean;
+    gameSettings?: IGameSettings;
     [key: string]: any;
 }
 

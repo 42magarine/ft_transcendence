@@ -1,8 +1,8 @@
 import Router from '../../utils/Router.js';
 import UserService from '../services/UserService.js';
-import { IServerMessage, ILobbyState } from '../../interfaces/interfaces.js';
+import { IServerMessage, ILobbyState, IGameSettings } from '../../interfaces/interfaces.js';
 import Modal from '../components/Modal.js'
-
+import { SCORE_LIMIT, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED, BALL_RADIUS, BALL_SPEED } from "../../types/constants.js";
 export default class LobbyListService {
     private lobbyData: ILobbyState[] = [];
     private lobbyDataResolvers: ((lobbies: ILobbyState[]) => void)[] = [];
@@ -75,6 +75,29 @@ export default class LobbyListService {
         });
     }
 
+    private getAllSettings() : IGameSettings {
+        return {
+            winScore: this.getSliderValue('winScoreInput', SCORE_LIMIT),
+            paddleWidth: this.getSliderValue('paddleWidthInput', PADDLE_WIDTH),
+            paddleHeight: this.getSliderValue('paddleHeightInput', PADDLE_HEIGHT),
+            paddleSpeed: this.getSliderValue('paddleSpeedInput', PADDLE_SPEED),
+            ballSize: this.getSliderValue('ballSizeInput', BALL_RADIUS),
+            ballSpeed: this.getSliderValue('ballSpeedInput', BALL_SPEED)
+        };
+    }
+
+
+
+    private getSliderValue(id: string, defaultValue: number): number {
+        const input = document.getElementById(id) as HTMLInputElement;
+        if (!input) {
+            return defaultValue;
+        }
+        const value = parseInt(input.value);
+        return isNaN(value) ? defaultValue : value;
+    }
+
+
     public handleCreateGameClick = async (e: MouseEvent) => {
         e.preventDefault();
 
@@ -86,7 +109,7 @@ export default class LobbyListService {
         if (window.currentUser) {
             if (window.messageHandler && window.currentUser.id) {
                 try {
-                    await window.messageHandler.createLobby(window.currentUser.id, "game", 2);
+                    await window.messageHandler.createLobby(window.currentUser.id, "game", 2, this.getAllSettings());
                 }
                 catch (error) {
                     await new Modal().renderInfoModal({
@@ -94,7 +117,7 @@ export default class LobbyListService {
                         title: 'Lobby Creation Failed',
                         message: error instanceof Error ? error.message : 'An unknown error occurred while creating the lobby.',
                     });
-                }                
+                }
             }
         }
         else {
@@ -113,7 +136,7 @@ export default class LobbyListService {
         if (window.currentUser) {
             if (window.messageHandler && window.currentUser.id) {
                 try {
-                    await window.messageHandler.createLobby(window.currentUser.id, "tournament", 8);
+                    await window.messageHandler.createLobby(window.currentUser.id, "tournament", 8, this.getAllSettings());
                 }
                 catch (error) {
                     await new Modal().renderInfoModal({
@@ -121,7 +144,7 @@ export default class LobbyListService {
                         title: 'Tournament Creation Failed',
                         message: error instanceof Error ? error.message : 'An unknown error occurred while creating the tournament.',
                     });
-                }                
+                }
             }
         }
         else {
@@ -141,7 +164,7 @@ export default class LobbyListService {
                 message: "Couldn't join the lobby because its ID is missing.",
             });
             return;
-        }        
+        }
 
         const user = await UserService.getCurrentUser();
         if (!user) {
@@ -159,7 +182,7 @@ export default class LobbyListService {
                     title: 'Failed to Join Lobby',
                     message: `An error occurred while trying to join the lobby (ID: ${lobbyId}). Please try again later.`,
                 });
-            }            
+            }
         }
         else {
             console.log("LobbyListService: joinLobbyBtn clicked, but messageHandler is not available.");
@@ -197,7 +220,7 @@ export default class LobbyListService {
                 title: 'Lobby Fetch Failed',
                 message: 'Could not load the list of lobbies. Please check your connection and try again.',
             });
-        
+
             this.resolveLobbyDataPromises(this.lobbyData);
         }
 

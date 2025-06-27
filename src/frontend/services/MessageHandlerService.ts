@@ -1,4 +1,4 @@
-import { IClientMessage, IPaddleDirection, IPlayerState } from '../../interfaces/interfaces.js';
+import { IClientMessage, IGameSettings, IPaddleDirection, IPlayerState } from '../../interfaces/interfaces.js';
 
 export default class MessageHandlerService {
     private readyState: Map<number, boolean> = new Map();
@@ -25,12 +25,13 @@ export default class MessageHandlerService {
         window.ft_socket.send(JSON.stringify(msg));
     }
 
-    public async createLobby(userId: number, lobbyType: "game" | "tournament", maxPlayers: number) {
+    public async createLobby(userId: number, lobbyType: "game" | "tournament", maxPlayers: number, gameSettings: IGameSettings) {
         const msg: IClientMessage = {
             type: 'createLobby',
             userId,
             lobbyType,
-            maxPlayers
+            maxPlayers,
+            gameSettings
         };
         await this.safeSend(msg);
     }
