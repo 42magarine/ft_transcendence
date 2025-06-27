@@ -110,7 +110,7 @@ export default class PongLocal extends AbstractView {
                     props: {
                         html: `
                             <div class="flex justify-center">
-                                <canvas id="gameCanvas" class="bg-black border-4 border-white rounded-lg shadow-lg"></canvas>
+                                <canvas id="gameCanvas" class="bg-black border-4 border-white rounded-lg shadow-lg w-full max-w-4xl" style="aspect-ratio: 4/3;"></canvas>
                             </div>
                         `
                     }

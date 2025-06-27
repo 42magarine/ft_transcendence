@@ -18,11 +18,13 @@ export default class LocalGameService {
     // Speichere die gebundenen Funktionen als Klasseneigenschaften
     private boundKeyDownHandler: (event: KeyboardEvent) => void;
     private boundKeyUpHandler: (event: KeyboardEvent) => void;
+    private boundResizeHandler: () => void;
 
     constructor() {
         // Binde die Handler einmal im Constructor
         this.boundKeyDownHandler = this.handleKeyDown.bind(this);
         this.boundKeyUpHandler = this.handleKeyUp.bind(this);
+        this.boundResizeHandler = this.handleResize.bind(this);
     }
 
     public onCanvasReady(): void {
@@ -35,9 +37,21 @@ export default class LocalGameService {
         this.setupSliderListeners();
         this.setupButtonListeners();
         this.setupKeyboardListeners();
+        this.setupResizeListener();
 
         this.localGameLogic.initializeGame(this.getAllSettings());
         this.startMainLoop();
+    }
+
+    private setupResizeListener(): void {
+        window.addEventListener('resize', this.boundResizeHandler);
+    }
+
+    private handleResize(): void {
+        if (this.localGameLogic) {
+            // Reinitialize the game with current settings to adapt to new canvas size
+            this.localGameLogic.initializeGame(this.getAllSettings());
+        }
     }
 
     private setupSliderListeners(): void {
@@ -211,6 +225,7 @@ export default class LocalGameService {
     public cleanup(): void {
         window.removeEventListener('keydown', this.boundKeyDownHandler);
         window.removeEventListener('keyup', this.boundKeyUpHandler);
+        window.removeEventListener('resize', this.boundResizeHandler);
         this.keysPressed = {};
         this.gameState = GameState.STOPPED;
     }

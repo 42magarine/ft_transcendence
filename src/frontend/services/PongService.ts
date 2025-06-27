@@ -25,6 +25,12 @@ export default class PongService {
     private animationFrameId: number | null = null;
     private countdownActive: boolean = false;
 
+    // Scaling factors for responsive design
+    private readonly ORIGINAL_WIDTH = 800;
+    private readonly ORIGINAL_HEIGHT = 600;
+    private scaleX: number = 1;
+    private scaleY: number = 1;
+
     // Gebundene Event Handler für korrektes Cleanup
     private boundHandleKeyDown: (event: KeyboardEvent) => void;
     private boundHandleKeyUp: (event: KeyboardEvent) => void;
@@ -37,6 +43,13 @@ export default class PongService {
         // Binde die Keyboard Handler einmal im Constructor
         this.boundHandleKeyDown = this.handleKeyDown.bind(this);
         this.boundHandleKeyUp = this.handleKeyUp.bind(this);
+    }
+
+    private calculateScalingFactors(): void {
+        if (!this.canvas) return;
+
+        this.scaleX = this.canvas.width / this.ORIGINAL_WIDTH;
+        this.scaleY = this.canvas.height / this.ORIGINAL_HEIGHT;
     }
 
     public initializeGame(
@@ -53,6 +66,10 @@ export default class PongService {
         this.canvas = canvasElement;
         this.ctx = this.canvas.getContext('2d')!;
         this.matchId = matchId;
+
+        // Calculate scaling factors based on current canvas size
+        this.calculateScalingFactors();
+
         // console.log("pongService matchId: ", this.matchId)
 
         this.ctx.fillStyle = 'black';
@@ -102,6 +119,9 @@ export default class PongService {
         this.playerOneNameTag = document.getElementById("playerOneNameTag") as HTMLElement;
         this.playerTwoNameTag = document.getElementById("playerTwoNameTag") as HTMLElement;
         this.ctx = ctx;
+
+        // Calculate scaling factors
+        this.calculateScalingFactors();
 
         // Verwende die gebundenen Handler
         document.addEventListener('keydown', this.boundHandleKeyDown);
@@ -299,9 +319,10 @@ export default class PongService {
             return;
         }
 
+        // Recalculate scaling factors in case canvas size changed
+        this.calculateScalingFactors();
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
 
         this.ctx.fillStyle = 'black';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -317,21 +338,43 @@ export default class PongService {
         }
         this.ctx.fillStyle = 'white';
 
-        this.ctx.fillRect(this.gameState.paddle1.x, this.gameState.paddle1.y, this.gameState.paddle1.width, this.gameState.paddle1.height);
-        this.ctx.fillRect(this.gameState.paddle2.x, this.gameState.paddle2.y, this.gameState.paddle2.width, this.gameState.paddle2.height);
+        // Scale paddle positions and sizes
+        this.ctx.fillRect(
+            this.gameState.paddle1.x * this.scaleX,
+            this.gameState.paddle1.y * this.scaleY,
+            this.gameState.paddle1.width * this.scaleX,
+            this.gameState.paddle1.height * this.scaleY
+        );
+        this.ctx.fillRect(
+            this.gameState.paddle2.x * this.scaleX,
+            this.gameState.paddle2.y * this.scaleY,
+            this.gameState.paddle2.width * this.scaleX,
+            this.gameState.paddle2.height * this.scaleY
+        );
 
+        // Scale ball position and radius
         this.ctx.beginPath();
-        this.ctx.arc(this.gameState.ball.x, this.gameState.ball.y, this.gameState.ball.radius, 0, Math.PI * 2);
+        this.ctx.arc(
+            this.gameState.ball.x * this.scaleX,
+            this.gameState.ball.y * this.scaleY,
+            this.gameState.ball.radius * Math.min(this.scaleX, this.scaleY),
+            0,
+            Math.PI * 2
+        );
         this.ctx.fill();
 
-        this.ctx.font = '40px Arial';
+        // Scale font size and score positions
+        const scaledFontSize = Math.round(40 * Math.min(this.scaleX, this.scaleY));
+        this.ctx.font = `${scaledFontSize}px Arial`;
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(this.gameState.score1.toString(), this.canvas.width / 4, 50);
-        this.ctx.fillText(this.gameState.score2.toString(), (this.canvas.width / 4) * 3, 50);
+        this.ctx.fillText(this.gameState.score1.toString(), this.canvas.width / 4, 50 * this.scaleY);
+        this.ctx.fillText(this.gameState.score2.toString(), (this.canvas.width / 4) * 3, 50 * this.scaleY);
 
+        // Scale center line
         this.ctx.strokeStyle = '#FFFFFF';
-        this.ctx.lineWidth = 2;
-        this.ctx.setLineDash([10, 10]);
+        this.ctx.lineWidth = 2 * Math.min(this.scaleX, this.scaleY);
+        const dashLength = 10 * Math.min(this.scaleX, this.scaleY);
+        this.ctx.setLineDash([dashLength, dashLength]);
         this.ctx.beginPath();
         this.ctx.moveTo(this.canvas.width / 2, 0);
         this.ctx.lineTo(this.canvas.width / 2, this.canvas.height);
@@ -340,8 +383,10 @@ export default class PongService {
 
         if (this.gameState.gameIsOver) {
             this.ctx.fillStyle = 'red';
-            this.ctx.font = '60px Arial';
+            const gameOverFontSize = Math.round(60 * Math.min(this.scaleX, this.scaleY));
+            this.ctx.font = `${gameOverFontSize}px Arial`;
             this.ctx.fillText("GAME OVER", this.canvas.width / 2, this.canvas.height / 2);
+
             let winMsg = "";
             if (this.gameState.score1 > this.gameState.score2) {
                 winMsg = this.player1Name + ` wins`;
@@ -350,10 +395,14 @@ export default class PongService {
             } else {
                 winMsg = "It's a draw!";
             }
-            this.ctx.font = '30px Arial';
-            this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + 40);
-            this.ctx.font = '20px Arial';
-            this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + 80);
+
+            const winMsgFontSize = Math.round(30 * Math.min(this.scaleX, this.scaleY));
+            this.ctx.font = `${winMsgFontSize}px Arial`;
+            this.ctx.fillText(winMsg, this.canvas.width / 2, this.canvas.height / 2 + (40 * this.scaleY));
+
+            const scoreFontSize = Math.round(20 * Math.min(this.scaleX, this.scaleY));
+            this.ctx.font = `${scoreFontSize}px Arial`;
+            this.ctx.fillText(`Final Score: ${this.gameState.score1} - ${this.gameState.score2}`, this.canvas.width / 2, this.canvas.height / 2 + (80 * this.scaleY));
         }
     }
 

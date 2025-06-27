@@ -16,10 +16,38 @@ export default class LocalGameLogic {
     private backgroundImages: HTMLImageElement[] = [];
     private currentBackgroundIndex: number = 0;
 
+    // Base dimensions for scaling (original 800x600)
+    private readonly BASE_WIDTH = 800;
+    private readonly BASE_HEIGHT = 600;
+
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
         this.loadBackgroundImages();
+        this.updateCanvasSize();
+    }
+
+    private updateCanvasSize(): void {
+        // Get the actual display size from DOM
+        const rect = this.canvas.getBoundingClientRect();
+        const displayWidth = rect.width;
+        const displayHeight = displayWidth * (3/4); // Maintain 4:3 aspect ratio
+
+        // Set canvas size
+        this.canvas.width = displayWidth;
+        this.canvas.height = displayHeight;
+    }
+
+    private getScaleFactor(): { x: number, y: number } {
+        return {
+            x: this.canvas.width / this.BASE_WIDTH,
+            y: this.canvas.height / this.BASE_HEIGHT
+        };
+    }
+
+    private scaleValue(value: number, axis: 'x' | 'y' = 'x'): number {
+        const scale = this.getScaleFactor();
+        return value * (axis === 'x' ? scale.x : scale.y);
     }
 
     private loadBackgroundImages(): void {
@@ -46,6 +74,8 @@ export default class LocalGameLogic {
         paddleWidth: number;
         paddleHeight: number;
     }): void {
+        this.updateCanvasSize();
+
         this.winScore = settings.winScore;
         this.score1 = 0;
         this.score2 = 0;
@@ -56,27 +86,27 @@ export default class LocalGameLogic {
         this.ball = {
             x: this.canvas.width / 2,
             y: this.canvas.height / 2,
-            radius: settings.ballSize,
-            speedX: settings.ballSpeed,
-            speedY: settings.ballSpeed
+            radius: this.scaleValue(settings.ballSize),
+            speedX: this.scaleValue(settings.ballSpeed),
+            speedY: this.scaleValue(settings.ballSpeed, 'y')
         };
 
         // Initialize paddle 1 (left)
         this.paddle1 = {
-            x: 20,
-            y: (this.canvas.height - settings.paddleHeight) / 2,
-            width: settings.paddleWidth,
-            height: settings.paddleHeight,
-            speed: settings.paddleSpeed
+            x: this.scaleValue(20),
+            y: (this.canvas.height - this.scaleValue(settings.paddleHeight, 'y')) / 2,
+            width: this.scaleValue(settings.paddleWidth),
+            height: this.scaleValue(settings.paddleHeight, 'y'),
+            speed: this.scaleValue(settings.paddleSpeed, 'y')
         };
 
         // Initialize paddle 2 (right)
         this.paddle2 = {
-            x: this.canvas.width - 20 - settings.paddleWidth,
-            y: (this.canvas.height - settings.paddleHeight) / 2,
-            width: settings.paddleWidth,
-            height: settings.paddleHeight,
-            speed: settings.paddleSpeed
+            x: this.canvas.width - this.scaleValue(20) - this.scaleValue(settings.paddleWidth),
+            y: (this.canvas.height - this.scaleValue(settings.paddleHeight, 'y')) / 2,
+            width: this.scaleValue(settings.paddleWidth),
+            height: this.scaleValue(settings.paddleHeight, 'y'),
+            speed: this.scaleValue(settings.paddleSpeed, 'y')
         };
     }
 
@@ -188,7 +218,7 @@ export default class LocalGameLogic {
         this.ctx.fill();
 
         this.ctx.strokeStyle = "#000000";
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = this.scaleValue(2);
         this.ctx.stroke();
         this.ctx.closePath();
     }
@@ -199,47 +229,48 @@ export default class LocalGameLogic {
         this.ctx.fillRect(this.paddle2.x, this.paddle2.y, this.paddle2.width, this.paddle2.height);
 
         this.ctx.strokeStyle = "#000000";
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = this.scaleValue(2);
         this.ctx.strokeRect(this.paddle1.x, this.paddle1.y, this.paddle1.width, this.paddle1.height);
         this.ctx.strokeRect(this.paddle2.x, this.paddle2.y, this.paddle2.width, this.paddle2.height);
     }
 
     private drawScores(): void {
-        this.ctx.font = "32px Arial";
+        this.ctx.font = `${this.scaleValue(32)}px Arial`;
         this.ctx.fillStyle = "#FFFFFF";
         this.ctx.strokeStyle = "#000000";
-        this.ctx.lineWidth = 3;
+        this.ctx.lineWidth = this.scaleValue(3);
 
         this.ctx.textAlign = "left";
-        this.ctx.strokeText(`Player 1: ${this.score1}`, 50, 40);
-        this.ctx.fillText(`Player 1: ${this.score1}`, 50, 40);
+        this.ctx.strokeText(`Player 1: ${this.score1}`, this.scaleValue(50), this.scaleValue(40, 'y'));
+        this.ctx.fillText(`Player 1: ${this.score1}`, this.scaleValue(50), this.scaleValue(40, 'y'));
 
         this.ctx.textAlign = "right";
-        this.ctx.strokeText(`Player 2: ${this.score2}`, this.canvas.width - 50, 40);
-        this.ctx.fillText(`Player 2: ${this.score2}`, this.canvas.width - 50, 40);
+        this.ctx.strokeText(`Player 2: ${this.score2}`, this.canvas.width - this.scaleValue(50), this.scaleValue(40, 'y'));
+        this.ctx.fillText(`Player 2: ${this.score2}`, this.canvas.width - this.scaleValue(50), this.scaleValue(40, 'y'));
     }
 
     private drawCenterLine(): void {
-        this.ctx.setLineDash([10, 10]);
+        const dashLength = this.scaleValue(10);
+        this.ctx.setLineDash([dashLength, dashLength]);
         this.ctx.beginPath();
         this.ctx.moveTo(this.canvas.width / 2, 0);
         this.ctx.lineTo(this.canvas.width / 2, this.canvas.height);
         this.ctx.strokeStyle = "#FFFFFF";
-        this.ctx.lineWidth = 3;
+        this.ctx.lineWidth = this.scaleValue(3);
         this.ctx.stroke();
         this.ctx.setLineDash([]);
     }
 
     public drawStatusText(text: string, color: string = "#FFFF00"): void {
         this.ctx.save();
-        this.ctx.font = "64px Arial";
+        this.ctx.font = `${this.scaleValue(64)}px Arial`;
         this.ctx.fillStyle = color;
         this.ctx.strokeStyle = "#000000";
-        this.ctx.lineWidth = 4;
+        this.ctx.lineWidth = this.scaleValue(4);
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
         this.ctx.shadowColor = "#000000";
-        this.ctx.shadowBlur = 10;
+        this.ctx.shadowBlur = this.scaleValue(10);
 
         this.ctx.strokeText(text, this.canvas.width / 2, this.canvas.height / 2);
         this.ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
@@ -277,48 +308,52 @@ export default class LocalGameLogic {
     }
 
     public setBallSize(size: number): void {
-        this.ball.radius = size;
+        this.ball.radius = this.scaleValue(size);
     }
 
     public setBallSpeed(speed: number): void {
+        const scaledSpeed = this.scaleValue(speed);
         const currentSpeed = Math.sqrt(this.ball.speedX ** 2 + this.ball.speedY ** 2);
         if (currentSpeed > 0) {
-            const ratio = speed / currentSpeed;
+            const ratio = scaledSpeed / currentSpeed;
             this.ball.speedX *= ratio;
             this.ball.speedY *= ratio;
         }
         else {
-            this.ball.speedX = speed;
-            this.ball.speedY = speed;
+            this.ball.speedX = scaledSpeed;
+            this.ball.speedY = this.scaleValue(speed, 'y');
         }
     }
 
     public setPaddleWidth(width: number): void {
-        this.paddle1.width = width;
-        this.paddle2.width = width;
-        this.paddle2.x = this.canvas.width - 20 - width;
+        const scaledWidth = this.scaleValue(width);
+        this.paddle1.width = scaledWidth;
+        this.paddle2.width = scaledWidth;
+        this.paddle2.x = this.canvas.width - this.scaleValue(20) - scaledWidth;
     }
 
     public setPaddleHeight(height: number): void {
+        const scaledHeight = this.scaleValue(height, 'y');
         const paddle1CenterY = this.paddle1.y + this.paddle1.height / 2;
         const paddle2CenterY = this.paddle2.y + this.paddle2.height / 2;
 
-        this.paddle1.height = height;
-        this.paddle2.height = height;
+        this.paddle1.height = scaledHeight;
+        this.paddle2.height = scaledHeight;
 
         this.paddle1.y = Math.max(0, Math.min(
-            this.canvas.height - height,
-            paddle1CenterY - height / 2
+            this.canvas.height - scaledHeight,
+            paddle1CenterY - scaledHeight / 2
         ));
 
         this.paddle2.y = Math.max(0, Math.min(
-            this.canvas.height - height,
-            paddle2CenterY - height / 2
+            this.canvas.height - scaledHeight,
+            paddle2CenterY - scaledHeight / 2
         ));
     }
 
     public setPaddleSpeed(speed: number): void {
-        this.paddle1.speed = speed;
-        this.paddle2.speed = speed;
+        const scaledSpeed = this.scaleValue(speed, 'y');
+        this.paddle1.speed = scaledSpeed;
+        this.paddle2.speed = scaledSpeed;
     }
 }
