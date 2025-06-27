@@ -98,3 +98,34 @@ img.flag {
 .high-contrast header .dropdown a.dropdown-head {
     @apply bg-black text-white;
 }
+
+.high-contrast .dropdown-head span {
+    @apply text-white;
+}
+
+/* 🔧 Fix: Make text inside dropdown body black in high contrast */
+.high-contrast .dropdown-body,
+.high-contrast .dropdown-body * {
+    @apply text-black;
+}
+
+/* 🌟 Fix for hover in high contrast mode */
+.high-contrast .dropdown-item:hover {
+    @apply bg-white text-black;
+}
+
+/* Fix Font Awesome icons in high contrast mode */
+.high-contrast [class^="fa-"],
+.high-contrast [class*=" fa-"],
+.high-contrast .fa,
+.high-contrast .fas,
+.high-contrast .far,
+.high-contrast .fal,
+.high-contrast .fad,
+.high-contrast .fab {
+    color: black !important;
+}
+
+.high-contrast .dropdown-body > *:hover {
+    @apply bg-inherit text-inherit shadow-none;
+}

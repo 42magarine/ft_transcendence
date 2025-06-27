@@ -107,10 +107,6 @@ body.huge-textSize {
     @apply text-[32px];
 }
 
-.high-contrast .dropdown-item a,
-.high-contrast .dropdown-item button {
-    @apply text-black hover:bg-black hover:text-white;
-}
 
 .high-contrast .dropdown-img img,
 .high-contrast .dropdown-head img {
@@ -148,4 +144,12 @@ body.huge-textSize select {
 }
 
 
+}
+
+.high-contrast .dropdown-body *:hover {
+    background-color: inherit !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    filter: none !important;
 }
