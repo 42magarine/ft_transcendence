@@ -122,38 +122,57 @@ export class AccessibilityService {
         };
 
         contrastSwitches.forEach(contrastSwitch => {
-            console.log("contrastSwitch")
-            console.log(contrastSwitch)
+            
+            // Use capture phase to catch events before other handlers
             contrastSwitch.addEventListener('click', (e) => {
-                console.log("contrastSwitch click")
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation(); // Stop all other handlers
                 handleContrastToggle();
-            });
-
+            }, true); // true = capture phase
+            
+            // Also try with normal bubbling as backup
+            contrastSwitch.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleContrastToggle();
+            }, false);
+        
             contrastSwitch.addEventListener('keydown', (e) => {
                 if (e.key === ' ' || e.key === 'Enter') {
                     e.preventDefault();
+                    e.stopPropagation();
                     handleContrastToggle();
                 }
             });
         });
-
+        
         textsizeSwitches.forEach(textsizeSwitch => {
-            console.log("textsizeSwitch")
-            console.log(textsizeSwitch)
+            
+            // Use capture phase to catch events before other handlers
             textsizeSwitch.addEventListener('click', (e) => {
-                console.log("textsizeSwitch click")
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation(); // Stop all other handlers
                 handleTextsizeToggle();
-            });
-
+            }, true); // true = capture phase
+            
+            // Also try with normal bubbling as backup
+            textsizeSwitch.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleTextsizeToggle();
+            }, false);
+        
             textsizeSwitch.addEventListener('keydown', (e) => {
                 if (e.key === ' ' || e.key === 'Enter') {
                     e.preventDefault();
+                    e.stopPropagation();
                     handleTextsizeToggle();
                 }
             });
         });
+        
     }
 
     static setupLanguageDropdown() {

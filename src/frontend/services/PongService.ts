@@ -122,55 +122,32 @@ export default class PongService {
         const data: IServerMessage = JSON.parse(event.data);
         const currentUrlLobbyId = this.getCurrentLobbyIdFromUrl();
         const matchId = this.getMatchId();
-        // console.log("pongService msg received: " + data.type)
         switch (data.type) {
             case 'initMatchStart':
-                // console.log("playerjoined case reached. handed over info: ", data);
                 if (data.matchId?.toString() === matchId) {
 
                     this.gameState = data.gameState!;
                     this.player1Name = data.player1Name!;
                     this.player2Name = data.player2Name!;
-                    console.log("=== PLAYER IDENTIFICATION DEBUG ===");
-                    console.log("Current user name: '" + window.currentUser?.name + "'");
-                    console.log("Player1 name: '" + data.player1Name + "'");
-                    console.log("Player2 name: '" + data.player2Name + "'");
-                    console.log("Names equal (P1):", window.currentUser?.name === data.player1Name);
-                    console.log("Names equal (P2):", window.currentUser?.name === data.player2Name);
-
                     {
-                        // console.log("window current user:", window.currentUser?.id, " window gamestate player1id", this.gameState.player1Id)
-                        // console.log("window current user:", window.currentUser?.id, " window gamestate player2id", this.gameState.player2Id)
                         if (window.currentUser?.username === data.player1Name) {
-                            console.log("paddle1")
                             this.isPlayer1Paddle = true;
                             this.isPlayer2Paddle = false;
-                            // console.log(`[PongService] Identified as Player 1 (User ID: ${window.currentUser?.id})`);
                         }
                         else if (window.currentUser?.username === data.player2Name) {
-                            console.log("paddle2")
                             this.isPlayer1Paddle = false;
                             this.isPlayer2Paddle = true;
-                            // console.log(`[PongService] Identified as Player 2 (User ID: ${window.currentUser?.id})`);
                         }
-                        // else {
-                        //     this.isPlayer1Paddle = false;
-                        //     this.isPlayer2Paddle = false;
-                        //     console.log(`[PongService] Current user ID ${window.currentUser?.id} is neither Player 1 nor Player 2 in this game.`);
-                        // }
                     }
                 }
                 if (this.animationFrameId === null) {
-                    console.log("paddle loop")
                     this.clientLoop();
                 }
                 break;
 
             case 'gameStateUpdate':
                 if (data.activeGamesStates && Array.isArray(data.activeGamesStates)) {
-                    // console.log('Received gameStateUpdate. Looking for matchId:', this.matchId, 'in states:', data.activeGamesStates)
                     const relevantGameState = data.activeGamesStates.find(gs => gs.matchId === this.matchId)
-                    // console.log('found relevantGameState:', relevantGameState);
                     if (relevantGameState) {
                         this.gameState = relevantGameState;
                         this.draw();
@@ -179,7 +156,6 @@ export default class PongService {
                         }
                     }
                 }
-                // NEU: Wenn das Spiel vorbei ist, stoppe die Loop explizit
                 else if (this.gameState.gameIsOver && this.animationFrameId !== null) {
                     cancelAnimationFrame(this.animationFrameId);
                     this.animationFrameId = null;
@@ -397,8 +373,6 @@ export default class PongService {
         this.isPlayer2Paddle = false;
 
         this.matchId = null;
-
-        console.log("PongService cleanup completed - default key behavior restored");
     }
 
     public getGameState(): IGameState {

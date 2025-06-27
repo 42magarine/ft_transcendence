@@ -48,7 +48,6 @@ export default class TournamentService {
                 break;
             case 'playerLeft':
                 if (data.lobby && data.lobby.lobbyType === 'tournament') {
-                    console.log(data.lobby)
                     const receivedLobbyInfo: ILobbyState = {
                         ...data.lobby,
                         createdAt: new Date(data.lobby.createdAt),
@@ -140,7 +139,6 @@ export default class TournamentService {
         e.preventDefault();
         const currentTournamentId = this.getCurrentLobbyIdFromUrl();
         if (!currentTournamentId) {
-            console.log("[LobbyService] Cannot start game: current lobby ID not found.");
             return;
         }
 

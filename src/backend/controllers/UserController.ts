@@ -649,37 +649,27 @@ export class UserController {
 
 
     async getMatchHistory(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
-        console.log('=== Match History Request Debug ===');
-        console.log('Request params:', request.params);
-        console.log('Request user:', request.user);
 
         try {
             const targetUserId = parseInt(request.params.id);
-            console.log('Target User ID:', targetUserId);
 
             if (isNaN(targetUserId)) {
-                console.log('Invalid user ID format');
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
 
             const currentUserId = request.user?.id;
-            console.log('Current User ID:', currentUserId);
 
             if (!currentUserId) {
-                console.log('User not authenticated');
                 return reply.code(401).send({ error: 'Not authenticated' });
             }
 
             // Check if user exists first
             const targetUser = await this._userService.findUserById(targetUserId);
             if (!targetUser) {
-                console.log('Target user not found');
                 return reply.code(404).send({ error: 'User not found' });
             }
 
-            console.log('Fetching match history for user:', targetUserId);
             const matchHistory = await this._userService.getAllFinishedMatchesByUserId(targetUserId);
-            console.log('Match history result:', matchHistory);
 
             // ✅ Stelle sicher, dass immer JSON zurückgegeben wird
             return reply.code(200).send(matchHistory);

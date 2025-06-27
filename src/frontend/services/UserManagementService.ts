@@ -127,12 +127,7 @@ export default class UserManagementService {
                 finalAvatar.size > 0 &&
                 ['image/jpeg', 'image/png'].includes(finalAvatar.type);
 
-            if (isAvatarValid && finalAvatar) { // Added finalAvatar check for TypeScript
-                console.log('[registerUser] Valid avatar found:', {
-                    name: finalAvatar.name,
-                    size: finalAvatar.size,
-                    type: finalAvatar.type
-                });
+            if (isAvatarValid && finalAvatar) {
 
                 const formData = new FormData();
                 Object.entries(userData).forEach(([key, value]) => {
@@ -147,7 +142,6 @@ export default class UserManagementService {
                     body: formData
                 });
             } else {
-                console.log('[registerUser] No valid avatar, registering without avatar');
                 response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

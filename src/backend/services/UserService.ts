@@ -364,20 +364,13 @@ export class UserService {
                     if (verified) {
                         userData.twoFAEnabled = true;
                         userData.twoFASecret = credentials.secret;
-                        console.log('2FA successfully enabled for user:', credentials.username);
                     }
                     else {
-                        console.log('2FA verification failed for user:', credentials.username);
                         throw new Error('Two-factor authentication code is invalid');
                     }
                 }
-                else {
-                    console.log('2FA secret provided but code incomplete for user:', credentials.username);
-                }
             }
 
-            // Create user and generate tokens
-            console.log(userData);
             const user = await this.createUser(userData);
             return this.generateTokens(user);
         }
@@ -559,9 +552,6 @@ export class UserService {
         await this.userRepo.save(user);
     }
     async getAllFinishedMatchesByUserId(userId: number): Promise<ProcessedMatchResult[]> {
-        console.log('=== UserService getAllFinishedMatchesByUserId ===');
-        console.log('Fetching matches for user ID:', userId);
-
         try {
             // Check if the requesting user exists and is NOT soft-deleted
             const userExists = await this.userRepo.exists({
@@ -593,17 +583,9 @@ export class UserService {
                 }
             });
 
-            console.log(`Found ${matches.length} completed matches for user ${userId}`);
 
             // Process matches to handle soft-deleted users for display
             const result: ProcessedMatchResult[] = matches.map(match => {
-                console.log('Processing match:', {
-                    id: match.matchModelId,
-                    player1Score: match.player1Score,
-                    player2Score: match.player2Score,
-                    status: match.status
-                });
-
                 // Helper function to get user display info
                 const getUserDisplayInfo = (user: UserModel | null): UserDisplayInfo | null => {
                     if (!user) {
@@ -648,7 +630,6 @@ export class UserService {
                 };
             });
 
-            console.log('Returning processed matches:', result);
             return result;
 
         } catch (error) {

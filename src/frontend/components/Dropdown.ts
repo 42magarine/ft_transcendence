@@ -48,7 +48,7 @@ export default class Dropdown extends AbstractView {
         for (const item of items) {
             let itemHtml = '';
             if (item.type === 'link' || item.href) {
-                itemHtml = `<a router href="${item.href}" class="dropdown-item ${item.className || ''}">
+                itemHtml = `<a ${(item.className?.includes("contrastSwitch")) ? "" : "router"} href="${item.href}" class="dropdown-item ${item.className || ''}">
                     ${item.icon ? `<i class="fa-solid fa-${item.icon} mr-2"></i>` : ''}${item.text}
                 </a>`;
             } else {

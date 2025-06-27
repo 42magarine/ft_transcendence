@@ -127,7 +127,6 @@ export default class LobbyService {
         e.preventDefault();
         const currentLobbyId = this.getCurrentLobbyIdFromUrl();
         if (!currentLobbyId) {
-            console.log("[LobbyService] Cannot start game: current lobby ID not found.");
             return;
         }
 

@@ -164,7 +164,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await socketUpdateOnSession();
     await renderHeader();
     await renderFooter();
-    AccessibilityService.initialize();
     await router.render();
 });
 
@@ -181,6 +180,7 @@ function initializeGoogleScript() {
 document.addEventListener('RouterContentLoaded', async () => {
     window.handler = new TwoFactorInputHandler('.tf_numeric');
     await socketUpdateOnSession();
+    AccessibilityService.initialize();
     initializeGoogleScript();
     const logoutButton = document.getElementById('logout-btn') as HTMLElement | null;
     if (logoutButton) {

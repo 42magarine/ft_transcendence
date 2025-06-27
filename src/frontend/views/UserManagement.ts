@@ -116,26 +116,18 @@ export default class UserManagement extends AbstractView {
     }
 
     async mount(): Promise<void> {
-        console.log('[MOUNT] Mounting UserManagement view...');
-
         const createForm = document.getElementById('create-form') as HTMLFormElement | null;
         const usernameInput = document.querySelector('input[name="username"]') as HTMLInputElement | null;
         const avatarPreview = document.querySelector('.create-avatar-preview') as HTMLElement | null;
 
-        console.log('[MOUNT] Form found:', !!createForm);
-        console.log('[MOUNT] Username input found:', !!usernameInput);
-        console.log('[MOUNT] Avatar preview container found:', !!avatarPreview);
-
         if (usernameInput) {
             usernameInput.addEventListener('input', () => {
-                console.log('[EVENT] Username input changed');
                 this.updateAvatarPreview();
             });
         }
 
         if (createForm) {
             createForm.addEventListener('submit', async (e) => {
-                console.log('[SUBMIT] Form submission triggered');
                 e.preventDefault();
 
                 const formData = new FormData(createForm);
@@ -149,27 +141,19 @@ export default class UserManagement extends AbstractView {
                     status: 'offline'
                 };
 
-                console.log('[SUBMIT] Form data:', userData);
-                console.log('[SUBMIT] Avatar file:', this.avatarFile); // Should already exist
                 await window.userManagementService.registerUser(userData, this.avatarFile);
-                console.log('[SUBMIT] User registration request sent');
                 Router.redirect(location.pathname);
-                console.log('[SUBMIT] Redirecting to:', location.pathname);
                 createForm.reset();
-                console.log('[SUBMIT] Form reset');
-
                 // Reset avatar file after form reset
                 this.avatarFile = undefined;
             });
         }
 
         const deleteButtons = document.querySelectorAll('[data-user-id]');
-        console.log(`[DELETE] Found ${deleteButtons.length} delete buttons`);
 
         deleteButtons.forEach((btn) => {
             btn.addEventListener('click', async () => {
                 const userId = btn.getAttribute('data-user-id');
-                console.log('[DELETE] Button clicked for user:', userId);
                 if (!userId) {
                     console.warn('[DELETE] No user ID found on button');
                     return;
@@ -180,7 +164,6 @@ export default class UserManagement extends AbstractView {
                     id: 'confirm-delete-modal',
                     userId: userId,
                     onConfirm: async () => {
-                        console.log('[DELETE] Confirming deletion for user:', userId);
                         await UserService.deleteUser(Number(userId));
                         Router.redirect(location.pathname);
                     }
@@ -198,8 +181,6 @@ export default class UserManagement extends AbstractView {
         const username = usernameInput.value.trim();
         const finalText = username || 'user';
 
-        console.log('[AVATAR] Generating avatar for:', finalText);
-
         try {
             const svg = generateTextVisualization(finalText, {
                 width: 100,
@@ -209,11 +190,6 @@ export default class UserManagement extends AbstractView {
                 showText: false,
                 backgroundColor: '#f0f0f0',
             });
-
-            // Debug: Check if SVG is complete and valid
-            console.log('[AVATAR] Generated SVG length:', svg.length);
-            console.log('[AVATAR] SVG ends with:', svg.slice(-20));
-            console.log('[AVATAR] SVG preview:', svg.substring(0, 200) + '...');
 
             // Validate SVG structure
             if (!svg.includes('</svg>')) {
@@ -243,8 +219,6 @@ export default class UserManagement extends AbstractView {
                 const serializer = new XMLSerializer();
                 const cleanSvg = serializer.serializeToString(svgElement);
 
-                console.log('[AVATAR] Cleaned SVG length:', cleanSvg.length);
-
                 // Update preview immediately
                 avatarPreview.innerHTML = `
                     <div class="w-[80px] h-[80px] rounded-full overflow-hidden shadow bg-white flex items-center justify-center">
@@ -256,8 +230,6 @@ export default class UserManagement extends AbstractView {
                 const svgBlob = new Blob([cleanSvg], { type: 'image/svg+xml;charset=utf-8' });
                 const svgFile = new File([svgBlob], `${finalText}.svg`, { type: 'image/svg+xml' });
                 this.avatarFile = svgFile;
-
-                console.log('[AVATAR] Avatar file created successfully:', this.avatarFile);
             } else {
                 throw new Error('No SVG element found in generated content');
             }
@@ -285,7 +257,6 @@ export default class UserManagement extends AbstractView {
 
             const svgBlob = new Blob([fallbackSvg], { type: 'image/svg+xml;charset=utf-8' });
             this.avatarFile = new File([svgBlob], `${finalText}.svg`, { type: 'image/svg+xml' });
-            console.log('[AVATAR] Fallback SVG avatar file created:', this.avatarFile);
         }
     }
 }

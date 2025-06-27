@@ -177,12 +177,10 @@ export default class LobbyListService {
 
     public async getLobbies(): Promise<ILobbyState[]> {
         if (!window.messageHandler) {
-            console.log("LobbyListService getLobbies: messageHandler not found.");
             return Promise.resolve(this.lobbyData);
         }
 
         if (!window.ft_socket || window.ft_socket.readyState !== WebSocket.OPEN) {
-            console.log("LobbyListService getLobbies: WebSocket not open.");
             return Promise.resolve(this.lobbyData);
         }
 

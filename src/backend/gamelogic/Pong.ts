@@ -208,7 +208,6 @@ export class PongGame {
         }
 
         if (!paddleToMove) {
-            console.log(`movePaddle: Player number ${playerNumber} is not active in this game.`);
             return;
         }
 
