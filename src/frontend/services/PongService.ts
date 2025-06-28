@@ -188,7 +188,7 @@ export default class PongService {
                 break;
             case 'gameOver':
                 if (data.lobby?.lobbyType == 'game') {
-                    if (data.player1Name === window.currentUser?.name || data.player2Name === window.currentUser?.name) {
+                    if (data.player1Name === window.currentUser?.username || data.player2Name === window.currentUser?.username) {
                         if (data.player1Score! > data.player2Score!) {
                             this.gameWinMessage = data.player1Name + " won against " + data.player2Name
                             this.gameScoreMessage = "Score: " + data.player1Score + " : " + data.player2Score
