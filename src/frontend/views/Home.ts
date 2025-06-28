@@ -8,7 +8,6 @@ declare global {
     }
 }
 
-
 export default class Home extends AbstractView {
     constructor() {
         super();
@@ -21,20 +20,10 @@ export default class Home extends AbstractView {
             title: currentUser
                 ? `👋 ${currentUser.username}, ${window.ls.__('this is Transcendence!')}`
                 : window.ls.__('Welcome to Transcendence!'),
-            contentBlocks: [
-                {
-                    type: 'html',
-                    props: {
-                        html: `8======D -> -> -> ({})`
-                    }
-                }
-            ]
         });
-
         return this.render(`${homeCard}`);
-
-
     }
+
     async mount(): Promise<void> {
         const globeContainer = document.getElementById('globeViz');
         if (!globeContainer) return;
@@ -70,10 +59,5 @@ export default class Home extends AbstractView {
             canvas.style.display = 'block';
             canvas.style.pointerEvents = 'auto';
         }
-
     }
-
-
-
-
 }

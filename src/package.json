@@ -6,7 +6,7 @@
     "scripts": {
         "create:dirs": "mkdir -p dist/frontend dist/assets/styles",
         "build:css": "postcss ./styles/_index.css -o dist/assets/styles/main.css",
-        "copy:assets": "cp -Rf assets/* dist/assets/ && cp -Rf frontend/* dist/frontend/",
+        "copy:assets": "cp -Rf assets/. dist/assets/ && cp -Rf frontend/. dist/frontend/",
         "build:ts": "tsc",
         "watch:ts": "tsc --watch",
         "watch:server": "nodemon --watch dist --ext js ./dist/app.js",
